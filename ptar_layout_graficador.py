@@ -103,11 +103,19 @@ def dibujar_unidad_layout(ax, x: float, y: float, unidad: str, color: str, font_
         return largo, ancho
 
 
-def dibujar_flecha_flujo(ax, x1: float, y1: float, x2: float, y2: float):
-    """Dibuja una flecha de flujo negra entre dos puntos"""
+def dibujar_flecha_flujo(ax, x1: float, y1: float, x2: float, y2: float, color='black'):
+    """Dibuja una flecha de flujo entre dos puntos"""
     ax.annotate('', xy=(x2, y2), xytext=(x1, y1),
-               arrowprops=dict(arrowstyle='->', color='black', lw=2,
+               arrowprops=dict(arrowstyle='->', color=color, lw=2,
                               connectionstyle='arc3,rad=0'))
+
+
+def dibujar_flecha_lodos(ax, x1: float, y1: float, x2: float, y2: float):
+    """Dibuja una flecha de lodos (roja punteada) entre dos puntos"""
+    ax.annotate('', xy=(x2, y2), xytext=(x1, y1),
+               arrowprops=dict(arrowstyle='->', color='darkred', lw=2.5,
+                              connectionstyle='arc3,rad=0',
+                              linestyle='--'))
 
 
 def dibujar_lecho_compartido(ax, x: float, y: float, largo: float, ancho: float, font_scale: float = 1.0):
@@ -361,8 +369,6 @@ def generar_layout_2lineas(tipo: str, unidades_linea: list, nombre_alt: str,
     x_lecho = MARGEN + largo_linea + SEP_UNIDADES
     y_centro_lecho = (centro_linea1 + centro_linea2) / 2 - lecho_ancho / 2
     
-    dibujar_lecho_compartido(ax, x_lecho, y_centro_lecho, lecho_largo, lecho_ancho, font_scale)
-    
     # =============================================================================
     # FLECHAS DE CONEXIÓN DE LODOS AL LECHO DE SECADO
     # =============================================================================
@@ -372,6 +378,29 @@ def generar_layout_2lineas(tipo: str, unidades_linea: list, nombre_alt: str,
     #   2. Sedimentador Secundario: humus (lodos biológicos del filtro percolador)
     # 
     # El efluente del UV va directamente al cuerpo receptor (no al lecho de secado).
+    # 
+    # NOTA DE DISEÑO: El lecho se dibuja GIRADO 90° para que su lado largo (12.1m) 
+    # quede en posición VERTICAL, permitiendo flechas de lodos más cortas y directas.
+    
+    # Girar el lecho 90°: intercambiar largo y ancho para el dibujo
+    # El lecho queda con 4.0m de ancho (horizontal) y 12.1m de alto (vertical)
+    lecho_ancho_draw = lecho_ancho  # 4.0m (ahora es la dimensión horizontal)
+    lecho_alto_draw = lecho_largo   # 12.1m (ahora es la dimensión vertical)
+    
+    # Recalcular posición Y para centrar el lecho verticalmente
+    y_lecho = (centro_linea1 + centro_linea2) / 2 - lecho_alto_draw / 2
+    
+    # Redibujar lecho girado
+    rect = Rectangle((x_lecho, y_lecho), lecho_ancho_draw, lecho_alto_draw, 
+                     facecolor=COLORES['manejo_lodos'], 
+                     edgecolor='black', linewidth=2)
+    ax.add_patch(rect)
+    
+    # Texto del lecho
+    fontsize = FONT_CONFIG['unidad']
+    ax.text(x_lecho + lecho_ancho_draw/2, y_lecho + lecho_alto_draw/2, 
+           'Lecho de\nSecado', 
+           ha='center', va='center', fontsize=fontsize, fontweight='bold')
     
     # Encontrar índices de UASB y Sedimentador en las líneas
     def encontrar_indice_unidad(posiciones, nombre_unidad):
@@ -385,35 +414,55 @@ def generar_layout_2lineas(tipo: str, unidades_linea: list, nombre_alt: str,
     idx_uasb_l2 = encontrar_indice_unidad(posiciones_linea2, 'UASB')
     idx_sed_l2 = encontrar_indice_unidad(posiciones_linea2, 'Sedimentador')
     
-    # Flechas de lodos desde UASB -> Lecho (parte inferior del lecho)
+    # Radio típico de unidades circulares (para cálculo de puntos de salida)
+    radio_uasb = DIM['UASB'].get('diametro', 5.0) / 2
+    radio_sed = DIM['Sedimentador'].get('diametro', 5.0) / 2
+    
+    # Función auxiliar para obtener punto en el borde del círculo (más cercano al lecho)
+    # El lecho está a la derecha, así que tomamos el punto derecho del círculo
+    def get_unidad_lodos_exit(x, y, unidad, DIM, radio, offset_y=0):
+        """Obtiene punto en el borde derecho del círculo para salida de lodos"""
+        centro_x = x + radio
+        centro_y = y + radio
+        # Punto en el borde derecho, con offset vertical
+        return (centro_x + radio, centro_y + offset_y)
+    
+    # Flechas de lodos desde UASB -> Lecho (lado izquierdo del lecho)
+    # Línea 1 (abajo): UASB superior -> parte inferior del lecho
     if idx_uasb_l1 is not None:
-        x_uasb_l1, y_uasb_l1, _, ancho_uasb_l1, _ = posiciones_linea1[idx_uasb_l1]
-        start_uasb_l1 = get_unidad_right_center(x_uasb_l1, y_uasb_l1, 'UASB', DIM)
-        # Punto de llegada: parte inferior del lecho
-        end_uasb_l1 = (x_lecho, y_centro_lecho + lecho_ancho * 0.25)
-        dibujar_flecha_flujo(ax, start_uasb_l1[0], start_uasb_l1[1], 
+        x_uasb_l1, y_uasb_l1, _, _, _ = posiciones_linea1[idx_uasb_l1]
+        # Punto de salida: parte inferior del UASB
+        start_uasb_l1 = get_unidad_lodos_exit(x_uasb_l1, y_uasb_l1, 'UASB', DIM, radio_uasb, offset_y=-radio_uasb*0.5)
+        # Punto de llegada: parte inferior del lecho (lado izquierdo)
+        end_uasb_l1 = (x_lecho, y_lecho + lecho_alto_draw * 0.25)
+        dibujar_flecha_lodos(ax, start_uasb_l1[0], start_uasb_l1[1], 
                              end_uasb_l1[0], end_uasb_l1[1])
     
+    # Línea 2 (arriba): UASB inferior -> parte superior del lecho
     if idx_uasb_l2 is not None:
-        x_uasb_l2, y_uasb_l2, _, ancho_uasb_l2, _ = posiciones_linea2[idx_uasb_l2]
-        start_uasb_l2 = get_unidad_right_center(x_uasb_l2, y_uasb_l2, 'UASB', DIM)
-        end_uasb_l2 = (x_lecho, y_centro_lecho + lecho_ancho * 0.75)
-        dibujar_flecha_flujo(ax, start_uasb_l2[0], start_uasb_l2[1], 
+        x_uasb_l2, y_uasb_l2, _, _, _ = posiciones_linea2[idx_uasb_l2]
+        # Punto de salida: parte superior del UASB
+        start_uasb_l2 = get_unidad_lodos_exit(x_uasb_l2, y_uasb_l2, 'UASB', DIM, radio_uasb, offset_y=radio_uasb*0.5)
+        # Punto de llegada: parte superior del lecho (lado izquierdo)
+        end_uasb_l2 = (x_lecho, y_lecho + lecho_alto_draw * 0.75)
+        dibujar_flecha_lodos(ax, start_uasb_l2[0], start_uasb_l2[1], 
                              end_uasb_l2[0], end_uasb_l2[1])
     
-    # Flechas de lodos desde Sedimentador -> Lecho (parte media del lecho)
+    # Flechas de lodos desde Sedimentador -> Lecho
+    # Línea 1: Sedimentador -> parte media-baja del lecho
     if idx_sed_l1 is not None:
-        x_sed_l1, y_sed_l1, _, ancho_sed_l1, _ = posiciones_linea1[idx_sed_l1]
-        start_sed_l1 = get_unidad_right_center(x_sed_l1, y_sed_l1, 'Sedimentador', DIM)
-        end_sed_l1 = (x_lecho, y_centro_lecho + lecho_ancho * 0.50)
-        dibujar_flecha_flujo(ax, start_sed_l1[0], start_sed_l1[1], 
+        x_sed_l1, y_sed_l1, _, _, _ = posiciones_linea1[idx_sed_l1]
+        start_sed_l1 = get_unidad_lodos_exit(x_sed_l1, y_sed_l1, 'Sedimentador', DIM, radio_sed, offset_y=-radio_sed*0.3)
+        end_sed_l1 = (x_lecho, y_lecho + lecho_alto_draw * 0.40)
+        dibujar_flecha_lodos(ax, start_sed_l1[0], start_sed_l1[1], 
                              end_sed_l1[0], end_sed_l1[1])
     
+    # Línea 2: Sedimentador -> parte media-alta del lecho
     if idx_sed_l2 is not None:
-        x_sed_l2, y_sed_l2, _, ancho_sed_l2, _ = posiciones_linea2[idx_sed_l2]
-        start_sed_l2 = get_unidad_right_center(x_sed_l2, y_sed_l2, 'Sedimentador', DIM)
-        end_sed_l2 = (x_lecho, y_centro_lecho + lecho_ancho * 0.50)
-        dibujar_flecha_flujo(ax, start_sed_l2[0], start_sed_l2[1], 
+        x_sed_l2, y_sed_l2, _, _, _ = posiciones_linea2[idx_sed_l2]
+        start_sed_l2 = get_unidad_lodos_exit(x_sed_l2, y_sed_l2, 'Sedimentador', DIM, radio_sed, offset_y=radio_sed*0.3)
+        end_sed_l2 = (x_lecho, y_lecho + lecho_alto_draw * 0.60)
+        dibujar_flecha_lodos(ax, start_sed_l2[0], start_sed_l2[1], 
                              end_sed_l2[0], end_sed_l2[1])
     
     # Calcular dimensiones del área
