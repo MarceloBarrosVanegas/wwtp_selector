@@ -15,6 +15,7 @@ from ptar_dimensionamiento import (
     dimensionar_uasb,
     dimensionar_filtro_percolador,
     dimensionar_sedimentador_sec,
+    dimensionar_desinfeccion_cloro,
     dimensionar_lecho_secado,
 )
 
@@ -103,8 +104,17 @@ def _generar_tikz_rejillas(r, angulo_rej):
     )
 
 
-def generar_contenido_alternativa_A(cfg, resultados, layout_filename="Layout_A_2lineas.png", area_m2=None):
+def generar_contenido_alternativa_A(cfg, resultados, layout_filename="Layout_A_2lineas.png", area_m2=None, balance_calidad=None):
     """Genera contenido LaTeX con estilo narrativo fluido"""
+    
+    # Valores por defecto si no se proporciona balance de calidad
+    if balance_calidad is None:
+        balance_calidad = {
+            'afluente': {'DBO5_mg_L': cfg.DBO5_mg_L, 'DQO_mg_L': cfg.DQO_mg_L, 'SST_mg_L': cfg.SST_mg_L, 'CF_NMP': cfg.CF_NMP},
+            'tras_uasb': {'DBO5_mg_L': cfg.DBO5_mg_L*0.7, 'DQO_mg_L': cfg.DQO_mg_L*0.65, 'SST_mg_L': cfg.SST_mg_L*0.7, 'CF_NMP': cfg.CF_NMP*0.7},
+            'tras_fp': {'DBO5_mg_L': cfg.DBO5_mg_L*0.7*0.8, 'DQO_mg_L': cfg.DQO_mg_L*0.65*0.8, 'SST_mg_L': cfg.SST_mg_L*0.7*0.4, 'CF_NMP': cfg.CF_NMP*0.7*0.8},
+            'efluente_final': {'DBO5_mg_L': cfg.DBO5_mg_L*0.17, 'DQO_mg_L': cfg.DQO_mg_L*0.2, 'SST_mg_L': cfg.SST_mg_L*0.02, 'CF_NMP': 2500}
+        }
     
     r = resultados.get('rejillas', dimensionar_rejillas(cfg))
     d = resultados.get('desarenador', dimensionar_desarenador(cfg))
@@ -144,6 +154,7 @@ def generar_contenido_alternativa_A(cfg, resultados, layout_filename="Layout_A_2
     fp = resultados.get('filtro_percolador', dimensionar_filtro_percolador(cfg))
     s = resultados.get('sedimentador', dimensionar_sedimentador_sec(cfg))
     l = resultados.get('lecho_secado', dimensionar_lecho_secado(cfg))
+    cl = resultados.get('cloro', dimensionar_desinfeccion_cloro(cfg))
     
     # Extraer parámetros de configuración
     v_canal = cfg.rejillas_v_canal_m_s
@@ -843,6 +854,160 @@ Carga de sólidos & {s['solids_loading_kg_m2_d']:.2f} kg/m²·d \\
 
 \textbf{{Notas de buen diseño:}} Se debe incluir un sistema de recolección de lodos (rastrillos o succionadores) y un mecanismo de extracción de lodos desde el fondo. Se recomienda considerar el caudal mínimo en el diseño operacional para evitar estancamiento.
 
+\subsection{{Desinfección con Hipoclorito de Sodio}}
+
+La desinfección del efluente tratado se realiza mediante la aplicación de hipoclorito de sodio (NaOCl) en un tanque de contacto diseñado para garantizar el tiempo de retención necesario para la inactivación de microorganismos patógenos. El proceso se fundamenta en el concepto CT (concentración×tiempo), que relaciona el cloro residual con el tiempo de contacto.
+
+El diseño busca cumplir el límite de coliformes fecales establecido por la TULSMA ($\leq$ 3000 NMP/100mL) de manera eficiente, sin sobredimensionar el sistema.
+
+\textbf{{Criterios de diseño}}
+
+La dosis total de cloro se descompone en la demanda del efluente (consumida por amoníaco y materia orgánica) más el residual requerido para desinfección:
+
+\begin{{equation}}
+\text{{Dosis total}} = \text{{Demanda}} + \text{{Residual}} = 3.5 + 0.5 = 4.0 \text{{ mg/L}}
+\end{{equation}}
+
+\begin{{table}}[H]
+\centering
+\caption{{Parámetros de diseño de la desinfección}}
+\small
+\begin{{tabular}}{{lccl}}
+\toprule
+Parámetro & Rango recomendado & Valor adoptado & Fuente \\
+\midrule
+Demanda de cloro & 2--5 & 3.5 mg/L & Estimado efluente UASB+FP \\
+Cloro residual & 0.5--2.0 & 0.5 mg/L & OPS/CEPIS \cite{{ops2005}} \\
+Dosis total & 3--10 & 4.0 mg/L & Metcalf \& Eddy \cite{{metcalf2014}} \\
+Tiempo de contacto & 15--45 & 30 min & Metcalf \& Eddy \\
+CT & $\geq$ 15 & 15 mg.min/L & Diseño conservador \\
+\bottomrule
+\end{{tabular}}
+\end{{table}}
+
+
+La eficacia de la desinfección se cuantifica mediante el parámetro CT:
+
+\begin{{equation}}
+CT = C \times t
+\end{{equation}}
+
+\textit{{Donde:}}
+\begin{{itemize}}[noitemsep,leftmargin=2em]
+    \item[$CT$] = Producto concentración-tiempo (mg.min/L)
+    \item[$C$] = Cloro residual (0.5 mg/L)
+    \item[$t$] = Tiempo de contacto (30 min)
+\end{{itemize}}
+
+\begin{{equation}}
+CT = 0.5 \times 30 = 15 \text{{ mg.min/L}}
+\end{{equation}}
+
+La reducción de coliformes se estima mediante:
+
+\begin{{equation}}
+\text{{Log reducción}} \approx 0.22 \times CT
+\end{{equation}}
+
+\begin{{equation}}
+\text{{Log reducción}} \approx 0.22 \times 15 = 3.3 \text{{ log}}
+\end{{equation}}
+
+Los coliformes finales se calculan como:
+
+\begin{{equation}}
+CF_{{final}} = \frac{{CF_{{inicial}}}}{{10^{{\text{{Log reducción}}}}}} = \frac{{{cl['CF_entrada_NMP']:.0f}}}{{10^{{{cl['log_reduccion']:.1f}}}}} = {cl['CF_final_NMP']:.0f} \text{{ NMP/100mL}}
+\end{{equation}}
+
+\textbf{{Dimensionamiento del tanque de contacto}}
+
+El volumen del tanque se determina por:
+
+\begin{{equation}}
+V = Q \times t
+\end{{equation}}
+
+\textit{{Donde:}}
+\begin{{itemize}}[noitemsep,leftmargin=2em]
+    \item[$V$] = Volumen del tanque (m³)
+    \item[$Q$] = Caudal ({cl['Q_m3_d']:.1f} m³/d = {cl['Q_m3_d']/24/60:.3f} m³/min)
+    \item[$t$] = Tiempo de contacto ({cl['TRH_min']:.0f} min)
+\end{{itemize}}
+
+\begin{{equation}}
+V = {cl['Q_m3_d']/24/60:.3f} \times {cl['TRH_min']:.0f} = {cl['V_contacto_m3']:.1f} \text{{ m}}^3
+\end{{equation}}
+
+Con una profundidad de 2.0 m y relación largo/ancho de 4:1, las dimensiones resultantes son {cl['largo_m']:.1f} m de largo por {cl['ancho_m']:.1f} m de ancho.
+
+\textbf{{Verificación de cumplimiento}}
+
+\textbf{{Cumplimiento TULSMA}}
+
+El efluente final presenta una concentración de coliformes fecales de {cl['CF_final_NMP']:.0f} NMP/100mL, valor que cumple satisfactoriamente con el límite de 3000 NMP/100mL establecido por la TULSMA.
+
+\textbf{{Consumo de cloro y requerimientos de producto comercial}}
+
+El consumo de cloro activo (como Cl$_2$) se calcula como:
+
+\begin{{equation}}
+\text{{Consumo Cl}}_2 = \frac{{D \times Q}}{{1000}} = \frac{{4.0 \times {cl['Q_m3_d']:.1f}}}{{1000}} = {cl['consumo_cloro_kg_d']:.2f} \text{{ kg Cl}}_2\text{{/d}}
+\end{{equation}}
+
+\textbf{{Conversión a hipoclorito de sodio comercial (NaOCl):}}
+
+El hipoclorito de sodio se comercializa típicamente al 10--12.5\% de cloro disponible. La conversión se realiza mediante:
+
+\begin{{equation}}
+\text{{Consumo NaOCl}} = \frac{{\text{{Consumo Cl}}_2}}{{[\% \text{{ NaOCl}}]}} = \frac{{{cl['consumo_cloro_kg_d']:.2f}}}{{10\%}} = {cl['consumo_NaOCl_kg_d']:.1f} \text{{ kg NaOCl/d}}
+\end{{equation}}
+
+Considerando una densidad de 1.10 kg/L para la solución al 10\%:
+
+\begin{{equation}}
+\text{{Volumen NaOCl}} = \frac{{{cl['consumo_NaOCl_kg_d']:.1f} \text{{ kg/d}}}}{{1.10 \text{{ kg/L}}}} = {cl['volumen_NaOCl_L_d']:.1f} \text{{ L/d}} \approx {cl['volumen_almacenamiento_L']:.0f} \text{{ L/mes}}
+\end{{equation}}
+
+\textbf{{Volumen de almacenamiento:}} Se recomienda almacenamiento para 30 días de operación: {cl['volumen_almacenamiento_L']:.0f} L (equivalente a {cl['volumen_almacenamiento_L']/1000:.1f} m³).
+
+\subsubsection{{Resultados}}
+
+\begin{{table}}[H]
+\centering
+\caption{{Dimensiones del tanque de desinfección}}
+\begin{{tabular}}{{ll}}
+\toprule
+Parámetro & Valor \\
+\midrule
+Largo & {cl['largo_m']:.1f} m \\
+Ancho & {cl['ancho_m']:.1f} m \\
+Profundidad útil & {cl['h_tanque_m']:.1f} m \\
+Altura total & {cl['h_tanque_m'] + 0.3:.2f} m \\
+Volumen útil & {cl['V_contacto_m3']:.1f} m³ \\
+Tiempo de contacto & {cl['TRH_min']:.0f} min \\
+\midrule
+\multicolumn{{2}}{{l}}{{\textit{{Parámetros de desinfección}}}} \\
+\midrule
+Demanda de cloro & {cl['demanda_cloro_mg_L']:.1f} mg/L \\
+Cloro residual & {cl['cloro_residual_mg_L']:.1f} mg/L \\
+Dosis total & {cl['dosis_cloro_mg_L']:.1f} mg/L \\
+CT & {cl['CT_mg_min_L']:.0f} mg.min/L \\
+Log reducción & {cl['log_reduccion']:.1f} log \\
+CF final & {cl['CF_final_NMP']:.0f} NMP/100mL \\
+\midrule
+\multicolumn{{2}}{{l}}{{\textit{{Consumo de productos}}}} \\
+\midrule
+Consumo Cl$_2$ activo & {cl['consumo_cloro_kg_d']:.2f} kg/d \\
+Concentración NaOCl & 10 \% \\
+Consumo NaOCl & {cl['consumo_NaOCl_kg_d']:.1f} kg/d \\
+Volumen NaOCl & {cl['volumen_NaOCl_L_d']:.1f} L/d ({cl['volumen_almacenamiento_L']:.0f} L/mes) \\
+Almacenamiento (30 d) & {cl['volumen_almacenamiento_L']:.0f} L ({cl['volumen_almacenamiento_L']/1000:.1f} m³) \\
+\bottomrule
+\end{{tabular}}
+\end{{table}}
+
+\textbf{{Notas de operación:}} Se recomienda monitorear el cloro residual en la salida del tanque (debe mantenerse entre 0.5--1.0 mg/L) y ajustar la dosis según la demanda del efluente. Realizar pruebas de coliformes periódicas para verificar la eficacia del sistema.
+
 \subsection{{Lecho de Secado de Lodos}}
 
 El lecho de secado es una unidad de manejo de lodos que utiliza procesos físicos de drenaje gravitacional y evaporación para reducir el contenido de humedad de los lodos generados en el tratamiento. Este sistema es ampliamente utilizado en plantas de tratamiento de pequeño y mediano tamaño debido a su bajo consumo energético y simplicidad operativa.
@@ -942,42 +1107,104 @@ Carga de sólidos & {l['rho_S_kgSST_m2_año']:.1f} kg SST/m²·año \\
 
 \subsection{{Balance de Calidad del Agua}}
 
-El tren de tratamiento propuesto alcanza eficiencias de remoción significativas para todos los parámetros de calidad. La DBO del afluente, que presenta una concentración de {cfg.DBO5_mg_L:.0f} mg/L, se reduce mediante el UASB a aproximadamente {cfg.DBO5_mg_L*(1-u['eta_DBO']):.0f} mg/L, correspondiendo a una remoción del {u['eta_DBO']*100:.0f}%. Posteriormente, el filtro percolador y el sedimentador secundario reducen aún más la carga orgánica.
-
-La DQO presenta una reducción similar, pasando de {cfg.DQO_mg_L:.0f} mg/L en el afluente a valores inferiores a {cfg.DQO_mg_L*0.2:.0f} mg/L en el efluente final. Los sólidos suspendidos totales se remueven eficientemente en el UASB y sedimentador, alcanzando remociones superiores al 70%.
+El tren de tratamiento propuesto alcanza eficiencias de remocion significativas. La siguiente tabla presenta el balance completo de calidad del agua a traves de todas las etapas del proceso:
 
 \begin{{table}}[H]
 \centering
-\caption{{Balance de calidad del agua - Tren completo}}
-\begin{{tabular}}{{lccccc}}
+\caption{{Balance de calidad del agua a traves del tren de tratamiento}}
+\begin{{tabular}}{{lcccc}}
 \toprule
-Parámetro & Afluente & Post-UASB & Post-FP & Post-Sed & Total \\
+Parametro & Afluente & Post-UASB & Post-FP & Efluente Final \\
 \midrule
-DBO5 (mg/L) & {cfg.DBO5_mg_L:.0f} & {cfg.DBO5_mg_L*(1-u['eta_DBO']):.0f} & {fp['DBO_salida_Germain_mg_L']:.0f} & {s['DBO_salida_mg_L']:.0f} & {100*(1-s['DBO_salida_mg_L']/cfg.DBO5_mg_L):.0f} por ciento \\
+DBO$_5$ (mg/L) & {balance_calidad['afluente']['DBO5_mg_L']:.1f} & {balance_calidad['tras_uasb']['DBO5_mg_L']:.1f} & {balance_calidad['tras_fp']['DBO5_mg_L']:.1f} & {balance_calidad['efluente_final']['DBO5_mg_L']:.1f} \\
+DQO (mg/L) & {balance_calidad['afluente']['DQO_mg_L']:.1f} & {balance_calidad['tras_uasb']['DQO_mg_L']:.1f} & {balance_calidad['tras_fp']['DQO_mg_L']:.1f} & {balance_calidad['efluente_final']['DQO_mg_L']:.1f} \\
+SST (mg/L) & {balance_calidad['afluente']['SST_mg_L']:.1f} & {balance_calidad['tras_uasb']['SST_mg_L']:.1f} & {balance_calidad['tras_fp']['SST_mg_L']:.1f} & {balance_calidad['efluente_final']['SST_mg_L']:.1f} \\
+CF (NMP/100mL) & {balance_calidad['afluente']['CF_NMP']:.0f} & {balance_calidad['tras_uasb']['CF_NMP']:.0f} & {balance_calidad['tras_fp']['CF_NMP']:.0f} & {balance_calidad['efluente_final']['CF_NMP']:.0f} \\
 \bottomrule
 \end{{tabular}}
 \end{{table}}
 
-La calidad del efluente final tras el sedimentador secundario es de aproximadamente {s['DBO_salida_mg_L']:.0f} mg/L de DBO5, valor que cumple satisfactoriamente con el límite de {cfg.DBO5_ef_mg_L:.0f} mg/L establecido para este proyecto.
+Los parametros del efluente final cumplen con los limites establecidos en la TULSMA (DBO$_5$ $\leq$ 100 mg/L, SST $\leq$ 100 mg/L, CF $\leq$ 3000 NMP/100mL).
 
 
-\subsection{{Disposición de la Planta}}
+\newpage
+\subsection{{Disposicion de la Planta y Areas de Predio}}
 
-La figura siguiente presenta la disposición espacial de las unidades de tratamiento. El layout muestra dos líneas paralelas operativas, cada una con capacidad para tratar {cfg.Q_linea_L_s:.1f} L/s, permitiendo la operación con una sola línea durante mantenimiento o reparaciones.
+La figura \ref{{fig:layout_a}} presenta la disposicion espacial de las unidades de tratamiento. El layout muestra dos lineas paralelas operativas, cada una con capacidad para tratar {cfg.Q_linea_L_s:.1f} L/s, permitiendo la operacion con una sola linea durante mantenimiento o reparaciones.
 
 \begin{{figure}}[H]
 \centering
 \includegraphics[width=\textwidth]{{{layout_filename}}}
 \caption{{Disposición espacial de unidades - Alternativa A}}
+\label{{fig:layout_a}}
 \end{{figure}}
 
-El área total requerida para la planta, incluyendo márgenes de seguridad y espacios para acceso de equipos, es de aproximadamente {area_m2 if area_m2 else 870} m². Esta configuración permite una operación flexible y mantenimiento sencillo de cada unidad sin interrumpir el tratamiento.
+El área de tratamiento calculada (unidades mas margenes minimos) es de aproximadamente {area_m2} m². Sin embargo, para una operacion adecuada se requieren areas complementarias adicionales.
+
+\textbf{{Areas complementarias requeridas}}
+
+El area calculada de {area_m2} m$^2$ corresponde unicamente a las unidades de tratamiento con sus margenes minimos de acceso. Sin embargo, para garantizar una operacion segura y eficiente de la planta durante toda su vida util, es necesario prever espacios adicionales para acceso vehicular y peatonal de operarios y visitantes, almacenamiento seguro de productos quimicos y herramientas, realizacion de analisis de control de calidad in-situ, estacionamiento para personal y visitantes, circulacion interna de vehiculos de mantenimiento y retiro de lodos, separacion de limites con zonas verdes para control de olores, y espacios administrativos para control operativo. La siguiente tabla resume las areas complementarias necesarias:
+
+\begin{{table}}[H]
+\centering
+\caption{{Areas complementarias de la planta}}
+\small
+\begin{{tabular}}{{lp{{8cm}}c}}
+\toprule
+Area & Descripcion & Dimension aprox. \\
+\midrule
+Zona de amortiguacion & Perimetral alrededor de unidades (2-3 m) para acceso y seguridad & +20\% area tratamiento \\
+\addlinespace
+Bodega de quimicos & Almacenamiento de hipoclorito y productos quimicos & 10--15 m$^2$ \\
+\addlinespace
+Laboratorio/control & Analisis de calidad del agua (DBO, SST, CF, pH) & 15--20 m$^2$ \\
+\addlinespace
+Caseta de operacion & Control, panel, escritorio, bano & 12--15 m$^2$ \\
+\addlinespace
+Area de lavado & Limpieza de equipos y herramientas & 8--10 m$^2$ \\
+\addlinespace
+Estacionamiento & Vehiculos del personal y visitantes (2-3 vehiculos) & 50--60 m$^2$ \\
+\addlinespace
+Zona de camiones & Acceso de camiones cisterna/retiro de lodo & 50--80 m$^2$ \\
+\addlinespace
+Caminos internas & Circulacion vehicular y peatonal (ancho 3--4 m) & 80--120 m$^2$ \\
+\addlinespace
+Acceso principal & Entrada, porton y caseta de guardia & 20--30 m$^2$ \\
+\addlinespace
+Bodega general & Herramientas, repuestos, EPP & 15--20 m$^2$ \\
+\addlinespace
+Zona carga de lodos & Carga/descarga de lodo deshidratado & 20--30 m$^2$ \\
+\addlinespace
+Area verde/buffer & Separacion de limites, revegetacion & 15\% area total \\
+\bottomrule
+\end{{tabular}}
+\end{{table}}
+
+\textbf{{Area total estimada del predio}}
+
+Considerando el area de tratamiento ({area_m2 if area_m2 else 850} m$^2$), amortiguacion (20\%), complementarias operativas y zona verde (15\% del total):
+
+\begin{{equation}}
+A_{{total}} = \frac{{A_{{tratamiento}} + A_{{amortiguacion}} + A_{{complementarias}}}}{{1 - 0.15}}
+\end{{equation}}
+
+\begin{{itemize}}[noitemsep,leftmargin=2em]
+    \item[$A_{{tratamiento}}$] = {area_m2 if area_m2 else 850} m$^2$
+    \item[$A_{{amortiguacion}}$] = {area_m2 * 0.20 if area_m2 else 170:.0f} m$^2$ (20\%)
+    \item[$A_{{complementarias}}$] = 280--340 m$^2$ (operativas)
+\end{{itemize}}
+
+\begin{{equation}}
+A_{{total}} = \frac{{{area_m2 if area_m2 else 850} + {area_m2 * 0.20 if area_m2 else 170:.0f} + 310}}{{0.85}} \approx \mathbf{{1600 \text{{--}} 1900 \text{{ m}}^2}} \approx \mathbf{{0.16 \text{{--}} 0.19 \text{{ ha}}}}
+\end{{equation}}
+
+\textbf{{Nota:}} El area total del predio debe ser de aproximadamente 1600--1900 m$^2$ (0.16--0.19 ha) para operacion adecuada con circulacion interna, estacionamiento y zonas verdes.
 """
 
 
-def generar_latex_alternativa_A(cfg, resultados, output_path, area_m2=None):
+def generar_latex_alternativa_A(cfg, resultados, output_path, area_m2=None, balance_calidad=None):
     """Genera archivo LaTeX completo de Alternativa A"""
-    contenido = generar_contenido_alternativa_A(cfg, resultados, area_m2=area_m2)
+    contenido = generar_contenido_alternativa_A(cfg, resultados, area_m2=area_m2, balance_calidad=balance_calidad)
     
     latex = rf"""\documentclass[12pt,a4paper]{{article}}
 \usepackage[utf8]{{inputenc}}

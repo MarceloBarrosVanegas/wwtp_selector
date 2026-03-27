@@ -147,6 +147,20 @@ class ConfigDiseno:
     fp_R_recirculacion: float = 1.0         # Tasa recirculación
     fp_H_total_m: float = 4.30              # Altura total (medio + 0.80m)
     fp_Cv_kgDBO_m3_d: float = 0.5           # Carga orgánica volumétrica (kg DBO/m³·d)
+    fp_Q_A_limite_m3_m2_h: float = 4.0      # Límite tasa hidráulica (m³/m²·h)
+    fp_Cv_minima_kgDBO_m3_d: float = 0.30   # Carga orgánica mínima recomendada (kg DBO/m³·d)
+    
+    # =============================================================================
+    # PARÁMETROS DE DISEÑO - DESINFECCIÓN CON CLORO
+    # =============================================================================
+    desinfeccion_demanda_cloro_mg_L: float = 3.5    # Demanda de cloro (mg/L)
+    desinfeccion_cloro_residual_mg_L: float = 0.5   # Cloro residual objetivo (mg/L)
+    desinfeccion_TRH_min: float = 30.0              # Tiempo de retención hidráulico (min)
+    desinfeccion_relacion_L_A: float = 4.0          # Relación largo/ancho tanque
+    desinfeccion_h_tanque_m: float = 2.0            # Profundidad útil tanque (m)
+    desinfeccion_coef_log_red: float = 0.22         # Coeficiente log reducción (log por CT)
+    desinfeccion_concentracion_NaOCl: float = 0.10  # Concentración NaOCl comercial (fracción)
+    desinfeccion_densidad_NaOCl: float = 1.10       # Densidad NaOCl 10% (kg/L)
     
     # =============================================================================
     # PARÁMETROS DE DISEÑO - HUMEDAL VERTICAL
@@ -165,6 +179,19 @@ class ConfigDiseno:
     # =============================================================================
     sed_SOR_m3_m2_d: float = 18.0           # Tasa desbordamiento superficial (conservador)
     sed_h_sed_m: float = 3.50               # Profundidad lateral (m)
+    sed_factor_produccion_humus: float = 0.15  # Factor producción humus (kg SST/kg DBO removida FP)
+    sed_eta_DBO: float = 0.30               # Eficiencia remoción DBO en sedimentador (fracción)
+    
+    # =============================================================================
+    # PARÁMETROS DE BALANCE DE CALIDAD DEL AGUA
+    # =============================================================================
+    balance_eta_CF_uasb: float = 0.30       # Eficiencia remoción CF en UASB (fracción)
+    balance_eta_DQO_fp_factor: float = 0.90 # Factor para calcular ηDQO desde ηDBO en FP
+    balance_eta_SST_fp: float = 0.60        # Eficiencia remoción SST en FP (fracción)
+    balance_eta_CF_fp: float = 0.20         # Eficiencia remoción CF en FP (fracción)
+    balance_eta_SST_sed: float = 0.80       # Eficiencia remoción SST en Sed (fracción)
+    balance_eta_CF_sed: float = 0.10        # Eficiencia remoción CF en Sed (fracción)
+    balance_log_reduccion_default: float = 4.0  # Log reducción por defecto desinfección
     
     # =============================================================================
     # PARÁMETROS DE DISEÑO - LODOS ACTIVADOS (AIREACIÓN EXTENDIDA)
@@ -184,6 +211,7 @@ class ConfigDiseno:
     lecho_t_secado_d: float = 15.0          # Tiempo secado (días)
     lecho_n_celdas: int = 2                 # Número celdas en rotación
     lecho_h_lodo_m: float = 0.30            # Espesor lodo aplicado (m)
+    lecho_factor_produccion_lodos: float = 0.10  # kg SST/kg DBO removida (producción UASB)
 
     def __post_init__(self):
         # Caudal por línea en m^3/d (conversión exacta: 1 L/s = 86.4 m^3/d)
@@ -1034,12 +1062,12 @@ def dimensionar_filtro_percolador(Q: ConfigDiseno = CFG,
     # Parámetros del modelo Germain (verificación de eficiencia)
     # k_20 para medio plástico aleatorio moderno desde configuración
     # [Metcalf & Eddy, 2014, Tabla 9-32; WEF MOP-8, 2010, p. 9-34]
-    k_20_m_h = Q.fp_k_20_m_h  # m/h  - constante cinética a 20 grados C (cfg default: 0.068)
-    theta    = Q.fp_theta     # coef. temperatura [Ec. 5b]
-    n        = 0.50           # constante empírica del medio aleatorio plástico
-    D_m      = 3.50           # m    - profundidad del medio filtrante
-    R        = 1.0            # tasa de recirculación (R=1 -> Q_ap = 2Q)
-    H_total  = D_m + 1.10     # m    - incluye zona distribución (0,30) + recolección (0,50) + bordo libre (0,30)
+    k_20_m_h = Q.fp_k_20_m_h        # m/h  - constante cinética a 20 grados C (cfg default: 0.068)
+    theta    = Q.fp_theta           # coef. temperatura [Ec. 5b]
+    n        = Q.fp_n_germain       # constante empírica del medio aleatorio plástico
+    D_m      = Q.fp_D_medio_m       # m    - profundidad del medio filtrante
+    R        = Q.fp_R_recirculacion # tasa de recirculación
+    H_total  = Q.fp_H_total_m       # m    - altura total incluye distribución, recolección y bordo libre
 
     # Parámetros del criterio de carga orgánica (dimensionamiento primario)
     # Carga orgánica volumétrica para medio plástico desde configuración
@@ -1088,13 +1116,13 @@ def dimensionar_filtro_percolador(Q: ConfigDiseno = CFG,
     
     # Límite de tasa hidráulica para filtros percoladores con medio plástico
     # Según Metcalf & Eddy: máximo 4.0 m³/m²·h para evitar arrastre de biopelícula
-    Q_A_limite_m3_m2_h = 4.0
+    Q_A_limite_m3_m2_h = Q.fp_Q_A_limite_m3_m2_h
     
     # Ajuste automático si excede el límite: aumentamos recirculación primero, luego área
     # con protección de iteraciones máximas y límite mínimo de Cv
     iteracion = 0
     max_iteraciones = 100
-    Cv_minima = 0.30  # kg DBO/m³·d - límite inferior de diseño
+    Cv_minima = Q.fp_Cv_minima_kgDBO_m3_d  # kg DBO/m³·d - límite inferior de diseño
     
     while iteracion < max_iteraciones:
         Q_ap_m3_h = Q_m3_h * (1 + R)  # Recalcular con R actual
@@ -1462,7 +1490,7 @@ def dimensionar_sedimentador_sec(Q: ConfigDiseno = CFG,
     
     # Tasa de aplicación de sólidos (humus del filtro percolador)
     # Producción típica: ~0.15 kg SST/kg DBO removida en el FP
-    factor_produccion_humus = 0.15  # kg SST/kg DBO removida
+    factor_produccion_humus = Q.sed_factor_produccion_humus  # kg SST/kg DBO removida
     
     if DBO_removida_fp_kg_d is not None:
         # Usar valor calculado del Filtro Percolador (encadenado)
@@ -1479,7 +1507,7 @@ def dimensionar_sedimentador_sec(Q: ConfigDiseno = CFG,
     
     # Cálculo de DBO de salida (para balance de calidad en LaTeX)
     # El sedimentador remueve SST biológicos (humus) que representan ~30% de la DBO restante
-    eta_DBO_sed = 0.30  # 30% de remoción adicional de DBO por separación de humus
+    eta_DBO_sed = Q.sed_eta_DBO  # fracción remoción DBO por separación de humus
     if DBO_entrada_mg_L is not None:
         DBO_salida_mg_L = DBO_entrada_mg_L * (1 - eta_DBO_sed)
     else:
@@ -1541,7 +1569,174 @@ def dimensionar_sedimentador_sec(Q: ConfigDiseno = CFG,
 
 
 # =============================================================================
-# 7 - DESINFECCIÓN UV
+# 7 - DESINFECCIÓN CON CLORO (HIPOCLORITO)
+# =============================================================================
+
+def dimensionar_desinfeccion_cloro(Q: ConfigDiseno = CFG,
+                                    CF_entrada_NMP: float = None) -> Dict[str, Any]:
+    """
+    Dimensionamiento del sistema de desinfección con hipoclorito de sodio.
+
+    Fundamento teórico
+    ------------------
+    La desinfección con cloro se basa en el concepto CT (concentración × tiempo):
+        CT = C × t                                           [Ec. 7h]
+    
+    Donde:
+        C = cloro residual libre o combinado (mg/L)
+        t = tiempo de contacto efectivo (minutos)
+        CT = mg.min/L (producto concentracion x tiempo)
+    
+    Log reducción típica de coliformes:
+        CT = 5-10 mg.min/L   -> 2-3 log  (99-99.9%)
+        CT = 10-20 mg.min/L  -> 3-4 log  (99.9-99.99%)
+        CT = 20-40 mg.min/L  -> 4-5 log  (99.99-99.999%)
+    
+    Estimación práctica:
+        Log reducción ≈ 0.1 × CT (cloro combinado, pH 7-8, 25°C)
+    
+    Criterios de diseño
+    -------------------
+    - Dosis de cloro: 5-15 mg/L (typ: 8-12 mg/L para efluente secundario)
+    - Cloro residual: 0.5-2.0 mg/L (post-demanda)
+    - Tiempo de contacto: 15-45 minutos (typ: 30 min)
+    - CT objetivo: >= 30 mg.min/L (conservador para cumplimiento)
+    
+    Ecuaciones de dimensionamiento
+    ------------------------------
+    Volumen del tanque de contacto:
+        V = Q × t                                            [Ec. 7i]
+    
+    CT calculado:
+        CT = C_residual × t                                  [Ec. 7j]
+    
+    Log reducción estimada:
+        Log_red ≈ 0.1 × CT                                   [Ec. 7k]
+    
+    Coliformes finales:
+        CF_final = CF_inicial / 10^Log_red                   [Ec. 7l]
+    
+    Referencias
+    -----------
+    Metcalf & Eddy (2014), pp. 1200-1220
+    USEPA (2003) - LT1ESWTR Disinfection Profiling and Benchmarking
+    OPS/CEPIS (2005) - Guía de desinfección
+    """
+    ref_me = citar("metcalf_2014")
+    ref_epa = "USEPA (2003)"
+    ref_ops = citar("ops_cepis_2005")
+    
+    # Parámetros de diseño - Optimizados para cumplir solo TULSMA (CF <= 3000)
+    # CF entrada típica post-sedimentador: ~5,000,000 NMP/100mL
+    # CF límite TULSMA: 3,000 NMP/100mL
+    # Reducción necesaria: log10(5000000/3000) ≈ 3.2 log
+    # CT necesario: ~15 mg·min/L (conservador, da margen de seguridad)
+    
+    # Descomposición de la dosis:
+    # Dosis_total = Demanda_cloro + Cloro_residual
+    demanda_cloro_mg_L = Q.desinfeccion_demanda_cloro_mg_L   # mg/L (consumido por amoníaco y MO)
+    cloro_residual_mg_L = Q.desinfeccion_cloro_residual_mg_L # mg/L (mínimo necesario al final)
+    dosis_cloro_mg_L = demanda_cloro_mg_L + cloro_residual_mg_L
+    TRH_min = Q.desinfeccion_TRH_min                  # minutos (tiempo de contacto)
+    relacion_L_A = Q.desinfeccion_relacion_L_A        # Relación largo/ancho
+    h_tanque_m = Q.desinfeccion_h_tanque_m            # m (profundidad)
+    borde_libre_m = 0.30                              # m (estándar)
+    
+    # Caudales
+    Q_m3_d = Q.Q_linea_m3_d
+    Q_m3_h = Q.Q_linea_m3_h
+    Q_m3_min = Q_m3_h / 60.0        # m³/min
+    
+    # Coliformes de entrada (si no se proporciona, usar valor típico post-sedimentador)
+    if CF_entrada_NMP is None:
+        CF_entrada_NMP = 5e6        # NMP/100mL (típico post-sedimentador, para obtener ~2500 NMP/100mL final)
+    
+    # [Ec. 7i] Volumen del tanque de contacto
+    V_contacto_m3 = Q_m3_min * TRH_min  # m³
+    
+    # Dimensiones del tanque
+    A_superficial_m2 = V_contacto_m3 / h_tanque_m
+    ancho_m = math.sqrt(A_superficial_m2 / relacion_L_A)
+    largo_m = relacion_L_A * ancho_m
+    
+    # [Ec. 7h] CT calculado
+    CT_calculado = cloro_residual_mg_L * TRH_min  # mg·min/L = 0.5 * 30 = 15
+    
+    # [Ec. 7k] Log reducción estimada
+    # Coeficiente ajustado para cumplir TULSMA sin excederse
+    # Log_red ≈ coef × CT (coeficiente desde configuración)
+    log_reduccion = Q.desinfeccion_coef_log_red * CT_calculado
+    
+    # [Ec. 7l] Coliformes finales estimados
+    # Obj: reducir de ~5,000,000 (post-sed) a ≤ 3,000 (TULSMA)
+    CF_final_NMP = CF_entrada_NMP / (10 ** log_reduccion)
+    
+    # Porcentaje de reducción
+    pct_reduccion = (1 - CF_final_NMP / CF_entrada_NMP) * 100
+    
+    # Verificación de cumplimiento TULSMA (CF ≤ 3000 NMP/100mL)
+    cumple_TULSMA = CF_final_NMP <= 3000
+    
+    # Verificación CT mínimo recomendado
+    CT_min_recomendado = 30.0  # mg·min/L
+    CT_aceptable = CT_calculado >= CT_min_recomendado
+    
+    # Consumo de cloro (como Cl₂ activo)
+    consumo_cloro_kg_d = (dosis_cloro_mg_L * Q_m3_d) / 1000  # kg Cl₂/d
+    
+    # Conversión a hipoclorito de sodio comercial (NaOCl al 10-12.5%)
+    # Fórmula: m_NaOCl = m_Cl2 / [% NaOCl]
+    concentracion_NaOCl = Q.desinfeccion_concentracion_NaOCl  # fracción
+    consumo_NaOCl_kg_d = consumo_cloro_kg_d / concentracion_NaOCl  # kg NaOCl/d
+    
+    # Volumen de NaOCl (densidad desde configuración)
+    densidad_NaOCl = Q.desinfeccion_densidad_NaOCl  # kg/L
+    volumen_NaOCl_L_d = consumo_NaOCl_kg_d / densidad_NaOCl  # L/d
+    volumen_NaOCl_L_mes = volumen_NaOCl_L_d * 30  # L/mes
+    
+    # Volumen de almacenamiento (30 días)
+    volumen_almacenamiento_L = volumen_NaOCl_L_mes
+    
+    return {
+        "unidad": "Tanque de contacto con cloro",
+        "Q_m3_d": round(Q_m3_d, 1),
+        # Dosis descompuesta
+        "demanda_cloro_mg_L": demanda_cloro_mg_L,
+        "cloro_residual_mg_L": cloro_residual_mg_L,
+        "dosis_cloro_mg_L": dosis_cloro_mg_L,
+        "TRH_min": TRH_min,
+        # Dimensiones
+        "V_contacto_m3": round(V_contacto_m3, 1),
+        "A_superficial_m2": round(A_superficial_m2, 1),
+        "largo_m": round(largo_m, 1),
+        "ancho_m": round(ancho_m, 1),
+        "h_tanque_m": h_tanque_m,
+        "h_total_m": round(h_tanque_m + borde_libre_m, 2),
+        # Parámetros de desinfección
+        "CT_mg_min_L": round(CT_calculado, 1),
+        "CT_min_recomendado": CT_min_recomendado,
+        "CT_aceptable": CT_aceptable,
+        "log_reduccion": round(log_reduccion, 1),
+        "CF_entrada_NMP": CF_entrada_NMP,
+        "CF_final_NMP": round(CF_final_NMP, 0),
+        "pct_reduccion": round(pct_reduccion, 1),
+        "cumple_TULSMA": cumple_TULSMA,
+        # Consumos
+        "consumo_cloro_kg_d": round(consumo_cloro_kg_d, 2),  # kg Cl₂/d
+        "concentracion_NaOCl_pct": concentracion_NaOCl * 100,  # %
+        "consumo_NaOCl_kg_d": round(consumo_NaOCl_kg_d, 1),  # kg NaOCl/d
+        "volumen_NaOCl_L_d": round(volumen_NaOCl_L_d, 1),  # L/d
+        "volumen_NaOCl_L_mes": round(volumen_NaOCl_L_mes, 0),  # L/mes
+        "volumen_almacenamiento_L": round(volumen_almacenamiento_L, 0),  # L
+        # Layout
+        "largo_layout_m": round(largo_m + 0.30, 1),
+        "ancho_layout_m": round(ancho_m + 0.30, 1),
+        "fuente": f"{ref_me} (pp. 1200-1220); {ref_epa}; {ref_ops}",
+    }
+
+
+# =============================================================================
+# 7b - DESINFECCIÓN UV (ALTERNATIVA)
 # =============================================================================
 
 def dimensionar_uv(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
@@ -1551,7 +1746,7 @@ def dimensionar_uv(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
     Criterio de diseño
     ------------------
     Dosis UV: 30-40 mJ/cm² para inactivación de coliformes fecales
-              [USEPA, 2006; Galapagos requiere ≥ 4 log de reducción]
+              [USEPA, 2006]
     
     Ecuaciones
     ----------
@@ -1680,9 +1875,9 @@ def dimensionar_lecho_secado(Q: ConfigDiseno = CFG,
 
     # Producción de lodos (si no se provee externamente, usar valor típico)
     if lodos_kg_SST_d is None:
-        # Valor típico de producción de lodos: ~0.10 kg SST/kg DBO removida
-        DBO_removida_kg_d = Q.Q_linea_m3_d * (Q.DBO5_mg_L / 1000) * 0.70
-        lodos_kg_SST_d = 0.10 * DBO_removida_kg_d
+        # Producción típica de lodos UASB desde configuración
+        DBO_removida_kg_d = Q.Q_linea_m3_d * (Q.DBO5_mg_L / 1000) * Q.uasb_eta_DBO
+        lodos_kg_SST_d = Q.lecho_factor_produccion_lodos * DBO_removida_kg_d
 
     # Parámetros de diseño adoptados desde configuración
     C_SST_kg_m3 = Q.lecho_C_SST_kg_m3
@@ -1853,6 +2048,160 @@ def calcular_tren_C() -> Dict[str, Any]:
             "cumple_TULSMA": DBO_efluente <= 100,
         },
     }
+
+
+# =============================================================================
+# 9 - BALANCE COMPLETO DE CALIDAD DEL AGUA
+# =============================================================================
+
+def calcular_balance_calidad_agua(Q: ConfigDiseno = None, 
+                                   resultados: Dict[str, Any] = None) -> Dict[str, Any]:
+    """
+    Calcula el balance completo de calidad del agua para todos los parámetros
+    en cada etapa del tren de tratamiento.
+    
+    Parámetros calculados:
+        - DBO5 (mg/L)
+        - DQO (mg/L) 
+        - SST (mg/L)
+        - Coliformes Fecales (NMP/100mL)
+    
+    Eficiencias típicas por unidad:
+        - Rejillas: SST ~10%, CF ~5%
+        - Desarenador: SST ~15%, DBO/DQO ~5%
+        - UASB: DBO ~70%, DQO ~65%, SST ~70%, CF ~30%
+        - Filtro Percolador: DBO ~75%, DQO ~70%, SST ~60%
+        - Sedimentador: SST ~80% (humus), DBO ~30% (sólidos biológicos)
+        - UV: CF >99.9%
+    
+    Referencias:
+        Metcalf & Eddy (2014)
+        Sperling (2007)
+    """
+    if Q is None:
+        Q = ConfigDiseno()
+    
+    # Valores de entrada
+    calidad = {
+        "afluente": {
+            "DBO5_mg_L": Q.DBO5_mg_L,
+            "DQO_mg_L": Q.DQO_mg_L,
+            "SST_mg_L": Q.SST_mg_L,
+            "CF_NMP": Q.CF_NMP,
+        }
+    }
+    
+    # Si se proporcionan resultados, usar eficiencias reales calculadas
+    if resultados:
+        # Tras UASB
+        if "uasb" in resultados:
+            uasb = resultados["uasb"]
+            eta_DBO_uasb = uasb.get("eta_DBO", 0.70)
+            eta_DQO_uasb = uasb.get("eta_DQO", 0.65)
+            # SST similar a DBO en UASB
+            eta_SST_uasb = eta_DBO_uasb
+            # CF en UASB desde configuración
+            eta_CF_uasb = Q.balance_eta_CF_uasb
+            
+            calidad["tras_uasb"] = {
+                "DBO5_mg_L": round(Q.DBO5_mg_L * (1 - eta_DBO_uasb), 1),
+                "DQO_mg_L": round(Q.DQO_mg_L * (1 - eta_DQO_uasb), 1),
+                "SST_mg_L": round(Q.SST_mg_L * (1 - eta_SST_uasb), 1),
+                "CF_NMP": round(Q.CF_NMP * (1 - eta_CF_uasb), 0),
+            }
+        
+        # Tras Filtro Percolador
+        if "filtro_percolador" in resultados and "tras_uasb" in calidad:
+            fp = resultados["filtro_percolador"]
+            DBO_entrada_fp = calidad["tras_uasb"]["DBO5_mg_L"]
+            # Eficiencia del modelo Germain
+            relacion = fp.get("relacion_Se_S0_Germain", 0.50)
+            eta_DBO_fp = 1 - relacion
+            # DQO desde configuración (factor sobre DBO)
+            eta_DQO_fp = eta_DBO_fp * Q.balance_eta_DQO_fp_factor
+            # SST removido por biopelícula desde configuración
+            eta_SST_fp = Q.balance_eta_SST_fp
+            # CF remoción mínima en FP desde configuración
+            eta_CF_fp = Q.balance_eta_CF_fp
+            
+            calidad["tras_fp"] = {
+                "DBO5_mg_L": round(DBO_entrada_fp * (1 - eta_DBO_fp), 1),
+                "DQO_mg_L": round(calidad["tras_uasb"]["DQO_mg_L"] * (1 - eta_DQO_fp), 1),
+                "SST_mg_L": round(calidad["tras_uasb"]["SST_mg_L"] * (1 - eta_SST_fp), 1),
+                "CF_NMP": round(calidad["tras_uasb"]["CF_NMP"] * (1 - eta_CF_fp), 0),
+            }
+        
+        # Tras Sedimentador Secundario
+        if "sedimentador" in resultados and "tras_fp" in calidad:
+            sed = resultados["sedimentador"]
+            DBO_entrada_sed = calidad["tras_fp"]["DBO5_mg_L"]
+            eta_DBO_sed = sed.get("eta_DBO_sed", 0.30)
+            # SST removido por separación de humus desde configuración
+            eta_SST_sed = Q.balance_eta_SST_sed
+            # DQO similar a DBO
+            eta_DQO_sed = eta_DBO_sed
+            # CF remoción mínima desde configuración
+            eta_CF_sed = Q.balance_eta_CF_sed
+            
+            calidad["tras_sed"] = {
+                "DBO5_mg_L": round(DBO_entrada_sed * (1 - eta_DBO_sed), 1),
+                "DQO_mg_L": round(calidad["tras_fp"]["DQO_mg_L"] * (1 - eta_DQO_sed), 1),
+                "SST_mg_L": round(calidad["tras_fp"]["SST_mg_L"] * (1 - eta_SST_sed), 1),
+                "CF_NMP": round(calidad["tras_fp"]["CF_NMP"] * (1 - eta_CF_sed), 0),
+            }
+        
+        # Tras desinfección (UV o Cloro)
+        desinfeccion_keys = ["uv", "desinfeccion", "cloro"]
+        tiene_desinfeccion = any(k in resultados for k in desinfeccion_keys)
+        if tiene_desinfeccion and "tras_sed" in calidad:
+            if "uv" in resultados:
+                # UV inactiva >99.9% de coliformes
+                eta_CF = 0.999
+            elif "cloro" in resultados:
+                # Cloro - usar log reducción calculada
+                des = resultados["cloro"]
+                log_red = des.get("log_reduccion", Q.balance_log_reduccion_default)
+                eta_CF = 1 - (10 ** (-log_red))
+            else:
+                # Desinfeccion generica
+                des = resultados["desinfeccion"]
+                log_red = des.get("log_reduccion", Q.balance_log_reduccion_default)
+                eta_CF = 1 - (10 ** (-log_red))
+            
+            # Desinfección no remueve DBO/DQO/SST significativamente
+            CF_final = round(calidad["tras_sed"]["CF_NMP"] * (1 - eta_CF), 0)
+            if CF_final < 1:
+                CF_final = 1  # Mínimo detectable
+            
+            calidad["efluente_final"] = {
+                "DBO5_mg_L": calidad["tras_sed"]["DBO5_mg_L"],
+                "DQO_mg_L": calidad["tras_sed"]["DQO_mg_L"],
+                "SST_mg_L": calidad["tras_sed"]["SST_mg_L"],
+                "CF_NMP": CF_final,
+            }
+    
+    # Calcular eficiencias totales
+    if "efluente_final" in calidad:
+        ef_final = calidad["efluente_final"]
+        entrada = calidad["afluente"]
+        
+        calidad["eficiencias_totales"] = {
+            "DBO5_pct": round((1 - ef_final["DBO5_mg_L"] / entrada["DBO5_mg_L"]) * 100, 1),
+            "DQO_pct": round((1 - ef_final["DQO_mg_L"] / entrada["DQO_mg_L"]) * 100, 1),
+            "SST_pct": round((1 - ef_final["SST_mg_L"] / entrada["SST_mg_L"]) * 100, 1),
+            "CF_pct": round((1 - ef_final["CF_NMP"] / entrada["CF_NMP"]) * 100, 1),
+        }
+    
+    # Verificar cumplimiento TULSMA
+    if "efluente_final" in calidad:
+        ef = calidad["efluente_final"]
+        calidad["cumplimiento_TULSMA"] = {
+            "DBO5": ef["DBO5_mg_L"] <= 100,
+            "SST": ef["SST_mg_L"] <= 100,
+            "CF": ef["CF_NMP"] <= 3000,
+        }
+    
+    return calidad
 
 
 # =============================================================================

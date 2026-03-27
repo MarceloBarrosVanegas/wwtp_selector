@@ -57,6 +57,7 @@ DIMENSIONES = {
     'Decantador': {'tipo': 'sedimentacion', 'diametro': 6.0, 'geom': 'circ'},
     'Sedimentador': {'tipo': 'sedimentacion', 'diametro': 4.8, 'geom': 'circ'},
     'UV': {'tipo': 'terciario', 'largo': 3.0, 'ancho': 1.0, 'geom': 'rect'},
+    'Desinfeccion': {'tipo': 'terciario', 'largo': 8.0, 'ancho': 2.0, 'geom': 'rect'},
     'Humedal_Vertical': {'tipo': 'tratamiento_secundario', 'largo': 25.0, 'ancho': 10.0, 'geom': 'rect'},
 }
 

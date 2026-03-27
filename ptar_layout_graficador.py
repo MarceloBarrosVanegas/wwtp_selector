@@ -172,6 +172,7 @@ def convertir_resultados_a_dimensiones(resultados: dict) -> dict:
         'sedimentador': 'Sedimentador',
         'sedimentador_sec': 'Sedimentador',
         'uv': 'UV',
+        'desinfeccion': 'Desinfeccion',
         'lecho_secado': None,  # Se maneja separado
     }
     
@@ -221,6 +222,13 @@ def convertir_resultados_a_dimensiones(resultados: dict) -> dict:
                 'tipo': 'terciario',
                 'largo': res.get('largo_m', 3.0),
                 'ancho': res.get('ancho_m', 1.0),
+                'geom': 'rect'
+            }
+        elif key_res == 'desinfeccion':
+            dim[key_layout] = {
+                'tipo': 'terciario',
+                'largo': res.get('largo_layout_m', res.get('largo_m', 8.0)),
+                'ancho': res.get('ancho_layout_m', res.get('ancho_m', 2.0)),
                 'geom': 'rect'
             }
     
@@ -390,9 +398,29 @@ def generar_layout_2lineas(tipo: str, unidades_linea: list, nombre_alt: str,
     
     # Texto del lecho
     fontsize = FONT_CONFIG['unidad']
+    acot_fontsize = FONT_CONFIG['acotacion']
     ax.text(x_lecho + lecho_ancho_draw/2, y_lecho + lecho_alto_draw/2, 
            'Lecho de\nSecado', 
            ha='center', va='center', fontsize=fontsize, fontweight='bold')
+    
+    # ============ ACOTACIONES DEL LECHO ============
+    offset_acot = 0.8
+    
+    # Acotación horizontal (ancho del lecho - dimensión visible horizontal)
+    ax.annotate('', xy=(x_lecho + lecho_ancho_draw, y_lecho - offset_acot), 
+               xytext=(x_lecho, y_lecho - offset_acot),
+               arrowprops=dict(arrowstyle='<->', color='black', lw=1.5))
+    ax.text(x_lecho + lecho_ancho_draw/2, y_lecho - offset_acot - 0.4, 
+           f'{lecho_ancho:.1f}m', ha='center', fontsize=acot_fontsize,
+           color='black', fontweight='bold')
+    
+    # Acotación vertical (largo del lecho - dimensión visible vertical)
+    ax.annotate('', xy=(x_lecho + lecho_ancho_draw + offset_acot, y_lecho + lecho_alto_draw), 
+               xytext=(x_lecho + lecho_ancho_draw + offset_acot, y_lecho),
+               arrowprops=dict(arrowstyle='<->', color='black', lw=1.5))
+    ax.text(x_lecho + lecho_ancho_draw + offset_acot + 0.4, y_lecho + lecho_alto_draw/2, 
+           f'{lecho_largo:.1f}m', ha='left', va='center', 
+           fontsize=acot_fontsize, color='black', fontweight='bold', rotation=90)
     
     # NOTA: Las flechas de lodos se han eliminado para simplificar el diagrama
     # El lecho de secado recibe lodos del UASB y Sedimentador (línea de lodos)
