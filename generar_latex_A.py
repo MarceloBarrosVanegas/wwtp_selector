@@ -1431,155 +1431,451 @@ def generar_latex_alternativa_A(cfg, resultados, output_path, area_m2=None, bala
 
 \newpage
 %============================================================================
-% ANEXO: TABLAS TULSMA
+% ANEXO: TABLAS TULSMA COMPLETAS
 %============================================================================
 \appendix
-\section{{Anexo: Tablas TULSMA (Libro VI, Anexo 1)}}
+\section{{Anexo: TULSMA -- Criterios de Calidad del Recurso Agua}}
 \label{{app:tulsma}}
 
-El presente anexo presenta los l\'imites m\'aximos permisibles establecidos en el Texto Unificado de Legislaci\'on Secundaria del Ministerio del Ambiente (TULSMA), Acuerdo Ministerial 097-A (2015), aplicables al proyecto.
+\begin{{center}}
+{{\LARGE\bfseries TULSMA -- Norma de Calidad Ambiental\\[4pt]
+del Recurso Agua}}\\[8pt]
+{{\large Libro VI, Anexo 1 -- Acuerdo Ministerial 097-A (2015)\\
+Decreto Ejecutivo 3516 -- Ecuador}}\\[4pt]
+{{\small Criterios de calidad por uso del agua y l\'imites de descarga de efluentes}}
+\end{{center}}
+\vspace{{10pt}}
 
+% ----------------------------------------------------------
 \subsection{{Tabla 1 -- Consumo Humano y Uso Dom\'estico (tratamiento convencional)}}
+% ----------------------------------------------------------
 
-\begin{{table}}[H]
-\centering
-\small
-\begin{{tabular}}{{p{{5.5cm}}p{{2.5cm}}p{{4.5cm}}}}
+\begin{{longtable}}{{p{{5.5cm}}p{{2.2cm}}p{{2.5cm}}p{{4.5cm}}}}
+\caption{{L\'imites m\'aximos permisibles para aguas de consumo humano y uso dom\'estico que \'unicamente requieren tratamiento convencional (TULSMA, Tabla~1).}}\\
 \toprule
-\textbf{{Par\'ametro}} & \textbf{{Unidad}} & \textbf{{L\'imite m\'aximo}} \\
+\textbf{{Par\'ametro}} & \textbf{{Expresado como}} & \textbf{{Unidad}} & \textbf{{L\'imite m\'aximo permisible}} \\
 \midrule
-DBO$_5$ & mg/L & $\leq$ 2,0 \\
-Coliformes fecales & NMP/100 mL & $\leq$ 600 \\
-Coliformes totales & NMP/100 mL & $\leq$ 3.000 \\
+\endfirsthead
+\multicolumn{{4}}{{c}}{{\small\itshape Continuaci\'on de la Tabla}}\\
+\toprule
+\textbf{{Par\'ametro}} & \textbf{{Expresado como}} & \textbf{{Unidad}} & \textbf{{L\'imite m\'aximo permisible}} \\
+\midrule
+\endhead
 \bottomrule
-\end{{tabular}}
-\end{{table}}
+\endlastfoot
+Aceites y Grasas & Sust.\ solubles en hexano & mg/L & $\leq$ 0,3 \\
+Aluminio & Al & mg/L & $\leq$ 0,2 \\
+Amoniaco & N-Amoniacal & mg/L & $\leq$ 1,0 \\
+Amonio & NH$_4$ & mg/L & $\leq$ 0,05 \\
+Ars\'enico (total) & As & mg/L & $\leq$ 0,05 \\
+Bario & Ba & mg/L & $\leq$ 1,0 \\
+Cadmio & Cd & mg/L & $\leq$ 0,01 \\
+Cianuro total & CN$^-$ & mg/L & $\leq$ 0,1 \\
+Cloruros & Cl$^-$ & mg/L & $\leq$ 250 \\
+Cobre & Cu & mg/L & $\leq$ 1,0 \\
+\textbf{{Coliformes totales}} & NMP & NMP/100 mL & $\leq$ 3\,000 \\
+\textbf{{Coliformes fecales}} & NMP & NMP/100 mL & $\leq$ 600 \\
+Color real & UC & Unidades de color & $\leq$ 100 \\
+Compuestos fen\'olicos & Fenol & mg/L & $\leq$ 0,002 \\
+Cromo hexavalente & Cr$^{{6+}}$ & mg/L & $\leq$ 0,05 \\
+\textbf{{DBO$_5$}} & -- & mg/L & $\leq$ 2,0 \\
+Dureza & CaCO$_3$ & mg/L & $\leq$ 500 \\
+Fluoruro total & F & mg/L & $\leq$ 1,5 \\
+Hierro total & Fe & mg/L & $\leq$ 1,0 \\
+Manganeso total & Mn & mg/L & $\leq$ 0,1 \\
+Materia flotante & -- & -- & Ausencia \\
+Mercurio total & Hg & mg/L & $\leq$ 0,001 \\
+Nitrato & N-Nitrato & mg/L & $\leq$ 10,0 \\
+Nitrito & N-Nitrito & mg/L & $\leq$ 1,0 \\
+Ox\'igeno disuelto & O.D. & mg/L & $\geq$ 80\% saturaci\'on; $\geq$ 6 mg/L \\
+pH & -- & -- & $6,0 - 9,0$ \\
+Plata total & Ag & mg/L & $\leq$ 0,05 \\
+Plomo total & Pb & mg/L & $\leq$ 0,05 \\
+Selenio total & Se & mg/L & $\leq$ 0,01 \\
+Sodio & Na & mg/L & $\leq$ 200 \\
+S\'olidos disueltos totales & -- & mg/L & $\leq$ 1\,000 \\
+Sulfatos & SO$_4^{{2-}}$ & mg/L & $\leq$ 400 \\
+Temperatura & -- & $^\circ$C & Cond.\ natural $\pm$ 3\,$^\circ$C \\
+Tensoactivos & SAAM & mg/L & $\leq$ 0,5 \\
+Turbiedad & -- & UTN & $\leq$ 100 \\
+Zinc & Zn & mg/L & $\leq$ 5,0 \\
+\end{{longtable}}
 
+% ----------------------------------------------------------
+\subsection{{Tabla 12 -- Descarga a Cuerpo de Agua Dulce}}
+% ----------------------------------------------------------
+
+{{\small\textbf{{Nota:}} Esta es la tabla aplicable al proyecto de tratamiento de aguas residuales municipales cuando el efluente se vierte a un r\'io, lago o cuerpo superficial de agua dulce.}}
+
+\vspace{{6pt}}
+
+\begin{{longtable}}{{p{{5.5cm}}p{{2.2cm}}p{{2.5cm}}p{{4.5cm}}}}
+\caption{{L\'imites m\'aximos permisibles de descarga a un cuerpo de agua dulce (TULSMA, Tabla~12).}}\\
+\toprule
+\textbf{{Par\'ametro}} & \textbf{{Expresado como}} & \textbf{{Unidad}} & \textbf{{L\'imite m\'aximo permisible}} \\
+\midrule
+\endfirsthead
+\multicolumn{{4}}{{c}}{{\small\itshape Continuaci\'on de la Tabla}}\\
+\toprule
+\textbf{{Par\'ametro}} & \textbf{{Expresado como}} & \textbf{{Unidad}} & \textbf{{L\'imite m\'aximo permisible}} \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+Aceites y grasas & Sust.\ solubles en hexano & mg/L & $\leq$ 0,3 \\
+Aluminio & Al & mg/L & $\leq$ 5,0 \\
+Ars\'enico total & As & mg/L & $\leq$ 0,1 \\
+Bario & Ba & mg/L & $\leq$ 2,0 \\
+Cadmio & Cd & mg/L & $\leq$ 0,02 \\
+Cianuro total & CN$^-$ & mg/L & $\leq$ 0,1 \\
+Cloruros & Cl$^-$ & mg/L & $\leq$ 1\,000 \\
+Cobre & Cu & mg/L & $\leq$ 1,0 \\
+\textbf{{Coliformes fecales}}$^\dagger$ & NMP & NMP/100 mL & $\leq$ 3\,000 \\
+Compuestos fen\'olicos & Fenol & mg/L & $\leq$ 0,2 \\
+Cromo hexavalente & Cr$^{{6+}}$ & mg/L & $\leq$ 0,5 \\
+\textbf{{DBO$_5$}} & -- & mg/L & $\leq$ 100 \\
+\textbf{{DQO}} & -- & mg/L & $\leq$ 250 \\
+Fluoruros & F$^-$ & mg/L & $\leq$ 5,0 \\
+F\'osforo total & P & mg/L & $\leq$ 10,0 \\
+Hierro total & Fe & mg/L & $\leq$ 10,0 \\
+Manganeso total & Mn & mg/L & $\leq$ 2,0 \\
+Materia flotante & -- & -- & Ausencia \\
+Mercurio total & Hg & mg/L & $\leq$ 0,005 \\
+N\'iquel & Ni & mg/L & $\leq$ 2,0 \\
+Nitr\'ogeno amoniacal & N-NH$_3$ & mg/L & $\leq$ 30,0 \\
+Nitr\'ogeno total Kjeldahl & N-TKN & mg/L & $\leq$ 50,0 \\
+pH & -- & -- & $6,0 - 9,0$ \\
+Plata total & Ag & mg/L & $\leq$ 0,1 \\
+Plomo total & Pb & mg/L & $\leq$ 0,2 \\
+Selenio & Se & mg/L & $\leq$ 0,1 \\
+\textbf{{S\'olidos sedimentables}} & -- & mL/L & $\leq$ 1,0 \\
+\textbf{{S\'olidos suspendidos totales}} & -- & mg/L & $\leq$ 130 \\
+S\'olidos totales & -- & mg/L & $\leq$ 1\,600 \\
+Sulfatos & SO$_4^{{2-}}$ & mg/L & $\leq$ 1\,000 \\
+Sulfuros & S$^{{2-}}$ & mg/L & $\leq$ 0,5 \\
+Temperatura & -- & $^\circ$C & Cond.\ natural $\pm$ 3\,$^\circ$C; m\'ax.\ 32\,$^\circ$C \\
+Tensoactivos & SAAM & mg/L & $\leq$ 0,5 \\
+Zinc & Zn & mg/L & $\leq$ 5,0 \\
+\multicolumn{{4}}{{l}}{{\footnotesize $^\dagger$ Aquellos con descargas $\leq$ 3\,000 NMP/100 mL quedan exentos de tratamiento de desinfecci\'on.}}\\
+\end{{longtable}}
+
+% ----------------------------------------------------------
+\subsection{{Tabla 13 -- Descarga a Cuerpo de Agua Marina}}
+% ----------------------------------------------------------
+
+\begin{{longtable}}{{p{{5.5cm}}p{{2.2cm}}p{{2.5cm}}p{{4.5cm}}}}
+\caption{{L\'imites m\'aximos permisibles de descarga a un cuerpo de agua marina (TULSMA, Tabla~13).}}\\
+\toprule
+\textbf{{Par\'ametro}} & \textbf{{Expresado como}} & \textbf{{Unidad}} & \textbf{{L\'imite m\'aximo permisible}} \\
+\midrule
+\endfirsthead
+\multicolumn{{4}}{{c}}{{\small\itshape Continuaci\'on de la Tabla}}\\
+\toprule
+\textbf{{Par\'ametro}} & \textbf{{Expresado como}} & \textbf{{Unidad}} & \textbf{{L\'imite m\'aximo permisible}} \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+Aceites y grasas & Sust.\ solubles en hexano & mg/L & $\leq$ 0,3 \\
+Aluminio & Al & mg/L & $\leq$ 5,0 \\
+Ars\'enico total & As & mg/L & $\leq$ 0,1 \\
+Cadmio & Cd & mg/L & $\leq$ 0,1 \\
+Cianuro total & CN$^-$ & mg/L & $\leq$ 0,1 \\
+Cobre & Cu & mg/L & $\leq$ 0,5 \\
+\textbf{{Coliformes fecales}}$^\ddagger$ & NMP & NMP/100 mL & $\leq$ 3\,000 \\
+Compuestos fen\'olicos & Fenol & mg/L & $\leq$ 0,2 \\
+Cromo hexavalente & Cr$^{{6+}}$ & mg/L & $\leq$ 0,5 \\
+\textbf{{DBO$_5$}} & -- & mg/L & $\leq$ 100 \\
+\textbf{{DQO}} & -- & mg/L & $\leq$ 250 \\
+Fluoruros & F$^-$ & mg/L & $\leq$ 5,0 \\
+Hierro total & Fe & mg/L & $\leq$ 10,0 \\
+Manganeso total & Mn & mg/L & $\leq$ 2,0 \\
+Materia flotante & -- & -- & Ausencia \\
+Mercurio total & Hg & mg/L & $\leq$ 0,005 \\
+N\'iquel & Ni & mg/L & $\leq$ 2,0 \\
+Nitr\'ogeno amoniacal & N-NH$_3$ & mg/L & $\leq$ 30,0 \\
+Nitr\'ogeno total Kjeldahl & N-TKN & mg/L & $\leq$ 50,0 \\
+pH & -- & -- & $6,0 - 9,0$ \\
+Plomo total & Pb & mg/L & $\leq$ 0,2 \\
+\textbf{{S\'olidos suspendidos totales}} & -- & mg/L & $\leq$ 100 \\
+Temperatura & -- & $^\circ$C & Cond.\ natural $\pm$ 3\,$^\circ$C; m\'ax.\ 32\,$^\circ$C \\
+Tensoactivos & SAAM & mg/L & $\leq$ 0,5 \\
+Zinc & Zn & mg/L & $\leq$ 5,0 \\
+\multicolumn{{4}}{{l}}{{\footnotesize $^\ddagger$ Aquellos con descargas $\leq$ 3\,000 NMP/100 mL quedan exentos de tratamiento de desinfecci\'on.}}\\
+\end{{longtable}}
+
+% ----------------------------------------------------------
 \subsection{{Tabla 2 -- Consumo Humano (solo desinfecci\'on)}}
+% ----------------------------------------------------------
 
-\begin{{table}}[H]
-\centering
-\small
-\begin{{tabular}}{{p{{5.5cm}}p{{2.5cm}}p{{4.5cm}}}}
+\begin{{longtable}}{{p{{5.5cm}}p{{2.2cm}}p{{2.5cm}}p{{4.5cm}}}}
+\caption{{L\'imites m\'aximos permisibles para aguas de consumo humano que \'unicamente requieren desinfecci\'on (TULSMA, Tabla~2).}}\\
 \toprule
-\textbf{{Par\'ametro}} & \textbf{{Unidad}} & \textbf{{L\'imite m\'aximo}} \\
+\textbf{{Par\'ametro}} & \textbf{{Expresado como}} & \textbf{{Unidad}} & \textbf{{L\'imite m\'aximo permisible}} \\
 \midrule
-DBO$_5$ & mg/L & $\leq$ 2,0 \\
-Coliformes fecales & NMP/100 mL & $\leq$ 50 \\
-Coliformes totales & NMP/100 mL & $\leq$ 50 \\
+\endfirsthead
+\multicolumn{{4}}{{c}}{{\small\itshape Continuaci\'on de la Tabla}}\\
+\toprule
+\textbf{{Par\'ametro}} & \textbf{{Expresado como}} & \textbf{{Unidad}} & \textbf{{L\'imite m\'aximo permisible}} \\
+\midrule
+\endhead
 \bottomrule
-\end{{tabular}}
-\end{{table}}
+\endlastfoot
+Aceites y Grasas & Sust.\ solubles en hexano & mg/L & $\leq$ 0,3 \\
+Aluminio total & Al & mg/L & $\leq$ 0,1 \\
+Amoniaco & N-Amoniacal & mg/L & $\leq$ 1,0 \\
+Ars\'enico total & As & mg/L & $\leq$ 0,05 \\
+Bario & Ba & mg/L & $\leq$ 1,0 \\
+Berilio & Be & mg/L & $\leq$ 0,1 \\
+Boro total & B & mg/L & $\leq$ 0,75 \\
+Cadmio & Cd & mg/L & $\leq$ 0,001 \\
+Cianuro total & CN$^-$ & mg/L & $\leq$ 0,01 \\
+Cobalto & Co & mg/L & $\leq$ 0,2 \\
+Cobre & Cu & mg/L & $\leq$ 1,0 \\
+Color real & -- & UC & $\leq$ 20 \\
+\textbf{{Coliformes totales}}$^*$ & NMP & NMP/100 mL & $\leq$ 50 \\
+Cloruros & Cl$^-$ & mg/L & $\leq$ 250 \\
+Compuestos fen\'olicos & Fenol & mg/L & $\leq$ 0,002 \\
+Cromo hexavalente & Cr$^{{6+}}$ & mg/L & $\leq$ 0,05 \\
+\textbf{{DBO$_5$}} & -- & mg/L & $\leq$ 2,0 \\
+Dureza & CaCO$_3$ & mg/L & $\leq$ 500 \\
+Esta\~no & Sn & mg/L & $\leq$ 2,0 \\
+Fluoruros & F & mg/L & $<$ 1,4 \\
+Hierro total & Fe & mg/L & $\leq$ 0,3 \\
+Litio & Li & mg/L & $\leq$ 2,5 \\
+Manganeso total & Mn & mg/L & $\leq$ 0,1 \\
+Materia flotante & -- & -- & Ausencia \\
+Mercurio total & Hg & mg/L & $\leq$ 0,001 \\
+N\'iquel & Ni & mg/L & $\leq$ 0,025 \\
+Nitrato & N-Nitrato & mg/L & $\leq$ 10,0 \\
+Nitrito & N-Nitrito & mg/L & $\leq$ 1,0 \\
+Olor y sabor & -- & -- & Ausencia \\
+Ox\'igeno disuelto & O.D. & mg/L & $\geq$ 80\% saturaci\'on; $\geq$ 6 mg/L \\
+pH & -- & -- & $6,0 - 9,0$ \\
+Plata total & Ag & mg/L & $\leq$ 0,05 \\
+Plomo total & Pb & mg/L & $\leq$ 0,05 \\
+Selenio total & Se & mg/L & $\leq$ 0,01 \\
+Sodio & Na & mg/L & $\leq$ 200 \\
+S\'olidos disueltos totales & -- & mg/L & $\leq$ 500 \\
+Sulfatos & SO$_4^{{2-}}$ & mg/L & $\leq$ 250 \\
+Temperatura & -- & $^\circ$C & Cond.\ natural $\pm$ 3\,$^\circ$C \\
+Tensoactivos & SAAM & mg/L & $\leq$ 0,5 \\
+Turbiedad & -- & UTN & $\leq$ 10 \\
+Vanadio & V & mg/L & $\leq$ 0,1 \\
+Zinc & Zn & mg/L & $\leq$ 5,0 \\
+\multicolumn{{4}}{{l}}{{\footnotesize $^*$ Si $>$40\% del NMP corresponde a coliformes fecales, se requiere tratamiento convencional.}}\\
+\end{{longtable}}
 
+% ----------------------------------------------------------
 \subsection{{Tabla 3 -- Preservaci\'on de Flora y Fauna}}
+% ----------------------------------------------------------
 
-\begin{{table}}[H]
-\centering
-\small
-\begin{{tabular}}{{p{{4cm}}p{{2.5cm}}p{{2.5cm}}p{{3cm}}}}
+\begin{{longtable}}{{p{{5.0cm}}p{{2.0cm}}p{{1.5cm}}p{{3.0cm}}p{{3.0cm}}p{{3.2cm}}}}
+\caption{{Criterios de calidad admisibles para la preservaci\'on de flora y fauna en aguas dulces y marinas (TULSMA, Tabla~3).}}\\
 \toprule
-\textbf{{Par\'ametro}} & \textbf{{Unidad}} & \textbf{{Agua dulce}} & \textbf{{Agua marina}} \\
+\textbf{{Par\'ametro}} & \textbf{{Expresado como}} & \textbf{{Unidad}} & \textbf{{Agua fr\'ia dulce}} & \textbf{{Agua c\'alida dulce}} & \textbf{{Agua marina/estuario}} \\
 \midrule
-Coliformes fecales & NMP/100 mL & $\leq$ 200 & $\leq$ 200 \\
+\endfirsthead
+\multicolumn{{6}}{{c}}{{\small\itshape Continuaci\'on de la Tabla}}\\
+\toprule
+\textbf{{Par\'ametro}} & \textbf{{Expresado como}} & \textbf{{Unidad}} & \textbf{{Agua fr\'ia dulce}} & \textbf{{Agua c\'alida dulce}} & \textbf{{Agua marina/estuario}} \\
+\midrule
+\endhead
 \bottomrule
-\end{{tabular}}
-\end{{table}}
+\endlastfoot
+Aluminio & Al & mg/L & $\leq$ 0,1 & $\leq$ 0,1 & $\leq$ 1,5 \\
+Amoniaco no ionizado & NH$_3$ & mg/L & $\leq$ 0,02 & $\leq$ 0,02 & $\leq$ 0,4 \\
+Ars\'enico & As & mg/L & $\leq$ 0,05 & $\leq$ 0,05 & $\leq$ 0,05 \\
+Bario & Ba & mg/L & $\leq$ 1,0 & $\leq$ 1,0 & $\leq$ 1,0 \\
+Berilio & Be & mg/L & $\leq$ 0,1 & $\leq$ 0,1 & $\leq$ 1,5 \\
+Bifenilos policlorados (PCBs) & PCBs totales & mg/L & $\leq$ 0,001 & $\leq$ 0,001 & $\leq$ 0,001 \\
+Boro & B & mg/L & $\leq$ 0,75 & $\leq$ 0,75 & $\leq$ 5,0 \\
+Cadmio & Cd & mg/L & $\leq$ 0,001 & $\leq$ 0,001 & $\leq$ 0,005 \\
+Cianuro libre & CN$^-$ & mg/L & $\leq$ 0,01 & $\leq$ 0,01 & $\leq$ 0,01 \\
+Cloro residual & Cl & mg/L & $\leq$ 0,01 & $\leq$ 0,01 & $\leq$ 0,01 \\
+Clorofenoles & -- & mg/L & $\leq$ 0,5 & $\leq$ 0,5 & $\leq$ 0,5 \\
+Cobalto & Co & mg/L & $\leq$ 0,2 & $\leq$ 0,2 & $\leq$ 0,2 \\
+\textbf{{Coliformes fecales}} & NMP & NMP/100 mL & $\leq$ 200 & $\leq$ 200 & $\leq$ 200 \\
+Cobre & Cu & mg/L & $\leq$ 0,02 & $\leq$ 0,02 & $\leq$ 0,05 \\
+Cromo total & Cr & mg/L & $\leq$ 0,05 & $\leq$ 0,05 & $\leq$ 0,05 \\
+Fenoles monoh\'idricos & Fenoles & mg/L & $\leq$ 0,001 & $\leq$ 0,001 & $\leq$ 0,001 \\
+Grasas y aceites & Sust.\ hex. & mg/L & $\leq$ 0,3 & $\leq$ 0,3 & $\leq$ 0,3 \\
+HAPs totales & HAPs & mg/L & $\leq$ 0,0003 & $\leq$ 0,0003 & $\leq$ 0,0003 \\
+Hierro & Fe & mg/L & $\leq$ 0,3 & $\leq$ 0,3 & $\leq$ 0,3 \\
+Hidrocarburos totales de petr\'oleo & TPH & mg/L & $\leq$ 0,5 & $\leq$ 0,5 & $\leq$ 0,5 \\
+Manganeso & Mn & mg/L & $\leq$ 0,1 & $\leq$ 0,1 & $\leq$ 0,1 \\
+Materia flotante & -- & -- & Ausencia & Ausencia & Ausencia \\
+Mercurio & Hg & mg/L & $\leq$ 0,0002 & $\leq$ 0,0002 & $\leq$ 0,0001 \\
+N\'iquel & Ni & mg/L & $\leq$ 0,025 & $\leq$ 0,025 & $\leq$ 0,1 \\
+Ox\'igeno disuelto & O.D. & mg/L & $\geq$ 80\%; $\geq$ 6 & $\geq$ 60\%; $\geq$ 5 & $\geq$ 60\%; $\geq$ 5 \\
+pH & -- & -- & $6,5 - 9,0$ & $6,5 - 9,0$ & $6,5 - 9,5$ \\
+Plaguicidas organoclorados & Org.\ totales & $\mu$g/L & $\leq$ 10,0 & $\leq$ 10,0 & $\leq$ 10,0 \\
+Plaguicidas organofosforados & Org.\ totales & $\mu$g/L & $\leq$ 10,0 & $\leq$ 10,0 & $\leq$ 10,0 \\
+Plata & Ag & mg/L & $\leq$ 0,01 & $\leq$ 0,01 & $\leq$ 0,005 \\
+Plomo & Pb & mg/L & $\leq$ 0,01 & $\leq$ 0,01 & -- \\
+Piretroides & Piretroides totales & mg/L & $\leq$ 0,05 & $\leq$ 0,05 & $\leq$ 0,05 \\
+Selenio & Se & mg/L & $\leq$ 0,01 & $\leq$ 0,01 & $\leq$ 0,01 \\
+Sulfuro de hidr\'ogeno ionizado & H$_2$S & mg/L & $\leq$ 0,0002 & $\leq$ 0,0002 & $\leq$ 0,0002 \\
+Temperatura & -- & $^\circ$C & C.N.\ + 3 (m\'ax.\ 20) & C.N.\ + 3 (m\'ax.\ 32) & C.N.\ + 3 (m\'ax.\ 32) \\
+Tensoactivos & SAAM & mg/L & $\leq$ 0,5 & $\leq$ 0,5 & $\leq$ 0,5 \\
+Zinc & Zn & mg/L & $\leq$ 0,18 & $\leq$ 0,18 & $\leq$ 0,17 \\
+\multicolumn{{6}}{{l}}{{\footnotesize C.N.~= Condici\'on natural.}}\\
+\end{{longtable}}
 
+% ----------------------------------------------------------
 \subsection{{Tabla 6 -- Uso Agr\'icola o de Riego}}
+% ----------------------------------------------------------
 
-\begin{{table}}[H]
-\centering
-\small
-\begin{{tabular}}{{p{{5.5cm}}p{{2.5cm}}p{{4.5cm}}}}
+\begin{{longtable}}{{p{{5.5cm}}p{{2.2cm}}p{{2.5cm}}p{{4.5cm}}}}
+\caption{{Criterios de calidad admisibles para aguas de uso agr\'icola o de riego (TULSMA, Tabla~6).}}\\
 \toprule
-\textbf{{Par\'ametro}} & \textbf{{Unidad}} & \textbf{{L\'imite m\'aximo}} \\
+\textbf{{Par\'ametro}} & \textbf{{Expresado como}} & \textbf{{Unidad}} & \textbf{{L\'imite m\'aximo permisible}} \\
 \midrule
-Coliformes fecales & NMP/100 mL & $\leq$ 1.000 \\
+\endfirsthead
+\multicolumn{{4}}{{c}}{{\small\itshape Continuaci\'on de la Tabla}}\\
+\toprule
+\textbf{{Par\'ametro}} & \textbf{{Expresado como}} & \textbf{{Unidad}} & \textbf{{L\'imite m\'aximo permisible}} \\
+\midrule
+\endhead
 \bottomrule
-\end{{tabular}}
-\end{{table}}
+\endlastfoot
+Aceites y grasas & Sust.\ solubles en hexano & mg/L & $\leq$ 0,1 \\
+Ars\'enico & As & mg/L & $\leq$ 0,1 \\
+Benceno & -- & mg/L & $\leq$ 0,01 \\
+Cadmio & Cd & mg/L & $\leq$ 0,01 \\
+Cianuro total & CN$^-$ & mg/L & $\leq$ 0,2 \\
+\textbf{{Coliformes fecales}}$^*$ & NMP & NMP/100 mL & $\leq$ 1\,000 \\
+Conductividad el\'ectrica & -- & $\mu$mho/cm & $\leq$ 3\,000 \\
+Cloruros & Cl$^-$ & mg/L & $\leq$ 1\,000 \\
+Cromo total & Cr & mg/L & $\leq$ 0,1 \\
+Hierro & Fe & mg/L & $\leq$ 5,0 \\
+Mercurio total & Hg & mg/L & $\leq$ 0,001 \\
+pH & -- & -- & $6,0 - 9,0$ \\
+Plomo & Pb & mg/L & $\leq$ 5,0 \\
+Sodio & Na & mg/L & $\leq$ 200 \\
+Sulfatos & SO$_4^{{2-}}$ & mg/L & $\leq$ 1\,000 \\
+Vanadio & V & mg/L & $\leq$ 0,1 \\
+Zinc & Zn & mg/L & $\leq$ 2,0 \\
+\multicolumn{{4}}{{l}}{{\footnotesize $^*$ Para riego de cultivos para consumo humano en contacto directo con el suelo.}}\\
+\end{{longtable}}
 
+% ----------------------------------------------------------
 \subsection{{Tabla 7 -- Uso Pecuario}}
+% ----------------------------------------------------------
 
-\begin{{table}}[H]
-\centering
-\small
-\begin{{tabular}}{{p{{5.5cm}}p{{2.5cm}}p{{4.5cm}}}}
+\begin{{longtable}}{{p{{5.5cm}}p{{2.2cm}}p{{2.5cm}}p{{4.5cm}}}}
+\caption{{Criterios de calidad admisibles para aguas de uso pecuario (TULSMA, Tabla~7).}}\\
 \toprule
-\textbf{{Par\'ametro}} & \textbf{{Unidad}} & \textbf{{L\'imite m\'aximo}} \\
+\textbf{{Par\'ametro}} & \textbf{{Expresado como}} & \textbf{{Unidad}} & \textbf{{L\'imite m\'aximo permisible}} \\
 \midrule
-Coliformes fecales & NMP/100 mL & $\leq$ 1.000 \\
+\endfirsthead
+\multicolumn{{4}}{{c}}{{\small\itshape Continuaci\'on de la Tabla}}\\
+\toprule
+\textbf{{Par\'ametro}} & \textbf{{Expresado como}} & \textbf{{Unidad}} & \textbf{{L\'imite m\'aximo permisible}} \\
+\midrule
+\endhead
 \bottomrule
-\end{{tabular}}
-\end{{table}}
+\endlastfoot
+Aceites y grasas & Sust.\ solubles en hexano & mg/L & $\leq$ 0,1 \\
+Ars\'enico & As & mg/L & $\leq$ 0,2 \\
+Cadmio & Cd & mg/L & $\leq$ 0,05 \\
+Cianuro total & CN$^-$ & mg/L & $\leq$ 0,2 \\
+\textbf{{Coliformes fecales}} & NMP & NMP/100 mL & $\leq$ 1\,000 \\
+Conductividad el\'ectrica & -- & $\mu$mho/cm & $\leq$ 5\,000 \\
+Cromo total & Cr & mg/L & $\leq$ 1,0 \\
+Fluoruros & F$^-$ & mg/L & $\leq$ 2,0 \\
+Mercurio total & Hg & mg/L & $\leq$ 0,01 \\
+Nitratos & NO$_3^-$ & mg/L & $\leq$ 45 \\
+pH & -- & -- & $6,0 - 9,0$ \\
+Plomo & Pb & mg/L & $\leq$ 0,1 \\
+Sulfatos & SO$_4^{{2-}}$ & mg/L & $\leq$ 500 \\
+\end{{longtable}}
 
+% ----------------------------------------------------------
 \subsection{{Tablas 9 y 10 -- Uso Recreativo}}
+% ----------------------------------------------------------
 
-\begin{{table}}[H]
-\centering
-\small
-\begin{{tabular}}{{p{{4cm}}p{{2.5cm}}p{{3cm}}p{{3cm}}}}
+\begin{{longtable}}{{p{{5.0cm}}p{{1.8cm}}p{{3.5cm}}p{{3.5cm}}}}
+\caption{{Criterios de calidad para aguas destinadas a fines recreativos (TULSMA, Tablas~9 y 10).}}\\
+\toprule
+\textbf{{Par\'ametro}} & \textbf{{Unidad}} & \textbf{{Contacto primario$^a$}} & \textbf{{Contacto secundario$^b$}} \\
+\midrule
+\endfirsthead
+\multicolumn{{4}}{{c}}{{\small\itshape Continuaci\'on de la Tabla}}\\
 \toprule
 \textbf{{Par\'ametro}} & \textbf{{Unidad}} & \textbf{{Contacto primario}} & \textbf{{Contacto secundario}} \\
 \midrule
-Coliformes fecales & NMP/100 mL & $\leq$ 200 & $\leq$ 2.000 \\
-Coliformes totales & NMP/100 mL & $\leq$ 1.000 & -- \\
+\endhead
 \bottomrule
-\end{{tabular}}
-\end{{table}}
+\endlastfoot
+\textbf{{Coliformes fecales}} & NMP/100 mL & $\leq$ 200 & $\leq$ 2\,000 \\
+Coliformes totales & NMP/100 mL & $\leq$ 1\,000 & -- \\
+Aceites y grasas & -- & Ausencia visible & Ausencia visible \\
+Color & -- & Inapreciable & Inapreciable \\
+Materia flotante & -- & Ausencia & Ausencia \\
+Ox\'igeno disuelto & mg/L & $\geq$ 6,0 & $\geq$ 5,0 \\
+pH & -- & $6,0 - 9,0$ & $6,0 - 9,0$ \\
+Temperatura & $^\circ$C & $\leq$ 30 & $\leq$ 30 \\
+Turbiedad & UTN & $\leq$ 10 & -- \\
+\multicolumn{{4}}{{l}}{{\footnotesize $^a$ Nado, buc\'eo, esqu\'i acu\'atico, surf.}} \\
+\multicolumn{{4}}{{l}}{{\footnotesize $^b$ Pesca, navegaci\'on deportiva, remo.}} \\
+\end{{longtable}}
 
-\subsection{{Tabla 11 -- Descarga al Alcantarillado}}
+% ============================================================
+\newpage
+\section{{L\'imites de Descarga de Efluentes}}
+% ============================================================
 
-\begin{{table}}[H]
-\centering
-\small
-\begin{{tabular}}{{p{{5.5cm}}p{{2.5cm}}p{{4.5cm}}}}
+% ----------------------------------------------------------
+\subsection{{Tabla 11 -- Descarga al Sistema de Alcantarillado P\'ublico}}
+% ----------------------------------------------------------
+
+\begin{{longtable}}{{p{{5.5cm}}p{{2.2cm}}p{{2.5cm}}p{{4.5cm}}}}
+\caption{{L\'imites m\'aximos permisibles de descarga al sistema de alcantarillado p\'ublico (TULSMA, Tabla~11).}}\\
 \toprule
-\textbf{{Par\'ametro}} & \textbf{{Unidad}} & \textbf{{L\'imite m\'aximo}} \\
+\textbf{{Par\'ametro}} & \textbf{{Expresado como}} & \textbf{{Unidad}} & \textbf{{L\'imite m\'aximo permisible}} \\
 \midrule
-DBO$_5$ & mg/L & $\leq$ 250 \\
-DQO & mg/L & $\leq$ 500 \\
-SST & mg/L & $\leq$ 220 \\
-Coliformes fecales & NMP/100 mL & No especificado \\
-\bottomrule
-\end{{tabular}}
-\end{{table}}
-
-\subsection{{Tabla 12 -- Descarga a Cuerpo de Agua Dulce}}
-
-\begin{{table}}[H]
-\centering
-\small
-\begin{{tabular}}{{p{{5.5cm}}p{{2.5cm}}p{{4.5cm}}}}
+\endfirsthead
+\multicolumn{{4}}{{c}}{{\small\itshape Continuaci\'on de la Tabla}}\\
 \toprule
-\textbf{{Par\'ametro}} & \textbf{{Unidad}} & \textbf{{L\'imite m\'aximo}} \\
+\textbf{{Par\'ametro}} & \textbf{{Expresado como}} & \textbf{{Unidad}} & \textbf{{L\'imite m\'aximo permisible}} \\
 \midrule
-DBO$_5$ & mg/L & $\leq$ 100 \\
-DQO & mg/L & $\leq$ 250 \\
-SST & mg/L & $\leq$ 130 \\
-Coliformes fecales & NMP/100 mL & $\leq$ 3.000 \\
+\endhead
 \bottomrule
-\end{{tabular}}
-\end{{table}}
-
-\textit{{Nota:}} Aquellos con descargas $\leq$ 3.000 NMP/100 mL quedan exentos de tratamiento de desinfecci\'on.
-
-\subsection{{Tabla 13 -- Descarga a Cuerpo de Agua Marina}}
-
-\begin{{table}}[H]
-\centering
-\small
-\begin{{tabular}}{{p{{5.5cm}}p{{2.5cm}}p{{4.5cm}}}}
-\toprule
-\textbf{{Par\'ametro}} & \textbf{{Unidad}} & \textbf{{L\'imite m\'aximo}} \\
-\midrule
-DBO$_5$ & mg/L & $\leq$ 100 \\
-DQO & mg/L & $\leq$ 250 \\
-SST & mg/L & $\leq$ 100 \\
-Coliformes fecales & NMP/100 mL & $\leq$ 3.000 \\
-\bottomrule
-\end{{tabular}}
-\end{{table}}
+\endlastfoot
+Aceites y grasas & Sust.\ solubles en hexano & mg/L & $\leq$ 70,0 \\
+Aluminio & Al & mg/L & $\leq$ 5,0 \\
+Ars\'enico total & As & mg/L & $\leq$ 0,1 \\
+Bario & Ba & mg/L & $\leq$ 2,0 \\
+Cadmio & Cd & mg/L & $\leq$ 0,02 \\
+Cianuro total & CN$^-$ & mg/L & $\leq$ 1,0 \\
+Cloruros & Cl$^-$ & mg/L & $\leq$ 1\,000 \\
+Cobre & Cu & mg/L & $\leq$ 1,0 \\
+Coliformes fecales & NMP & NMP/100 mL & No especificado \\
+Compuestos fen\'olicos & Fenol & mg/L & $\leq$ 0,2 \\
+Cromo hexavalente & Cr$^{{6+}}$ & mg/L & $\leq$ 0,5 \\
+Cromo total & Cr & mg/L & $\leq$ 0,5 \\
+\textbf{{DBO$_5$}} & -- & mg/L & $\leq$ 250 \\
+\textbf{{DQO}} & -- & mg/L & $\leq$ 500 \\
+Fluoruros & F$^-$ & mg/L & $\leq$ 5,0 \\
+Hierro total & Fe & mg/L & $\leq$ 25,0 \\
+Manganeso total & Mn & mg/L & $\leq$ 10,0 \\
+Materia flotante & -- & -- & Ausencia \\
+Mercurio total & Hg & mg/L & $\leq$ 0,01 \\
+N\'iquel & Ni & mg/L & $\leq$ 2,0 \\
+Nitr\'ogeno amoniacal & N-NH$_3$ & mg/L & $\leq$ 30,0 \\
+pH & -- & -- & $6,0 - 9,0$ \\
+Plata total & Ag & mg/L & $\leq$ 0,5 \\
+Plomo total & Pb & mg/L & $\leq$ 0,5 \\
+Selenio & Se & mg/L & $\leq$ 0,5 \\
+\textbf{{S\'olidos sedimentables}} & -- & mL/L/h & $\leq$ 20 \\
+\textbf{{S\'olidos suspendidos totales}} & -- & mg/L & $\leq$ 220 \\
+Sulfatos & SO$_4^{{2-}}$ & mg/L & $\leq$ 1\,000 \\
+Sulfuros & S$^{{2-}}$ & mg/L & $\leq$ 1,0 \\
+Temperatura & -- & $^\circ$C & $\leq$ 40 \\
+Tensoactivos & SAAM & mg/L & $\leq$ 2,0 \\
+Zinc & Zn & mg/L & $\leq$ 5,0 \\
+\end{{longtable}}
 
 \newpage
 %============================================================================
