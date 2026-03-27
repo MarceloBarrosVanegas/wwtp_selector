@@ -1,291 +1,26 @@
 \documentclass[12pt,a4paper]{article}
 \usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
 \usepackage[spanish]{babel}
 \usepackage{geometry}
-\usepackage{graphicx}
-\usepackage{booktabs}
-\usepackage{longtable}
-\usepackage{array}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{tikz}
 \usepackage{float}
-\usepackage{caption}
-\usepackage{subcaption}
 \usepackage{xcolor}
 \usepackage{hyperref}
-\usepackage{enumitem}
-\usepackage{fancyhdr}
-\usepackage{titlesec}
-\usepackage{tikz}
-\usepackage{pgfplots}
-\pgfplotsset{compat=1.18}
-\usepackage[most]{tcolorbox}
+\geometry{margin=2.5cm}
 
-\geometry{margin=2.5cm, headheight=14pt}
-
-% Colores corporativos
-\definecolor{azuloscuro}{RGB}{0,51,102}
-\definecolor{verdeagua}{RGB}{0,128,128}
-\definecolor{grisclaro}{RGB}{245,245,245}
-
-% Hyperref setup
 \hypersetup{
     colorlinks=true,
-    linkcolor=black,
-    citecolor=black,
-    filecolor=black,
-    urlcolor=azuloscuro,
-    pdftitle={Seleccion de Alternativas PTAR},
-    pdfauthor={Ingenieria de Diseno},
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
 }
 
-% Header/Footer
-\pagestyle{fancy}
-\fancyhf{}
-\fancyhead[L]{\small\textcolor{black}{Seleccion de Alternativas - PTAR}}
-\fancyhead[R]{\small\textcolor{black}{\leftmark}}
-\fancyfoot[C]{\thepage}
-\renewcommand{\headrulewidth}{0.5pt}
-
-% Section formatting
-\titleformat{\section}
-  {\normalfont\Large\bfseries\color{black}}
-  {\thesection.}{0.5em}{}
-\titleformat{\subsection}
-  {\normalfont\large\bfseries\color{black}}
-  {\thesubsection}{0.5em}{}
-
 \begin{document}
-
-%============================================================================
-% PORTADA
-%============================================================================
-\begin{titlepage}
-\centering
-\vspace*{2cm}
-
-{\Huge\bfseries\textcolor{azuloscuro}{SELECCION DE ALTERNATIVAS}\\[0.5cm]
-\Large PARA PLANTA DE TRATAMIENTO DE\\[0.3cm]
-AGUAS RESIDUALES}
-
-\vspace{2cm}
-
-{\Large\textbf{Caudal de Diseno:} 10.0 L/s}
-
-\vspace{1.5cm}
-
-\begin{tikzpicture}
-\draw[azuloscuro, thick, rounded corners] (0,0) rectangle (10,4);
-\node at (5,3) {\textbf{Proyecto:}};
-\node at (5,2) {Planta de Tratamiento de Aguas Residuales};
-\node at (5,1) {\textbf{Ubicacion:} Por definir};
-\end{tikzpicture}
-
-\vfill
-
-{\large Fecha: 27/03/2026}
-
-\end{titlepage}
-
-%============================================================================
-% INTRODUCCION
-%============================================================================
-\newpage
-\section{INTRODUCCION}
-
-El presente documento tiene como objetivo presentar el analisis y comparacion 
-de diferentes alternativas tecnologicas para el tratamiento de aguas residuales.
-
-Se han identificado y evaluado 1 alternativas de tratamiento, 
-considerando aspectos tecnicos, economicos y operativos para la seleccion de la 
-mejor opcion.
-
-El caudal de diseno considerado es de 10.0 L/s, 
-distribuido en dos lineas paralelas de 5.0 L/s cada una.
-
-\subsection{Alcance}
-
-El estudio incluye:
-\begin{itemize}
-    \item Dimensionamiento de unidades de pretratamiento
-    \item Dimensionamiento de unidades de tratamiento primario y secundario
-    \item Disposicion de lodos generados
-    \item Desinfeccion del efluente tratado
-    \item Matriz comparativa de alternativas
-    \item Recomendacion de alternativa seleccionada
-\end{itemize}
-
-\subsection{Nomenclatura y Definiciones}
-
-\textbf{Parametros de calidad del agua:}
-\begin{itemize}
-    \item \textbf{DBO}: Demanda Bioquimica de Oxigeno. Cantidad de oxigeno consumido por microorganismos 
-    para degradar materia organica. Unidad: mg/L.
-    \item \textbf{DQO}: Demanda Quimica de Oxigeno. Medida del oxigeno requerido para oxidar quimicamente 
-    la materia organica. Unidad: mg/L.
-    \item \textbf{SST}: Solidos Suspendidos Totales. Particulas solidas en suspension en el agua. Unidad: mg/L.
-    \item \textbf{NMP}: Numero Mas Probable. Concentracion de organismos indicadores (coliformes). Unidad: NMP/100mL.
-\end{itemize}
-
-\textbf{Parametros de diseno:}
-\begin{itemize}
-    \item \textbf{TRH}: Tiempo de Retencion Hidraulico. Tiempo promedio que el agua permanece en una unidad. 
-    Unidad: horas (h).
-    \item \textbf{SOR}: Tasa de Desbordamiento Superficial. Caudal dividido por el area superficial del 
-    sedimentador. Unidad: m$^3$/m$^2$\textperiodcentered d.
-    \item \textbf{Cv}: Carga Volumetrica Organica. Masa de DBO o DQO aplicada por unidad de volumen del reactor 
-    por dia. Unidad: kg/m$^3$\textperiodcentered d.
-    \item \textbf{v\_up}: Velocidad Ascendente. Velocidad del flujo ascendente en el reactor UASB. 
-    Unidad: m/h.
-    \item \textbf{Q}: Caudal. Volumen de agua que pasa por unidad de tiempo. Unidades: L/s, m$^3$/d, m$^3$/h.
-\end{itemize}
-
-\textbf{Siglas:}
-\begin{itemize}
-    \item \textbf{UASB}: Upflow Anaerobic Sludge Blanket (Reactor Anaerobio de Flujo Ascendente con Manto de Lodos)
-    \item \textbf{UV}: Ultravioleta (sistema de desinfeccion)
-    \item \textbf{HFCV}: Humedal de Flujo Vertical
-    \item \textbf{MBBR}: Moving Bed Biofilm Reactor (Reactor de Biofilm de Lecho Movil)
-    \item \textbf{SBR}: Sequencing Batch Reactor (Reactor por Lotes Secuencial)
-    \item \textbf{TULSMA}: Texto Unificado de Legislacion Secundaria del Ministerio del Ambiente (Ecuador)
-\end{itemize}
-
-%============================================================================
-% BASES DE DISENO
-%============================================================================
-\newpage
-\section{BASES DE DISENO}
-
-\subsection{Parametros de Entrada}
-
-Los parametros de entrada para el diseno de la planta de tratamiento se 
-establecen conforme a la caracterizacion del agua residual y los requerimientos 
-del proyecto. La Tabla 1 presenta los valores adoptados.
-
-\begin{table}[H]
-\centering
-\caption{Parametros de diseno del influente}
-\begin{tabular}{p{4.5cm}ccp{4cm}}
-\toprule
-\textbf{Parametro} & \textbf{Valor} & \textbf{Unidad} & \textbf{Referencia} \\
-\midrule
-Caudal total (Q) & 10.0 & L/s & Diseno del proyecto \\
-Caudal por linea & 5.0 & L/s & 2 lineas paralelas \\
-Caudal por linea & 432 & m$^3$/d & $Q \times 86.4$ \\
-DBO$_5$ & 243.1 & mg/L & Caracterizacion agua residual \\
-DQO & 498.0 & mg/L & Caracterizacion agua residual \\
-SST & 156.0 & mg/L & Caracterizacion agua residual \\
-Coliformes fecales & $1 \times 10^7$ & NMP/100mL & Aguas residuales municipales \\
-Temperatura & 25.6 & $^\circ$C & Promedio anual Galapagos \\
-pH & 6,0 - 9,0 & -- & Tipico municipal \\
-\bottomrule
-\end{tabular}
-\label{tab:parametros_entrada}
-\end{table}
-
-\textbf{Nota:} DBO = Demanda Bioquimica de Oxigeno; DQO = Demanda Quimica de 
-Oxigeno; SST = Solidos Suspendidos Totales; NMP = Numero Mas Probable.
-
-\subsection{Lineas de Tratamiento}
-
-Considerando la capacidad y redundancia operativa, se establecen:
-\begin{itemize}
-    \item \textbf{2 lineas paralelas} de tratamiento
-    \item Cada linea atiende 5.0 L/s
-    \item Cada linea puede operar independientemente para mantenimiento
-\end{itemize}
-
-\subsection{Limites de Descarga - TULSMA}
-
-Los limites de descarga del efluente tratado se establecen conforme al 
-Texto Unificado de Legislacion Secundaria del Ministerio del Ambiente 
-(TULSMA) - Libro VI, Anexo 1, Tabla 11: Descargas en cuerpos de agua 
-dulceacuicolas.
-
-\begin{table}[H]
-\centering
-\caption{Limites de descarga de efluentes tratados (TULSMA)}
-\begin{tabular}{p{5cm}ccc}
-\toprule
-\textbf{Parametro} & \textbf{Afluente} & \textbf{Limite TULSMA} & \textbf{Remocion requerida} \\
-\midrule
-DBO$_5$ & 243.1 mg/L & $\leq$ 100 mg/L & $\geq$ 60\% \\
-DQO & 498.0 mg/L & $\leq$ 200 mg/L & $\geq$ 60\% \\
-SST & 156.0 mg/L & $\leq$ 100 mg/L & $\geq$ 60\% \\
-Coliformes fecales & $10^7$ NMP/100mL & $\leq$ 1000 NMP/100mL & $\geq$ 4 log \\
-pH & 6,0 - 9,0 & 6,0 - 9,0 & --- \\
-Temperatura & $<$ 35 grados C & $<$ 35 grados C & --- \\
-\bottomrule
-\end{tabular}
-\label{tab:limites_tulsa}
-\end{table}
-
-\textbf{Nota:} TULSMA = Texto Unificado de Legislacion Secundaria del 
-Ministerio del Ambiente de Ecuador.
-
-%============================================================================
-% CRITERIOS DE SELECCION DE TECNOLOGIA
-%============================================================================
-\newpage
-\section{CRITERIOS DE SELECCION DE TECNOLOGIA}
-
-La seleccion de la tecnologia de tratamiento de aguas residuales requiere 
-un analisis integral que considere aspectos tecnicos, economicos, ambientales 
-y operativos. Los criterios fundamentales para la evaluacion de alternativas 
-son los siguientes:
-
-\textbf{Eficiencia de remocion:} Capacidad del sistema para alcanzar los 
-limites de descarga establecidos en la normativa ambiental vigente, 
-considerando la remocion de DBO, DQO, SST y patogenos.
-
-\textbf{Consumo energetico:} Preferencia por tecnologias de bajo consumo 
-energetico, especialmente aquellas que no requieren aireacion forzada como 
-los procesos anaerobios (UASB) y los biofiltros por gravedad.
-
-\textbf{Robustez hidraulica:} Capacidad del sistema para operar 
-eficientemente ante variaciones de caudal y carga organica, manteniendo 
-el desempeno bajo condiciones de flujo minimo y maximo.
-
-\textbf{Complejidad operativa:} Simplicidad en la operacion y el 
-mantenimiento, minimizando requerimientos de personal especializado y 
-equipos complejos.
-
-\textbf{Disponibilidad de area:} Requerimientos de espacio fisico para 
-la planta, considerando las dimensiones de las unidades y la disposicion 
-layout.
-
-\textbf{Generacion de residuos:} Produccion de lodos y otros subproductos, 
-considerando el manejo, tratamiento y disposicion final de los mismos.
-
-%============================================================================
-% DESCRIPCION DETALLADA DE ALTERNATIVAS
-%============================================================================
-\newpage
-\section{DESCRIPCIÓN DETALLADA DE ALTERNATIVAS}
-
-El proceso de seleccion de la tecnologia de tratamiento de aguas residuales 
-requiere un analisis exhaustivo de diferentes alternativas que consideren 
-aspectos tecnicos, economicos y operativos. En esta seccion se presenta el 
-dimensionamiento detallado de cada alternativa evaluada, incluyendo la 
-descripcion de la tecnologia, las bases de diseno adoptadas, el calculo 
-unitario de cada componente del sistema, el balance de calidad esperado y 
-la disposicion espacial de los equipos mediante un layout general.
-
-El dimensionamiento de cada unidad se realizo conforme a estandares 
-internacionales reconocidos, principalmente los criterios establecidos por 
-Metcalf y Eddy, la Water Environment Federation y otras referencias tecnicas 
-para tratamiento de aguas residuales. Se consideraron parametros de entrada 
-como el caudal de diseno, las caracteristicas del agua residual, la temperatura 
-operativa y los limites de descarga establecidos en la normativa ambiental 
-vigente.
-
-Las alternativas presentadas fueron seleccionadas priorizando tecnologias 
-con bajo consumo energetico, robustez hidraulica para operar ante variaciones 
-de caudal, simplicidad operativa que facilite el mantenimiento, y eficiencia 
-comprobada en la remocion de contaminantes para cumplir con los objetivos de 
-calidad del efluente tratado.
-
 
 %============================================================================
 % ALTERNATIVA A: UASB + FILTRO PERCOLADOR + UV
@@ -1122,113 +857,49 @@ La figura siguiente presenta la disposición espacial de las unidades de tratami
 \caption{Disposición espacial de unidades - Alternativa A}
 \end{figure}
 
-El área total requerida para la planta, incluyendo márgenes de seguridad y espacios para acceso de equipos, es de aproximadamente 973 m². Esta configuración permite una operación flexible y mantenimiento sencillo de cada unidad sin interrumpir el tratamiento.
+El área total requerida para la planta, incluyendo márgenes de seguridad y espacios para acceso de equipos, es de aproximadamente 964 m². Esta configuración permite una operación flexible y mantenimiento sencillo de cada unidad sin interrumpir el tratamiento.
+
 
 %============================================================================
-% SELECCION DE ALTERNATIVA
-%============================================================================
-\newpage
-\section{SELECCION DE ALTERNATIVA RECOMENDADA}
-
-\subsection{Analisis Tecnico}
-
-Considerando los aspectos tecnicos evaluados:
-\begin{itemize}
-    \item Eficiencia de remocion de contaminantes
-    \item Confiabilidad operacional
-    \item Flexibilidad ante variaciones de caudal
-    \item Requerimientos de operacion y mantenimiento
-\end{itemize}
-
-\subsection{Analisis Economico (Preliminar)}
-
-El analisis economico considera:
-\begin{itemize}
-    \item Costos de inversion (CAPEX)
-    \item Costos de operacion anuales (OPEX)
-    \item Costo total de vida util (20 anos)
-\end{itemize}
-
-\subsection{Alternativa Seleccionada}
-
-\begin{tcolorbox}[colback=verdeagua!10,colframe=azuloscuro,title=\textbf{Recomendacion}]
-Se recomienda implementar la \textbf{Alternativa A} (UASB + Filtro Percolador) 
-por los siguientes motivos:
-\begin{enumerate}
-    \item Alta eficiencia de remocion de DBO5 (85-90\%)
-    \item Bajo consumo energetico (no requiere aireacion)
-    \item Operacion sencilla y robusta
-    \item Generacion de biogas (aprovechamiento energetico potencial)
-    \item Costos de operacion reducidos
-\end{enumerate}
-\end{tcolorbox}
-
-%============================================================================
-% CONCLUSIONES
+% BIBLIOGRAFÍA
 %============================================================================
 \newpage
-\section{CONCLUSIONES}
-
-\begin{enumerate}
-    \item Se han evaluado 1 alternativas tecnologicas 
-    para el tratamiento de 10.0 L/s de aguas residuales.
-    
-    \item La Alternativa A (UASB + Filtro Percolador) presenta la mejor relacion 
-    eficiencia/costo/operabilidad para las condiciones del proyecto.
-    
-    \item El dimensionamiento realizado cumple con los limites de descarga 
-    establecidos en la normativa ambiental vigente.
-    
-    \item Se recomienda desarrollar la ingenieria de detalle de la alternativa 
-    seleccionada para su posterior construccion.
-\end{enumerate}
-
-%============================================================================
-% FIN DEL DOCUMENTO
-%============================================================================
-
-% Nota: Las memorias de calculo detalladas de cada alternativa se incluyen 
-% en las secciones correspondientes anteriormente en este documento.
-
-%============================================================================
-% REFERENCIAS BIBLIOGRAFICAS
-%============================================================================
-\newpage
-\begin{thebibliography}{99}
+\begin{thebibliography}{9}
 
 \bibitem{metcalf2014}
-Metcalf \& Eddy, AECOM. (2014). 
-\textit{Wastewater Engineering: Treatment and Resource Recovery}. 
-5th Edition. McGraw-Hill Education.
-
-\bibitem{romero2004}
-Romero Rojas, J. A. (2004). 
-\textit{Tratamiento de Aguas Residuales: Teoría y Principios de Diseño}.
-Editorial Limusa. México.
-
-\bibitem{sperling2007}
-Sperling, M. V. (2007). 
-\textit{Introdução à Qualidade das Águas e ao Tratamento de Esgotos}.
-3ª Edição. Editora UFMG. Belo Horizonte.
+Metcalf \& Eddy, AECOM. (2014).
+\textit{Wastewater Engineering: Treatment and Resource Recovery}, 5th ed.
+McGraw-Hill Education.
 
 \bibitem{vanhaandel1994}
-Van Haandel, A. C., \& Lettinga, G. (1994). 
+Van Haandel, A.C., \& Lettinga, G. (1994).
 \textit{Anaerobic Sewage Treatment: A Practical Guide for Regions with a Hot Climate}.
-John Wiley \& Sons. Chichester.
+John Wiley \& Sons.
 
-\bibitem{ops2005}
-OPS/CEPIS. (2005). 
-\textit{Guía para el Diseño de Plantas de Tratamiento de Aguas Residuales}.
-Serie Agua y Saneamiento. Lima, Perú.
+\bibitem{sperling2007}
+Sperling, M.V. (2007).
+\textit{Wastewater Stabilization}.
+Departamento de Engenharia Sanitaria e Ambiental, UFMG.
 
 \bibitem{wef2010}
-Water Environment Federation. (2010). 
-\textit{Wastewater Treatment Plant Design}. MOP 8. WEF Press.
+Water Environment Federation. (2010).
+\textit{WEF Manual of Practice No. 8: Design of Municipal Wastewater Treatment Plants}, 5th ed.
+WEF Press.
 
-\bibitem{senagua2012}
-SENAGUA. (2012). 
-\textit{Guía para la Tecnología de Tratamiento de Aguas Residuales}.
-Quito, Ecuador.
+\bibitem{romero2004}
+Romero Rojas, J.A. (2004).
+\textit{Tratamiento de Aguas Residuales: Teoría y Principios de Diseño}.
+Editorial Escuela Colombiana de Ingeniería.
+
+\bibitem{ops2005}
+OPS/CEPIS. (2005).
+\textit{Guía para el Diseño de Sistemas de Tratamiento de Aguas Residuales en Zonas Rurales y Pequeñas Comunidades}.
+Organización Panamericana de la Salud.
+
+\bibitem{kadlec2009}
+Kadlec, R.H., \& Wallace, S.D. (2009).
+\textit{Treatment Wetlands}, 2nd ed.
+CRC Press.
 
 \end{thebibliography}
 

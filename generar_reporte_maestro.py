@@ -379,7 +379,7 @@ considerando el manejo, tratamiento y disposicion final de los mismos.
 % DESCRIPCION DETALLADA DE ALTERNATIVAS
 %============================================================================
 \newpage
-\section{DESCRIPTION DETALLADA DE ALTERNATIVAS}
+\section{DESCRIPCIÓN DETALLADA DE ALTERNATIVAS}
 
 El proceso de seleccion de la tecnologia de tratamiento de aguas residuales 
 requiere un analisis exhaustivo de diferentes alternativas que consideren 
@@ -596,15 +596,16 @@ def procesar_alternativa(alt_id: str, config_alt, output_dir: str) -> dict:
             "A", unidades, "UASB + Filtro Percolador", resultados, output_dir,
             caudal_L_s=cfg.Q_linea_L_s
         )
+        area_m2 = round(x * y)
         
         # Generar contenido LaTeX para incluir en el documento maestro
         print("Generando contenido LaTeX para documento maestro...")
-        contenido_latex = generar_contenido_alternativa_A(cfg, resultados, f"Layout_{alt_id}_2lineas.png")
+        contenido_latex = generar_contenido_alternativa_A(cfg, resultados, f"Layout_{alt_id}_2lineas.png", area_m2=area_m2)
         
         # También generar LaTeX individual (archivo separado por si se necesita)
         latex_individual = os.path.join(output_dir, f"alternativa_{alt_id}_detalle.tex")
         print(f"Generando LaTeX individual: {latex_individual}")
-        generar_latex_alternativa_A(cfg, resultados, latex_individual)
+        generar_latex_alternativa_A(cfg, resultados, latex_individual, area_m2=area_m2)
         
         return {
             "id": alt_id,

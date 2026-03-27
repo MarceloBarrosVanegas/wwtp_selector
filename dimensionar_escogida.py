@@ -117,13 +117,16 @@ def main():
     print("GENERANDO LAYOUT...")
     print("=" * 70)
     
+    area_m2 = None
     try:
         unidades = ['Rejillas', 'Desarenador', 'UASB', 'Filtro_Percolador', 'Sedimentador', 'UV']
         x, y = generar_layout_con_resultados(
             alt_id, unidades, f'Alternativa {alt_id}', resultados, output_dir,
             caudal_L_s=cfg.Q_linea_L_s
         )
+        area_m2 = round(x * y)
         print(f"\n   - Layout generado: {x:.1f} m x {y:.1f} m")
+        print(f"   - Area total: {area_m2} m2")
         print(f"   - Guardado en: {output_dir}/Layout_{alt_id}_2lineas.png")
     except Exception as e:
         print(f"\n   [ADVERTENCIA] Error generando layout: {e}")
@@ -134,7 +137,7 @@ def main():
     print("=" * 70)
     
     latex_path = os.path.join(output_dir, f'seleccion_alternativa_{alt_id}.tex')
-    generar_latex_alternativa_A(cfg, resultados, latex_path)
+    generar_latex_alternativa_A(cfg, resultados, latex_path, area_m2=area_m2)
     
     # PASO 3: Compilar PDF (ahora el layout ya existe)
     print("\n   Intentando compilar a PDF...")

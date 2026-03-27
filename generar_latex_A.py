@@ -103,7 +103,7 @@ def _generar_tikz_rejillas(r, angulo_rej):
     )
 
 
-def generar_contenido_alternativa_A(cfg, resultados, layout_filename="Layout_A_2lineas.png"):
+def generar_contenido_alternativa_A(cfg, resultados, layout_filename="Layout_A_2lineas.png", area_m2=None):
     """Genera contenido LaTeX con estilo narrativo fluido"""
     
     r = resultados.get('rejillas', dimensionar_rejillas(cfg))
@@ -919,13 +919,13 @@ La figura siguiente presenta la disposición espacial de las unidades de tratami
 \caption{{Disposición espacial de unidades - Alternativa A}}
 \end{{figure}}
 
-El área total requerida para la planta, incluyendo márgenes de seguridad y espacios para acceso de equipos, es de aproximadamente 870 m². Esta configuración permite una operación flexible y mantenimiento sencillo de cada unidad sin interrumpir el tratamiento.
+El área total requerida para la planta, incluyendo márgenes de seguridad y espacios para acceso de equipos, es de aproximadamente {area_m2 if area_m2 else 870} m². Esta configuración permite una operación flexible y mantenimiento sencillo de cada unidad sin interrumpir el tratamiento.
 """
 
 
-def generar_latex_alternativa_A(cfg, resultados, output_path):
+def generar_latex_alternativa_A(cfg, resultados, output_path, area_m2=None):
     """Genera archivo LaTeX completo de Alternativa A"""
-    contenido = generar_contenido_alternativa_A(cfg, resultados)
+    contenido = generar_contenido_alternativa_A(cfg, resultados, area_m2=area_m2)
     
     latex = rf"""\documentclass[12pt,a4paper]{{article}}
 \usepackage[utf8]{{inputenc}}
@@ -951,6 +951,50 @@ def generar_latex_alternativa_A(cfg, resultados, output_path):
 
 \begin{{document}}
 {contenido}
+
+%============================================================================
+% BIBLIOGRAFÍA
+%============================================================================
+\newpage
+\begin{{thebibliography}}{{9}}
+
+\bibitem{{metcalf2014}}
+Metcalf \& Eddy, AECOM. (2014).
+\textit{{Wastewater Engineering: Treatment and Resource Recovery}}, 5th ed.
+McGraw-Hill Education.
+
+\bibitem{{vanhaandel1994}}
+Van Haandel, A.C., \& Lettinga, G. (1994).
+\textit{{Anaerobic Sewage Treatment: A Practical Guide for Regions with a Hot Climate}}.
+John Wiley \& Sons.
+
+\bibitem{{sperling2007}}
+Sperling, M.V. (2007).
+\textit{{Wastewater Stabilization}}.
+Departamento de Engenharia Sanitaria e Ambiental, UFMG.
+
+\bibitem{{wef2010}}
+Water Environment Federation. (2010).
+\textit{{WEF Manual of Practice No. 8: Design of Municipal Wastewater Treatment Plants}}, 5th ed.
+WEF Press.
+
+\bibitem{{romero2004}}
+Romero Rojas, J.A. (2004).
+\textit{{Tratamiento de Aguas Residuales: Teoría y Principios de Diseño}}.
+Editorial Escuela Colombiana de Ingeniería.
+
+\bibitem{{ops2005}}
+OPS/CEPIS. (2005).
+\textit{{Guía para el Diseño de Sistemas de Tratamiento de Aguas Residuales en Zonas Rurales y Pequeñas Comunidades}}.
+Organización Panamericana de la Salud.
+
+\bibitem{{kadlec2009}}
+Kadlec, R.H., \& Wallace, S.D. (2009).
+\textit{{Treatment Wetlands}}, 2nd ed.
+CRC Press.
+
+\end{{thebibliography}}
+
 \end{{document}}
 """
     

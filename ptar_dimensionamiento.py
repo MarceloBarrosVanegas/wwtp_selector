@@ -66,6 +66,9 @@ class ConfigDiseno:
     Q_total_L_s: float = 10.0       # L/s - caudal de diseño total
     Q_linea_L_s: float = 5.0        # L/s - caudal por línea de tratamiento
     num_lineas:  int   = 2          # número de líneas paralelas
+    
+    # Factor de pico global (Qmax/Qmedio) - usado en verificaciones de todas las unidades
+    factor_pico_Qmax: float = 2.5   # Factor típico para aguas residuales municipales (rango 2-3)
 
     # Temperatura del agua (media anual Galápagos, nivel del mar)
     T_agua_C:  float = 24.0         #  grados C
@@ -304,7 +307,7 @@ def dimensionar_rejillas(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
     # =============================================================================
     # VERIFICACIÓN PARA CAUDAL MÁXIMO HORARIO (SOLO VERIFICACIÓN, NO DISEÑO)
     # =============================================================================
-    factor_pico = 2.5  # Factor típico Qmax/Qmedio
+    factor_pico = Q.factor_pico_Qmax  # Factor desde configuración
     Q_max_L_s = Q.Q_linea_L_s * factor_pico
     Q_max_m3_s = Q_max_L_s / 1000.0
     
@@ -640,8 +643,9 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
         donde:
             S0 = DBO5 afluente (kg/m^3)
             V_r = volumen del reactor (m^3)
-            Cv = 2-8 kg DQO/m^3*d (van Haandel & Lettinga, 1994, Tabla 6.1)
-            Adoptado: Cv = 3.0 kg DQO/m^3*d para T = 24  grados C
+            Cv = 1.5-4.0 kg DQO/m^3*d para aguas residuales municipales
+            (van Haandel & Lettinga, 1994, Tabla 6.1; rango 2-8 es para aguas industriales)
+            Adoptado: Cv = 2.5 kg DQO/m^3*d para T >= 22  grados C
 
     2. Volumen del reactor:
         V_r = Q * S0 / Cv                                    [Ec. 4b]
@@ -1024,7 +1028,7 @@ def dimensionar_filtro_percolador(Q: ConfigDiseno = CFG,
     DBO_removida_kg_d = Q_m3_d * DBO_kg_m3 * (1 - relacion_Se_S0)
 
     # Cálculos para verificación Qmax (factor 2.5 igual que otras unidades)
-    factor_pico = 2.5
+    factor_pico = Q.factor_pico_Qmax  # Factor desde configuración
     Q_max_m3_d = Q_m3_d * factor_pico
     Q_max_m3_h = Q_max_m3_d / 24
     
@@ -1337,7 +1341,7 @@ def dimensionar_sedimentador_sec(Q: ConfigDiseno = CFG,
     # (con factor 2.5: SOR_max = 18 × 2.5 = 45, margen de seguridad del 10%)
     SOR_m3_m2_d = Q.sed_SOR_m3_m2_d  # desde configuración (default: 18.0 m³/m²·d)
     h_sed_m = Q.sed_h_sed_m
-    factor_pico = 2.5
+    factor_pico = Q.factor_pico_Qmax  # Factor desde configuración
     factor_min = 0.4  # Caudal mínimo = 40% del medio
 
     Q_m3_d = Q.Q_linea_m3_d
@@ -1663,11 +1667,13 @@ def calcular_tren_A(Q: ConfigDiseno = None) -> Dict[str, Any]:
     sed_sec    = dimensionar_sedimentador_sec(Q)
     lecho      = dimensionar_lecho_secado(Q)
 
-    # Balance de calidad (progresivo)
+    # Balance de calidad (progresivo) - usando resultados reales del dimensionamiento
     DBO_in     = Q.DBO5_mg_L
     DBO_uasb   = DBO_in  * (1 - uasb["eta_DBO"])       # tras UASB
-    DBO_fp_obj = 30.0                                    # objetivo FP
-    DBO_efluente = DBO_fp_obj * (1 - 0.30)             # tras sedimentación (30% SST)
+    # Usar DBO calculada por el modelo de Germain (no valor hardcodeado)
+    DBO_fp_salida = fp.get("DBO_salida_Germain_mg_L", fp.get("DBO_salida_mg_L", 55.0))
+    # El sedimentador remueve ~30% de la DBO restante (sólidos biológicos)
+    DBO_efluente = DBO_fp_salida * (1 - 0.30)          # tras sedimentación (30% SST)
 
     print("=" * 70)
     print("TREN A - UASB + FILTRO PERCOLADOR + UV")

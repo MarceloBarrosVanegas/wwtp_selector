@@ -18,8 +18,8 @@ Código para dimensionar la planta de tratamiento de aguas residuales (PTAR) de 
 - **`compilar_latex.py`** - Compila archivos LaTeX a PDF usando MiKTeX.
 
 ### Generadores de Reporte
-- **`generar_latex.py`** - Genera reporte para Alternativa A (UASB + Filtro Percolador + UV).
-- **`generador_latex_general.py`** - Generador genérico para cualquier alternativa.
+- **`generar_latex_A.py`** - Genera reporte para Alternativa A (UASB + Filtro Percolador + UV).
+- **`generar_reporte_maestro.py`** - Generador maestro que combina todas las alternativas.
 
 ## Uso Rápido
 
@@ -32,8 +32,8 @@ python dimensionar_escogida.py B
 ```
 
 Los resultados se guardan en `resultados/`:
-- `dimensionamiento_A_reporte.pdf` - Reporte completo con cálculos
-- `layout_ptar_A.png` - Layout/diagrama de la planta
+- `seleccion_alternativa_A.pdf` - Reporte completo con cálculos
+- `Layout_A_2lineas.png` - Layout/diagrama de la planta
 
 ## Datos de Diseño
 
