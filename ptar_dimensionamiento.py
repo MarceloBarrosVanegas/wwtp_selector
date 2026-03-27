@@ -1145,6 +1145,12 @@ def dimensionar_filtro_percolador(Q: ConfigDiseno = CFG,
         
         iteracion += 1
     
+    # Si aún excede el límite, aumentar área superficial directamente
+    Q_A_max_m3_m2_h = Q_max_m3_h * (1 + R) / A_sup_m2
+    if Q_A_max_m3_m2_h > Q_A_limite_m3_m2_h:
+        # Calcular área mínima necesaria para cumplir el límite
+        A_sup_m2 = (Q_max_m3_h * (1 + R)) / Q_A_limite_m3_m2_h
+    
     # Recalcular dimensiones finales y parámetros dependientes
     D_filtro_m = math.sqrt(4 * A_sup_m2 / math.pi)
     Q_A_real = Q_ap_m3_h / A_sup_m2
@@ -1170,11 +1176,11 @@ def dimensionar_filtro_percolador(Q: ConfigDiseno = CFG,
         f"> objetivo {DBO_salida_mg_L * 1.20:.1f} mg/L"
     )
     
-    # Texto de verificación
+    # Texto de verificación narrativo
     if Q_A_max_m3_m2_h <= Q_A_limite_m3_m2_h:
-        verif_qmax_texto = "la tasa hidráulica máxima está dentro del rango operativo seguro ($\\leq$ 4,0 m³/m²·h)"
+        verif_qmax_texto = f"el valor obtenido ({Q_A_max_m3_m2_h:.2f} m³/m²·h) es menor que el límite máximo recomendado de 4,0 m³/m²·h establecido por Metcalf y Eddy para evitar el arrastre de biopelícula, por lo que el diseño es adecuado"
     else:
-        verif_qmax_texto = "la tasa hidráulica máxima excede el límite recomendado, requiere revisión"
+        verif_qmax_texto = f"el valor obtenido ({Q_A_max_m3_m2_h:.2f} m³/m²·h) excede el límite máximo recomendado de 4,0 m³/m²·h establecido por Metcalf y Eddy para evitar el arrastre de biopelícula, por lo que el diseño requiere revisión"
 
     return {
         "unidad": "Filtro Percolador",

@@ -573,8 +573,8 @@ def crear_configuracion_real():
         DBO5_mg_L=243.10,
         DQO_mg_L=498.00,
         SST_mg_L=156.00,
-        DBO5_ef_mg_L=68.00,   # Objetivo estricto: 68% del limite TULSMA (100 mg/L)
-        SST_ef_mg_L=80.00,    # Objetivo estricto: 80% del limite TULSMA (100 mg/L)
+        DBO5_ef_mg_L=100.00,  # Limite TULSMA (mg/L)
+        SST_ef_mg_L=100.00,   # Limite TULSMA (mg/L)
         CS_area=2.0,
         CS_volumen=1.50
     )

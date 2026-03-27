@@ -1112,14 +1112,14 @@ El tren de tratamiento propuesto alcanza eficiencias de remocion significativas.
 \begin{{table}}[H]
 \centering
 \caption{{Balance de calidad del agua a traves del tren de tratamiento}}
-\begin{{tabular}}{{lcccc}}
+\begin{{tabular}}{{lccccc}}
 \toprule
-Parametro & Afluente & Post-UASB & Post-FP & Efluente Final \\
+Parametro & Afluente & Post-UASB & Post-FP & Post-Sed & Efluente Final \\
 \midrule
-DBO$_5$ (mg/L) & {balance_calidad['afluente']['DBO5_mg_L']:.1f} & {balance_calidad['tras_uasb']['DBO5_mg_L']:.1f} & {balance_calidad['tras_fp']['DBO5_mg_L']:.1f} & {balance_calidad['efluente_final']['DBO5_mg_L']:.1f} \\
-DQO (mg/L) & {balance_calidad['afluente']['DQO_mg_L']:.1f} & {balance_calidad['tras_uasb']['DQO_mg_L']:.1f} & {balance_calidad['tras_fp']['DQO_mg_L']:.1f} & {balance_calidad['efluente_final']['DQO_mg_L']:.1f} \\
-SST (mg/L) & {balance_calidad['afluente']['SST_mg_L']:.1f} & {balance_calidad['tras_uasb']['SST_mg_L']:.1f} & {balance_calidad['tras_fp']['SST_mg_L']:.1f} & {balance_calidad['efluente_final']['SST_mg_L']:.1f} \\
-CF (NMP/100mL) & {balance_calidad['afluente']['CF_NMP']:.0f} & {balance_calidad['tras_uasb']['CF_NMP']:.0f} & {balance_calidad['tras_fp']['CF_NMP']:.0f} & {balance_calidad['efluente_final']['CF_NMP']:.0f} \\
+DBO$_5$ (mg/L) & {balance_calidad['afluente']['DBO5_mg_L']:.1f} & {balance_calidad['tras_uasb']['DBO5_mg_L']:.1f} & {balance_calidad['tras_fp']['DBO5_mg_L']:.1f} & {balance_calidad['tras_sed']['DBO5_mg_L']:.1f} & {balance_calidad['efluente_final']['DBO5_mg_L']:.1f} \\
+DQO (mg/L) & {balance_calidad['afluente']['DQO_mg_L']:.1f} & {balance_calidad['tras_uasb']['DQO_mg_L']:.1f} & {balance_calidad['tras_fp']['DQO_mg_L']:.1f} & {balance_calidad['tras_sed']['DQO_mg_L']:.1f} & {balance_calidad['efluente_final']['DQO_mg_L']:.1f} \\
+SST (mg/L) & {balance_calidad['afluente']['SST_mg_L']:.1f} & {balance_calidad['tras_uasb']['SST_mg_L']:.1f} & {balance_calidad['tras_fp']['SST_mg_L']:.1f} & {balance_calidad['tras_sed']['SST_mg_L']:.1f} & {balance_calidad['efluente_final']['SST_mg_L']:.1f} \\
+CF (NMP/100mL) & {balance_calidad['afluente']['CF_NMP']:.0f} & {balance_calidad['tras_uasb']['CF_NMP']:.0f} & {balance_calidad['tras_fp']['CF_NMP']:.0f} & {balance_calidad['tras_sed']['CF_NMP']:.0f} & {balance_calidad['efluente_final']['CF_NMP']:.0f} \\
 \bottomrule
 \end{{tabular}}
 \end{{table}}
@@ -1249,7 +1249,7 @@ John Wiley \& Sons.
 
 \bibitem{{sperling2007}}
 Sperling, M.V. (2007).
-\textit{{Wastewater Stabilization}}.
+\textit{{Biological Wastewater Treatment}} (Vols. 1-6).
 Departamento de Engenharia Sanitaria e Ambiental, UFMG.
 
 \bibitem{{wef2010}}
