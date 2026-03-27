@@ -175,7 +175,7 @@ def generar_contenido_alternativa_A(cfg, resultados, layout_filename="Layout_A_2
 \newpage
 \section{{Alternativa A: Tratamiento Anaerobio-Aerobio con UASB y Filtro Percolador}}
 
-La presente alternativa propone un esquema de tratamiento que combina procesos anaerobios y aerobios para lograr la remoción de contaminantes de manera eficiente y con bajo consumo energético. El tren de tratamiento completo comprende: rejillas y desarenador para el pretratamiento, reactor UASB para el tratamiento primario anaerobio, filtro percolador para el tratamiento secundario aerobio, sedimentador secundario para la separación de sólidos biológicos, y finalmente desinfección UV antes del vertimiento.
+La presente alternativa propone un esquema de tratamiento que combina procesos anaerobios y aerobios para lograr la remoción de contaminantes de manera eficiente y con bajo consumo energético. El tren de tratamiento completo comprende: rejillas y desarenador para el pretratamiento, reactor UASB para el tratamiento primario anaerobio, filtro percolador para el tratamiento secundario aerobio, sedimentador secundario para la separación de sólidos biológicos, y finalmente desinfección con hipoclorito de sodio antes del vertimiento.
 
 \subsection{{Canal de Desbaste con Rejillas}}
 
@@ -1224,7 +1224,7 @@ def generar_resumen_resultados(cfg, resultados, balance_calidad=None, area_m2=No
     return rf"""
 %============================================================================
 \newpage
-\section{{Resumen Ejecutivo de Resultados}}
+\section{{Resultados}}
 %============================================================================
 
 El presente resumen consolida los resultados del dimensionamiento de la Planta de Tratamiento de Aguas Residuales (PTAR) para un caudal de dise\~no de \textbf{{{cfg.Q_linea_L_s * 2:.1f} L/s}} ({cfg.Q_linea_L_s:.1f} L/s por linea).
@@ -1256,13 +1256,13 @@ Temperatura & {cfg.T_agua_C:.1f} °C \\
 \toprule
 \textbf{{Unidad}} & \textbf{{Dimensiones}} & \textbf{{Cantidad}} & \textbf{{Parametro Clave}} \\
 \midrule
-Rejillas & {rej.get('ancho_rejilla_m', 0.38):.2f} m $\times$ {rej.get('h_tirante_m', 0.22):.2f} m & 2 canales & Separacion: {rej.get('separacion_barras_mm', 25)} mm \\
-Desarenador & {des.get('ancho_m', 0.42):.2f} m $\times$ {des.get('largo_m', 5.0):.1f} m & 1 unidad & TRH: {des.get('TRH_min', 1.8):.1f} min \\
-Reactor UASB & D = {uasb.get('D_circular_m', 5.76):.2f} m, H = {uasb.get('H_total_m', 4.3):.1f} m & 2 unidades & CH: {uasb.get('Carga_Hidraulica_m3_m2_d', 48.0):.1f} m$^3$/m$^2\cdot$d \\
-Filtro Percolador & D = {fp.get('D_filtro_m', 6.56):.2f} m & 2 unidades & Q$_A$ = {fp.get('Q_A_max_m3_m2_h', 3.98):.2f} m$^3$/m$^2\cdot$h \\
-Sedimentador Secundario & {sed.get('ancho_m', 3.5):.1f} m $\times$ {sed.get('largo_m', 9.8):.1f} m & 1 unidad & v$_d$ = {sed.get('v_d_esc_m_d', 1.5):.1f} m/d \\
-Desinfeccion (Cloro) & Dosis: {desinf.get('dosis_cloro_mg_L', 8.2):.1f} mg/L & 1 tanque & CT = {desinf.get('CT_mg_min_L', 15):.0f} mg$\cdot$min/L \\
-Lecho de Secado & {lecho.get('area_lecho_m2', 69):.1f} m$^2$ & {lecho.get('n_lechos', 2)} lechos & Aplicacion: {lecho.get('aplicacion_kg_SST_m2_anio', 120):.0f} kg SST/m$^2\cdot$a\~no \\
+Rejillas & {rej.get('ancho_layout_m'):.2f} m $\times$ {rej.get('h_tirante_m'):.2f} m & {cfg.num_lineas} canales & Velocidad: {rej.get('v_canal_adoptada_m_s'):.2f} m/s \\
+Desarenador & {des.get('b_canal_m'):.2f} m $\times$ {des.get('L_diseno_m'):.1f} m $\times$ {des.get('H_util_m') + 0.3:.1f} m & {cfg.num_lineas} unidades & TRH: {des.get('t_r_nominal_s'):.0f} s \\
+Reactor UASB & D = {uasb.get('D_m'):.2f} m, H = {uasb.get('H_r_m'):.1f} m & {cfg.num_lineas} unidades & v$_{{up}}$ = {uasb.get('v_up_m_h'):.2f} m/h \\
+Filtro Percolador & D = {fp.get('D_filtro_m'):.2f} m, H = {fp.get('H_total_m'):.1f} m & {cfg.num_lineas} unidades & Q$_A$ = {fp.get('Q_A_max_m3_m2_h'):.2f} m$^3$/m$^2\cdot$h \\
+Sedimentador Secundario & D = {sed.get('D_m'):.2f} m, H = {sed.get('h_sed_m'):.1f} m & {cfg.num_lineas} unidades & SOR = {sed.get('SOR_m3_m2_d'):.1f} m$^3$/m$^2\cdot$d \\
+Desinfeccion (Cloro) & {desinf.get('largo_m'):.1f} m $\times$ {desinf.get('ancho_m'):.1f} m $\times$ {desinf.get('h_total_m'):.1f} m & 1 unidad & CT = {desinf.get('CT_mg_min_L'):.0f} mg$\cdot$min/L \\
+Lecho de Secado & {lecho.get('A_lecho_m2'):.1f} m$^2$ ({lecho.get('largo_m'):.1f} m $\times$ {lecho.get('ancho_m'):.1f} m) & {lecho.get('n_celdas')} unidad & Carga: {lecho.get('lodos_kg_SST_d'):.1f} kg SST/d \\
 \bottomrule
 \end{{tabular}}
 \end{{table}}
@@ -1276,12 +1276,12 @@ Lecho de Secado & {lecho.get('area_lecho_m2', 69):.1f} m$^2$ & {lecho.get('n_lec
 \toprule
 \textbf{{Parametro}} & \textbf{{Afluente}} & \textbf{{Post-UASB}} & \textbf{{Post-FP}} & \textbf{{Post-Sed}} & \textbf{{Efluente}} \\
 \midrule
-DBO$_5$ (mg/L) & {afluente.get('DBO5_mg_L', 243.1):.1f} & {bal.get('post_uasb', {}).get('DBO5_mg_L', 60.0):.1f} & {bal.get('post_fp', {}).get('DBO5_mg_L', 30.0):.1f} & {bal.get('post_sed', {}).get('DBO5_mg_L', 21.0):.1f} & {efluente.get('DBO5_mg_L', 40.6):.1f} \\
-DQO (mg/L) & {afluente.get('DQO_mg_L', 437.6):.1f} & {bal.get('post_uasb', {}).get('DQO_mg_L', 131.3):.1f} & {bal.get('post_fp', {}).get('DQO_mg_L', 65.6):.1f} & {bal.get('post_sed', {}).get('DQO_mg_L', 45.9):.1f} & {efluente.get('DQO_mg_L', 45.9):.1f} \\
-SST (mg/L) & {afluente.get('SST_mg_L', 145.9):.1f} & {bal.get('post_uasb', {}).get('SST_mg_L', 58.4):.1f} & {bal.get('post_fp', {}).get('SST_mg_L', 35.0):.1f} & {bal.get('post_sed', {}).get('SST_mg_L', 3.7):.1f} & {efluente.get('SST_mg_L', 3.7):.1f} \\
-CF (NMP/100mL) & {afluente.get('CF_NMP_100mL', 5000000):.0e} & {bal.get('post_uasb', {}).get('CF_NMP_100mL', 2500000):.0e} & {bal.get('post_fp', {}).get('CF_NMP_100mL', 1000000):.0e} & {bal.get('post_sed', {}).get('CF_NMP_100mL', 500000):.0e} & {efluente.get('CF_NMP_100mL', 2526):.0f} \\
+DBO$_5$ (mg/L) & {afluente.get('DBO5_mg_L'):.1f} & {bal.get('tras_uasb').get('DBO5_mg_L'):.1f} & {bal.get('tras_fp').get('DBO5_mg_L'):.1f} & {bal.get('tras_sed').get('DBO5_mg_L'):.1f} & {efluente.get('DBO5_mg_L'):.1f} \\
+DQO (mg/L) & {afluente.get('DQO_mg_L'):.1f} & {bal.get('tras_uasb').get('DQO_mg_L'):.1f} & {bal.get('tras_fp').get('DQO_mg_L'):.1f} & {bal.get('tras_sed').get('DQO_mg_L'):.1f} & {efluente.get('DQO_mg_L'):.1f} \\
+SST (mg/L) & {afluente.get('SST_mg_L'):.1f} & {bal.get('tras_uasb').get('SST_mg_L'):.1f} & {bal.get('tras_fp').get('SST_mg_L'):.1f} & {bal.get('tras_sed').get('SST_mg_L'):.1f} & {efluente.get('SST_mg_L'):.1f} \\
+CF (NMP/100mL) & {afluente.get('CF_NMP'):.0f} & {bal.get('tras_uasb').get('CF_NMP'):.0f} & {bal.get('tras_fp').get('CF_NMP'):.0f} & {bal.get('tras_sed').get('CF_NMP'):.0f} & {efluente.get('CF_NMP'):.0f} \\
 \midrule
-\textbf{{Remocion total}} & -- & \textbf{{{bal.get('eficiencias', {}).get('eta_DBO_UASB', 0.65)*100:.0f}\%}} & \textbf{{{bal.get('eficiencias', {}).get('eta_DBO_FP', 0.40)*100:.0f}\%}} & \textbf{{{bal.get('eficiencias', {}).get('eta_DBO_Sed', 0.30)*100:.0f}\%}} & \textbf{{{bal.get('eficiencias', {}).get('eta_DBO_total', 0.83)*100:.0f}\%}} \\
+\textbf{{Remocion etapa}} & -- & \textbf{{{uasb.get('eta_DBO')*100:.0f}\%}} & \textbf{{{(1-fp.get('relacion_Se_S0_Germain'))*100:.0f}\%}} & \textbf{{{sed.get('eta_DBO_sed')*100:.0f}\%}} & \textbf{{{bal.get('eficiencias_totales').get('DBO5_pct'):.1f}\%}} \\
 \bottomrule
 \end{{tabular}}
 \end{{table}}
@@ -1295,10 +1295,10 @@ CF (NMP/100mL) & {afluente.get('CF_NMP_100mL', 5000000):.0e} & {bal.get('post_ua
 \toprule
 \textbf{{Parametro}} & \textbf{{Efluente}} & \textbf{{Limite}} & \textbf{{Cumple}} & \textbf{{Margen}} \\
 \midrule
-DBO$_5$ (mg/L) & {efluente.get('DBO5_mg_L', 40.6):.1f} & 100 & \textcolor{{green}}{{\textbf{{S\'I}}}} & {100 - efluente.get('DBO5_mg_L', 40.6):.1f} mg/L \\
-DQO (mg/L) & {efluente.get('DQO_mg_L', 45.9):.1f} & 250 & \textcolor{{green}}{{\textbf{{S\'I}}}} & {250 - efluente.get('DQO_mg_L', 45.9):.1f} mg/L \\
-SST (mg/L) & {efluente.get('SST_mg_L', 3.7):.1f} & 100 & \textcolor{{green}}{{\textbf{{S\'I}}}} & {100 - efluente.get('SST_mg_L', 3.7):.1f} mg/L \\
-CF (NMP/100mL) & {efluente.get('CF_NMP_100mL', 2526):.0f} & 3,000 & \textcolor{{green}}{{\textbf{{S\'I}}}} & {3000 - efluente.get('CF_NMP_100mL', 2526):.0f} NMP/100mL \\
+DBO$_5$ (mg/L) & {efluente.get('DBO5_mg_L'):.1f} & 100 & \textcolor{{green}}{{\textbf{{S\'I}}}} & {100 - efluente.get('DBO5_mg_L'):.1f} mg/L \\
+DQO (mg/L) & {efluente.get('DQO_mg_L'):.1f} & 250 & \textcolor{{green}}{{\textbf{{S\'I}}}} & {250 - efluente.get('DQO_mg_L'):.1f} mg/L \\
+SST (mg/L) & {efluente.get('SST_mg_L'):.1f} & 100 & \textcolor{{green}}{{\textbf{{S\'I}}}} & {100 - efluente.get('SST_mg_L'):.1f} mg/L \\
+CF (NMP/100mL) & {efluente.get('CF_NMP'):.0f} & 3,000 & \textcolor{{green}}{{\textbf{{S\'I}}}} & {3000 - efluente.get('CF_NMP'):.0f} NMP/100mL \\
 \bottomrule
 \end{{tabular}}
 \end{{table}}
@@ -1333,11 +1333,11 @@ Zona verde (15\% del total) & {(area_m2 if area_m2 else 1600) * 0.15:.0f} m$^2$ 
 \toprule
 \textbf{{Concepto}} & \textbf{{Valor}} \\
 \midrule
-Produccion lodos UASB & {uasb.get('lodos_pecuario_kg_d', 6.4):.1f} kg SST/d \\
-Produccion humus FP + Sed & {lecho.get('lodos_kg_SST_d', 13.8) - uasb.get('lodos_pecuario_kg_d', 6.4):.1f} kg SST/d \\
+Produccion lodos UASB & {lecho.get('lodos_uasb_kg_d'):.1f} kg SST/d \\
+Produccion humus FP + Sed & {lecho.get('lodos_fp_kg_d'):.1f} kg SST/d \\
 \midrule
-\textbf{{Total lodos a manejar}} & \textbf{{{lecho.get('lodos_kg_SST_d', 13.8):.1f} kg SST/d}} \\
-Area de lechos de secado & {lecho.get('area_lecho_m2', 69):.1f} m$^2$ ({lecho.get('n_lechos', 2)} unidades) \\
+\textbf{{Total lodos a manejar}} & \textbf{{{lecho.get('lodos_total_kg_d'):.1f} kg SST/d}} \\
+Area de lechos de secado & {lecho.get('A_lecho_m2'):.1f} m$^2$ ({lecho.get('n_celdas')} unidad) \\
 Frecuencia de aplicacion & 1 vez cada 3--4 meses \\
 \bottomrule
 \end{{tabular}}
@@ -1354,8 +1354,8 @@ Frecuencia de aplicacion & 1 vez cada 3--4 meses \\
 \midrule
 Potencia electrica estimada & 5--8 & kW \\
 Consumo energia & 40,000--60,000 & kWh/a\~no \\
-Hipoclorito de sodio (12\%) & {desinf.get('dosificacion_L_d', 17.7):.1f} & L/d \\
-Consumo hipoclorito anual & {desinf.get('dosificacion_L_d', 17.7) * 365 / 1000:.0f} & m$^3$/a\~no \\
+Hipoclorito de sodio (12\%) & {desinf.get('volumen_NaOCl_L_d'):.1f} & L/d \\
+Consumo hipoclorito anual & {desinf.get('volumen_NaOCl_L_d') * 365 / 1000:.0f} & m$^3$/a\~no \\
 \bottomrule
 \end{{tabular}}
 \end{{table}}

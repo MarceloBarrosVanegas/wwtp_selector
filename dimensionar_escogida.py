@@ -95,16 +95,21 @@ def dimensionar_alternativa_A(cfg):
     
     print("\n7. Dimensionando LECHO DE SECADO...")
     # Calcular producción total de lodos del sistema (UASB + FP)
+    # NOTA: Multiplicar por num_lineas porque el lecho es compartido para todas las líneas
     # UASB: lodos anaerobios (factor de producción desde config)
     DBO_removida_uasb_kg_d = cfg.Q_linea_m3_d * (cfg.DBO5_mg_L / 1000) * resultados['uasb']['eta_DBO']
-    lodos_uasb_kg_d = cfg.lecho_factor_produccion_lodos * DBO_removida_uasb_kg_d
+    lodos_uasb_kg_d = cfg.lecho_factor_produccion_lodos * DBO_removida_uasb_kg_d * cfg.num_lineas
     # Filtro Percolador: humus (ya calculado en el dimensionamiento del FP)
-    lodos_fp_kg_d = resultados['filtro_percolador']['DBO_removida_kg_d']
-    # Producción total de lodos
+    lodos_fp_kg_d = resultados['filtro_percolador']['DBO_removida_kg_d'] * cfg.num_lineas
+    # Producción total de lodos (ambas líneas)
     lodos_total_kg_d = lodos_uasb_kg_d + lodos_fp_kg_d
     resultados['lecho_secado'] = dimensionar_lecho_secado(cfg, lodos_kg_SST_d=lodos_total_kg_d)
-    print(f"   - Lodos UASB: {lodos_uasb_kg_d:.2f} kg SST/d")
-    print(f"   - Lodos FP (humus): {lodos_fp_kg_d:.2f} kg SST/d")
+    # Agregar detalles de producción de lodos al resultado para el reporte
+    resultados['lecho_secado']['lodos_uasb_kg_d'] = lodos_uasb_kg_d
+    resultados['lecho_secado']['lodos_fp_kg_d'] = lodos_fp_kg_d
+    resultados['lecho_secado']['lodos_total_kg_d'] = lodos_total_kg_d
+    print(f"   - Lodos UASB ({cfg.num_lineas} líneas): {lodos_uasb_kg_d:.2f} kg SST/d")
+    print(f"   - Lodos FP ({cfg.num_lineas} líneas): {lodos_fp_kg_d:.2f} kg SST/d")
     print(f"   - Total lodos: {lodos_total_kg_d:.2f} kg SST/d")
     print(f"   - Area lecho: {resultados['lecho_secado']['A_lecho_m2']} m2")
     

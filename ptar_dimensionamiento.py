@@ -209,9 +209,39 @@ class ConfigDiseno:
     # =============================================================================
     lecho_C_SST_kg_m3: float = 20.0         # Concentración sólidos en lodo (kg/m³)
     lecho_t_secado_d: float = 15.0          # Tiempo secado (días)
-    lecho_n_celdas: int = 2                 # Número celdas en rotación
+    lecho_n_celdas: int = 1                 # Número celdas (1 para plantas pequeñas)
     lecho_h_lodo_m: float = 0.30            # Espesor lodo aplicado (m)
     lecho_factor_produccion_lodos: float = 0.10  # kg SST/kg DBO removida (producción UASB)
+    
+    # =============================================================================
+    # LÍMITES TULSMA - Tabla 12: Descarga a cuerpo de agua dulce
+    # =============================================================================
+    tulsma_DBO5_limite_mg_L: float = 100.0
+    tulsma_DQO_limite_mg_L: float = 250.0
+    tulsma_SST_limite_mg_L: float = 130.0
+    tulsma_CF_limite_NMP_100mL: float = 3000.0
+    tulsma_pH_min: float = 6.0
+    tulsma_pH_max: float = 9.0
+    tulsma_aceites_grasas_limite_mg_L: float = 0.3
+    tulsma_fosforo_total_limite_mg_L: float = 10.0
+    tulsma_nitrogeno_amoniacal_limite_mg_L: float = 30.0
+    tulsma_solidos_sedimentables_limite_mL_L: float = 1.0
+    tulsma_solidos_totales_limite_mg_L: float = 1600.0
+    tulsma_temperatura_max_C: float = 32.0
+    tulsma_tensoactivos_limite_mg_L: float = 0.5
+    # Metales pesados
+    tulsma_arsenico_limite_mg_L: float = 0.1
+    tulsma_cadmio_limite_mg_L: float = 0.02
+    tulsma_cromo_hexavalente_limite_mg_L: float = 0.5
+    tulsma_mercurio_limite_mg_L: float = 0.005
+    tulsma_plomo_limite_mg_L: float = 0.2
+    tulsma_cobre_limite_mg_L: float = 1.0
+    tulsma_niquel_limite_mg_L: float = 2.0
+    tulsma_zinc_limite_mg_L: float = 5.0
+    tulsma_aluminio_limite_mg_L: float = 5.0
+    tulsma_bario_limite_mg_L: float = 2.0
+    tulsma_hierro_limite_mg_L: float = 10.0
+    tulsma_manganeso_limite_mg_L: float = 2.0
 
     def __post_init__(self):
         # Caudal por línea en m^3/d (conversión exacta: 1 L/s = 86.4 m^3/d)
