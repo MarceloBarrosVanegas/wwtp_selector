@@ -1221,6 +1221,24 @@ def generar_resumen_resultados(cfg, resultados, balance_calidad=None, area_m2=No
     afluente = bal.get('afluente', {})
     efluente = bal.get('efluente_final', {})
     
+    # Verificacion de cumplimiento TULSMA Tabla 12
+    cumple_dbo = efluente.get('DBO5_mg_L', 0) <= 100
+    cumple_dqo = efluente.get('DQO_mg_L', 0) <= 250
+    cumple_sst = efluente.get('SST_mg_L', 0) <= 130
+    cumple_cf = efluente.get('CF_NMP', 0) <= 3000
+    cumple_todos = cumple_dbo and cumple_dqo and cumple_sst and cumple_cf
+    
+    estado_dbo = r"\textcolor{green}{\textbf{CUMPLE}}" if cumple_dbo else r"\textcolor{red}{\textbf{NO CUMPLE}}"
+    estado_dqo = r"\textcolor{green}{\textbf{CUMPLE}}" if cumple_dqo else r"\textcolor{red}{\textbf{NO CUMPLE}}"
+    estado_sst = r"\textcolor{green}{\textbf{CUMPLE}}" if cumple_sst else r"\textcolor{red}{\textbf{NO CUMPLE}}"
+    estado_cf = r"\textcolor{green}{\textbf{CUMPLE}}" if cumple_cf else r"\textcolor{red}{\textbf{NO CUMPLE}}"
+    
+    conclusion_tulma = (
+        r"\textbf{Conclusion:} El sistema dise\~nado cumple satisfactoriamente con todos los limites establecidos en la TULSMA (Tabla 12) para descarga a cuerpo de agua dulce."
+        if cumple_todos else
+        r"\textbf{Advertencia:} El sistema NO cumple con uno o mas limites de la TULSMA. Se requiere revisar el dise\~no o considerar tratamiento adicional."
+    )
+    
     return rf"""
 %============================================================================
 \newpage
@@ -1286,24 +1304,25 @@ CF (NMP/100mL) & {afluente.get('CF_NMP'):.0f} & {bal.get('tras_uasb').get('CF_NM
 \end{{tabular}}
 \end{{table}}
 
-\subsection{{Verificacion de Cumplimiento Normativo}}
+\subsection{{Verificacion de Cumplimiento TULSMA}}
 
+% Limites TULSMA Tabla 12 - Descarga a cuerpo de agua dulce
 \begin{{table}}[H]
 \centering
-\caption{{Comparacion con limites de la TULSMA (Decreto 2132/2016)}}
+\caption{{Verificacion de cumplimiento con limites TULSMA (Tabla 12 -- Descarga a cuerpo de agua dulce)}}
 \begin{{tabular}}{{lcccc}}
 \toprule
-\textbf{{Parametro}} & \textbf{{Efluente}} & \textbf{{Limite}} & \textbf{{Cumple}} & \textbf{{Margen}} \\
+\textbf{{Parametro}} & \textbf{{Efluente calculado}} & \textbf{{Limite TULSMA}} & \textbf{{Estado}} \\
 \midrule
-DBO$_5$ (mg/L) & {efluente.get('DBO5_mg_L'):.1f} & 100 & \textcolor{{green}}{{\textbf{{S\'I}}}} & {100 - efluente.get('DBO5_mg_L'):.1f} mg/L \\
-DQO (mg/L) & {efluente.get('DQO_mg_L'):.1f} & 250 & \textcolor{{green}}{{\textbf{{S\'I}}}} & {250 - efluente.get('DQO_mg_L'):.1f} mg/L \\
-SST (mg/L) & {efluente.get('SST_mg_L'):.1f} & 100 & \textcolor{{green}}{{\textbf{{S\'I}}}} & {100 - efluente.get('SST_mg_L'):.1f} mg/L \\
-CF (NMP/100mL) & {efluente.get('CF_NMP'):.0f} & 3,000 & \textcolor{{green}}{{\textbf{{S\'I}}}} & {3000 - efluente.get('CF_NMP'):.0f} NMP/100mL \\
+DBO$_5$ & {efluente.get('DBO5_mg_L'):.1f} mg/L & $\leq$ 100 mg/L & {estado_dbo} \\
+DQO & {efluente.get('DQO_mg_L'):.1f} mg/L & $\leq$ 250 mg/L & {estado_dqo} \\
+SST & {efluente.get('SST_mg_L'):.1f} mg/L & $\leq$ 130 mg/L & {estado_sst} \\
+Coliformes fecales & {efluente.get('CF_NMP'):.0f} NMP/100mL & $\leq$ 3,000 NMP/100mL & {estado_cf} \\
 \bottomrule
 \end{{tabular}}
 \end{{table}}
 
-\textbf{{Conclusion:}} El sistema dise\~nado cumple satisfactoriamente con todos los limites establecidos por la normativa colombiana para descargas a cuerpos de agua de uso recreativo con contacto indirecto (Clase 3).
+{conclusion_tulma}
 
 \subsection{{Requerimientos de Terreno}}
 
