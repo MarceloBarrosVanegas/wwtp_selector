@@ -1407,6 +1407,8 @@ def generar_latex_alternativa_A(cfg, resultados, output_path, area_m2=None, bala
 \usepackage{{amsmath}}
 \usepackage{{amssymb}}
 \usepackage{{booktabs}}
+\usepackage{{longtable}}
+\usepackage{{colortbl}}
 \usepackage{{graphicx}}
 \usepackage{{enumitem}}
 \usepackage{{tikz}}
@@ -1426,6 +1428,160 @@ def generar_latex_alternativa_A(cfg, resultados, output_path, area_m2=None, bala
 {contenido}
 
 {resumen}
+
+\newpage
+%============================================================================
+% ANEXO: TABLAS TULSMA
+%============================================================================
+\appendix
+\section{{Anexo: Tablas TULSMA (Libro VI, Anexo 1)}}
+\label{{app:tulsma}}
+
+El presente anexo presenta los l\'imites m\'aximos permisibles establecidos en el Texto Unificado de Legislaci\'on Secundaria del Ministerio del Ambiente (TULSMA), Acuerdo Ministerial 097-A (2015), aplicables al proyecto.
+
+\subsection{{Tabla 1 -- Consumo Humano y Uso Dom\'estico (tratamiento convencional)}}
+
+\begin{{table}}[H]
+\centering
+\small
+\begin{{tabular}}{{p{{5.5cm}}p{{2.5cm}}p{{4.5cm}}}}
+\toprule
+\textbf{{Par\'ametro}} & \textbf{{Unidad}} & \textbf{{L\'imite m\'aximo}} \\
+\midrule
+DBO$_5$ & mg/L & $\leq$ 2,0 \\
+Coliformes fecales & NMP/100 mL & $\leq$ 600 \\
+Coliformes totales & NMP/100 mL & $\leq$ 3.000 \\
+\bottomrule
+\end{{tabular}}
+\end{{table}}
+
+\subsection{{Tabla 2 -- Consumo Humano (solo desinfecci\'on)}}
+
+\begin{{table}}[H]
+\centering
+\small
+\begin{{tabular}}{{p{{5.5cm}}p{{2.5cm}}p{{4.5cm}}}}
+\toprule
+\textbf{{Par\'ametro}} & \textbf{{Unidad}} & \textbf{{L\'imite m\'aximo}} \\
+\midrule
+DBO$_5$ & mg/L & $\leq$ 2,0 \\
+Coliformes fecales & NMP/100 mL & $\leq$ 50 \\
+Coliformes totales & NMP/100 mL & $\leq$ 50 \\
+\bottomrule
+\end{{tabular}}
+\end{{table}}
+
+\subsection{{Tabla 3 -- Preservaci\'on de Flora y Fauna}}
+
+\begin{{table}}[H]
+\centering
+\small
+\begin{{tabular}}{{p{{4cm}}p{{2.5cm}}p{{2.5cm}}p{{3cm}}}}
+\toprule
+\textbf{{Par\'ametro}} & \textbf{{Unidad}} & \textbf{{Agua dulce}} & \textbf{{Agua marina}} \\
+\midrule
+Coliformes fecales & NMP/100 mL & $\leq$ 200 & $\leq$ 200 \\
+\bottomrule
+\end{{tabular}}
+\end{{table}}
+
+\subsection{{Tabla 6 -- Uso Agr\'icola o de Riego}}
+
+\begin{{table}}[H]
+\centering
+\small
+\begin{{tabular}}{{p{{5.5cm}}p{{2.5cm}}p{{4.5cm}}}}
+\toprule
+\textbf{{Par\'ametro}} & \textbf{{Unidad}} & \textbf{{L\'imite m\'aximo}} \\
+\midrule
+Coliformes fecales & NMP/100 mL & $\leq$ 1.000 \\
+\bottomrule
+\end{{tabular}}
+\end{{table}}
+
+\subsection{{Tabla 7 -- Uso Pecuario}}
+
+\begin{{table}}[H]
+\centering
+\small
+\begin{{tabular}}{{p{{5.5cm}}p{{2.5cm}}p{{4.5cm}}}}
+\toprule
+\textbf{{Par\'ametro}} & \textbf{{Unidad}} & \textbf{{L\'imite m\'aximo}} \\
+\midrule
+Coliformes fecales & NMP/100 mL & $\leq$ 1.000 \\
+\bottomrule
+\end{{tabular}}
+\end{{table}}
+
+\subsection{{Tablas 9 y 10 -- Uso Recreativo}}
+
+\begin{{table}}[H]
+\centering
+\small
+\begin{{tabular}}{{p{{4cm}}p{{2.5cm}}p{{3cm}}p{{3cm}}}}
+\toprule
+\textbf{{Par\'ametro}} & \textbf{{Unidad}} & \textbf{{Contacto primario}} & \textbf{{Contacto secundario}} \\
+\midrule
+Coliformes fecales & NMP/100 mL & $\leq$ 200 & $\leq$ 2.000 \\
+Coliformes totales & NMP/100 mL & $\leq$ 1.000 & -- \\
+\bottomrule
+\end{{tabular}}
+\end{{table}}
+
+\subsection{{Tabla 11 -- Descarga al Alcantarillado}}
+
+\begin{{table}}[H]
+\centering
+\small
+\begin{{tabular}}{{p{{5.5cm}}p{{2.5cm}}p{{4.5cm}}}}
+\toprule
+\textbf{{Par\'ametro}} & \textbf{{Unidad}} & \textbf{{L\'imite m\'aximo}} \\
+\midrule
+DBO$_5$ & mg/L & $\leq$ 250 \\
+DQO & mg/L & $\leq$ 500 \\
+SST & mg/L & $\leq$ 220 \\
+Coliformes fecales & NMP/100 mL & No especificado \\
+\bottomrule
+\end{{tabular}}
+\end{{table}}
+
+\subsection{{Tabla 12 -- Descarga a Cuerpo de Agua Dulce (APLICA AL PROYECTO)}}
+
+\textbf{{Nota:}} Esta es la tabla aplicable al proyecto.
+
+\begin{{table}}[H]
+\centering
+\small
+\begin{{tabular}}{{p{{5.5cm}}p{{2.5cm}}p{{4.5cm}}}}
+\toprule
+\textbf{{Par\'ametro}} & \textbf{{Unidad}} & \textbf{{L\'imite m\'aximo}} \\
+\midrule
+\rowcolor{{yellow!25}} \textbf{{DBO$_5$}} & mg/L & $\leq$ \textbf{{100}} \\
+\rowcolor{{yellow!25}} \textbf{{DQO}} & mg/L & $\leq$ \textbf{{250}} \\
+\rowcolor{{yellow!25}} \textbf{{SST}} & mg/L & $\leq$ \textbf{{130}} \\
+\rowcolor{{yellow!25}} \textbf{{Coliformes fecales}} & NMP/100 mL & $\leq$ \textbf{{3.000}} \\
+\bottomrule
+\end{{tabular}}
+\end{{table}}
+
+\textit{{Nota:}} Aquellos con descargas $\leq$ 3.000 NMP/100 mL quedan exentos de tratamiento de desinfecci\'on.
+
+\subsection{{Tabla 13 -- Descarga a Cuerpo de Agua Marina}}
+
+\begin{{table}}[H]
+\centering
+\small
+\begin{{tabular}}{{p{{5.5cm}}p{{2.5cm}}p{{4.5cm}}}}
+\toprule
+\textbf{{Par\'ametro}} & \textbf{{Unidad}} & \textbf{{L\'imite m\'aximo}} \\
+\midrule
+DBO$_5$ & mg/L & $\leq$ 100 \\
+DQO & mg/L & $\leq$ 250 \\
+SST & mg/L & $\leq$ 100 \\
+Coliformes fecales & NMP/100 mL & $\leq$ 3.000 \\
+\bottomrule
+\end{{tabular}}
+\end{{table}}
 
 \newpage
 %============================================================================
