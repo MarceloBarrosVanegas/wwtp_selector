@@ -1450,7 +1450,8 @@ Decreto Ejecutivo 3516 -- Ecuador}}\\[4pt]
 \subsection{{Tabla 1 -- Consumo Humano y Uso Dom\'estico (tratamiento convencional)}}
 % ----------------------------------------------------------
 
-\begin{{longtable}}{{p{{5.5cm}}p{{2.2cm}}p{{2.5cm}}p{{4.5cm}}}}
+\tiny
+\begin{{longtable}}{{p{{4.5cm}}p{{2.0cm}}p{{2.0cm}}p{{3.5cm}}}}
 \caption{{L\'imites m\'aximos permisibles para aguas de consumo humano y uso dom\'estico que \'unicamente requieren tratamiento convencional (TULSMA, Tabla~1).}}\\
 \toprule
 \textbf{{Par\'ametro}} & \textbf{{Expresado como}} & \textbf{{Unidad}} & \textbf{{L\'imite m\'aximo permisible}} \\
@@ -1503,13 +1504,15 @@ Zinc & Zn & mg/L & $\leq$ 5,0 \\
 
 % ----------------------------------------------------------
 \subsection{{Tabla 12 -- Descarga a Cuerpo de Agua Dulce}}
+\tiny
 % ----------------------------------------------------------
 
 {{\small\textbf{{Nota:}} Esta es la tabla aplicable al proyecto de tratamiento de aguas residuales municipales cuando el efluente se vierte a un r\'io, lago o cuerpo superficial de agua dulce.}}
 
 \vspace{{6pt}}
 
-\begin{{longtable}}{{p{{5.5cm}}p{{2.2cm}}p{{2.5cm}}p{{4.5cm}}}}
+\tiny
+\begin{{longtable}}{{p{{4.5cm}}p{{2.0cm}}p{{2.0cm}}p{{3.5cm}}}}
 \caption{{L\'imites m\'aximos permisibles de descarga a un cuerpo de agua dulce (TULSMA, Tabla~12).}}\\
 \toprule
 \textbf{{Par\'ametro}} & \textbf{{Expresado como}} & \textbf{{Unidad}} & \textbf{{L\'imite m\'aximo permisible}} \\
@@ -1556,14 +1559,17 @@ Sulfuros & S$^{{2-}}$ & mg/L & $\leq$ 0,5 \\
 Temperatura & -- & $^\circ$C & Cond.\ natural $\pm$ 3\,$^\circ$C; m\'ax.\ 32\,$^\circ$C \\
 Tensoactivos & SAAM & mg/L & $\leq$ 0,5 \\
 Zinc & Zn & mg/L & $\leq$ 5,0 \\
-\multicolumn{{4}}{{l}}{{\footnotesize $^\dagger$ Aquellos con descargas $\leq$ 3\,000 NMP/100 mL quedan exentos de tratamiento de desinfecci\'on.}}\\
+\multicolumn{{4}}{{l}}{{\tiny $^\dagger$ Aquellos con descargas $\leq$ 3\,000 NMP/100 mL quedan exentos de tratamiento de desinfecci\'on.}}\\
 \end{{longtable}}
+\normalsize
 
 % ----------------------------------------------------------
 \subsection{{Tabla 13 -- Descarga a Cuerpo de Agua Marina}}
+\tiny
 % ----------------------------------------------------------
 
-\begin{{longtable}}{{p{{5.5cm}}p{{2.2cm}}p{{2.5cm}}p{{4.5cm}}}}
+\tiny
+\begin{{longtable}}{{p{{4.5cm}}p{{2.0cm}}p{{2.0cm}}p{{3.5cm}}}}
 \caption{{L\'imites m\'aximos permisibles de descarga a un cuerpo de agua marina (TULSMA, Tabla~13).}}\\
 \toprule
 \textbf{{Par\'ametro}} & \textbf{{Expresado como}} & \textbf{{Unidad}} & \textbf{{L\'imite m\'aximo permisible}} \\
@@ -1608,7 +1614,8 @@ Zinc & Zn & mg/L & $\leq$ 5,0 \\
 \subsection{{Tabla 2 -- Consumo Humano (solo desinfecci\'on)}}
 % ----------------------------------------------------------
 
-\begin{{longtable}}{{p{{5.5cm}}p{{2.2cm}}p{{2.5cm}}p{{4.5cm}}}}
+\tiny
+\begin{{longtable}}{{p{{4.5cm}}p{{2.0cm}}p{{2.0cm}}p{{3.5cm}}}}
 \caption{{L\'imites m\'aximos permisibles para aguas de consumo humano que \'unicamente requieren desinfecci\'on (TULSMA, Tabla~2).}}\\
 \toprule
 \textbf{{Par\'ametro}} & \textbf{{Expresado como}} & \textbf{{Unidad}} & \textbf{{L\'imite m\'aximo permisible}} \\
@@ -1663,14 +1670,16 @@ Tensoactivos & SAAM & mg/L & $\leq$ 0,5 \\
 Turbiedad & -- & UTN & $\leq$ 10 \\
 Vanadio & V & mg/L & $\leq$ 0,1 \\
 Zinc & Zn & mg/L & $\leq$ 5,0 \\
-\multicolumn{{4}}{{l}}{{\footnotesize $^*$ Si $>$40\% del NMP corresponde a coliformes fecales, se requiere tratamiento convencional.}}\\
+\multicolumn{{4}}{{l}}{{\tiny $^*$ Si $>$40\% del NMP corresponde a coliformes fecales, se requiere tratamiento convencional.}}\\
 \end{{longtable}}
+\normalsize
 
 % ----------------------------------------------------------
 \subsection{{Tabla 3 -- Preservaci\'on de Flora y Fauna}}
 % ----------------------------------------------------------
 
-\begin{{longtable}}{{p{{5.0cm}}p{{2.0cm}}p{{1.5cm}}p{{3.0cm}}p{{3.0cm}}p{{3.2cm}}}}
+\tiny
+\begin{{longtable}}{{p{{4.0cm}}p{{1.8cm}}p{{1.2cm}}p{{2.5cm}}p{{2.5cm}}p{{2.5cm}}}}
 \caption{{Criterios de calidad admisibles para la preservaci\'on de flora y fauna en aguas dulces y marinas (TULSMA, Tabla~3).}}\\
 \toprule
 \textbf{{Par\'ametro}} & \textbf{{Expresado como}} & \textbf{{Unidad}} & \textbf{{Agua fr\'ia dulce}} & \textbf{{Agua c\'alida dulce}} & \textbf{{Agua marina/estuario}} \\
@@ -1719,14 +1728,16 @@ Sulfuro de hidr\'ogeno ionizado & H$_2$S & mg/L & $\leq$ 0,0002 & $\leq$ 0,0002 
 Temperatura & -- & $^\circ$C & C.N.\ + 3 (m\'ax.\ 20) & C.N.\ + 3 (m\'ax.\ 32) & C.N.\ + 3 (m\'ax.\ 32) \\
 Tensoactivos & SAAM & mg/L & $\leq$ 0,5 & $\leq$ 0,5 & $\leq$ 0,5 \\
 Zinc & Zn & mg/L & $\leq$ 0,18 & $\leq$ 0,18 & $\leq$ 0,17 \\
-\multicolumn{{6}}{{l}}{{\footnotesize C.N.~= Condici\'on natural.}}\\
+\multicolumn{{6}}{{l}}{{\tiny C.N.~= Condici\'on natural.}}\\
 \end{{longtable}}
+\normalsize
 
 % ----------------------------------------------------------
 \subsection{{Tabla 6 -- Uso Agr\'icola o de Riego}}
 % ----------------------------------------------------------
 
-\begin{{longtable}}{{p{{5.5cm}}p{{2.2cm}}p{{2.5cm}}p{{4.5cm}}}}
+\tiny
+\begin{{longtable}}{{p{{4.5cm}}p{{2.0cm}}p{{2.0cm}}p{{3.5cm}}}}
 \caption{{Criterios de calidad admisibles para aguas de uso agr\'icola o de riego (TULSMA, Tabla~6).}}\\
 \toprule
 \textbf{{Par\'ametro}} & \textbf{{Expresado como}} & \textbf{{Unidad}} & \textbf{{L\'imite m\'aximo permisible}} \\
@@ -1756,14 +1767,16 @@ Sodio & Na & mg/L & $\leq$ 200 \\
 Sulfatos & SO$_4^{{2-}}$ & mg/L & $\leq$ 1\,000 \\
 Vanadio & V & mg/L & $\leq$ 0,1 \\
 Zinc & Zn & mg/L & $\leq$ 2,0 \\
-\multicolumn{{4}}{{l}}{{\footnotesize $^*$ Para riego de cultivos para consumo humano en contacto directo con el suelo.}}\\
+\multicolumn{{4}}{{l}}{{\tiny $^*$ Para riego de cultivos para consumo humano en contacto directo con el suelo.}}\\
 \end{{longtable}}
+\normalsize
 
 % ----------------------------------------------------------
 \subsection{{Tabla 7 -- Uso Pecuario}}
 % ----------------------------------------------------------
 
-\begin{{longtable}}{{p{{5.5cm}}p{{2.2cm}}p{{2.5cm}}p{{4.5cm}}}}
+\tiny
+\begin{{longtable}}{{p{{4.5cm}}p{{2.0cm}}p{{2.0cm}}p{{3.5cm}}}}
 \caption{{Criterios de calidad admisibles para aguas de uso pecuario (TULSMA, Tabla~7).}}\\
 \toprule
 \textbf{{Par\'ametro}} & \textbf{{Expresado como}} & \textbf{{Unidad}} & \textbf{{L\'imite m\'aximo permisible}} \\
@@ -1817,9 +1830,10 @@ Ox\'igeno disuelto & mg/L & $\geq$ 6,0 & $\geq$ 5,0 \\
 pH & -- & $6,0 - 9,0$ & $6,0 - 9,0$ \\
 Temperatura & $^\circ$C & $\leq$ 30 & $\leq$ 30 \\
 Turbiedad & UTN & $\leq$ 10 & -- \\
-\multicolumn{{4}}{{l}}{{\footnotesize $^a$ Nado, buc\'eo, esqu\'i acu\'atico, surf.}} \\
-\multicolumn{{4}}{{l}}{{\footnotesize $^b$ Pesca, navegaci\'on deportiva, remo.}} \\
+\multicolumn{{4}}{{l}}{{\tiny $^a$ Nado, buc\'eo, esqu\'i acu\'atico, surf.}} \\
+\multicolumn{{4}}{{l}}{{\tiny $^b$ Pesca, navegaci\'on deportiva, remo.}} \\
 \end{{longtable}}
+\normalsize
 
 % ============================================================
 \newpage
@@ -1828,9 +1842,11 @@ Turbiedad & UTN & $\leq$ 10 & -- \\
 
 % ----------------------------------------------------------
 \subsection{{Tabla 11 -- Descarga al Sistema de Alcantarillado P\'ublico}}
+\tiny
 % ----------------------------------------------------------
 
-\begin{{longtable}}{{p{{5.5cm}}p{{2.2cm}}p{{2.5cm}}p{{4.5cm}}}}
+\tiny
+\begin{{longtable}}{{p{{4.5cm}}p{{2.0cm}}p{{2.0cm}}p{{3.5cm}}}}
 \caption{{L\'imites m\'aximos permisibles de descarga al sistema de alcantarillado p\'ublico (TULSMA, Tabla~11).}}\\
 \toprule
 \textbf{{Par\'ametro}} & \textbf{{Expresado como}} & \textbf{{Unidad}} & \textbf{{L\'imite m\'aximo permisible}} \\
