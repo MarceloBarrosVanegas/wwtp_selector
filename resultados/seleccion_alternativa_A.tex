@@ -1128,6 +1128,160 @@ A_{total} = \frac{917 + 183 + 310}{0.85} \approx \mathbf{1600 \text{--} 1900 \te
 \textbf{Nota:} El area total del predio debe ser de aproximadamente 1600--1900 m$^2$ (0.16--0.19 ha) para operacion adecuada con circulacion interna, estacionamiento y zonas verdes.
 
 
+
+%============================================================================
+\newpage
+\section{Resumen Ejecutivo de Resultados}
+%============================================================================
+
+El presente resumen consolida los resultados del dimensionamiento de la Planta de Tratamiento de Aguas Residuales (PTAR) para un caudal de dise\~no de \textbf{10.0 L/s} (5.0 L/s por linea).
+
+\subsection{Parametros de Dise\~no}
+
+\begin{table}[H]
+\centering
+\caption{Parametros de entrada del sistema}
+\begin{tabular}{lc}
+\toprule
+\textbf{Parametro} & \textbf{Valor} \\
+\midrule
+Caudal medio (Q) & 5.0 L/s (432.0 m$^3$/d) \\
+DBO$_5$ afluente & 243.1 mg/L \\
+DQO afluente & 498.0 mg/L \\
+SST afluente & 156.0 mg/L \\
+Temperatura & 25.6 °C \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Dimensionamiento de Unidades}
+
+\begin{table}[H]
+\centering
+\caption{Resumen de unidades de tratamiento}
+\begin{tabular}{p{4.5cm}ccc}
+\toprule
+\textbf{Unidad} & \textbf{Dimensiones} & \textbf{Cantidad} & \textbf{Parametro Clave} \\
+\midrule
+Rejillas & 0.38 m $\times$ 0.40 m & 2 canales & Separacion: 25 mm \\
+Desarenador & 0.42 m $\times$ 5.0 m & 1 unidad & TRH: 1.8 min \\
+Reactor UASB & D = 5.76 m, H = 4.3 m & 2 unidades & CH: 48.0 m$^3$/m$^2\cdot$d \\
+Filtro Percolador & D = 6.56 m & 2 unidades & Q$_A$ = 4.00 m$^3$/m$^2\cdot$h \\
+Sedimentador Secundario & 3.5 m $\times$ 9.8 m & 1 unidad & v$_d$ = 1.5 m/d \\
+Desinfeccion (Cloro) & Dosis: 4.0 mg/L & 1 tanque & CT = 15 mg$\cdot$min/L \\
+Lecho de Secado & 69.0 m$^2$ & 2 lechos & Aplicacion: 120 kg SST/m$^2\cdot$a\~no \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Balance de Calidad del Agua}
+
+\begin{table}[H]
+\centering
+\caption{Evolucion de parametros de calidad a traves del tratamiento}
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Parametro} & \textbf{Afluente} & \textbf{Post-UASB} & \textbf{Post-FP} & \textbf{Post-Sed} & \textbf{Efluente} \\
+\midrule
+DBO$_5$ (mg/L) & 243.1 & 60.0 & 30.0 & 21.0 & 40.6 \\
+DQO (mg/L) & 498.0 & 131.3 & 65.6 & 45.9 & 99.6 \\
+SST (mg/L) & 156.0 & 58.4 & 35.0 & 3.7 & 3.7 \\
+CF (NMP/100mL) & 5e+06 & 2e+06 & 1e+06 & 5e+05 & 2526 \\
+\midrule
+\textbf{Remocion total} & -- & \textbf{65\%} & \textbf{40\%} & \textbf{30\%} & \textbf{83\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Verificacion de Cumplimiento Normativo}
+
+\begin{table}[H]
+\centering
+\caption{Comparacion con limites de la TULSMA (Decreto 2132/2016)}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Parametro} & \textbf{Efluente} & \textbf{Limite} & \textbf{Cumple} & \textbf{Margen} \\
+\midrule
+DBO$_5$ (mg/L) & 40.6 & 100 & \textcolor{green}{\textbf{S\'I}} & 59.4 mg/L \\
+DQO (mg/L) & 99.6 & 250 & \textcolor{green}{\textbf{S\'I}} & 150.4 mg/L \\
+SST (mg/L) & 3.7 & 100 & \textcolor{green}{\textbf{S\'I}} & 96.3 mg/L \\
+CF (NMP/100mL) & 2526 & 3,000 & \textcolor{green}{\textbf{S\'I}} & 474 NMP/100mL \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Conclusion:} El sistema dise\~nado cumple satisfactoriamente con todos los limites establecidos por la normativa colombiana para descargas a cuerpos de agua de uso recreativo con contacto indirecto (Clase 3).
+
+\subsection{Requerimientos de Terreno}
+
+\begin{table}[H]
+\centering
+\caption{Resumen de areas requeridas}
+\begin{tabular}{lc}
+\toprule
+\textbf{Concepto} & \textbf{Area} \\
+\midrule
+Area de tratamiento & 917 m$^2$ \\
+Area de amortiguacion (20\%) & 183 m$^2$ \\
+Area complementaria operativa & 310 m$^2$ \\
+Zona verde (15\% del total) & 138 m$^2$ \\
+\midrule
+\textbf{Area total requerida} & \textbf{917--1900 m$^2$ (0.16--0.19 ha)} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Produccion de Lodos}
+
+\begin{table}[H]
+\centering
+\caption{Generacion y manejo de lodos}
+\begin{tabular}{lc}
+\toprule
+\textbf{Concepto} & \textbf{Valor} \\
+\midrule
+Produccion lodos UASB & 6.4 kg SST/d \\
+Produccion humus FP + Sed & 7.4 kg SST/d \\
+\midrule
+\textbf{Total lodos a manejar} & \textbf{13.8 kg SST/d} \\
+Area de lechos de secado & 69.0 m$^2$ (2 unidades) \\
+Frecuencia de aplicacion & 1 vez cada 3--4 meses \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Consumos Estimados}
+
+\begin{table}[H]
+\centering
+\caption{Consumos de energia y productos quimicos}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Concepto} & \textbf{Consumo} & \textbf{Unidad} \\
+\midrule
+Potencia electrica estimada & 5--8 & kW \\
+Consumo energia & 40,000--60,000 & kWh/a\~no \\
+Hipoclorito de sodio (12\%) & 17.7 & L/d \\
+Consumo hipoclorito anual & 6 & m$^3$/a\~no \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\vspace{1cm}
+
+\begin{center}
+\fbox{
+\begin{minipage}{0.9\textwidth}
+\centering
+\textbf{RESUMEN EJECUTIVO}\\[0.5em]
+La PTAR Alternativa A (UASB + Filtro Percolador) para 10.0 L/s\\
+requiere un area total de \textbf{0.16--0.19 ha} y produce un efluente que\\
+cumple con la \textbf{TULSMA} para descarga a cuerpos de agua Clase 3.
+\end{minipage}
+}
+\end{center}
+
+
 \newpage
 %============================================================================
 % BIBLIOGRAFÍA

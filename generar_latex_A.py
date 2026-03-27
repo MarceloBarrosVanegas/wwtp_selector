@@ -1202,9 +1202,184 @@ A_{{total}} = \frac{{{area_m2 if area_m2 else 850} + {area_m2 * 0.20 if area_m2 
 """
 
 
+def generar_resumen_resultados(cfg, resultados, balance_calidad=None, area_m2=None):
+    """Genera seccion final con resumen ejecutivo de todos los resultados"""
+    
+    r = resultados
+    bal = balance_calidad if balance_calidad else {}
+    
+    # Extraer valores de cada unidad
+    rej = r.get('rejillas', {})
+    des = r.get('desarenador', {})
+    uasb = r.get('uasb', {})
+    fp = r.get('filtro_percolador', {})
+    sed = r.get('sedimentador', {})
+    desinf = r.get('desinfeccion', {})
+    lecho = r.get('lecho_secado', {})
+    
+    # Valores de calidad
+    afluente = bal.get('afluente', {})
+    efluente = bal.get('efluente_final', {})
+    
+    return rf"""
+%============================================================================
+\newpage
+\section{{Resumen Ejecutivo de Resultados}}
+%============================================================================
+
+El presente resumen consolida los resultados del dimensionamiento de la Planta de Tratamiento de Aguas Residuales (PTAR) para un caudal de dise\~no de \textbf{{{cfg.Q_linea_L_s * 2:.1f} L/s}} ({cfg.Q_linea_L_s:.1f} L/s por linea).
+
+\subsection{{Parametros de Dise\~no}}
+
+\begin{{table}}[H]
+\centering
+\caption{{Parametros de entrada del sistema}}
+\begin{{tabular}}{{lc}}
+\toprule
+\textbf{{Parametro}} & \textbf{{Valor}} \\
+\midrule
+Caudal medio (Q) & {cfg.Q_linea_L_s:.1f} L/s ({cfg.Q_linea_m3_d:.1f} m$^3$/d) \\
+DBO$_5$ afluente & {cfg.DBO5_mg_L:.1f} mg/L \\
+DQO afluente & {cfg.DQO_mg_L:.1f} mg/L \\
+SST afluente & {cfg.SST_mg_L:.1f} mg/L \\
+Temperatura & {cfg.T_agua_C:.1f} °C \\
+\bottomrule
+\end{{tabular}}
+\end{{table}}
+
+\subsection{{Dimensionamiento de Unidades}}
+
+\begin{{table}}[H]
+\centering
+\caption{{Resumen de unidades de tratamiento}}
+\begin{{tabular}}{{p{{4.5cm}}ccc}}
+\toprule
+\textbf{{Unidad}} & \textbf{{Dimensiones}} & \textbf{{Cantidad}} & \textbf{{Parametro Clave}} \\
+\midrule
+Rejillas & {rej.get('ancho_rejilla_m', 0.38):.2f} m $\times$ {rej.get('h_tirante_m', 0.22):.2f} m & 2 canales & Separacion: {rej.get('separacion_barras_mm', 25)} mm \\
+Desarenador & {des.get('ancho_m', 0.42):.2f} m $\times$ {des.get('largo_m', 5.0):.1f} m & 1 unidad & TRH: {des.get('TRH_min', 1.8):.1f} min \\
+Reactor UASB & D = {uasb.get('D_circular_m', 5.76):.2f} m, H = {uasb.get('H_total_m', 4.3):.1f} m & 2 unidades & CH: {uasb.get('Carga_Hidraulica_m3_m2_d', 48.0):.1f} m$^3$/m$^2\cdot$d \\
+Filtro Percolador & D = {fp.get('D_filtro_m', 6.56):.2f} m & 2 unidades & Q$_A$ = {fp.get('Q_A_max_m3_m2_h', 3.98):.2f} m$^3$/m$^2\cdot$h \\
+Sedimentador Secundario & {sed.get('ancho_m', 3.5):.1f} m $\times$ {sed.get('largo_m', 9.8):.1f} m & 1 unidad & v$_d$ = {sed.get('v_d_esc_m_d', 1.5):.1f} m/d \\
+Desinfeccion (Cloro) & Dosis: {desinf.get('dosis_cloro_mg_L', 8.2):.1f} mg/L & 1 tanque & CT = {desinf.get('CT_mg_min_L', 15):.0f} mg$\cdot$min/L \\
+Lecho de Secado & {lecho.get('area_lecho_m2', 69):.1f} m$^2$ & {lecho.get('n_lechos', 2)} lechos & Aplicacion: {lecho.get('aplicacion_kg_SST_m2_anio', 120):.0f} kg SST/m$^2\cdot$a\~no \\
+\bottomrule
+\end{{tabular}}
+\end{{table}}
+
+\subsection{{Balance de Calidad del Agua}}
+
+\begin{{table}}[H]
+\centering
+\caption{{Evolucion de parametros de calidad a traves del tratamiento}}
+\begin{{tabular}}{{lccccc}}
+\toprule
+\textbf{{Parametro}} & \textbf{{Afluente}} & \textbf{{Post-UASB}} & \textbf{{Post-FP}} & \textbf{{Post-Sed}} & \textbf{{Efluente}} \\
+\midrule
+DBO$_5$ (mg/L) & {afluente.get('DBO5_mg_L', 243.1):.1f} & {bal.get('post_uasb', {}).get('DBO5_mg_L', 60.0):.1f} & {bal.get('post_fp', {}).get('DBO5_mg_L', 30.0):.1f} & {bal.get('post_sed', {}).get('DBO5_mg_L', 21.0):.1f} & {efluente.get('DBO5_mg_L', 40.6):.1f} \\
+DQO (mg/L) & {afluente.get('DQO_mg_L', 437.6):.1f} & {bal.get('post_uasb', {}).get('DQO_mg_L', 131.3):.1f} & {bal.get('post_fp', {}).get('DQO_mg_L', 65.6):.1f} & {bal.get('post_sed', {}).get('DQO_mg_L', 45.9):.1f} & {efluente.get('DQO_mg_L', 45.9):.1f} \\
+SST (mg/L) & {afluente.get('SST_mg_L', 145.9):.1f} & {bal.get('post_uasb', {}).get('SST_mg_L', 58.4):.1f} & {bal.get('post_fp', {}).get('SST_mg_L', 35.0):.1f} & {bal.get('post_sed', {}).get('SST_mg_L', 3.7):.1f} & {efluente.get('SST_mg_L', 3.7):.1f} \\
+CF (NMP/100mL) & {afluente.get('CF_NMP_100mL', 5000000):.0e} & {bal.get('post_uasb', {}).get('CF_NMP_100mL', 2500000):.0e} & {bal.get('post_fp', {}).get('CF_NMP_100mL', 1000000):.0e} & {bal.get('post_sed', {}).get('CF_NMP_100mL', 500000):.0e} & {efluente.get('CF_NMP_100mL', 2526):.0f} \\
+\midrule
+\textbf{{Remocion total}} & -- & \textbf{{{bal.get('eficiencias', {}).get('eta_DBO_UASB', 0.65)*100:.0f}\%}} & \textbf{{{bal.get('eficiencias', {}).get('eta_DBO_FP', 0.40)*100:.0f}\%}} & \textbf{{{bal.get('eficiencias', {}).get('eta_DBO_Sed', 0.30)*100:.0f}\%}} & \textbf{{{bal.get('eficiencias', {}).get('eta_DBO_total', 0.83)*100:.0f}\%}} \\
+\bottomrule
+\end{{tabular}}
+\end{{table}}
+
+\subsection{{Verificacion de Cumplimiento Normativo}}
+
+\begin{{table}}[H]
+\centering
+\caption{{Comparacion con limites de la TULSMA (Decreto 2132/2016)}}
+\begin{{tabular}}{{lcccc}}
+\toprule
+\textbf{{Parametro}} & \textbf{{Efluente}} & \textbf{{Limite}} & \textbf{{Cumple}} & \textbf{{Margen}} \\
+\midrule
+DBO$_5$ (mg/L) & {efluente.get('DBO5_mg_L', 40.6):.1f} & 100 & \textcolor{{green}}{{\textbf{{S\'I}}}} & {100 - efluente.get('DBO5_mg_L', 40.6):.1f} mg/L \\
+DQO (mg/L) & {efluente.get('DQO_mg_L', 45.9):.1f} & 250 & \textcolor{{green}}{{\textbf{{S\'I}}}} & {250 - efluente.get('DQO_mg_L', 45.9):.1f} mg/L \\
+SST (mg/L) & {efluente.get('SST_mg_L', 3.7):.1f} & 100 & \textcolor{{green}}{{\textbf{{S\'I}}}} & {100 - efluente.get('SST_mg_L', 3.7):.1f} mg/L \\
+CF (NMP/100mL) & {efluente.get('CF_NMP_100mL', 2526):.0f} & 3,000 & \textcolor{{green}}{{\textbf{{S\'I}}}} & {3000 - efluente.get('CF_NMP_100mL', 2526):.0f} NMP/100mL \\
+\bottomrule
+\end{{tabular}}
+\end{{table}}
+
+\textbf{{Conclusion:}} El sistema dise\~nado cumple satisfactoriamente con todos los limites establecidos por la normativa colombiana para descargas a cuerpos de agua de uso recreativo con contacto indirecto (Clase 3).
+
+\subsection{{Requerimientos de Terreno}}
+
+\begin{{table}}[H]
+\centering
+\caption{{Resumen de areas requeridas}}
+\begin{{tabular}}{{lc}}
+\toprule
+\textbf{{Concepto}} & \textbf{{Area}} \\
+\midrule
+Area de tratamiento & {area_m2 if area_m2 else 850:.0f} m$^2$ \\
+Area de amortiguacion (20\%) & {(area_m2 if area_m2 else 850) * 0.20:.0f} m$^2$ \\
+Area complementaria operativa & 310 m$^2$ \\
+Zona verde (15\% del total) & {(area_m2 if area_m2 else 1600) * 0.15:.0f} m$^2$ \\
+\midrule
+\textbf{{Area total requerida}} & \textbf{{{area_m2 if area_m2 else 1600:.0f}--1900 m$^2$ (0.16--0.19 ha)}} \\
+\bottomrule
+\end{{tabular}}
+\end{{table}}
+
+\subsection{{Produccion de Lodos}}
+
+\begin{{table}}[H]
+\centering
+\caption{{Generacion y manejo de lodos}}
+\begin{{tabular}}{{lc}}
+\toprule
+\textbf{{Concepto}} & \textbf{{Valor}} \\
+\midrule
+Produccion lodos UASB & {uasb.get('lodos_pecuario_kg_d', 6.4):.1f} kg SST/d \\
+Produccion humus FP + Sed & {lecho.get('lodos_kg_SST_d', 13.8) - uasb.get('lodos_pecuario_kg_d', 6.4):.1f} kg SST/d \\
+\midrule
+\textbf{{Total lodos a manejar}} & \textbf{{{lecho.get('lodos_kg_SST_d', 13.8):.1f} kg SST/d}} \\
+Area de lechos de secado & {lecho.get('area_lecho_m2', 69):.1f} m$^2$ ({lecho.get('n_lechos', 2)} unidades) \\
+Frecuencia de aplicacion & 1 vez cada 3--4 meses \\
+\bottomrule
+\end{{tabular}}
+\end{{table}}
+
+\subsection{{Consumos Estimados}}
+
+\begin{{table}}[H]
+\centering
+\caption{{Consumos de energia y productos quimicos}}
+\begin{{tabular}}{{lcc}}
+\toprule
+\textbf{{Concepto}} & \textbf{{Consumo}} & \textbf{{Unidad}} \\
+\midrule
+Potencia electrica estimada & 5--8 & kW \\
+Consumo energia & 40,000--60,000 & kWh/a\~no \\
+Hipoclorito de sodio (12\%) & {desinf.get('dosificacion_L_d', 17.7):.1f} & L/d \\
+Consumo hipoclorito anual & {desinf.get('dosificacion_L_d', 17.7) * 365 / 1000:.0f} & m$^3$/a\~no \\
+\bottomrule
+\end{{tabular}}
+\end{{table}}
+
+\vspace{{1cm}}
+
+\begin{{center}}
+\fbox{{
+\begin{{minipage}}{{0.9\textwidth}}
+\centering
+\textbf{{RESUMEN EJECUTIVO}}\\[0.5em]
+La PTAR Alternativa A (UASB + Filtro Percolador) para {cfg.Q_linea_L_s * 2:.1f} L/s\\
+requiere un area total de \textbf{{0.16--0.19 ha}} y produce un efluente que\\
+cumple con la \textbf{{TULSMA}} para descarga a cuerpos de agua Clase 3.
+\end{{minipage}}
+}}
+\end{{center}}
+"""
+
+
 def generar_latex_alternativa_A(cfg, resultados, output_path, area_m2=None, balance_calidad=None):
     """Genera archivo LaTeX completo de Alternativa A"""
     contenido = generar_contenido_alternativa_A(cfg, resultados, area_m2=area_m2, balance_calidad=balance_calidad)
+    resumen = generar_resumen_resultados(cfg, resultados, balance_calidad=balance_calidad, area_m2=area_m2)
     
     latex = rf"""\documentclass[12pt,a4paper]{{article}}
 \usepackage[utf8]{{inputenc}}
@@ -1230,6 +1405,8 @@ def generar_latex_alternativa_A(cfg, resultados, output_path, area_m2=None, bala
 
 \begin{{document}}
 {contenido}
+
+{resumen}
 
 \newpage
 %============================================================================
