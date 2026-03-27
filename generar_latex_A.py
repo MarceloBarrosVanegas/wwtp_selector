@@ -1071,7 +1071,7 @@ A_{{lecho}} = \frac{{V_{{lodo}} \cdot t_s}}{{h_{{lodo}}}} \cdot n_{{celdas}}
 \end{{itemize}}
 
 \begin{{equation}}
-A_{{lecho}} = \frac{{{l['V_lodo_m3_d']:.3f} \times {l['t_secado_d']:.0f}}}{{{l['h_lodo_m']:.2f}}} \times {l['n_celdas']:.0f} = {l['A_lecho_m2']:.1f} \text{{ m}}^2
+A_{{lecho}} = \frac{{{l['V_lodo_m3_d']:.3f} \times {l['t_secado_d']:.0f}}}{{{l['h_lodo_m']:.2f} \times {l['n_celdas']:.0f}}} = {l['A_lecho_m2']:.1f} \text{{ m}}^2 \text{{ por lecho}}
 \end{{equation}}
 
 Con una relación largo/ancho de 3:1, las dimensiones resultantes son {l['largo_m']:.1f} m de largo por {l['ancho_m']:.1f} m de ancho por celda.
@@ -1213,8 +1213,8 @@ def generar_resumen_resultados(cfg, resultados, balance_calidad=None, area_m2=No
     des = r.get('desarenador', {})
     uasb = r.get('uasb', {})
     fp = r.get('filtro_percolador', {})
-    sed = r.get('sedimentador', {})
-    desinf = r.get('desinfeccion', {})
+    sed = r.get('sedimentador_sec', {})
+    desinf = r.get('cloro', r.get('desinfeccion', {}))
     lecho = r.get('lecho_secado', {})
     
     # Valores de calidad
@@ -1279,8 +1279,8 @@ Desarenador & {des.get('b_canal_m'):.2f} m $\times$ {des.get('L_diseno_m'):.1f} 
 Reactor UASB & D = {uasb.get('D_m'):.2f} m, H = {uasb.get('H_r_m'):.1f} m & {cfg.num_lineas} unidades & v$_{{up}}$ = {uasb.get('v_up_m_h'):.2f} m/h \\
 Filtro Percolador & D = {fp.get('D_filtro_m'):.2f} m, H = {fp.get('H_total_m'):.1f} m & {cfg.num_lineas} unidades & Q$_A$ = {fp.get('Q_A_max_m3_m2_h'):.2f} m$^3$/m$^2\cdot$h \\
 Sedimentador Secundario & D = {sed.get('D_m'):.2f} m, H = {sed.get('h_sed_m'):.1f} m & {cfg.num_lineas} unidades & SOR = {sed.get('SOR_m3_m2_d'):.1f} m$^3$/m$^2\cdot$d \\
-Desinfeccion (Cloro) & {desinf.get('largo_m'):.1f} m $\times$ {desinf.get('ancho_m'):.1f} m $\times$ {desinf.get('h_total_m'):.1f} m & 1 unidad & CT = {desinf.get('CT_mg_min_L'):.0f} mg$\cdot$min/L \\
-Lecho de Secado & {lecho.get('A_lecho_m2'):.1f} m$^2$ ({lecho.get('largo_m'):.1f} m $\times$ {lecho.get('ancho_m'):.1f} m) & {lecho.get('n_celdas')} unidad & Carga: {lecho.get('lodos_kg_SST_d'):.1f} kg SST/d \\
+Desinfeccion (Cloro) & {desinf.get('largo_m'):.1f} m $\times$ {desinf.get('ancho_m'):.1f} m $\times$ {desinf.get('h_total_m'):.1f} m & {cfg.num_lineas} unidades & CT = {desinf.get('CT_mg_min_L'):.0f} mg$\cdot$min/L \\
+Lecho de Secado & {lecho.get('A_lecho_m2'):.1f} m$^2$ ({lecho.get('largo_m'):.1f} m $\times$ {lecho.get('ancho_m'):.1f} m) & {cfg.num_lineas} unidades & Carga: {lecho.get('lodos_kg_SST_d', 0):.1f} kg SST/d \\
 \bottomrule
 \end{{tabular}}
 \end{{table}}
@@ -1352,11 +1352,11 @@ Zona verde (15\% del total) & {(area_m2 if area_m2 else 1600) * 0.15:.0f} m$^2$ 
 \toprule
 \textbf{{Concepto}} & \textbf{{Valor}} \\
 \midrule
-Produccion lodos UASB & {lecho.get('lodos_uasb_kg_d'):.1f} kg SST/d \\
-Produccion humus FP + Sed & {lecho.get('lodos_fp_kg_d'):.1f} kg SST/d \\
+Produccion lodos UASB & {lecho.get('lodos_kg_SST_d', 0):.1f} kg SST/d \\
+Produccion humus FP + Sed & {lecho.get('lodos_fp_kg_d', 0):.1f} kg SST/d \\
 \midrule
-\textbf{{Total lodos a manejar}} & \textbf{{{lecho.get('lodos_total_kg_d'):.1f} kg SST/d}} \\
-Area de lechos de secado & {lecho.get('A_lecho_m2'):.1f} m$^2$ ({lecho.get('n_celdas')} unidad) \\
+\textbf{{Total lodos a manejar}} & \textbf{{{lecho.get('lodos_total_kg_d', lecho.get('lodos_kg_SST_d', 0)):.1f} kg SST/d}} \\
+Area de lechos de secado & {lecho.get('A_lecho_m2'):.1f} m$^2$ ({cfg.num_lineas} unidades) \\
 Frecuencia de aplicacion & 1 vez cada 3--4 meses \\
 \bottomrule
 \end{{tabular}}
@@ -1396,8 +1396,30 @@ cumple con la \textbf{{TULSMA}} para descarga a cuerpos de agua Clase 3.
 
 
 def generar_latex_alternativa_A(cfg, resultados, output_path, area_m2=None, balance_calidad=None):
-    """Genera archivo LaTeX completo de Alternativa A"""
-    contenido = generar_contenido_alternativa_A(cfg, resultados, area_m2=area_m2, balance_calidad=balance_calidad)
+    """Genera archivo LaTeX completo de Alternativa A (incluye layout automático)"""
+    
+    # Importar y generar layout automáticamente
+    from ptar_layout_graficador import generar_layout_con_resultados
+    import os
+    
+    output_dir = os.path.dirname(output_path) or '.'
+    unidades = ["Rejillas", "Desarenador", "UASB", "Filtro_Percolador", 
+                "Sedimentador", "UV"]
+    
+    print("Generando layout automáticamente...")
+    try:
+        x, y = generar_layout_con_resultados(
+            "A", unidades, "UASB + Filtro Percolador", resultados, output_dir,
+            caudal_L_s=cfg.Q_linea_L_s
+        )
+        area_m2 = round(x * y)
+        layout_filename = "Layout_A_2lineas.png"
+        print(f"  Layout generado: {layout_filename} ({x:.1f}m x {y:.1f}m)")
+    except Exception as e:
+        print(f"  [ADVERTENCIA] No se pudo generar layout: {e}")
+        layout_filename = "Layout_A_2lineas.png"
+    
+    contenido = generar_contenido_alternativa_A(cfg, resultados, layout_filename=layout_filename, area_m2=area_m2, balance_calidad=balance_calidad)
     resumen = generar_resumen_resultados(cfg, resultados, balance_calidad=balance_calidad, area_m2=area_m2)
     
     latex = rf"""\documentclass[12pt,a4paper]{{article}}

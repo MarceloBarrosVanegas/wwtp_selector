@@ -597,8 +597,16 @@ def procesar_alternativa(alt_id: str, config_alt, output_dir: str) -> dict:
     # Ejecutar dimensionamiento según alternativa
     if alt_id == "A":
         resultados = calcular_tren_A(cfg)
+        
+        # Agregar calculo de desinfeccion con cloro
+        from ptar_dimensionamiento import dimensionar_desinfeccion_cloro, calcular_balance_calidad_agua
+        resultados['cloro'] = dimensionar_desinfeccion_cloro(cfg)
+        
+        # Calcular balance de calidad del agua
+        balance_calidad = calcular_balance_calidad_agua(cfg, resultados)
+        
         unidades = ["Rejillas", "Desarenador", "UASB", "Filtro_Percolador", 
-                   "Sedimentador", "UV"]  # Lecho de secado se maneja automáticamente al final
+                   "Sedimentador", "UV"]  # UV representa la unidad de desinfeccion (Cloro o UV)
         
         # Generar layout
         print("\nGenerando layout...")
@@ -610,12 +618,12 @@ def procesar_alternativa(alt_id: str, config_alt, output_dir: str) -> dict:
         
         # Generar contenido LaTeX para incluir en el documento maestro
         print("Generando contenido LaTeX para documento maestro...")
-        contenido_latex = generar_contenido_alternativa_A(cfg, resultados, f"Layout_{alt_id}_2lineas.png", area_m2=area_m2)
+        contenido_latex = generar_contenido_alternativa_A(cfg, resultados, f"Layout_{alt_id}_2lineas.png", area_m2=area_m2, balance_calidad=balance_calidad)
         
         # También generar LaTeX individual (archivo separado por si se necesita)
         latex_individual = os.path.join(output_dir, f"alternativa_{alt_id}_detalle.tex")
         print(f"Generando LaTeX individual: {latex_individual}")
-        generar_latex_alternativa_A(cfg, resultados, latex_individual, area_m2=area_m2)
+        generar_latex_alternativa_A(cfg, resultados, latex_individual, area_m2=area_m2, balance_calidad=balance_calidad)
         
         return {
             "id": alt_id,

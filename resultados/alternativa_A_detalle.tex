@@ -5,6 +5,8 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{colortbl}
 \usepackage{graphicx}
 \usepackage{enumitem}
 \usepackage{tikz}
@@ -29,7 +31,7 @@
 \newpage
 \section{Alternativa A: Tratamiento Anaerobio-Aerobio con UASB y Filtro Percolador}
 
-La presente alternativa propone un esquema de tratamiento que combina procesos anaerobios y aerobios para lograr la remoción de contaminantes de manera eficiente y con bajo consumo energético. El tren de tratamiento completo comprende: rejillas y desarenador para el pretratamiento, reactor UASB para el tratamiento primario anaerobio, filtro percolador para el tratamiento secundario aerobio, sedimentador secundario para la separación de sólidos biológicos, y finalmente desinfección UV antes del vertimiento.
+La presente alternativa propone un esquema de tratamiento que combina procesos anaerobios y aerobios para lograr la remoción de contaminantes de manera eficiente y con bajo consumo energético. El tren de tratamiento completo comprende: rejillas y desarenador para el pretratamiento, reactor UASB para el tratamiento primario anaerobio, filtro percolador para el tratamiento secundario aerobio, sedimentador secundario para la separación de sólidos biológicos, y finalmente desinfección con hipoclorito de sodio antes del vertimiento.
 
 \subsection{Canal de Desbaste con Rejillas}
 
@@ -239,17 +241,17 @@ v_s = \frac{g \cdot (S_s - 1) \cdot d^2}{18 \cdot \nu}
     \item[$g$] = Aceleración de la gravedad (9.81 m/s²)
     \item[$S_s$] = Gravedad específica de la arena (2.65)
     \item[$d$] = Diámetro de la partícula (0.00020 m)
-    \item[$\nu$] = Viscosidad cinemática del agua a 25.6°C ($8.3973e-07$ m²/s)
+    \item[$\nu$] = Viscosidad cinemática del agua a 24.0°C ($8.8200e-07$ m²/s)
 \end{itemize}
 
 \begin{equation}
-v_s = \frac{9.81 \times (2.65 - 1) \times (0.00020)^2}{18 \times 8.3973e-07} = 0.043 \text{ m/s}
+v_s = \frac{9.81 \times (2.65 - 1) \times (0.00020)^2}{18 \times 8.8200e-07} = 0.041 \text{ m/s}
 \end{equation}
 
 Con este valor de $v_s$ se determina la longitud teórica del desarenador mediante la ecuación de sedimentación tipo I:
 
 \begin{equation}
-L = \frac{H \cdot v_h}{v_s} = \frac{0.40 \times 0.30}{0.043} = 2.8 \text{ m}
+L = \frac{H \cdot v_h}{v_s} = \frac{0.40 \times 0.30}{0.041} = 2.9 \text{ m}
 \end{equation}
 
 \textit{Donde:}
@@ -259,7 +261,7 @@ L = \frac{H \cdot v_h}{v_s} = \frac{0.40 \times 0.30}{0.043} = 2.8 \text{ m}
     \item[$v_h$] = Velocidad horizontal adoptada (0.30 m/s)
 \end{itemize}
 
-La longitud teórica resultante (2.8~m) es adecuada para el caudal de diseño y se adopta como longitud de diseño.
+La longitud teórica resultante (2.9~m) es adecuada para el caudal de diseño y se adopta como longitud de diseño.
 
 El ancho del canal se determina por la ecuación de continuidad:
 
@@ -371,7 +373,7 @@ El diseño se fundamenta en criterios biológicos e hidráulicos establecidos po
 
 \textbf{Condiciones de temperatura:} La temperatura del agua residual es un factor crítico que determina los parámetros de diseño del reactor UASB. Según Van Haandel y Lettinga (1994), el proceso de metanogénesis requiere temperaturas superiores a 20°C para operar de manera óptima. A temperaturas menores, la actividad metabólica de los microorganismos anaerobios disminuye, requiriendo ajustes en la carga orgánica, el tiempo de retención y la velocidad ascendente.
 
-Para el presente diseño, la temperatura del agua residual es \textbf{25.6°C} (óptima (>= 22°C)). Con base en esta condición, los parámetros de diseño se han ajustado automáticamente según los siguientes rangos recomendados:
+Para el presente diseño, la temperatura del agua residual es \textbf{24.0°C} (óptima (>= 22°C)). Con base en esta condición, los parámetros de diseño se han ajustado automáticamente según los siguientes rangos recomendados:
 
 \begin{table}[H]
 \centering
@@ -390,11 +392,11 @@ Crítica & < 10 & No recomendable & Requiere calefacción \\
 \end{tabular}
 \end{table}
 
-Para la temperatura actual de 25.6°C, los parámetros de diseño adoptados son:
+Para la temperatura actual de 24.0°C, los parámetros de diseño adoptados son:
 
 \begin{table}[H]
 \centering
-\caption{Parámetros de diseño del reactor UASB (T = 25.6°C)}
+\caption{Parámetros de diseño del reactor UASB (T = 24.0°C)}
 \small
 \begin{tabular}{p{4.5cm}ccc}
 \toprule
@@ -404,7 +406,7 @@ Carga orgánica ($C_v$) & 2,0--3,0 & 2.50 kg/m³·d & Van Haandel [4] \\
 Velocidad ascendente & 0,5--1,5 & 0.76 m/h & Sperling [3] \\
 Tiempo retención (HRT) & 4--6 & 4.8 h & Van Haandel [4] \\
 Eficiencia DQO & 60--75 & 65\% & OPS/CEPIS [5] \\
-Altura útil & 3,0--6,0 m & 3.62 m & Van Haandel [4] \\
+Altura útil & 3,0--6,0 m & 3.63 m & Van Haandel [4] \\
 Relación H/D & 0,5--1,5 & 0.66 & Van Haandel [4] \\
 \bottomrule
 \end{tabular}
@@ -424,12 +426,12 @@ V_r = \frac{Q \cdot S_0}{C_v}
 \begin{itemize}[noitemsep,leftmargin=2em]
     \item[$V_r$] = Volumen útil del reactor (m³)
     \item[$Q$] = Caudal diario (432.0 m³/d)
-    \item[$S_0$] = Concentración de DQO afluente (0.4980 kg/m³)
+    \item[$S_0$] = Concentración de DQO afluente (0.5000 kg/m³)
     \item[$C_v$] = Carga orgánica volumétrica (2.5 kg DQO/m³·d)
 \end{itemize}
 
 \begin{equation}
-V_r = \frac{432.0 \times 0.4980}{2.5} = 86.1 \text{ m}^3
+V_r = \frac{432.0 \times 0.5000}{2.5} = 86.4 \text{ m}^3
 \end{equation}
 
 Este volumen garantiza el tiempo de retención hidráulico necesario para la degradación biológica.
@@ -468,7 +470,7 @@ D = \sqrt{\frac{4 \cdot A_s}{\pi}}
 D = \sqrt{\frac{4 \times 23.78}{\pi}} = 5.50 \text{ m}
 \end{equation}
 
-La altura resultante del reactor es 3.62 m, proporcionando un tiempo de retención hidráulico de 4.8 horas, valor adecuado según Sperling \cite{sperling2007} para temperaturas superiores a 22°C.
+La altura resultante del reactor es 3.63 m, proporcionando un tiempo de retención hidráulico de 4.8 horas, valor adecuado según Sperling \cite{sperling2007} para temperaturas superiores a 22°C.
 
 La producción de biogás se estima mediante la relación estequiométrica de 0.35 m³ de metano por kilogramo de DQO removida:
 
@@ -480,12 +482,12 @@ V_{CH_4} = (Q_d \cdot S_0 \cdot E) \times 0.35
 \begin{itemize}[noitemsep,leftmargin=2em]
     \item[$V_{CH_4}$] = Volumen de metano producido (m³ CH$_4$/d)
     \item[$Q_d$] = Caudal diario (432.0 m³/d)
-    \item[$S_0$] = Concentración de DQO afluente (0.498 kg/m³)
+    \item[$S_0$] = Concentración de DQO afluente (0.500 kg/m³)
     \item[$E$] = Eficiencia de remoción (0.65)
 \end{itemize}
 
 \begin{equation}
-V_{CH_4} = (432.0 \times 0.498 \times 0.65) \times 0.35 = 48.9 \text{ m}^3 \text{ CH}_4\text{/d}
+V_{CH_4} = (432.0 \times 0.500 \times 0.65) \times 0.35 = 49.1 \text{ m}^3 \text{ CH}_4\text{/d}
 \end{equation}
 
 \subsubsection{Verificación para Caudal Máximo Horario}
@@ -526,12 +528,12 @@ Con la velocidad calculada $v_{up,max} = 1.89$~m/h, se obtiene el estado \textbf
 Parámetro & Valor \\
 \midrule
 Diámetro & 5.50 m \\
-Altura total & 3.62 m \\
-Volumen útil & 86.1 m³ \\
+Altura total & 3.63 m \\
+Volumen útil & 86.4 m³ \\
 Área superficial & 23.78 m² \\
 Tiempo de retención hidráulico & 4.8 h \\
 Carga orgánica volumétrica & 2.5 kg DQO/m³·d \\
-Biogás producido & 48.9 m$^3$ CH$_4$/d \\
+Biogás producido & 49.1 m$^3$ CH$_4$/d \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -552,12 +554,12 @@ V = \frac{Q \cdot S_0}{C_v}
 \begin{itemize}[noitemsep,leftmargin=2em]
     \item[$V$] = Volumen de medio filtrante requerido (m³)
     \item[$Q$] = Caudal diario (432.0 m³/d)
-    \item[$S_0$] = DBO afluente (73 mg/L = 73 $\\times$ 10$^{-3}$ kg/m³)
+    \item[$S_0$] = DBO afluente (75 mg/L = 75 $\\times$ 10$^{-3}$ kg/m³)
     \item[$C_v$] = Carga orgánica volumétrica (0.30 kg DBO/m³·d)
 \end{itemize}
 
 \begin{equation}
-V = \frac{432.0 \times 73 \times 10^{-3}}{0.30} = 105.0 \text{ m}^3
+V = \frac{432.0 \times 75 \times 10^{-3}}{0.30} = 108.0 \text{ m}^3
 \end{equation}
 
 Con una profundidad de medio de 3.50 m, el área superficial resulta 33.75 m², correspondiendo a un diámetro de 6.56 m para configuración circular. La altura total incluye zonas de distribución (0,30 m), recolección (0,50 m) y bordo libre (0,30 m), resultando en 4.30 m.
@@ -576,11 +578,11 @@ k_T = k_{20} \cdot \theta^{(T-20)}
 \begin{itemize}[noitemsep,leftmargin=2em]
     \item[$k_{20}$] = Constante cinética a 20°C (0.068 m/h)
     \item[$\theta$] = Coeficiente de temperatura (1.035)
-    \item[$T$] = Temperatura del agua (25.6°C)
+    \item[$T$] = Temperatura del agua (24.0°C)
 \end{itemize}
 
 \begin{equation}
-k_T = 0.068 \times 1.035^{(25.6-20)} = 0.0824 \text{ m/h}
+k_T = 0.068 \times 1.035^{(24.0-20)} = 0.0780 \text{ m/h}
 \end{equation}
 
 Aplicando el modelo de Germain:
@@ -592,8 +594,8 @@ Aplicando el modelo de Germain:
 \textit{Donde:}
 \begin{itemize}[noitemsep,leftmargin=2em]
     \item[$S_e$] = DBO efluente (mg/L)
-    \item[$S_0$] = DBO afluente (73 mg/L)
-    \item[$k_T$] = Constante cinética corregida (0.0824 m/h)
+    \item[$S_0$] = DBO afluente (75 mg/L)
+    \item[$k_T$] = Constante cinética corregida (0.0780 m/h)
     \item[$D$] = Profundidad del medio (3.50 m)
     \item[$q_A$] = Tasa hidráulica (1.600 m³/m²·h)
     \item[$n$] = Coeficiente empírico (0.50)
@@ -602,10 +604,10 @@ Aplicando el modelo de Germain:
 Sustituyendo valores:
 
 \begin{equation}
-\frac{S_e}{73} = \exp\left(-\frac{0.0824 \times 3.50}{(1.600)^{0.50}}\right) = 0.796
+\frac{S_e}{75} = \exp\left(-\frac{0.0780 \times 3.50}{(1.600)^{0.50}}\right) = 0.806
 \end{equation}
 
-Por tanto, la DBO efluente estimada es $S_e = 73 \times 0.796 = 58$ mg/L.
+Por tanto, la DBO efluente estimada es $S_e = 75 \times 0.806 = 60$ mg/L.
 
 \subsubsection{Verificación para Caudal Máximo Horario}
 
@@ -635,7 +637,7 @@ Parámetro & Valor \\
 Diámetro & 6.56 m \\
 Altura total & 4.30 m \\
 Profundidad medio & 3.50 m \\
-Volumen de medio & 105.0 m³ \\
+Volumen de medio & 108.0 m³ \\
 Carga orgánica & 0.30 kg DBO/m³·d \\
 Recirculación & R = 2.0 \\
 \bottomrule
@@ -734,10 +736,10 @@ La carga calculada (23.4 m³/m·d) es significativamente menor que el límite de
 
 \textbf{3. Tasa de aplicación de sólidos}
 
-Considerando la producción estimada de humus del filtro percolador (1.0 kg SST/d):
+Considerando la producción estimada de humus del filtro percolador (4.9 kg SST/d):
 
 \begin{equation}
-\text{Carga de sólidos} = \frac{1.0 \text{ kg SST/d}}{27.09 \text{ m}^2} = 0.04 \text{ kg SST/m}^2\text{·d}
+\text{Carga de sólidos} = \frac{4.9 \text{ kg SST/d}}{27.09 \text{ m}^2} = 0.18 \text{ kg SST/m}^2\text{·d}
 \end{equation}
 
 El valor está dentro del rango recomendado de 50--150 kg SST/m²·d para sedimentadores tras filtros percoladores.
@@ -774,7 +776,7 @@ SOR (caudal máximo) & 39.9 m³/m²·d \\
 HRT (promedio) & 5.3 h \\
 HRT (caudal máximo) & 2.1 h \\
 Carga sobre vertedero & 23.4 m³/m·d \\
-Carga de sólidos & 0.04 kg/m²·d \\
+Carga de sólidos & 0.18 kg/m²·d \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -949,7 +951,7 @@ El lecho de secado es una unidad de manejo de lodos que utiliza procesos físico
 \toprule
 Parámetro & Rango recomendado & Valor adoptado & Fuente \\
 \midrule
-Carga superficial de sólidos & 60--220 & 73 kg/m²·año & Metcalf \& Eddy \cite{metcalf2014} \\
+Carga superficial de sólidos & 60--220 & 146 kg/m²·año & Metcalf \& Eddy \cite{metcalf2014} \\
 Concentración de lodos & 15--30 & 20 kg/m³ & OPS/CEPIS \cite{ops2005} \\
 Tiempo de secado & 10--30 & 15 días & OPS/CEPIS \\
 Espesor de aplicación & 0.20--0.40 & 0.30 m & Metcalf \& Eddy \\
@@ -960,7 +962,7 @@ Relación Largo/Ancho & 2:1--4:1 & 3:1 & Práctica común \\
 
 \textbf{Producción de lodos}
 
-La producción de lodos se estima considerando una producción específica típica de 0,10 kg SSV/kg DBO removida. Para la carga aplicada, se estima una producción de 13.78 kg SST/d por línea.
+La producción de lodos se estima considerando una producción específica típica de 0,10 kg SSV/kg DBO removida. Para la carga aplicada, se estima una producción de 15.12 kg SST/d por línea.
 
 \textbf{Ecuaciones de diseño}
 
@@ -973,12 +975,12 @@ V_{lodo} = \frac{M_{SST}}{C_{SST}}
 \textit{Donde:}
 \begin{itemize}[noitemsep,leftmargin=2em]
     \item[$V_{lodo}$] = Volumen diario de lodo (m³/d)
-    \item[$M_{SST}$] = Masa de sólidos producidos (13.78 kg SST/d)
+    \item[$M_{SST}$] = Masa de sólidos producidos (15.12 kg SST/d)
     \item[$C_{SST}$] = Concentración de sólidos (20 kg/m³)
 \end{itemize}
 
 \begin{equation}
-V_{lodo} = \frac{13.78}{20} = 0.689 \text{ m}^3\text{/d}
+V_{lodo} = \frac{15.12}{20} = 0.756 \text{ m}^3\text{/d}
 \end{equation}
 
 \textbf{Dimensionamiento del área}
@@ -998,17 +1000,17 @@ A_{lecho} = \frac{V_{lodo} \cdot t_s}{h_{lodo}} \cdot n_{celdas}
 \end{itemize}
 
 \begin{equation}
-A_{lecho} = \frac{0.689 \times 15}{0.30} \times 2 = 68.9 \text{ m}^2
+A_{lecho} = \frac{0.756 \times 15}{0.30 \times 2} = 18.9 \text{ m}^2 \text{ por lecho}
 \end{equation}
 
-Con una relación largo/ancho de 3:1, las dimensiones resultantes son 14.4 m de largo por 4.8 m de ancho por celda.
+Con una relación largo/ancho de 3:1, las dimensiones resultantes son 7.5 m de largo por 2.5 m de ancho por celda.
 
 \subsubsection{Verificación de carga superficial}
 
 La carga superficial de sólidos se verifica mediante:
 
 \begin{equation}
-\rho_S = \frac{M_{SST} \times 365}{A_{lecho}} = \frac{13.78 \times 365}{68.9} = 73.0 \text{ kg SST/m}^2\text{·año}
+\rho_S = \frac{M_{SST} \times 365}{A_{lecho}} = \frac{15.12 \times 365}{18.9} = 146.0 \text{ kg SST/m}^2\text{·año}
 \end{equation}
 
 El valor obtenido está dentro del rango recomendado de 60--220 kg SST/m²·año para lechos de secado de lodos anaerobios según Metcalf \& Eddy \cite{metcalf2014}.
@@ -1022,12 +1024,12 @@ El valor obtenido está dentro del rango recomendado de 60--220 kg SST/m²·año
 \toprule
 Parámetro & Valor \\
 \midrule
-Largo & 14.4 m \\
-Ancho & 4.8 m \\
-Área superficial total & 68.9 m² \\
+Largo & 7.5 m \\
+Ancho & 2.5 m \\
+Área superficial total & 18.9 m² \\
 Número de celdas & 2 \\
 Tiempo de secado & 15 días \\
-Carga de sólidos & 73.0 kg SST/m²·año \\
+Carga de sólidos & 146.0 kg SST/m²·año \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1043,9 +1045,9 @@ El tren de tratamiento propuesto alcanza eficiencias de remocion significativas.
 \toprule
 Parametro & Afluente & Post-UASB & Post-FP & Post-Sed & Efluente Final \\
 \midrule
-DBO$_5$ (mg/L) & 243.1 & 72.9 & 58.0 & 40.6 & 40.6 \\
-DQO (mg/L) & 498.0 & 174.3 & 142.3 & 99.6 & 99.6 \\
-SST (mg/L) & 156.0 & 46.8 & 18.7 & 3.7 & 3.7 \\
+DBO$_5$ (mg/L) & 250.0 & 75.0 & 60.5 & 42.3 & 42.3 \\
+DQO (mg/L) & 500.0 & 175.0 & 144.4 & 101.1 & 101.1 \\
+SST (mg/L) & 250.0 & 75.0 & 30.0 & 6.0 & 6.0 \\
 CF (NMP/100mL) & 10000000 & 7000000 & 5600000 & 5040000 & 2526 \\
 \bottomrule
 \end{tabular}
@@ -1066,11 +1068,11 @@ La figura \ref{fig:layout_a} presenta la disposicion espacial de las unidades de
 \label{fig:layout_a}
 \end{figure}
 
-El área de tratamiento calculada (unidades mas margenes minimos) es de aproximadamente 917 m². Sin embargo, para una operacion adecuada se requieren areas complementarias adicionales.
+El área de tratamiento calculada (unidades mas margenes minimos) es de aproximadamente 888 m². Sin embargo, para una operacion adecuada se requieren areas complementarias adicionales.
 
 \textbf{Areas complementarias requeridas}
 
-El area calculada de 917 m$^2$ corresponde unicamente a las unidades de tratamiento con sus margenes minimos de acceso. Sin embargo, para garantizar una operacion segura y eficiente de la planta durante toda su vida util, es necesario prever espacios adicionales para acceso vehicular y peatonal de operarios y visitantes, almacenamiento seguro de productos quimicos y herramientas, realizacion de analisis de control de calidad in-situ, estacionamiento para personal y visitantes, circulacion interna de vehiculos de mantenimiento y retiro de lodos, separacion de limites con zonas verdes para control de olores, y espacios administrativos para control operativo. La siguiente tabla resume las areas complementarias necesarias:
+El area calculada de 888 m$^2$ corresponde unicamente a las unidades de tratamiento con sus margenes minimos de acceso. Sin embargo, para garantizar una operacion segura y eficiente de la planta durante toda su vida util, es necesario prever espacios adicionales para acceso vehicular y peatonal de operarios y visitantes, almacenamiento seguro de productos quimicos y herramientas, realizacion de analisis de control de calidad in-situ, estacionamiento para personal y visitantes, circulacion interna de vehiculos de mantenimiento y retiro de lodos, separacion de limites con zonas verdes para control de olores, y espacios administrativos para control operativo. La siguiente tabla resume las areas complementarias necesarias:
 
 \begin{table}[H]
 \centering
@@ -1109,20 +1111,20 @@ Area verde/buffer & Separacion de limites, revegetacion & 15\% area total \\
 
 \textbf{Area total estimada del predio}
 
-Considerando el area de tratamiento (917 m$^2$), amortiguacion (20\%), complementarias operativas y zona verde (15\% del total):
+Considerando el area de tratamiento (888 m$^2$), amortiguacion (20\%), complementarias operativas y zona verde (15\% del total):
 
 \begin{equation}
 A_{total} = \frac{A_{tratamiento} + A_{amortiguacion} + A_{complementarias}}{1 - 0.15}
 \end{equation}
 
 \begin{itemize}[noitemsep,leftmargin=2em]
-    \item[$A_{tratamiento}$] = 917 m$^2$
-    \item[$A_{amortiguacion}$] = 183 m$^2$ (20\%)
+    \item[$A_{tratamiento}$] = 888 m$^2$
+    \item[$A_{amortiguacion}$] = 178 m$^2$ (20\%)
     \item[$A_{complementarias}$] = 280--340 m$^2$ (operativas)
 \end{itemize}
 
 \begin{equation}
-A_{total} = \frac{917 + 183 + 310}{0.85} \approx \mathbf{1600 \text{--} 1900 \text{ m}^2} \approx \mathbf{0.16 \text{--} 0.19 \text{ ha}}
+A_{total} = \frac{888 + 178 + 310}{0.85} \approx \mathbf{1600 \text{--} 1900 \text{ m}^2} \approx \mathbf{0.16 \text{--} 0.19 \text{ ha}}
 \end{equation}
 
 \textbf{Nota:} El area total del predio debe ser de aproximadamente 1600--1900 m$^2$ (0.16--0.19 ha) para operacion adecuada con circulacion interna, estacionamiento y zonas verdes.
@@ -1131,7 +1133,7 @@ A_{total} = \frac{917 + 183 + 310}{0.85} \approx \mathbf{1600 \text{--} 1900 \te
 
 %============================================================================
 \newpage
-\section{Resumen Ejecutivo de Resultados}
+\section{Resultados}
 %============================================================================
 
 El presente resumen consolida los resultados del dimensionamiento de la Planta de Tratamiento de Aguas Residuales (PTAR) para un caudal de dise\~no de \textbf{10.0 L/s} (5.0 L/s por linea).
@@ -1146,10 +1148,10 @@ El presente resumen consolida los resultados del dimensionamiento de la Planta d
 \textbf{Parametro} & \textbf{Valor} \\
 \midrule
 Caudal medio (Q) & 5.0 L/s (432.0 m$^3$/d) \\
-DBO$_5$ afluente & 243.1 mg/L \\
-DQO afluente & 498.0 mg/L \\
-SST afluente & 156.0 mg/L \\
-Temperatura & 25.6 °C \\
+DBO$_5$ afluente & 250.0 mg/L \\
+DQO afluente & 500.0 mg/L \\
+SST afluente & 250.0 mg/L \\
+Temperatura & 24.0 °C \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1163,13 +1165,13 @@ Temperatura & 25.6 °C \\
 \toprule
 \textbf{Unidad} & \textbf{Dimensiones} & \textbf{Cantidad} & \textbf{Parametro Clave} \\
 \midrule
-Rejillas & 0.38 m $\times$ 0.40 m & 2 canales & Separacion: 25 mm \\
-Desarenador & 0.42 m $\times$ 5.0 m & 1 unidad & TRH: 1.8 min \\
-Reactor UASB & D = 5.76 m, H = 4.3 m & 2 unidades & CH: 48.0 m$^3$/m$^2\cdot$d \\
-Filtro Percolador & D = 6.56 m & 2 unidades & Q$_A$ = 4.00 m$^3$/m$^2\cdot$h \\
-Sedimentador Secundario & 3.5 m $\times$ 9.8 m & 1 unidad & v$_d$ = 1.5 m/d \\
-Desinfeccion (Cloro) & Dosis: 4.0 mg/L & 1 tanque & CT = 15 mg$\cdot$min/L \\
-Lecho de Secado & 69.0 m$^2$ & 2 lechos & Aplicacion: 120 kg SST/m$^2\cdot$a\~no \\
+Rejillas & 0.60 m $\times$ 0.40 m & 2 canales & Velocidad: 0.50 m/s \\
+Desarenador & 0.60 m $\times$ 3.0 m $\times$ 0.7 m & 2 unidades & TRH: 30 s \\
+Reactor UASB & D = 5.50 m, H = 3.6 m & 2 unidades & v$_{up}$ = 0.76 m/h \\
+Filtro Percolador & D = 6.56 m, H = 4.3 m & 2 unidades & Q$_A$ = 4.00 m$^3$/m$^2\cdot$h \\
+Sedimentador Secundario & D = 5.87 m, H = 3.5 m & 2 unidades & SOR = 15.9 m$^3$/m$^2\cdot$d \\
+Desinfeccion (Cloro) & 4.2 m $\times$ 1.1 m $\times$ 2.3 m & 2 unidades & CT = 15 mg$\cdot$min/L \\
+Lecho de Secado & 18.9 m$^2$ (7.5 m $\times$ 2.5 m) & 2 unidades & Carga: 15.1 kg SST/d \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1183,34 +1185,35 @@ Lecho de Secado & 69.0 m$^2$ & 2 lechos & Aplicacion: 120 kg SST/m$^2\cdot$a\~no
 \toprule
 \textbf{Parametro} & \textbf{Afluente} & \textbf{Post-UASB} & \textbf{Post-FP} & \textbf{Post-Sed} & \textbf{Efluente} \\
 \midrule
-DBO$_5$ (mg/L) & 243.1 & 60.0 & 30.0 & 21.0 & 40.6 \\
-DQO (mg/L) & 498.0 & 131.3 & 65.6 & 45.9 & 99.6 \\
-SST (mg/L) & 156.0 & 58.4 & 35.0 & 3.7 & 3.7 \\
-CF (NMP/100mL) & 5e+06 & 2e+06 & 1e+06 & 5e+05 & 2526 \\
+DBO$_5$ (mg/L) & 250.0 & 75.0 & 60.5 & 42.3 & 42.3 \\
+DQO (mg/L) & 500.0 & 175.0 & 144.4 & 101.1 & 101.1 \\
+SST (mg/L) & 250.0 & 75.0 & 30.0 & 6.0 & 6.0 \\
+CF (NMP/100mL) & 10000000 & 7000000 & 5600000 & 5040000 & 2526 \\
 \midrule
-\textbf{Remocion total} & -- & \textbf{65\%} & \textbf{40\%} & \textbf{30\%} & \textbf{83\%} \\
+\textbf{Remocion etapa} & -- & \textbf{70\%} & \textbf{19\%} & \textbf{30\%} & \textbf{83.1\%} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\subsection{Verificacion de Cumplimiento Normativo}
+\subsection{Verificacion de Cumplimiento TULSMA}
 
+% Limites TULSMA Tabla 12 - Descarga a cuerpo de agua dulce
 \begin{table}[H]
 \centering
-\caption{Comparacion con limites de la TULSMA (Decreto 2132/2016)}
+\caption{Verificacion de cumplimiento con limites TULSMA (Tabla 12 -- Descarga a cuerpo de agua dulce)}
 \begin{tabular}{lcccc}
 \toprule
-\textbf{Parametro} & \textbf{Efluente} & \textbf{Limite} & \textbf{Cumple} & \textbf{Margen} \\
+\textbf{Parametro} & \textbf{Efluente calculado} & \textbf{Limite TULSMA} & \textbf{Estado} \\
 \midrule
-DBO$_5$ (mg/L) & 40.6 & 100 & \textcolor{green}{\textbf{S\'I}} & 59.4 mg/L \\
-DQO (mg/L) & 99.6 & 250 & \textcolor{green}{\textbf{S\'I}} & 150.4 mg/L \\
-SST (mg/L) & 3.7 & 100 & \textcolor{green}{\textbf{S\'I}} & 96.3 mg/L \\
-CF (NMP/100mL) & 2526 & 3,000 & \textcolor{green}{\textbf{S\'I}} & 474 NMP/100mL \\
+DBO$_5$ & 42.3 mg/L & $\leq$ 100 mg/L & \textcolor{green}{\textbf{CUMPLE}} \\
+DQO & 101.1 mg/L & $\leq$ 250 mg/L & \textcolor{green}{\textbf{CUMPLE}} \\
+SST & 6.0 mg/L & $\leq$ 130 mg/L & \textcolor{green}{\textbf{CUMPLE}} \\
+Coliformes fecales & 2526 NMP/100mL & $\leq$ 3,000 NMP/100mL & \textcolor{green}{\textbf{CUMPLE}} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\textbf{Conclusion:} El sistema dise\~nado cumple satisfactoriamente con todos los limites establecidos por la normativa colombiana para descargas a cuerpos de agua de uso recreativo con contacto indirecto (Clase 3).
+\textbf{Conclusion:} El sistema dise\~nado cumple satisfactoriamente con todos los limites establecidos en la TULSMA (Tabla 12) para descarga a cuerpo de agua dulce.
 
 \subsection{Requerimientos de Terreno}
 
@@ -1221,12 +1224,12 @@ CF (NMP/100mL) & 2526 & 3,000 & \textcolor{green}{\textbf{S\'I}} & 474 NMP/100mL
 \toprule
 \textbf{Concepto} & \textbf{Area} \\
 \midrule
-Area de tratamiento & 917 m$^2$ \\
-Area de amortiguacion (20\%) & 183 m$^2$ \\
+Area de tratamiento & 888 m$^2$ \\
+Area de amortiguacion (20\%) & 178 m$^2$ \\
 Area complementaria operativa & 310 m$^2$ \\
-Zona verde (15\% del total) & 138 m$^2$ \\
+Zona verde (15\% del total) & 133 m$^2$ \\
 \midrule
-\textbf{Area total requerida} & \textbf{917--1900 m$^2$ (0.16--0.19 ha)} \\
+\textbf{Area total requerida} & \textbf{888--1900 m$^2$ (0.16--0.19 ha)} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1240,11 +1243,11 @@ Zona verde (15\% del total) & 138 m$^2$ \\
 \toprule
 \textbf{Concepto} & \textbf{Valor} \\
 \midrule
-Produccion lodos UASB & 6.4 kg SST/d \\
-Produccion humus FP + Sed & 7.4 kg SST/d \\
+Produccion lodos UASB & 15.1 kg SST/d \\
+Produccion humus FP + Sed & 0.0 kg SST/d \\
 \midrule
-\textbf{Total lodos a manejar} & \textbf{13.8 kg SST/d} \\
-Area de lechos de secado & 69.0 m$^2$ (2 unidades) \\
+\textbf{Total lodos a manejar} & \textbf{15.1 kg SST/d} \\
+Area de lechos de secado & 18.9 m$^2$ (2 unidades) \\
 Frecuencia de aplicacion & 1 vez cada 3--4 meses \\
 \bottomrule
 \end{tabular}
@@ -1261,7 +1264,7 @@ Frecuencia de aplicacion & 1 vez cada 3--4 meses \\
 \midrule
 Potencia electrica estimada & 5--8 & kW \\
 Consumo energia & 40,000--60,000 & kWh/a\~no \\
-Hipoclorito de sodio (12\%) & 17.7 & L/d \\
+Hipoclorito de sodio (12\%) & 15.7 & L/d \\
 Consumo hipoclorito anual & 6 & m$^3$/a\~no \\
 \bottomrule
 \end{tabular}
@@ -1281,6 +1284,470 @@ cumple con la \textbf{TULSMA} para descarga a cuerpos de agua Clase 3.
 }
 \end{center}
 
+
+\newpage
+%============================================================================
+% ANEXO: TABLAS TULSMA COMPLETAS
+%============================================================================
+\appendix
+\section{Anexo: TULSMA -- Criterios de Calidad del Recurso Agua}
+\label{app:tulsma}
+
+\begin{center}
+{\LARGE\bfseries TULSMA -- Norma de Calidad Ambiental\\[4pt]
+del Recurso Agua}\\[8pt]
+{\large Libro VI, Anexo 1 -- Acuerdo Ministerial 097-A (2015)\\
+Decreto Ejecutivo 3516 -- Ecuador}\\[4pt]
+{\small Criterios de calidad por uso del agua y l\'imites de descarga de efluentes}
+\end{center}
+\vspace{10pt}
+
+% ----------------------------------------------------------
+\subsection{Tabla 1 -- Consumo Humano y Uso Dom\'estico (tratamiento convencional)}
+% ----------------------------------------------------------
+
+\small
+\begin{longtable}{p{4.5cm}p{2.0cm}p{2.0cm}p{3.5cm}}
+\caption{L\'imites m\'aximos permisibles para aguas de consumo humano y uso dom\'estico que \'unicamente requieren tratamiento convencional (TULSMA, Tabla~1).}\\
+\toprule
+\textbf{Par\'ametro} & \textbf{Expresado como} & \textbf{Unidad} & \textbf{L\'imite m\'aximo permisible} \\
+\midrule
+\endfirsthead
+\multicolumn{4}{c}{\small\itshape Continuaci\'on de la Tabla}\\
+\toprule
+\textbf{Par\'ametro} & \textbf{Expresado como} & \textbf{Unidad} & \textbf{L\'imite m\'aximo permisible} \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+Aceites y Grasas & Sust.\ solubles en hexano & mg/L & $\leq$ 0,3 \\
+Aluminio & Al & mg/L & $\leq$ 0,2 \\
+Amoniaco & N-Amoniacal & mg/L & $\leq$ 1,0 \\
+Amonio & NH$_4$ & mg/L & $\leq$ 0,05 \\
+Ars\'enico (total) & As & mg/L & $\leq$ 0,05 \\
+Bario & Ba & mg/L & $\leq$ 1,0 \\
+Cadmio & Cd & mg/L & $\leq$ 0,01 \\
+Cianuro total & CN$^-$ & mg/L & $\leq$ 0,1 \\
+Cloruros & Cl$^-$ & mg/L & $\leq$ 250 \\
+Cobre & Cu & mg/L & $\leq$ 1,0 \\
+\textbf{Coliformes totales} & NMP & NMP/100 mL & $\leq$ 3\,000 \\
+\textbf{Coliformes fecales} & NMP & NMP/100 mL & $\leq$ 600 \\
+Color real & UC & Unidades de color & $\leq$ 100 \\
+Compuestos fen\'olicos & Fenol & mg/L & $\leq$ 0,002 \\
+Cromo hexavalente & Cr$^{6+}$ & mg/L & $\leq$ 0,05 \\
+\textbf{DBO$_5$} & -- & mg/L & $\leq$ 2,0 \\
+Dureza & CaCO$_3$ & mg/L & $\leq$ 500 \\
+Fluoruro total & F & mg/L & $\leq$ 1,5 \\
+Hierro total & Fe & mg/L & $\leq$ 1,0 \\
+Manganeso total & Mn & mg/L & $\leq$ 0,1 \\
+Materia flotante & -- & -- & Ausencia \\
+Mercurio total & Hg & mg/L & $\leq$ 0,001 \\
+Nitrato & N-Nitrato & mg/L & $\leq$ 10,0 \\
+Nitrito & N-Nitrito & mg/L & $\leq$ 1,0 \\
+Ox\'igeno disuelto & O.D. & mg/L & $\geq$ 80\% saturaci\'on; $\geq$ 6 mg/L \\
+pH & -- & -- & $6,0 - 9,0$ \\
+Plata total & Ag & mg/L & $\leq$ 0,05 \\
+Plomo total & Pb & mg/L & $\leq$ 0,05 \\
+Selenio total & Se & mg/L & $\leq$ 0,01 \\
+Sodio & Na & mg/L & $\leq$ 200 \\
+S\'olidos disueltos totales & -- & mg/L & $\leq$ 1\,000 \\
+Sulfatos & SO$_4^{2-}$ & mg/L & $\leq$ 400 \\
+Temperatura & -- & $^\circ$C & Cond.\ natural $\pm$ 3\,$^\circ$C \\
+Tensoactivos & SAAM & mg/L & $\leq$ 0,5 \\
+Turbiedad & -- & UTN & $\leq$ 100 \\
+Zinc & Zn & mg/L & $\leq$ 5,0 \\
+\end{longtable}
+
+% ----------------------------------------------------------
+\subsection{Tabla 12 -- Descarga a Cuerpo de Agua Dulce}
+\tiny
+% ----------------------------------------------------------
+
+{\small\textbf{Nota:} Esta es la tabla aplicable al proyecto de tratamiento de aguas residuales municipales cuando el efluente se vierte a un r\'io, lago o cuerpo superficial de agua dulce.}
+
+\vspace{6pt}
+
+\small
+\begin{longtable}{p{4.5cm}p{2.0cm}p{2.0cm}p{3.5cm}}
+\caption{L\'imites m\'aximos permisibles de descarga a un cuerpo de agua dulce (TULSMA, Tabla~12).}\\
+\toprule
+\textbf{Par\'ametro} & \textbf{Expresado como} & \textbf{Unidad} & \textbf{L\'imite m\'aximo permisible} \\
+\midrule
+\endfirsthead
+\multicolumn{4}{c}{\small\itshape Continuaci\'on de la Tabla}\\
+\toprule
+\textbf{Par\'ametro} & \textbf{Expresado como} & \textbf{Unidad} & \textbf{L\'imite m\'aximo permisible} \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+Aceites y grasas & Sust.\ solubles en hexano & mg/L & $\leq$ 0,3 \\
+Aluminio & Al & mg/L & $\leq$ 5,0 \\
+Ars\'enico total & As & mg/L & $\leq$ 0,1 \\
+Bario & Ba & mg/L & $\leq$ 2,0 \\
+Cadmio & Cd & mg/L & $\leq$ 0,02 \\
+Cianuro total & CN$^-$ & mg/L & $\leq$ 0,1 \\
+Cloruros & Cl$^-$ & mg/L & $\leq$ 1\,000 \\
+Cobre & Cu & mg/L & $\leq$ 1,0 \\
+\textbf{Coliformes fecales}$^\dagger$ & NMP & NMP/100 mL & $\leq$ 3\,000 \\
+Compuestos fen\'olicos & Fenol & mg/L & $\leq$ 0,2 \\
+Cromo hexavalente & Cr$^{6+}$ & mg/L & $\leq$ 0,5 \\
+\textbf{DBO$_5$} & -- & mg/L & $\leq$ 100 \\
+\textbf{DQO} & -- & mg/L & $\leq$ 250 \\
+Fluoruros & F$^-$ & mg/L & $\leq$ 5,0 \\
+F\'osforo total & P & mg/L & $\leq$ 10,0 \\
+Hierro total & Fe & mg/L & $\leq$ 10,0 \\
+Manganeso total & Mn & mg/L & $\leq$ 2,0 \\
+Materia flotante & -- & -- & Ausencia \\
+Mercurio total & Hg & mg/L & $\leq$ 0,005 \\
+N\'iquel & Ni & mg/L & $\leq$ 2,0 \\
+Nitr\'ogeno amoniacal & N-NH$_3$ & mg/L & $\leq$ 30,0 \\
+Nitr\'ogeno total Kjeldahl & N-TKN & mg/L & $\leq$ 50,0 \\
+pH & -- & -- & $6,0 - 9,0$ \\
+Plata total & Ag & mg/L & $\leq$ 0,1 \\
+Plomo total & Pb & mg/L & $\leq$ 0,2 \\
+Selenio & Se & mg/L & $\leq$ 0,1 \\
+\textbf{S\'olidos sedimentables} & -- & mL/L & $\leq$ 1,0 \\
+\textbf{S\'olidos suspendidos totales} & -- & mg/L & $\leq$ 130 \\
+S\'olidos totales & -- & mg/L & $\leq$ 1\,600 \\
+Sulfatos & SO$_4^{2-}$ & mg/L & $\leq$ 1\,000 \\
+Sulfuros & S$^{2-}$ & mg/L & $\leq$ 0,5 \\
+Temperatura & -- & $^\circ$C & Cond.\ natural $\pm$ 3\,$^\circ$C; m\'ax.\ 32\,$^\circ$C \\
+Tensoactivos & SAAM & mg/L & $\leq$ 0,5 \\
+Zinc & Zn & mg/L & $\leq$ 5,0 \\
+\multicolumn{4}{l}{\scriptsize $^\dagger$ Aquellos con descargas $\leq$ 3\,000 NMP/100 mL quedan exentos de tratamiento de desinfecci\'on.}\\
+\end{longtable}
+\normalsize
+
+% ----------------------------------------------------------
+\subsection{Tabla 13 -- Descarga a Cuerpo de Agua Marina}
+\tiny
+% ----------------------------------------------------------
+
+\small
+\begin{longtable}{p{4.5cm}p{2.0cm}p{2.0cm}p{3.5cm}}
+\caption{L\'imites m\'aximos permisibles de descarga a un cuerpo de agua marina (TULSMA, Tabla~13).}\\
+\toprule
+\textbf{Par\'ametro} & \textbf{Expresado como} & \textbf{Unidad} & \textbf{L\'imite m\'aximo permisible} \\
+\midrule
+\endfirsthead
+\multicolumn{4}{c}{\small\itshape Continuaci\'on de la Tabla}\\
+\toprule
+\textbf{Par\'ametro} & \textbf{Expresado como} & \textbf{Unidad} & \textbf{L\'imite m\'aximo permisible} \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+Aceites y grasas & Sust.\ solubles en hexano & mg/L & $\leq$ 0,3 \\
+Aluminio & Al & mg/L & $\leq$ 5,0 \\
+Ars\'enico total & As & mg/L & $\leq$ 0,1 \\
+Cadmio & Cd & mg/L & $\leq$ 0,1 \\
+Cianuro total & CN$^-$ & mg/L & $\leq$ 0,1 \\
+Cobre & Cu & mg/L & $\leq$ 0,5 \\
+\textbf{Coliformes fecales}$^\ddagger$ & NMP & NMP/100 mL & $\leq$ 3\,000 \\
+Compuestos fen\'olicos & Fenol & mg/L & $\leq$ 0,2 \\
+Cromo hexavalente & Cr$^{6+}$ & mg/L & $\leq$ 0,5 \\
+\textbf{DBO$_5$} & -- & mg/L & $\leq$ 100 \\
+\textbf{DQO} & -- & mg/L & $\leq$ 250 \\
+Fluoruros & F$^-$ & mg/L & $\leq$ 5,0 \\
+Hierro total & Fe & mg/L & $\leq$ 10,0 \\
+Manganeso total & Mn & mg/L & $\leq$ 2,0 \\
+Materia flotante & -- & -- & Ausencia \\
+Mercurio total & Hg & mg/L & $\leq$ 0,005 \\
+N\'iquel & Ni & mg/L & $\leq$ 2,0 \\
+Nitr\'ogeno amoniacal & N-NH$_3$ & mg/L & $\leq$ 30,0 \\
+Nitr\'ogeno total Kjeldahl & N-TKN & mg/L & $\leq$ 50,0 \\
+pH & -- & -- & $6,0 - 9,0$ \\
+Plomo total & Pb & mg/L & $\leq$ 0,2 \\
+\textbf{S\'olidos suspendidos totales} & -- & mg/L & $\leq$ 100 \\
+Temperatura & -- & $^\circ$C & Cond.\ natural $\pm$ 3\,$^\circ$C; m\'ax.\ 32\,$^\circ$C \\
+Tensoactivos & SAAM & mg/L & $\leq$ 0,5 \\
+Zinc & Zn & mg/L & $\leq$ 5,0 \\
+\multicolumn{4}{l}{\footnotesize $^\ddagger$ Aquellos con descargas $\leq$ 3\,000 NMP/100 mL quedan exentos de tratamiento de desinfecci\'on.}\\
+\end{longtable}
+
+% ----------------------------------------------------------
+\subsection{Tabla 2 -- Consumo Humano (solo desinfecci\'on)}
+% ----------------------------------------------------------
+
+\small
+\begin{longtable}{p{4.5cm}p{2.0cm}p{2.0cm}p{3.5cm}}
+\caption{L\'imites m\'aximos permisibles para aguas de consumo humano que \'unicamente requieren desinfecci\'on (TULSMA, Tabla~2).}\\
+\toprule
+\textbf{Par\'ametro} & \textbf{Expresado como} & \textbf{Unidad} & \textbf{L\'imite m\'aximo permisible} \\
+\midrule
+\endfirsthead
+\multicolumn{4}{c}{\small\itshape Continuaci\'on de la Tabla}\\
+\toprule
+\textbf{Par\'ametro} & \textbf{Expresado como} & \textbf{Unidad} & \textbf{L\'imite m\'aximo permisible} \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+Aceites y Grasas & Sust.\ solubles en hexano & mg/L & $\leq$ 0,3 \\
+Aluminio total & Al & mg/L & $\leq$ 0,1 \\
+Amoniaco & N-Amoniacal & mg/L & $\leq$ 1,0 \\
+Ars\'enico total & As & mg/L & $\leq$ 0,05 \\
+Bario & Ba & mg/L & $\leq$ 1,0 \\
+Berilio & Be & mg/L & $\leq$ 0,1 \\
+Boro total & B & mg/L & $\leq$ 0,75 \\
+Cadmio & Cd & mg/L & $\leq$ 0,001 \\
+Cianuro total & CN$^-$ & mg/L & $\leq$ 0,01 \\
+Cobalto & Co & mg/L & $\leq$ 0,2 \\
+Cobre & Cu & mg/L & $\leq$ 1,0 \\
+Color real & -- & UC & $\leq$ 20 \\
+\textbf{Coliformes totales}$^*$ & NMP & NMP/100 mL & $\leq$ 50 \\
+Cloruros & Cl$^-$ & mg/L & $\leq$ 250 \\
+Compuestos fen\'olicos & Fenol & mg/L & $\leq$ 0,002 \\
+Cromo hexavalente & Cr$^{6+}$ & mg/L & $\leq$ 0,05 \\
+\textbf{DBO$_5$} & -- & mg/L & $\leq$ 2,0 \\
+Dureza & CaCO$_3$ & mg/L & $\leq$ 500 \\
+Esta\~no & Sn & mg/L & $\leq$ 2,0 \\
+Fluoruros & F & mg/L & $<$ 1,4 \\
+Hierro total & Fe & mg/L & $\leq$ 0,3 \\
+Litio & Li & mg/L & $\leq$ 2,5 \\
+Manganeso total & Mn & mg/L & $\leq$ 0,1 \\
+Materia flotante & -- & -- & Ausencia \\
+Mercurio total & Hg & mg/L & $\leq$ 0,001 \\
+N\'iquel & Ni & mg/L & $\leq$ 0,025 \\
+Nitrato & N-Nitrato & mg/L & $\leq$ 10,0 \\
+Nitrito & N-Nitrito & mg/L & $\leq$ 1,0 \\
+Olor y sabor & -- & -- & Ausencia \\
+Ox\'igeno disuelto & O.D. & mg/L & $\geq$ 80\% saturaci\'on; $\geq$ 6 mg/L \\
+pH & -- & -- & $6,0 - 9,0$ \\
+Plata total & Ag & mg/L & $\leq$ 0,05 \\
+Plomo total & Pb & mg/L & $\leq$ 0,05 \\
+Selenio total & Se & mg/L & $\leq$ 0,01 \\
+Sodio & Na & mg/L & $\leq$ 200 \\
+S\'olidos disueltos totales & -- & mg/L & $\leq$ 500 \\
+Sulfatos & SO$_4^{2-}$ & mg/L & $\leq$ 250 \\
+Temperatura & -- & $^\circ$C & Cond.\ natural $\pm$ 3\,$^\circ$C \\
+Tensoactivos & SAAM & mg/L & $\leq$ 0,5 \\
+Turbiedad & -- & UTN & $\leq$ 10 \\
+Vanadio & V & mg/L & $\leq$ 0,1 \\
+Zinc & Zn & mg/L & $\leq$ 5,0 \\
+\multicolumn{4}{l}{\scriptsize $^*$ Si $>$40\% del NMP corresponde a coliformes fecales, se requiere tratamiento convencional.}\\
+\end{longtable}
+\normalsize
+
+% ----------------------------------------------------------
+\subsection{Tabla 3 -- Preservaci\'on de Flora y Fauna}
+% ----------------------------------------------------------
+
+\small
+\begin{longtable}{p{4.0cm}p{1.8cm}p{1.2cm}p{2.5cm}p{2.5cm}p{2.5cm}}
+\caption{Criterios de calidad admisibles para la preservaci\'on de flora y fauna en aguas dulces y marinas (TULSMA, Tabla~3).}\\
+\toprule
+\textbf{Par\'ametro} & \textbf{Expresado como} & \textbf{Unidad} & \textbf{Agua fr\'ia dulce} & \textbf{Agua c\'alida dulce} & \textbf{Agua marina/estuario} \\
+\midrule
+\endfirsthead
+\multicolumn{6}{c}{\small\itshape Continuaci\'on de la Tabla}\\
+\toprule
+\textbf{Par\'ametro} & \textbf{Expresado como} & \textbf{Unidad} & \textbf{Agua fr\'ia dulce} & \textbf{Agua c\'alida dulce} & \textbf{Agua marina/estuario} \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+Aluminio & Al & mg/L & $\leq$ 0,1 & $\leq$ 0,1 & $\leq$ 1,5 \\
+Amoniaco no ionizado & NH$_3$ & mg/L & $\leq$ 0,02 & $\leq$ 0,02 & $\leq$ 0,4 \\
+Ars\'enico & As & mg/L & $\leq$ 0,05 & $\leq$ 0,05 & $\leq$ 0,05 \\
+Bario & Ba & mg/L & $\leq$ 1,0 & $\leq$ 1,0 & $\leq$ 1,0 \\
+Berilio & Be & mg/L & $\leq$ 0,1 & $\leq$ 0,1 & $\leq$ 1,5 \\
+Bifenilos policlorados (PCBs) & PCBs totales & mg/L & $\leq$ 0,001 & $\leq$ 0,001 & $\leq$ 0,001 \\
+Boro & B & mg/L & $\leq$ 0,75 & $\leq$ 0,75 & $\leq$ 5,0 \\
+Cadmio & Cd & mg/L & $\leq$ 0,001 & $\leq$ 0,001 & $\leq$ 0,005 \\
+Cianuro libre & CN$^-$ & mg/L & $\leq$ 0,01 & $\leq$ 0,01 & $\leq$ 0,01 \\
+Cloro residual & Cl & mg/L & $\leq$ 0,01 & $\leq$ 0,01 & $\leq$ 0,01 \\
+Clorofenoles & -- & mg/L & $\leq$ 0,5 & $\leq$ 0,5 & $\leq$ 0,5 \\
+Cobalto & Co & mg/L & $\leq$ 0,2 & $\leq$ 0,2 & $\leq$ 0,2 \\
+\textbf{Coliformes fecales} & NMP & NMP/100 mL & $\leq$ 200 & $\leq$ 200 & $\leq$ 200 \\
+Cobre & Cu & mg/L & $\leq$ 0,02 & $\leq$ 0,02 & $\leq$ 0,05 \\
+Cromo total & Cr & mg/L & $\leq$ 0,05 & $\leq$ 0,05 & $\leq$ 0,05 \\
+Fenoles monoh\'idricos & Fenoles & mg/L & $\leq$ 0,001 & $\leq$ 0,001 & $\leq$ 0,001 \\
+Grasas y aceites & Sust.\ hex. & mg/L & $\leq$ 0,3 & $\leq$ 0,3 & $\leq$ 0,3 \\
+HAPs totales & HAPs & mg/L & $\leq$ 0,0003 & $\leq$ 0,0003 & $\leq$ 0,0003 \\
+Hierro & Fe & mg/L & $\leq$ 0,3 & $\leq$ 0,3 & $\leq$ 0,3 \\
+Hidrocarburos totales de petr\'oleo & TPH & mg/L & $\leq$ 0,5 & $\leq$ 0,5 & $\leq$ 0,5 \\
+Manganeso & Mn & mg/L & $\leq$ 0,1 & $\leq$ 0,1 & $\leq$ 0,1 \\
+Materia flotante & -- & -- & Ausencia & Ausencia & Ausencia \\
+Mercurio & Hg & mg/L & $\leq$ 0,0002 & $\leq$ 0,0002 & $\leq$ 0,0001 \\
+N\'iquel & Ni & mg/L & $\leq$ 0,025 & $\leq$ 0,025 & $\leq$ 0,1 \\
+Ox\'igeno disuelto & O.D. & mg/L & $\geq$ 80\%; $\geq$ 6 & $\geq$ 60\%; $\geq$ 5 & $\geq$ 60\%; $\geq$ 5 \\
+pH & -- & -- & $6,5 - 9,0$ & $6,5 - 9,0$ & $6,5 - 9,5$ \\
+Plaguicidas organoclorados & Org.\ totales & $\mu$g/L & $\leq$ 10,0 & $\leq$ 10,0 & $\leq$ 10,0 \\
+Plaguicidas organofosforados & Org.\ totales & $\mu$g/L & $\leq$ 10,0 & $\leq$ 10,0 & $\leq$ 10,0 \\
+Plata & Ag & mg/L & $\leq$ 0,01 & $\leq$ 0,01 & $\leq$ 0,005 \\
+Plomo & Pb & mg/L & $\leq$ 0,01 & $\leq$ 0,01 & -- \\
+Piretroides & Piretroides totales & mg/L & $\leq$ 0,05 & $\leq$ 0,05 & $\leq$ 0,05 \\
+Selenio & Se & mg/L & $\leq$ 0,01 & $\leq$ 0,01 & $\leq$ 0,01 \\
+Sulfuro de hidr\'ogeno ionizado & H$_2$S & mg/L & $\leq$ 0,0002 & $\leq$ 0,0002 & $\leq$ 0,0002 \\
+Temperatura & -- & $^\circ$C & C.N.\ + 3 (m\'ax.\ 20) & C.N.\ + 3 (m\'ax.\ 32) & C.N.\ + 3 (m\'ax.\ 32) \\
+Tensoactivos & SAAM & mg/L & $\leq$ 0,5 & $\leq$ 0,5 & $\leq$ 0,5 \\
+Zinc & Zn & mg/L & $\leq$ 0,18 & $\leq$ 0,18 & $\leq$ 0,17 \\
+\multicolumn{6}{l}{\scriptsize C.N.~= Condici\'on natural.}\\
+\end{longtable}
+\normalsize
+
+% ----------------------------------------------------------
+\subsection{Tabla 6 -- Uso Agr\'icola o de Riego}
+% ----------------------------------------------------------
+
+\small
+\begin{longtable}{p{4.5cm}p{2.0cm}p{2.0cm}p{3.5cm}}
+\caption{Criterios de calidad admisibles para aguas de uso agr\'icola o de riego (TULSMA, Tabla~6).}\\
+\toprule
+\textbf{Par\'ametro} & \textbf{Expresado como} & \textbf{Unidad} & \textbf{L\'imite m\'aximo permisible} \\
+\midrule
+\endfirsthead
+\multicolumn{4}{c}{\small\itshape Continuaci\'on de la Tabla}\\
+\toprule
+\textbf{Par\'ametro} & \textbf{Expresado como} & \textbf{Unidad} & \textbf{L\'imite m\'aximo permisible} \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+Aceites y grasas & Sust.\ solubles en hexano & mg/L & $\leq$ 0,1 \\
+Ars\'enico & As & mg/L & $\leq$ 0,1 \\
+Benceno & -- & mg/L & $\leq$ 0,01 \\
+Cadmio & Cd & mg/L & $\leq$ 0,01 \\
+Cianuro total & CN$^-$ & mg/L & $\leq$ 0,2 \\
+\textbf{Coliformes fecales}$^*$ & NMP & NMP/100 mL & $\leq$ 1\,000 \\
+Conductividad el\'ectrica & -- & $\mu$mho/cm & $\leq$ 3\,000 \\
+Cloruros & Cl$^-$ & mg/L & $\leq$ 1\,000 \\
+Cromo total & Cr & mg/L & $\leq$ 0,1 \\
+Hierro & Fe & mg/L & $\leq$ 5,0 \\
+Mercurio total & Hg & mg/L & $\leq$ 0,001 \\
+pH & -- & -- & $6,0 - 9,0$ \\
+Plomo & Pb & mg/L & $\leq$ 5,0 \\
+Sodio & Na & mg/L & $\leq$ 200 \\
+Sulfatos & SO$_4^{2-}$ & mg/L & $\leq$ 1\,000 \\
+Vanadio & V & mg/L & $\leq$ 0,1 \\
+Zinc & Zn & mg/L & $\leq$ 2,0 \\
+\multicolumn{4}{l}{\scriptsize $^*$ Para riego de cultivos para consumo humano en contacto directo con el suelo.}\\
+\end{longtable}
+\normalsize
+
+% ----------------------------------------------------------
+\subsection{Tabla 7 -- Uso Pecuario}
+% ----------------------------------------------------------
+
+\small
+\begin{longtable}{p{4.5cm}p{2.0cm}p{2.0cm}p{3.5cm}}
+\caption{Criterios de calidad admisibles para aguas de uso pecuario (TULSMA, Tabla~7).}\\
+\toprule
+\textbf{Par\'ametro} & \textbf{Expresado como} & \textbf{Unidad} & \textbf{L\'imite m\'aximo permisible} \\
+\midrule
+\endfirsthead
+\multicolumn{4}{c}{\small\itshape Continuaci\'on de la Tabla}\\
+\toprule
+\textbf{Par\'ametro} & \textbf{Expresado como} & \textbf{Unidad} & \textbf{L\'imite m\'aximo permisible} \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+Aceites y grasas & Sust.\ solubles en hexano & mg/L & $\leq$ 0,1 \\
+Ars\'enico & As & mg/L & $\leq$ 0,2 \\
+Cadmio & Cd & mg/L & $\leq$ 0,05 \\
+Cianuro total & CN$^-$ & mg/L & $\leq$ 0,2 \\
+\textbf{Coliformes fecales} & NMP & NMP/100 mL & $\leq$ 1\,000 \\
+Conductividad el\'ectrica & -- & $\mu$mho/cm & $\leq$ 5\,000 \\
+Cromo total & Cr & mg/L & $\leq$ 1,0 \\
+Fluoruros & F$^-$ & mg/L & $\leq$ 2,0 \\
+Mercurio total & Hg & mg/L & $\leq$ 0,01 \\
+Nitratos & NO$_3^-$ & mg/L & $\leq$ 45 \\
+pH & -- & -- & $6,0 - 9,0$ \\
+Plomo & Pb & mg/L & $\leq$ 0,1 \\
+Sulfatos & SO$_4^{2-}$ & mg/L & $\leq$ 500 \\
+\end{longtable}
+
+% ----------------------------------------------------------
+\subsection{Tablas 9 y 10 -- Uso Recreativo}
+% ----------------------------------------------------------
+
+\begin{longtable}{p{5.0cm}p{1.8cm}p{3.5cm}p{3.5cm}}
+\caption{Criterios de calidad para aguas destinadas a fines recreativos (TULSMA, Tablas~9 y 10).}\\
+\toprule
+\textbf{Par\'ametro} & \textbf{Unidad} & \textbf{Contacto primario$^a$} & \textbf{Contacto secundario$^b$} \\
+\midrule
+\endfirsthead
+\multicolumn{4}{c}{\small\itshape Continuaci\'on de la Tabla}\\
+\toprule
+\textbf{Par\'ametro} & \textbf{Unidad} & \textbf{Contacto primario} & \textbf{Contacto secundario} \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+\textbf{Coliformes fecales} & NMP/100 mL & $\leq$ 200 & $\leq$ 2\,000 \\
+Coliformes totales & NMP/100 mL & $\leq$ 1\,000 & -- \\
+Aceites y grasas & -- & Ausencia visible & Ausencia visible \\
+Color & -- & Inapreciable & Inapreciable \\
+Materia flotante & -- & Ausencia & Ausencia \\
+Ox\'igeno disuelto & mg/L & $\geq$ 6,0 & $\geq$ 5,0 \\
+pH & -- & $6,0 - 9,0$ & $6,0 - 9,0$ \\
+Temperatura & $^\circ$C & $\leq$ 30 & $\leq$ 30 \\
+Turbiedad & UTN & $\leq$ 10 & -- \\
+\multicolumn{4}{l}{\scriptsize $^a$ Nado, buc\'eo, esqu\'i acu\'atico, surf.} \\
+\multicolumn{4}{l}{\scriptsize $^b$ Pesca, navegaci\'on deportiva, remo.} \\
+\end{longtable}
+\normalsize
+
+% ============================================================
+\newpage
+\section{L\'imites de Descarga de Efluentes}
+% ============================================================
+
+% ----------------------------------------------------------
+\subsection{Tabla 11 -- Descarga al Sistema de Alcantarillado P\'ublico}
+\tiny
+% ----------------------------------------------------------
+
+\small
+\begin{longtable}{p{4.5cm}p{2.0cm}p{2.0cm}p{3.5cm}}
+\caption{L\'imites m\'aximos permisibles de descarga al sistema de alcantarillado p\'ublico (TULSMA, Tabla~11).}\\
+\toprule
+\textbf{Par\'ametro} & \textbf{Expresado como} & \textbf{Unidad} & \textbf{L\'imite m\'aximo permisible} \\
+\midrule
+\endfirsthead
+\multicolumn{4}{c}{\small\itshape Continuaci\'on de la Tabla}\\
+\toprule
+\textbf{Par\'ametro} & \textbf{Expresado como} & \textbf{Unidad} & \textbf{L\'imite m\'aximo permisible} \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+Aceites y grasas & Sust.\ solubles en hexano & mg/L & $\leq$ 70,0 \\
+Aluminio & Al & mg/L & $\leq$ 5,0 \\
+Ars\'enico total & As & mg/L & $\leq$ 0,1 \\
+Bario & Ba & mg/L & $\leq$ 2,0 \\
+Cadmio & Cd & mg/L & $\leq$ 0,02 \\
+Cianuro total & CN$^-$ & mg/L & $\leq$ 1,0 \\
+Cloruros & Cl$^-$ & mg/L & $\leq$ 1\,000 \\
+Cobre & Cu & mg/L & $\leq$ 1,0 \\
+Coliformes fecales & NMP & NMP/100 mL & No especificado \\
+Compuestos fen\'olicos & Fenol & mg/L & $\leq$ 0,2 \\
+Cromo hexavalente & Cr$^{6+}$ & mg/L & $\leq$ 0,5 \\
+Cromo total & Cr & mg/L & $\leq$ 0,5 \\
+\textbf{DBO$_5$} & -- & mg/L & $\leq$ 250 \\
+\textbf{DQO} & -- & mg/L & $\leq$ 500 \\
+Fluoruros & F$^-$ & mg/L & $\leq$ 5,0 \\
+Hierro total & Fe & mg/L & $\leq$ 25,0 \\
+Manganeso total & Mn & mg/L & $\leq$ 10,0 \\
+Materia flotante & -- & -- & Ausencia \\
+Mercurio total & Hg & mg/L & $\leq$ 0,01 \\
+N\'iquel & Ni & mg/L & $\leq$ 2,0 \\
+Nitr\'ogeno amoniacal & N-NH$_3$ & mg/L & $\leq$ 30,0 \\
+pH & -- & -- & $6,0 - 9,0$ \\
+Plata total & Ag & mg/L & $\leq$ 0,5 \\
+Plomo total & Pb & mg/L & $\leq$ 0,5 \\
+Selenio & Se & mg/L & $\leq$ 0,5 \\
+\textbf{S\'olidos sedimentables} & -- & mL/L/h & $\leq$ 20 \\
+\textbf{S\'olidos suspendidos totales} & -- & mg/L & $\leq$ 220 \\
+Sulfatos & SO$_4^{2-}$ & mg/L & $\leq$ 1\,000 \\
+Sulfuros & S$^{2-}$ & mg/L & $\leq$ 1,0 \\
+Temperatura & -- & $^\circ$C & $\leq$ 40 \\
+Tensoactivos & SAAM & mg/L & $\leq$ 2,0 \\
+Zinc & Zn & mg/L & $\leq$ 5,0 \\
+\end{longtable}
 
 \newpage
 %============================================================================

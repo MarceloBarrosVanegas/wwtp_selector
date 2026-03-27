@@ -364,7 +364,7 @@ def generar_layout_2lineas(tipo: str, unidades_linea: list, nombre_alt: str,
         end = get_unidad_left_center(x2, y2, unidad2, DIM)
         dibujar_flecha_flujo(ax, start[0], start[1], end[0], end[1])
     
-    # ============ LECHO COMPARTIDO ============
+    # ============ LECHOS DE SECADO (UNO POR LÍNEA) ============
     # Usar dimensiones calculadas - DEBEN venir en lecho_dimensiones
     if lecho_dimensiones is None:
         raise ValueError("Faltan dimensiones del lecho de secado. Asegúrate de pasar lecho_dimensiones desde los resultados del dimensionamiento.")
@@ -374,53 +374,61 @@ def generar_layout_2lineas(tipo: str, unidades_linea: list, nombre_alt: str,
     if lecho_largo <= 0 or lecho_ancho <= 0:
         raise ValueError(f"Dimensiones del lecho inválidas: largo={lecho_largo}, ancho={lecho_ancho}. Deben ser > 0.")
     
-    x_lecho = MARGEN + largo_linea + SEP_UNIDADES
-    y_centro_lecho = (centro_linea1 + centro_linea2) / 2 - lecho_ancho / 2
+    # Posición inicial para los lechos
+    x_lecho_base = MARGEN + largo_linea + SEP_UNIDADES
     
-    # =============================================================================
-    # LECHO DE SECADO GIRADO 90°
-    # =============================================================================
-    # El lecho se dibuja GIRADO para que su lado largo quede VERTICAL
-    # y su lado corto quede HORIZONTAL, optimizando el espacio del layout
+    # Calcular dimensiones para cada lecho individual
+    # El área total se divide entre el número de lechos (num_lineas)
+    # Pero mantenemos las dimensiones proporcionales
     
-    # Girar el lecho 90°: intercambiar largo y ancho para el dibujo
-    lecho_ancho_draw = lecho_ancho  # Dimensión horizontal después de girar
-    lecho_alto_draw = lecho_largo   # Dimensión vertical después de girar
+    # Dibujar 2 lechos uno al lado del otro (horizontalmente)
+    # Lecho 1 (Línea 1) y Lecho 2 (Línea 2)
+    sep_entre_lechos = 1.0  # Separación entre lechos
     
-    # Recalcular posición Y para centrar el lecho verticalmente entre las líneas
-    y_lecho = (centro_linea1 + centro_linea2) / 2 - lecho_alto_draw / 2
-    
-    # Dibujar lecho girado
-    rect = Rectangle((x_lecho, y_lecho), lecho_ancho_draw, lecho_alto_draw, 
-                     facecolor=COLORES['manejo_lodos'], 
-                     edgecolor='black', linewidth=2)
-    ax.add_patch(rect)
-    
-    # Texto del lecho
     fontsize = FONT_CONFIG['unidad']
     acot_fontsize = FONT_CONFIG['acotacion']
-    ax.text(x_lecho + lecho_ancho_draw/2, y_lecho + lecho_alto_draw/2, 
-           'Lecho de\nSecado', 
-           ha='center', va='center', fontsize=fontsize, fontweight='bold')
-    
-    # ============ ACOTACIONES DEL LECHO ============
     offset_acot = 0.8
     
-    # Acotación horizontal (ancho del lecho - dimensión visible horizontal)
-    ax.annotate('', xy=(x_lecho + lecho_ancho_draw, y_lecho - offset_acot), 
-               xytext=(x_lecho, y_lecho - offset_acot),
-               arrowprops=dict(arrowstyle='<->', color='black', lw=1.5))
-    ax.text(x_lecho + lecho_ancho_draw/2, y_lecho - offset_acot - 0.4, 
-           f'{lecho_ancho:.1f}m', ha='center', fontsize=acot_fontsize,
-           color='black', fontweight='bold')
+    # Posición Y centrada entre las dos líneas de tratamiento
+    y_centro = (centro_linea1 + centro_linea2) / 2
     
-    # Acotación vertical (largo del lecho - dimensión visible vertical)
-    ax.annotate('', xy=(x_lecho + lecho_ancho_draw + offset_acot, y_lecho + lecho_alto_draw), 
-               xytext=(x_lecho + lecho_ancho_draw + offset_acot, y_lecho),
-               arrowprops=dict(arrowstyle='<->', color='black', lw=1.5))
-    ax.text(x_lecho + lecho_ancho_draw + offset_acot + 0.4, y_lecho + lecho_alto_draw/2, 
-           f'{lecho_largo:.1f}m', ha='left', va='center', 
-           fontsize=acot_fontsize, color='black', fontweight='bold', rotation=90)
+    for i in range(2):  # Dibujar 2 lechos
+        x_lecho = x_lecho_base + i * (lecho_ancho + sep_entre_lechos)
+        y_lecho = y_centro - lecho_largo / 2
+        
+        # Dibujar lecho (orientación normal: largo vertical)
+        rect = Rectangle((x_lecho, y_lecho), lecho_ancho, lecho_largo, 
+                         facecolor=COLORES['manejo_lodos'], 
+                         edgecolor='black', linewidth=2)
+        ax.add_patch(rect)
+        
+        # Texto del lecho
+        ax.text(x_lecho + lecho_ancho/2, y_lecho + lecho_largo/2, 
+               f'Lecho de\nSecado {i+1}', 
+               ha='center', va='center', fontsize=fontsize, fontweight='bold')
+        
+        # Acotación horizontal (ancho)
+        ax.annotate('', xy=(x_lecho + lecho_ancho, y_lecho - offset_acot), 
+                   xytext=(x_lecho, y_lecho - offset_acot),
+                   arrowprops=dict(arrowstyle='<->', color='black', lw=1))
+        if i == 0:  # Solo mostrar texto en el primero para no sobrecargar
+            ax.text(x_lecho + lecho_ancho/2, y_lecho - offset_acot - 0.4, 
+                   f'{lecho_ancho:.1f}m', ha='center', fontsize=acot_fontsize,
+                   color='black', fontweight='bold')
+        
+        # Acotación vertical (largo) - solo en el lecho de la derecha
+        if i == 1:
+            ax.annotate('', xy=(x_lecho + lecho_ancho + offset_acot, y_lecho + lecho_largo), 
+                       xytext=(x_lecho + lecho_ancho + offset_acot, y_lecho),
+                       arrowprops=dict(arrowstyle='<->', color='black', lw=1))
+            ax.text(x_lecho + lecho_ancho + offset_acot + 0.4, y_lecho + lecho_largo/2, 
+                   f'{lecho_largo:.1f}m', ha='left', va='center', 
+                   fontsize=acot_fontsize, color='black', fontweight='bold', rotation=90)
+    
+    # Para cálculo de dimensiones totales, usar el lecho más a la derecha
+    lecho_ancho_draw = lecho_ancho
+    lecho_alto_draw = lecho_largo
+    x_lecho = x_lecho_base + (2 - 1) * (lecho_ancho + sep_entre_lechos)
     
     # NOTA: Las flechas de lodos se han eliminado para simplificar el diagrama
     # El lecho de secado recibe lodos del UASB y Sedimentador (línea de lodos)

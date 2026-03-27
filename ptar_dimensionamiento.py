@@ -1910,42 +1910,55 @@ def dimensionar_lecho_secado(Q: ConfigDiseno = CFG,
     ref_ops = citar("ops_cepis_2005")
 
     # Producción de lodos (si no se provee externamente, usar valor típico)
+    # Calcula lodos de TODAS las líneas del sistema
     if lodos_kg_SST_d is None:
         # Producción típica de lodos UASB desde configuración
-        DBO_removida_kg_d = Q.Q_linea_m3_d * (Q.DBO5_mg_L / 1000) * Q.uasb_eta_DBO
-        lodos_kg_SST_d = Q.lecho_factor_produccion_lodos * DBO_removida_kg_d
+        # Usar caudal TOTAL (todas las líneas) para calcular lodos del sistema completo
+        DBO_removida_kg_d_total = Q.Q_total_m3_d * (Q.DBO5_mg_L / 1000) * Q.uasb_eta_DBO
+        lodos_kg_SST_d = Q.lecho_factor_produccion_lodos * DBO_removida_kg_d_total
 
     # Parámetros de diseño adoptados desde configuración
     C_SST_kg_m3 = Q.lecho_C_SST_kg_m3
     t_secado_d = Q.lecho_t_secado_d
-    n_celdas = Q.lecho_n_celdas
+    # Usar num_lineas del proyecto (para construcción por fases)
+    n_celdas = Q.num_lineas  # Una celda por línea de tratamiento
     h_lodo_m = Q.lecho_h_lodo_m
 
-    Q_m3_d = Q.Q_linea_m3_d
+    # Caudal total del sistema (todas las líneas)
+    Q_m3_d = Q.Q_total_m3_d  # Caudal total para calcular lodos de todo el sistema
 
     # [Ec. 8a] Volumen de lodo a tratar por día
     V_lodo_m3_d = lodos_kg_SST_d / C_SST_kg_m3   # m^3/d
 
-    # [Ec. 8c] Área total del lecho (con rotación)
+    # [Ec. 8c] Área de CADA lecho (dividir volumen total entre n° de lechos)
     # Volumen total en proceso de secado = V_lodo/d × t_secado
     V_total_secando_m3 = V_lodo_m3_d * t_secado_d
-    A_lecho_m2 = (V_total_secando_m3 / h_lodo_m) * n_celdas
+    # Volumen por lecho = V_total / n_celdas
+    V_por_lecho_m3 = V_total_secando_m3 / n_celdas
+    # Área de cada lecho individual
+    A_lecho_m2 = V_por_lecho_m3 / h_lodo_m
 
     # Geometría del lecho (relación 3:1)
     ancho_m = math.sqrt(A_lecho_m2 / 3.0)
     largo_m = 3.0 * ancho_m
 
-    # Tasa de carga de sólidos
-    rho_S_kgSST_m2_año = lodos_kg_SST_d * 365 / A_lecho_m2
+    # Tasa de carga de sólidos (por lecho)
+    lodos_por_lecho_kg_d = lodos_kg_SST_d / n_celdas
+    rho_S_kgSST_m2_año = lodos_por_lecho_kg_d * 365 / A_lecho_m2
 
+    # Calcular área total para referencia
+    A_total_m2 = A_lecho_m2 * n_celdas
+    
     return {
         "unidad": "Lecho de secado de lodos",
         "lodos_kg_SST_d": round(lodos_kg_SST_d, 2),
+        "lodos_por_lecho_kg_d": round(lodos_por_lecho_kg_d, 2),
         "C_SST_kg_m3": C_SST_kg_m3,
         "t_secado_d": t_secado_d,
         "V_lodo_m3_d": round(V_lodo_m3_d, 3),
         "n_celdas": n_celdas,
-        "A_lecho_m2": round(A_lecho_m2, 1),
+        "A_lecho_m2": round(A_lecho_m2, 1),  # Área de CADA lecho
+        "A_total_m2": round(A_total_m2, 1),  # Área total de todos los lechos
         "largo_m": round(largo_m, 1),
         "ancho_m": round(ancho_m, 1),
         "h_lodo_m": h_lodo_m,
@@ -2168,8 +2181,8 @@ def calcular_balance_calidad_agua(Q: ConfigDiseno = None,
             }
         
         # Tras Sedimentador Secundario
-        if "sedimentador" in resultados and "tras_fp" in calidad:
-            sed = resultados["sedimentador"]
+        if ("sedimentador_sec" in resultados or "sedimentador" in resultados) and "tras_fp" in calidad:
+            sed = resultados.get("sedimentador_sec") or resultados.get("sedimentador")
             DBO_entrada_sed = calidad["tras_fp"]["DBO5_mg_L"]
             eta_DBO_sed = sed.get("eta_DBO_sed", 0.30)
             # SST removido por separación de humus desde configuración
