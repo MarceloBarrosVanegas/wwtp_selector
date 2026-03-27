@@ -370,27 +370,20 @@ def generar_layout_2lineas(tipo: str, unidades_linea: list, nombre_alt: str,
     y_centro_lecho = (centro_linea1 + centro_linea2) / 2 - lecho_ancho / 2
     
     # =============================================================================
-    # FLECHAS DE CONEXIÓN DE LODOS AL LECHO DE SECADO
+    # LECHO DE SECADO GIRADO 90°
     # =============================================================================
-    # NOTA CONCEPTUAL: El lecho de secado recibe LODOS (sólidos), no efluente tratado.
-    # Las fuentes de lodos son:
-    #   1. UASB: lodo anaerobio excedente del manto de lodos
-    #   2. Sedimentador Secundario: humus (lodos biológicos del filtro percolador)
-    # 
-    # El efluente del UV va directamente al cuerpo receptor (no al lecho de secado).
-    # 
-    # NOTA DE DISEÑO: El lecho se dibuja GIRADO 90° para que su lado largo (12.1m) 
-    # quede en posición VERTICAL, permitiendo flechas de lodos más cortas y directas.
+    # El lecho se dibuja GIRADO para que su lado largo (12.1m) quede VERTICAL
+    # y su lado corto (4.0m) quede HORIZONTAL, optimizando el espacio del layout
     
     # Girar el lecho 90°: intercambiar largo y ancho para el dibujo
     # El lecho queda con 4.0m de ancho (horizontal) y 12.1m de alto (vertical)
-    lecho_ancho_draw = lecho_ancho  # 4.0m (ahora es la dimensión horizontal)
-    lecho_alto_draw = lecho_largo   # 12.1m (ahora es la dimensión vertical)
+    lecho_ancho_draw = lecho_ancho  # 4.0m (dimensión horizontal)
+    lecho_alto_draw = lecho_largo   # 12.1m (dimensión vertical)
     
-    # Recalcular posición Y para centrar el lecho verticalmente
+    # Recalcular posición Y para centrar el lecho verticalmente entre las líneas
     y_lecho = (centro_linea1 + centro_linea2) / 2 - lecho_alto_draw / 2
     
-    # Redibujar lecho girado
+    # Dibujar lecho girado
     rect = Rectangle((x_lecho, y_lecho), lecho_ancho_draw, lecho_alto_draw, 
                      facecolor=COLORES['manejo_lodos'], 
                      edgecolor='black', linewidth=2)
@@ -402,71 +395,12 @@ def generar_layout_2lineas(tipo: str, unidades_linea: list, nombre_alt: str,
            'Lecho de\nSecado', 
            ha='center', va='center', fontsize=fontsize, fontweight='bold')
     
-    # Encontrar índices de UASB y Sedimentador en las líneas
-    def encontrar_indice_unidad(posiciones, nombre_unidad):
-        for i, (x, y, unidad, ancho, alto) in enumerate(posiciones):
-            if nombre_unidad in unidad:
-                return i
-        return None
-    
-    idx_uasb_l1 = encontrar_indice_unidad(posiciones_linea1, 'UASB')
-    idx_sed_l1 = encontrar_indice_unidad(posiciones_linea1, 'Sedimentador')
-    idx_uasb_l2 = encontrar_indice_unidad(posiciones_linea2, 'UASB')
-    idx_sed_l2 = encontrar_indice_unidad(posiciones_linea2, 'Sedimentador')
-    
-    # Radio típico de unidades circulares (para cálculo de puntos de salida)
-    radio_uasb = DIM['UASB'].get('diametro', 5.0) / 2
-    radio_sed = DIM['Sedimentador'].get('diametro', 5.0) / 2
-    
-    # Función auxiliar para obtener punto en el borde del círculo (más cercano al lecho)
-    # El lecho está a la derecha, así que tomamos el punto derecho del círculo
-    def get_unidad_lodos_exit(x, y, unidad, DIM, radio, offset_y=0):
-        """Obtiene punto en el borde derecho del círculo para salida de lodos"""
-        centro_x = x + radio
-        centro_y = y + radio
-        # Punto en el borde derecho, con offset vertical
-        return (centro_x + radio, centro_y + offset_y)
-    
-    # Flechas de lodos desde UASB -> Lecho (lado izquierdo del lecho)
-    # Línea 1 (abajo): UASB superior -> parte inferior del lecho
-    if idx_uasb_l1 is not None:
-        x_uasb_l1, y_uasb_l1, _, _, _ = posiciones_linea1[idx_uasb_l1]
-        # Punto de salida: parte inferior del UASB
-        start_uasb_l1 = get_unidad_lodos_exit(x_uasb_l1, y_uasb_l1, 'UASB', DIM, radio_uasb, offset_y=-radio_uasb*0.5)
-        # Punto de llegada: parte inferior del lecho (lado izquierdo)
-        end_uasb_l1 = (x_lecho, y_lecho + lecho_alto_draw * 0.25)
-        dibujar_flecha_lodos(ax, start_uasb_l1[0], start_uasb_l1[1], 
-                             end_uasb_l1[0], end_uasb_l1[1])
-    
-    # Línea 2 (arriba): UASB inferior -> parte superior del lecho
-    if idx_uasb_l2 is not None:
-        x_uasb_l2, y_uasb_l2, _, _, _ = posiciones_linea2[idx_uasb_l2]
-        # Punto de salida: parte superior del UASB
-        start_uasb_l2 = get_unidad_lodos_exit(x_uasb_l2, y_uasb_l2, 'UASB', DIM, radio_uasb, offset_y=radio_uasb*0.5)
-        # Punto de llegada: parte superior del lecho (lado izquierdo)
-        end_uasb_l2 = (x_lecho, y_lecho + lecho_alto_draw * 0.75)
-        dibujar_flecha_lodos(ax, start_uasb_l2[0], start_uasb_l2[1], 
-                             end_uasb_l2[0], end_uasb_l2[1])
-    
-    # Flechas de lodos desde Sedimentador -> Lecho
-    # Línea 1: Sedimentador -> parte media-baja del lecho
-    if idx_sed_l1 is not None:
-        x_sed_l1, y_sed_l1, _, _, _ = posiciones_linea1[idx_sed_l1]
-        start_sed_l1 = get_unidad_lodos_exit(x_sed_l1, y_sed_l1, 'Sedimentador', DIM, radio_sed, offset_y=-radio_sed*0.3)
-        end_sed_l1 = (x_lecho, y_lecho + lecho_alto_draw * 0.40)
-        dibujar_flecha_lodos(ax, start_sed_l1[0], start_sed_l1[1], 
-                             end_sed_l1[0], end_sed_l1[1])
-    
-    # Línea 2: Sedimentador -> parte media-alta del lecho
-    if idx_sed_l2 is not None:
-        x_sed_l2, y_sed_l2, _, _, _ = posiciones_linea2[idx_sed_l2]
-        start_sed_l2 = get_unidad_lodos_exit(x_sed_l2, y_sed_l2, 'Sedimentador', DIM, radio_sed, offset_y=radio_sed*0.3)
-        end_sed_l2 = (x_lecho, y_lecho + lecho_alto_draw * 0.60)
-        dibujar_flecha_lodos(ax, start_sed_l2[0], start_sed_l2[1], 
-                             end_sed_l2[0], end_sed_l2[1])
+    # NOTA: Las flechas de lodos se han eliminado para simplificar el diagrama
+    # El lecho de secado recibe lodos del UASB y Sedimentador (línea de lodos)
     
     # Calcular dimensiones del área
-    max_x = x_lecho + lecho_largo + MARGEN
+    # Usar lecho_ancho (dimensión horizontal actual = 4.0m) no lecho_largo
+    max_x = x_lecho + lecho_ancho_draw + MARGEN
     max_y = centro_linea2 + max_altura_unidad/2 + MARGEN + 1
     
     # Calcular área REAL del terreno ocupado (no hardcodeada)
