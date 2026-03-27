@@ -363,16 +363,58 @@ def generar_layout_2lineas(tipo: str, unidades_linea: list, nombre_alt: str,
     
     dibujar_lecho_compartido(ax, x_lecho, y_centro_lecho, lecho_largo, lecho_ancho, font_scale)
     
-    # Flechas de conexión UV -> Lecho
-    x1_l1, y1_l1, uv_unidad1, uv_ancho1, uv_alto1 = posiciones_linea1[-1]
-    start1 = get_unidad_right_center(x1_l1, y1_l1, uv_unidad1, DIM)
-    end1 = (x_lecho, y_centro_lecho)
-    dibujar_flecha_flujo(ax, start1[0], start1[1], end1[0], end1[1])
+    # =============================================================================
+    # FLECHAS DE CONEXIÓN DE LODOS AL LECHO DE SECADO
+    # =============================================================================
+    # NOTA CONCEPTUAL: El lecho de secado recibe LODOS (sólidos), no efluente tratado.
+    # Las fuentes de lodos son:
+    #   1. UASB: lodo anaerobio excedente del manto de lodos
+    #   2. Sedimentador Secundario: humus (lodos biológicos del filtro percolador)
+    # 
+    # El efluente del UV va directamente al cuerpo receptor (no al lecho de secado).
     
-    x1_l2, y1_l2, uv_unidad2, uv_ancho2, uv_alto2 = posiciones_linea2[-1]
-    start2 = get_unidad_right_center(x1_l2, y1_l2, uv_unidad2, DIM)
-    end2 = (x_lecho, y_centro_lecho + lecho_ancho)
-    dibujar_flecha_flujo(ax, start2[0], start2[1], end2[0], end2[1])
+    # Encontrar índices de UASB y Sedimentador en las líneas
+    def encontrar_indice_unidad(posiciones, nombre_unidad):
+        for i, (x, y, unidad, ancho, alto) in enumerate(posiciones):
+            if nombre_unidad in unidad:
+                return i
+        return None
+    
+    idx_uasb_l1 = encontrar_indice_unidad(posiciones_linea1, 'UASB')
+    idx_sed_l1 = encontrar_indice_unidad(posiciones_linea1, 'Sedimentador')
+    idx_uasb_l2 = encontrar_indice_unidad(posiciones_linea2, 'UASB')
+    idx_sed_l2 = encontrar_indice_unidad(posiciones_linea2, 'Sedimentador')
+    
+    # Flechas de lodos desde UASB -> Lecho (parte inferior del lecho)
+    if idx_uasb_l1 is not None:
+        x_uasb_l1, y_uasb_l1, _, ancho_uasb_l1, _ = posiciones_linea1[idx_uasb_l1]
+        start_uasb_l1 = get_unidad_right_center(x_uasb_l1, y_uasb_l1, 'UASB', DIM)
+        # Punto de llegada: parte inferior del lecho
+        end_uasb_l1 = (x_lecho, y_centro_lecho + lecho_ancho * 0.25)
+        dibujar_flecha_flujo(ax, start_uasb_l1[0], start_uasb_l1[1], 
+                             end_uasb_l1[0], end_uasb_l1[1])
+    
+    if idx_uasb_l2 is not None:
+        x_uasb_l2, y_uasb_l2, _, ancho_uasb_l2, _ = posiciones_linea2[idx_uasb_l2]
+        start_uasb_l2 = get_unidad_right_center(x_uasb_l2, y_uasb_l2, 'UASB', DIM)
+        end_uasb_l2 = (x_lecho, y_centro_lecho + lecho_ancho * 0.75)
+        dibujar_flecha_flujo(ax, start_uasb_l2[0], start_uasb_l2[1], 
+                             end_uasb_l2[0], end_uasb_l2[1])
+    
+    # Flechas de lodos desde Sedimentador -> Lecho (parte media del lecho)
+    if idx_sed_l1 is not None:
+        x_sed_l1, y_sed_l1, _, ancho_sed_l1, _ = posiciones_linea1[idx_sed_l1]
+        start_sed_l1 = get_unidad_right_center(x_sed_l1, y_sed_l1, 'Sedimentador', DIM)
+        end_sed_l1 = (x_lecho, y_centro_lecho + lecho_ancho * 0.50)
+        dibujar_flecha_flujo(ax, start_sed_l1[0], start_sed_l1[1], 
+                             end_sed_l1[0], end_sed_l1[1])
+    
+    if idx_sed_l2 is not None:
+        x_sed_l2, y_sed_l2, _, ancho_sed_l2, _ = posiciones_linea2[idx_sed_l2]
+        start_sed_l2 = get_unidad_right_center(x_sed_l2, y_sed_l2, 'Sedimentador', DIM)
+        end_sed_l2 = (x_lecho, y_centro_lecho + lecho_ancho * 0.50)
+        dibujar_flecha_flujo(ax, start_sed_l2[0], start_sed_l2[1], 
+                             end_sed_l2[0], end_sed_l2[1])
     
     # Calcular dimensiones del área
     max_x = x_lecho + lecho_largo + MARGEN

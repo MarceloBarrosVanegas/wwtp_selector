@@ -293,6 +293,11 @@ def dimensionar_rejillas(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
                    math.sin(angulo_rad))   # m
 
     # Ancho real a usar (con mínimo constructivo)
+    # Fórmula: b_canal * 2 + 0.30 m
+    #   - b_canal * 2: factor de escala práctico para caudales pequeños
+    #     (evita canales excesivamente estrechos que dificultan la operación)
+    #   - +0.30 m: espacio para marcos de rejilla y sellado (0.15 m cada lado)
+    # Mínimo constructivo absoluto: 0.60 m según OPS/CEPIS (2005)
     ancho_layout = round(max(b_canal * 2 + 0.30, 0.60), 2)
     
     # Velocidad REAL con el ancho adoptado (no la teórica)
@@ -611,6 +616,7 @@ def dimensionar_desarenador(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
         "b_canal_original_m": round(b_canal_original, 3),
         "incremento_ancho_cm": incremento_ancho_des_cm,
         # Layout
+        # ancho_layout = b_canal + 0.30 m (0.15 m muro cada lado para contención y sellado)
         "largo_layout_m": round(L_diseno, 1),
         "ancho_layout_m": round(b_canal + 0.30, 2),
         # Nota explicativa

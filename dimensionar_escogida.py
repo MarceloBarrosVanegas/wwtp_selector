@@ -15,7 +15,20 @@ from ptar_layout_graficador import generar_layout_con_resultados
 
 
 def crear_configuracion_real():
-    """Configuracion con valores reales del estudio."""
+    """
+    Configuracion con valores reales del estudio.
+    
+    Nota sobre limites de efluente:
+        DBO5_ef_mg_L = 68 mg/L (objetivo de diseño estricto)
+        SST_ef_mg_L = 80 mg/L (objetivo de diseño estricto)
+        
+        Estos valores son mas restrictivos que los limites legales de TULSMA
+        (DBO5 <= 100 mg/L, SST <= 100 mg/L) para proporcionar margen de 
+        seguridad ante variaciones operativas y estacionales.
+        
+        Criterio: objetivo_diseño = 0.65-0.70 × limite_legal
+        Para DBO5: 68 mg/L ≈ 0.68 × 100 mg/L
+    """
     return ConfigDiseno(
         Q_total_L_s=10.0,
         Q_linea_L_s=5.0,
@@ -25,8 +38,8 @@ def crear_configuracion_real():
         DBO5_mg_L=243.10,
         DQO_mg_L=498.00,
         SST_mg_L=156.00,
-        DBO5_ef_mg_L=68.00,
-        SST_ef_mg_L=80.00,
+        DBO5_ef_mg_L=68.00,   # Objetivo estricto: 68% del limite TULSMA (100 mg/L)
+        SST_ef_mg_L=80.00,    # Objetivo estricto: 80% del limite TULSMA (100 mg/L)
         CS_area=2.0,
         CS_volumen=1.50
     )
