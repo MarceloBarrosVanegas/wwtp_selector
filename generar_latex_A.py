@@ -1545,9 +1545,7 @@ Coliformes fecales & NMP/100 mL & No especificado \\
 \end{{tabular}}
 \end{{table}}
 
-\subsection{{Tabla 12 -- Descarga a Cuerpo de Agua Dulce (APLICA AL PROYECTO)}}
-
-\textbf{{Nota:}} Esta es la tabla aplicable al proyecto.
+\subsection{{Tabla 12 -- Descarga a Cuerpo de Agua Dulce}}
 
 \begin{{table}}[H]
 \centering
@@ -1556,10 +1554,10 @@ Coliformes fecales & NMP/100 mL & No especificado \\
 \toprule
 \textbf{{Par\'ametro}} & \textbf{{Unidad}} & \textbf{{L\'imite m\'aximo}} \\
 \midrule
-\rowcolor{{yellow!25}} \textbf{{DBO$_5$}} & mg/L & $\leq$ \textbf{{100}} \\
-\rowcolor{{yellow!25}} \textbf{{DQO}} & mg/L & $\leq$ \textbf{{250}} \\
-\rowcolor{{yellow!25}} \textbf{{SST}} & mg/L & $\leq$ \textbf{{130}} \\
-\rowcolor{{yellow!25}} \textbf{{Coliformes fecales}} & NMP/100 mL & $\leq$ \textbf{{3.000}} \\
+DBO$_5$ & mg/L & $\leq$ 100 \\
+DQO & mg/L & $\leq$ 250 \\
+SST & mg/L & $\leq$ 130 \\
+Coliformes fecales & NMP/100 mL & $\leq$ 3.000 \\
 \bottomrule
 \end{{tabular}}
 \end{{table}}
