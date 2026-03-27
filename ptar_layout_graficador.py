@@ -372,13 +372,12 @@ def generar_layout_2lineas(tipo: str, unidades_linea: list, nombre_alt: str,
     # =============================================================================
     # LECHO DE SECADO GIRADO 90°
     # =============================================================================
-    # El lecho se dibuja GIRADO para que su lado largo (12.1m) quede VERTICAL
-    # y su lado corto (4.0m) quede HORIZONTAL, optimizando el espacio del layout
+    # El lecho se dibuja GIRADO para que su lado largo quede VERTICAL
+    # y su lado corto quede HORIZONTAL, optimizando el espacio del layout
     
     # Girar el lecho 90°: intercambiar largo y ancho para el dibujo
-    # El lecho queda con 4.0m de ancho (horizontal) y 12.1m de alto (vertical)
-    lecho_ancho_draw = lecho_ancho  # 4.0m (dimensión horizontal)
-    lecho_alto_draw = lecho_largo   # 12.1m (dimensión vertical)
+    lecho_ancho_draw = lecho_ancho  # Dimensión horizontal después de girar
+    lecho_alto_draw = lecho_largo   # Dimensión vertical después de girar
     
     # Recalcular posición Y para centrar el lecho verticalmente entre las líneas
     y_lecho = (centro_linea1 + centro_linea2) / 2 - lecho_alto_draw / 2

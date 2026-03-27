@@ -298,14 +298,14 @@ v_s = \frac{{g \cdot (S_s - 1) \cdot d^2}}{{18 \cdot \nu}}
 \textit{{Donde:}}
 \begin{{itemize}}[noitemsep,leftmargin=2em]
     \item[$v_s$] = Velocidad de sedimentación (m/s)
-    \item[$g$] = Aceleración de la gravedad (9,81 m/s²)
-    \item[$S_s$] = Gravedad específica de la arena (2,65)
-    \item[$d$] = Diámetro de la partícula (0,00020 m)
-    \item[$\nu$] = Viscosidad cinemática del agua a 24°C ($0.91 \times 10^{{-6}}$ m²/s)
+    \item[$g$] = Aceleración de la gravedad ({d['g_m_s2']:.2f} m/s²)
+    \item[$S_s$] = Gravedad específica de la arena ({d['Ss']:.2f})
+    \item[$d$] = Diámetro de la partícula ({d['d_m']:.5f} m)
+    \item[$\nu$] = Viscosidad cinemática del agua a {u['T_agua_C']:.1f}°C (${d['nu_m2_s']:.4e}$ m²/s)
 \end{{itemize}}
 
 \begin{{equation}}
-v_s = \frac{{9.81 \times (2.65 - 1) \times (0.00020)^2}}{{18 \times 0.91 \times 10^{{-6}}}} = {d['v_s_stokes_m_s']:.3f} \text{{ m/s}}
+v_s = \frac{{{d['g_m_s2']:.2f} \times ({d['Ss']:.2f} - 1) \times ({d['d_m']:.5f})^2}}{{18 \times {d['nu_m2_s']:.4e}}} = {d['v_s_stokes_m_s']:.3f} \text{{ m/s}}
 \end{{equation}}
 
 Con este valor de $v_s$ se determina la longitud teórica del desarenador mediante la ecuación de sedimentación tipo I:
@@ -360,15 +360,15 @@ v_c = \sqrt{{\frac{{8 \beta g (S_s - 1) d}}{{f}}}}
 \textit{{Donde:}}
 \begin{{itemize}}[noitemsep,leftmargin=2em]
     \item[$v_c$] = Velocidad crítica de resuspensión (m/s)
-    \item[$\beta$] = Factor de forma (0,04 - 0,06, se adopta 0,05)
-    \item[$g$] = Aceleración de la gravedad (9,81 m/s²)
-    \item[$S_s$] = Gravedad específica de la arena (2,65)
-    \item[$d$] = Diámetro de la partícula (0,00020 m)
-    \item[$f$] = Factor de fricción de Darcy-Weisbach (0,02 - 0,03, se adopta 0,025)
+    \item[$\beta$] = Factor de forma ({d['beta']:.2f}, rango 0,04 - 0,06)
+    \item[$g$] = Aceleración de la gravedad ({d['g_m_s2']:.2f} m/s²)
+    \item[$S_s$] = Gravedad específica de la arena ({d['Ss']:.2f})
+    \item[$d$] = Diámetro de la partícula ({d['d_m']:.5f} m)
+    \item[$f$] = Factor de fricción de Darcy-Weisbach ({d['f_darcy']:.3f}, rango 0,02 - 0,03)
 \end{{itemize}}
 
 \begin{{equation}}
-v_c = \sqrt{{\frac{{8 \times 0.05 \times 9.81 \times (2.65 - 1) \times 0.00020}}{{0.025}}}} = {d['v_c_scour_m_s']:.3f} \text{{ m/s}}
+v_c = \sqrt{{\frac{{8 \times {d['beta']:.2f} \times {d['g_m_s2']:.2f} \times ({d['Ss']:.2f} - 1) \times {d['d_m']:.5f}}}{{{d['f_darcy']:.3f}}}}} = {d['v_c_scour_m_s']:.3f} \text{{ m/s}}
 \end{{equation}}
 
 \subsubsection{{Verificación para Caudal Máximo Horario}}
@@ -532,10 +532,10 @@ D = \sqrt{{\frac{{4 \times {u['A_sup_m2']:.2f}}}{{\pi}}}} = {u['D_m']:.2f} \text
 
 La altura resultante del reactor es {u['H_r_m']:.2f} m, proporcionando un tiempo de retención hidráulico de {u['TRH_h']:.1f} horas, valor adecuado según Sperling \cite{{sperling2007}} para temperaturas superiores a 22°C.
 
-La producción de biogás se estima mediante la relación estequiométrica de 0,35 m³ de metano por kilogramo de DQO removida:
+La producción de biogás se estima mediante la relación estequiométrica de {u['factor_biogas_ch4']:.2f} m³ de metano por kilogramo de DQO removida:
 
 \begin{{equation}}
-V_{{CH_4}} = (Q_d \cdot S_0 \cdot E) \times 0,35
+V_{{CH_4}} = (Q_d \cdot S_0 \cdot E) \times {u['factor_biogas_ch4']:.2f}
 \end{{equation}}
 
 \textit{{Donde:}}
@@ -547,7 +547,7 @@ V_{{CH_4}} = (Q_d \cdot S_0 \cdot E) \times 0,35
 \end{{itemize}}
 
 \begin{{equation}}
-V_{{CH_4}} = ({u['Q_m3_d']:.1f} \times {u['DQO_kg_m3']:.3f} \times {u['eta_DQO']:.2f}) \times 0,35 = {u['biogaz_m3_d']:.1f} \text{{ m}}^3 \text{{ CH}}_4\text{{/d}}
+V_{{CH_4}} = ({u['Q_m3_d']:.1f} \times {u['DQO_kg_m3']:.3f} \times {u['eta_DQO']:.2f}) \times {u['factor_biogas_ch4']:.2f} = {u['biogaz_m3_d']:.1f} \text{{ m}}^3 \text{{ CH}}_4\text{{/d}}
 \end{{equation}}
 
 \subsubsection{{Verificación para Caudal Máximo Horario}}
@@ -845,11 +845,34 @@ Carga de sólidos & {s['solids_loading_kg_m2_d']:.2f} kg/m²·d \\
 
 \subsection{{Lecho de Secado de Lodos}}
 
-El tratamiento de los lodos generados en el reactor UASB se realiza mediante lechos de secado por gravedad y evaporación. Este sistema aprovecha las condiciones climáticas favorables de Galápagos, con alta radiación solar y baja humedad relativa, para reducir el contenido de humedad del lodo desde aproximadamente 95% hasta valores entre 40% y 60%.
+El lecho de secado es una unidad de manejo de lodos que utiliza procesos físicos de drenaje gravitacional y evaporación para reducir el contenido de humedad de los lodos generados en el tratamiento. Este sistema es ampliamente utilizado en plantas de tratamiento de pequeño y mediano tamaño debido a su bajo consumo energético y simplicidad operativa.
 
-Los lodos del UASB presentan buenas características de deshidratación debido a su naturaleza granular y alta concentración de sólidos (entre 15 y 30 g/L). La producción de lodos se estima en {l['lodos_kg_SST_d']:.2f} kg SST/d por línea, considerando una producción específica de 0,10 kg SSV/kg DBO removida.
+\textbf{{Criterios de diseño}}
 
-El diseño del lecho se fundamenta en el tiempo de secado requerido, que en condiciones de clima cálido y seco como el de Galápagos se estima en {l['t_secado_d']:.0f} días según OPS/CEPIS (2005). El volumen de lodo a tratar diariamente es:
+\begin{{table}}[H]
+\centering
+\caption{{Parámetros de diseño del lecho de secado}}
+\small
+\begin{{tabular}}{{lccl}}
+\toprule
+Parámetro & Rango recomendado & Valor adoptado & Fuente \\
+\midrule
+Carga superficial de sólidos & 60--220 & {l['rho_S_kgSST_m2_año']:.0f} kg/m²·año & Metcalf \& Eddy \cite{{metcalf2014}} \\
+Concentración de lodos & 15--30 & {l['C_SST_kg_m3']:.0f} kg/m³ & OPS/CEPIS \cite{{ops2005}} \\
+Tiempo de secado & 10--30 & {l['t_secado_d']:.0f} días & OPS/CEPIS \\
+Espesor de aplicación & 0.20--0.40 & {l['h_lodo_m']:.2f} m & Metcalf \& Eddy \\
+Relación Largo/Ancho & 2:1--4:1 & 3:1 & Práctica común \\
+\bottomrule
+\end{{tabular}}
+\end{{table}}
+
+\textbf{{Producción de lodos}}
+
+La producción de lodos se estima considerando una producción específica típica de 0,10 kg SSV/kg DBO removida. Para la carga aplicada, se estima una producción de {l['lodos_kg_SST_d']:.2f} kg SST/d por línea.
+
+\textbf{{Ecuaciones de diseño}}
+
+El volumen diario de lodo a tratar se determina mediante:
 
 \begin{{equation}}
 V_{{lodo}} = \frac{{M_{{SST}}}}{{C_{{SST}}}}
@@ -857,18 +880,46 @@ V_{{lodo}} = \frac{{M_{{SST}}}}{{C_{{SST}}}}
 
 \textit{{Donde:}}
 \begin{{itemize}}[noitemsep,leftmargin=2em]
-    \item[$V_{{lodo}}$] = Volumen diario de lodo a tratar (m³/d)
-    \item[$M_{{SST}}$] = Masa de sólidos suspendidos totales producidos ({l['lodos_kg_SST_d']:.2f} kg SST/d)
-    \item[$C_{{SST}}$] = Concentración de SST en el lodo ({l['C_SST_kg_m3']:.0f} kg/m³)
+    \item[$V_{{lodo}}$] = Volumen diario de lodo (m³/d)
+    \item[$M_{{SST}}$] = Masa de sólidos producidos ({l['lodos_kg_SST_d']:.2f} kg SST/d)
+    \item[$C_{{SST}}$] = Concentración de sólidos ({l['C_SST_kg_m3']:.0f} kg/m³)
 \end{{itemize}}
 
 \begin{{equation}}
 V_{{lodo}} = \frac{{{l['lodos_kg_SST_d']:.2f}}}{{{l['C_SST_kg_m3']:.0f}}} = {l['V_lodo_m3_d']:.3f} \text{{ m}}^3\text{{/d}}
 \end{{equation}}
 
-Considerando un espesor de aplicación de {l['h_lodo_m']:.2f} m por ciclo y dos celdas en operación alternada, el área superficial requerida resulta ser {l['A_lecho_m2']:.1f} m². Las dimensiones adoptadas son {l['largo_m']:.1f} m de largo por {l['ancho_m']:.1f} m de ancho para cada celda.
+\textbf{{Dimensionamiento del área}}
 
-La carga superficial de sólidos resulta {l['rho_S_kgSST_m2_año']:.1f} kg SST/m²·año, valor dentro del rango recomendado por Metcalf y Eddy \cite{{metcalf2014}} de 60 a 220 kg SST/m²·año para lechos de secado de lodos anaerobios.
+El área requerida se calcula considerando el volumen de lodo, el tiempo de secado y el espesor de aplicación:
+
+\begin{{equation}}
+A_{{lecho}} = \frac{{V_{{lodo}} \cdot t_s}}{{h_{{lodo}}}} \cdot n_{{celdas}}
+\end{{equation}}
+
+\textit{{Donde:}}
+\begin{{itemize}}[noitemsep,leftmargin=2em]
+    \item[$A_{{lecho}}$] = Área superficial total (m²)
+    \item[$t_s$] = Tiempo de secado ({l['t_secado_d']:.0f} días)
+    \item[$h_{{lodo}}$] = Espesor de aplicación ({l['h_lodo_m']:.2f} m)
+    \item[$n_{{celdas}}$] = Número de celdas ({l['n_celdas']:.0f})
+\end{{itemize}}
+
+\begin{{equation}}
+A_{{lecho}} = \frac{{{l['V_lodo_m3_d']:.3f} \times {l['t_secado_d']:.0f}}}{{{l['h_lodo_m']:.2f}}} \times {l['n_celdas']:.0f} = {l['A_lecho_m2']:.1f} \text{{ m}}^2
+\end{{equation}}
+
+Con una relación largo/ancho de 3:1, las dimensiones resultantes son {l['largo_m']:.1f} m de largo por {l['ancho_m']:.1f} m de ancho por celda.
+
+\subsubsection{{Verificación de carga superficial}}
+
+La carga superficial de sólidos se verifica mediante:
+
+\begin{{equation}}
+\rho_S = \frac{{M_{{SST}} \times 365}}{{A_{{lecho}}}} = \frac{{{l['lodos_kg_SST_d']:.2f} \times 365}}{{{l['A_lecho_m2']:.1f}}} = {l['rho_S_kgSST_m2_año']:.1f} \text{{ kg SST/m}}^2\text{{·año}}
+\end{{equation}}
+
+El valor obtenido está dentro del rango recomendado de 60--220 kg SST/m²·año para lechos de secado de lodos anaerobios según Metcalf \& Eddy \cite{{metcalf2014}}.
 
 \subsubsection{{Resultados}}
 
@@ -902,12 +953,13 @@ La DQO presenta una reducción similar, pasando de {cfg.DQO_mg_L:.0f} mg/L en el
 \toprule
 Parámetro & Afluente & Post-UASB & Post-FP & Post-Sed & Total \\
 \midrule
-DBO5 (mg/L) & {cfg.DBO5_mg_L:.0f} & {cfg.DBO5_mg_L*(1-u['eta_DBO']):.0f} & {fp['DBO_salida_Germain_mg_L']:.0f} & {fp['DBO_salida_Germain_mg_L']*0.7:.0f} & {100*(1-fp['DBO_salida_Germain_mg_L']*0.7/cfg.DBO5_mg_L):.0f} por ciento \\
+DBO5 (mg/L) & {cfg.DBO5_mg_L:.0f} & {cfg.DBO5_mg_L*(1-u['eta_DBO']):.0f} & {fp['DBO_salida_Germain_mg_L']:.0f} & {s['DBO_salida_mg_L']:.0f} & {100*(1-s['DBO_salida_mg_L']/cfg.DBO5_mg_L):.0f} por ciento \\
 \bottomrule
 \end{{tabular}}
 \end{{table}}
 
-La calidad del efluente final tras el sedimentador secundario es de aproximadamente {fp['DBO_salida_Germain_mg_L']*0.7:.0f} mg/L de DBO5, valor que cumple satisfactoriamente con el límite de {cfg.DBO5_ef_mg_L:.0f} mg/L establecido para este proyecto.
+La calidad del efluente final tras el sedimentador secundario es de aproximadamente {s['DBO_salida_mg_L']:.0f} mg/L de DBO5, valor que cumple satisfactoriamente con el límite de {cfg.DBO5_ef_mg_L:.0f} mg/L establecido para este proyecto.
+
 
 \subsection{{Disposición de la Planta}}
 
@@ -915,7 +967,7 @@ La figura siguiente presenta la disposición espacial de las unidades de tratami
 
 \begin{{figure}}[H]
 \centering
-\includegraphics[width=0.95\textwidth]{{{layout_filename}}}
+\includegraphics[width=\textwidth]{{{layout_filename}}}
 \caption{{Disposición espacial de unidades - Alternativa A}}
 \end{{figure}}
 
@@ -952,10 +1004,10 @@ def generar_latex_alternativa_A(cfg, resultados, output_path, area_m2=None):
 \begin{{document}}
 {contenido}
 
+\newpage
 %============================================================================
 % BIBLIOGRAFÍA
 %============================================================================
-\newpage
 \begin{{thebibliography}}{{9}}
 
 \bibitem{{metcalf2014}}

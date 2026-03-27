@@ -67,16 +67,25 @@ def dimensionar_alternativa_A(cfg):
     print(f"   - Diametro: {resultados['uasb']['D_m']} m")
     
     print("\n4. Dimensionando FILTRO PERCOLADOR...")
-    # Calcular DBO real del efluente UASB (no usar valor hardcodeado)
-    DBO_tras_uasb = cfg.DBO5_mg_L * (1 - cfg.uasb_eta_DBO)
+    # Usar eficiencia REAL calculada por el UASB (ajustada por temperatura)
+    eta_DBO_real = resultados['uasb']['eta_DBO']
+    DBO_tras_uasb = cfg.DBO5_mg_L * (1 - eta_DBO_real)
     resultados['filtro_percolador'] = dimensionar_filtro_percolador(cfg, DBO_entrada_mg_L=DBO_tras_uasb)
-    print(f"   - DBO entrada: {DBO_tras_uasb:.1f} mg/L (efluente UASB)")
+    print(f"   - DBO entrada: {DBO_tras_uasb:.1f} mg/L (efluente UASB, eta={eta_DBO_real*100:.0f}%)")
     print(f"   - Diametro: {resultados['filtro_percolador']['D_filtro_m']} m")
     
     print("\n5. Dimensionando SEDIMENTADOR...")
     from ptar_dimensionamiento import dimensionar_sedimentador_sec
-    resultados['sedimentador'] = dimensionar_sedimentador_sec(cfg)
+    # Pasar DBO removida por el FP y DBO de entrada al sedimentador (encadenado)
+    DBO_removida_fp_kg_d = resultados['filtro_percolador']['DBO_removida_kg_d']
+    DBO_entrada_sed = resultados['filtro_percolador']['DBO_salida_Germain_mg_L']
+    resultados['sedimentador'] = dimensionar_sedimentador_sec(
+        cfg, 
+        DBO_entrada_mg_L=DBO_entrada_sed,
+        DBO_removida_fp_kg_d=DBO_removida_fp_kg_d
+    )
     print(f"   - Diametro: {resultados['sedimentador']['D_m']} m")
+    print(f"   - DBO salida: {resultados['sedimentador']['DBO_salida_mg_L']:.1f} mg/L")
     
     print("\n6. Dimensionando UV...")
     from ptar_dimensionamiento import dimensionar_uv

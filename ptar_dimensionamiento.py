@@ -115,6 +115,9 @@ class ConfigDiseno:
     desarenador_factor_pico: float = 2.5    # Factor caudal máximo horario / promedio (tip: 2-3)
     desarenador_d_particula_mm: float = 0.20    # Diámetro partícula objetivo (mm)
     desarenador_Ss: float = 2.65            # Gravedad específica arena
+    # Parámetros para Camp-Shields (verificación de velocidad crítica)
+    desarenador_beta: float = 0.05          # Factor de forma partícula (rango 0.04-0.06)
+    desarenador_f_darcy: float = 0.025      # Factor de fricción Darcy-Weisbach (rango 0.02-0.03)
     # Límite de velocidad para verificación (Camp-Shields)
     # v_h_max debe ser < v_c_scour (velocidad crítica de resuspensión)
     desarenador_factor_seguridad_scour: float = 0.9  # Factor sobre v_c (90% = margen seguro)
@@ -124,9 +127,10 @@ class ConfigDiseno:
     # =============================================================================
     uasb_Cv_kgDQO_m3_d: float = 2.5         # Carga orgánica volumétrica (kg DQO/m³·d) - valor conservador para TRH >= 5h
     uasb_v_up_m_h: float = 0.80             # Velocidad ascendente (m/h)
-    uasb_eta_DBO: float = 0.70              # Eficiencia remoción DBO5 (fracción)
-    uasb_eta_DQO: float = 0.65              # Eficiencia remoción DQO (fracción)
+    uasb_eta_DBO: float = 0.70              # Eficiencia remoción DBO5 (fracción) - usado solo como referencia inicial
+    uasb_eta_DQO: float = 0.65              # Eficiencia remoción DQO (fracción) - usado solo como referencia inicial
     uasb_H_max_m: float = 5.5               # Altura máxima reactor (m)
+    uasb_factor_biogas_ch4: float = 0.35    # Factor de conversión biogás (m³ CH4 / kg DQO removida)
     # Límites de velocidad ascendente para verificación (Metcalf & Eddy, 2014)
     # v_up_max debe controlarse para evitar arrastre del manto de lodos
     uasb_v_up_max_recomendado_m_h: float = 1.5   # Límite recomendado (m/h)
@@ -161,6 +165,17 @@ class ConfigDiseno:
     # =============================================================================
     sed_SOR_m3_m2_d: float = 18.0           # Tasa desbordamiento superficial (conservador)
     sed_h_sed_m: float = 3.50               # Profundidad lateral (m)
+    
+    # =============================================================================
+    # PARÁMETROS DE DISEÑO - LODOS ACTIVADOS (AIREACIÓN EXTENDIDA)
+    # =============================================================================
+    la_Cv_kgDBO_m3_d: float = 0.30          # Carga orgánica volumétrica (kg DBO/m³·d)
+    la_TRH_h: float = 18.0                  # Tiempo retención hidráulico (h)
+    la_edad_lodo_d: float = 15.0            # Edad del lodo (días)
+    la_h_aireacion_m: float = 4.5           # Profundidad de aireación (m)
+    la_RAS: float = 0.50                    # Relación de recirculación (RAS)
+    la_aireacion_kgO2_kgDBO: float = 1.2    # Requerimiento de oxígeno (kg O2/kg DBO)
+    la_ce_teorica: float = 1.0              # Coeficiente de exceso de lodo (kg SSV/kg DBO)
     
     # =============================================================================
     # PARÁMETROS DE DISEÑO - LECHO DE SECADO
@@ -210,6 +225,33 @@ def correccion_temperatura(k_20: float, theta: float, T: float) -> float:
     k_T : constante cinética a temperatura T
     """
     return k_20 * (theta ** (T - 20.0))
+
+
+def viscosidad_cinematica_agua(T_celsius: float) -> float:
+    """
+    Calcula la viscosidad cinemática del agua según temperatura.
+    
+    Fórmula empírica basada en interpolación de valores tabulados:
+    ν(T) = ν_20 * (1 + 0.0337*(T - 20) + 0.00022*(T - 20)^2)^(-1)
+    
+    Donde ν_20 = 1.004 × 10⁻⁶ m²/s a 20°C
+    
+    Valores de referencia (Metcalf & Eddy, 2014):
+    - 20°C: 1.004 × 10⁻⁶ m²/s
+    - 24°C: 0.91 × 10⁻⁶ m²/s  
+    - 25.6°C: ~0.87 × 10⁻⁶ m²/s
+
+    Parámetros
+    ----------
+    T_celsius : temperatura del agua en grados Celsius
+
+    Retorna
+    -------
+    nu_m2_s : viscosidad cinemática en m²/s
+    """
+    nu_20 = 1.004e-6  # m²/s a 20°C
+    dT = T_celsius - 20.0
+    return nu_20 / (1 + 0.0337 * dT + 0.00022 * (dT ** 2))
 
 
 def volumen_a_dimensiones_rect(V_m3: float, relacion_L_A: float = 3.0,
@@ -478,20 +520,17 @@ def dimensionar_desarenador(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
     # =============================================================================
     # CÁLCULO TEÓRICO: Velocidad de sedimentación por Ley de Stokes
     # =============================================================================
-    # Para partículas de arena: d = 0.20 mm, Ss = 2.65, T = 24°C
+    # Para partículas de arena: d = 0.20 mm, Ss = 2.65, T = variable
     g = 9.81  # m/s²
-    d_m = Q.desarenador_d_particula_mm / 1000.0  # 0.00020 m
-    Ss = Q.desarenador_Ss  # 2.65
+    d_m = Q.desarenador_d_particula_mm / 1000.0  # m
+    Ss = Q.desarenador_Ss  # Gravedad específica
     
-    # Viscosidad cinemática del agua
-    # Valor a 24°C: 0.91 × 10⁻⁶ m²/s
-    # Nota: A 25.6°C (T real del proyecto) sería ≈ 0.87 × 10⁻⁶ m²/s
-    # Error ~4.4% en v_s, aceptable para diseño preliminar
-    nu_m2_s = 0.91e-6  # m²/s (valor conservador a 24°C)
+    # Viscosidad cinemática del agua según temperatura real
+    nu_m2_s = viscosidad_cinematica_agua(Q.T_agua_C)  # m²/s
     
     # Ley de Stokes: Vs = g × (Ss - 1) × d² / (18 × ν)
     v_s_calculada = g * (Ss - 1) * (d_m ** 2) / (18 * nu_m2_s)  # m/s
-    v_s_m_s = round(v_s_calculada, 3)  # ~0.040 m/s a 24°C
+    v_s_m_s = round(v_s_calculada, 3)
     
     # Número de Reynolds para verificar aplicabilidad de Stokes (Re < 1)
     Re = (d_m * v_s_m_s) / nu_m2_s
@@ -521,8 +560,8 @@ def dimensionar_desarenador(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
     # =============================================================================
     # Vc = √(8 × β × g × (Ss - 1) × d / f)
     # Donde: β = 0.04-0.06 (factor de forma), f = 0.02-0.03 (fricción)
-    beta = 0.05  # valor intermedio
-    f_darcy = 0.025  # factor de fricción Darcy-Weisbach
+    beta = Q.desarenador_beta  # desde configuración
+    f_darcy = Q.desarenador_f_darcy  # desde configuración
     
     v_c_scour = math.sqrt((8 * beta * g * (Ss - 1) * d_m) / f_darcy)  # m/s
     
@@ -588,22 +627,29 @@ def dimensionar_desarenador(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
         # Velocidades
         "v_h_adoptada_m_s": v_h_adoptada,     # 0.30 m/s (Metcalf)
         "v_h_real_m_s": round(v_h_real, 3),   # Puede ser < 0.30 por ancho mínimo
-        "v_s_m_s": v_s_m_s,                   # 0.021 m/s (referencia Stokes)
+        "v_s_m_s": v_s_m_s,                   # Velocidad sedimentación Stokes
         # Dimensiones
         "H_util_m": H_util,
         "b_teorico_m": round(b_teorico, 3),
         "b_canal_m": round(b_canal, 3),
-        "L_teorica_stokes_m": round(L_teorica_stokes, 1),  # ~3.0 m (basado en vs calculada)
-        "L_teorica_Metcalf_m": round(L_teorica_metcatlf, 1),  # 9.0 m (criterio normativo)
+        "L_teorica_stokes_m": round(L_teorica_stokes, 1),  # Basado en vs calculada
+        "L_teorica_Metcalf_m": round(L_teorica_metcatlf, 1),  # Criterio normativo
         "L_diseno_m": round(L_diseno, 1),
         "relacion_L_B": round(L_diseno / b_canal, 1),
         # Tiempos
         "t_r_nominal_s": t_r_nominal,         # 30 s (norma)
         "t_r_real_s": round(t_r_real, 1),     # En el diseño adoptado
-        # Verificación técnica - Stokes y Camp
-        "d_mm": Q.desarenador_d_particula_mm, # Diámetro partícula objetivo (mm)
+        # Parámetros físicos y de Stokes (para LaTeX)
+        "g_m_s2": g,                          # Gravedad (m/s²)
+        "nu_m2_s": nu_m2_s,                   # Viscosidad cinemática (m²/s)
+        "Ss": Ss,                             # Gravedad específica arena
+        "d_m": d_m,                           # Diámetro partícula (m)
+        "d_mm": Q.desarenador_d_particula_mm, # Diámetro partícula (mm)
         "v_s_stokes_m_s": v_s_m_s,            # Calculada por Ley de Stokes
         "Re_stokes": round(Re, 3),            # Número de Reynolds
+        # Parámetros Camp-Shields (para LaTeX)
+        "beta": beta,                         # Factor de forma
+        "f_darcy": f_darcy,                   # Factor de fricción Darcy-Weisbach
         "v_c_scour_m_s": round(v_c_scour, 3), # Velocidad crítica resuspensión
         # Verificación caudal máximo horario
         "factor_pico": factor_pico,           # 2.5 (Qmax/Qmedio)
@@ -616,7 +662,6 @@ def dimensionar_desarenador(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
         "b_canal_original_m": round(b_canal_original, 3),
         "incremento_ancho_cm": incremento_ancho_des_cm,
         # Layout
-        # ancho_layout = b_canal + 0.30 m (0.15 m muro cada lado para contención y sellado)
         "largo_layout_m": round(L_diseno, 1),
         "ancho_layout_m": round(b_canal + 0.30, 2),
         # Nota explicativa
@@ -782,7 +827,8 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
 
     # Producción de biogás (metano)
     DQO_removida_kg_d = Q_m3_d * DQO_kg_m3 * eta_DQO   # kg DQO/d
-    biogaz_m3_d = 0.35 * DQO_removida_kg_d               # m^3 CH4/d
+    factor_biogas = Q.uasb_factor_biogas_ch4            # desde configuración
+    biogaz_m3_d = factor_biogas * DQO_removida_kg_d     # m^3 CH4/d
 
     # Producción de lodos
     DBO_kg_m3 = Q.DBO5_mg_L * 1e-3
@@ -873,6 +919,7 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
         "unidad": "Reactor UASB",
         # Datos de entrada
         "Q_m3_d": round(Q_m3_d, 1),
+        "Q_m3_h": round(Q_m3_h, 2),
         "DQO_kg_m3": round(DQO_kg_m3, 4),
         "DBO5_kg_m3": round(DBO_kg_m3, 4),
         # Parámetros de temperatura
@@ -880,7 +927,6 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
         "factor_temp_texto": factor_temp_texto,
         "Cv_base": Q.uasb_Cv_kgDQO_m3_d,
         # Rangos recomendados según temperatura
-        # Rangos según Van Haandel & Lettinga (1994) - valores conservadores
         "rango_Cv": "2,0--3,0" if T_agua >= 22 else ("1,5--2,5" if T_agua >= 18 else "1,0--2,0"),
         "rango_vup": "0,5--1,5" if T_agua >= 22 else ("0,4--1,2" if T_agua >= 18 else "0,3--1,0"),
         "rango_HRT": "4--6" if T_agua >= 22 else ("5--8" if T_agua >= 18 else "6--10"),
@@ -897,6 +943,8 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
         "H_r_m": round(H_r_m, 2),
         "D_m": round(D_m, 2),
         # Producción de subproductos
+        "factor_biogas_ch4": factor_biogas,   # Factor usado (m³ CH4 / kg DQO removida)
+        "DQO_removida_kg_d": round(DQO_removida_kg_d, 2),
         "biogaz_m3_d": round(biogaz_m3_d, 1),
         "lodos_kg_SSV_d": round(lodos_kg_SSV_d, 2),
         # Verificación caudal máximo
@@ -1309,7 +1357,8 @@ def dimensionar_humedal_vertical(Q: ConfigDiseno = CFG,
 # =============================================================================
 
 def dimensionar_sedimentador_sec(Q: ConfigDiseno = CFG,
-                                  SST_entrada_mg_L: float = None) -> Dict[str, Any]:
+                                  DBO_entrada_mg_L: float = None,
+                                  DBO_removida_fp_kg_d: float = None) -> Dict[str, Any]:
     """
     Dimensionamiento del sedimentador secundario circular (clarificador).
 
@@ -1411,12 +1460,30 @@ def dimensionar_sedimentador_sec(Q: ConfigDiseno = CFG,
     weir_loading_m3_m_d = Q_m3_d / perimetro_m  # m³/m·d
     weir_loading_max = 250.0  # límite según Metcalf & Eddy
     
-    # Tasa de aplicación de sólidos (estimada)
-    # Asumiendo producción de humus del filtro percolador ~ 0.15 kg SST/kg DBO removida
-    # y DBO removida en FP ~ 0.3 * DBO entrada
-    DBO_entrada_fp = Q.DBO5_mg_L * 0.30  # mg/L
-    produccion_humus_kg_d = 0.15 * (DBO_entrada_fp * Q_m3_d / 1000)  # kg SST/d
+    # Tasa de aplicación de sólidos (humus del filtro percolador)
+    # Producción típica: ~0.15 kg SST/kg DBO removida en el FP
+    factor_produccion_humus = 0.15  # kg SST/kg DBO removida
+    
+    if DBO_removida_fp_kg_d is not None:
+        # Usar valor calculado del Filtro Percolador (encadenado)
+        produccion_humus_kg_d = factor_produccion_humus * DBO_removida_fp_kg_d
+    else:
+        # Fallback: estimar si no se proporciona (no recomendado)
+        if DBO_entrada_mg_L is not None:
+            DBO_remocion_estimada = DBO_entrada_mg_L * 0.5  # Asumir 50% remoción
+        else:
+            DBO_remocion_estimada = Q.DBO5_mg_L * 0.3  # Fallback conservador
+        produccion_humus_kg_d = factor_produccion_humus * (DBO_remocion_estimada * Q_m3_d / 1000)
+    
     solids_loading_kg_m2_d = produccion_humus_kg_d / A_sup_m2
+    
+    # Cálculo de DBO de salida (para balance de calidad en LaTeX)
+    # El sedimentador remueve SST biológicos (humus) que representan ~30% de la DBO restante
+    eta_DBO_sed = 0.30  # 30% de remoción adicional de DBO por separación de humus
+    if DBO_entrada_mg_L is not None:
+        DBO_salida_mg_L = DBO_entrada_mg_L * (1 - eta_DBO_sed)
+    else:
+        DBO_salida_mg_L = Q.DBO5_mg_L * 0.7 * (1 - eta_DBO_sed)  # Fallback
     solids_loading_limite = 100.0  # kg/m²·d (conservador para FP)
     
     # Verificaciones finales
@@ -1462,6 +1529,10 @@ def dimensionar_sedimentador_sec(Q: ConfigDiseno = CFG,
         "solids_loading_kg_m2_d": round(solids_loading_kg_m2_d, 2),
         "solids_loading_limite": solids_loading_limite,
         "produccion_humus_kg_d": round(produccion_humus_kg_d, 2),
+        "factor_produccion_humus": factor_produccion_humus,
+        "DBO_entrada_mg_L": round(DBO_entrada_mg_L, 1) if DBO_entrada_mg_L else None,
+        "DBO_salida_mg_L": round(DBO_salida_mg_L, 1),
+        "eta_DBO_sed": eta_DBO_sed,
         "ajuste_realizado": ajuste_realizado,
         "verif_sor_max_texto": verif_sor_max_texto,
         "diametro_layout_m": round(D_m + 0.30, 1),
@@ -1571,27 +1642,33 @@ def dimensionar_uv(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
 def dimensionar_lecho_secado(Q: ConfigDiseno = CFG,
                               lodos_kg_SST_d: float = None) -> Dict[str, Any]:
     """
-    Dimensionamiento del lecho de secado por arena (gravedad + evapotranspiración).
+    Dimensionamiento del lecho de secado por arena (gravedad + evaporación).
+
+    El lecho de secado es un sistema de deshidratación de lodos que utiliza
+    la evaporación y el drenaje gravitacional para reducir el contenido de
+    humedad de los lodos generados en el proceso de tratamiento.
+
+    Criterios de diseño
+    -------------------
+    Carga superficial de sólidos: 60-220 kg SST/m²·año [Metcalf & Eddy, 2014]
+    Concentración de lodos: 15-30 kg SST/m³ (typ: 20 kg/m³)
+    Tiempo de secado: 10-30 días (depende de clima y tipo de lodo)
+    Espesor de aplicación: 0.20-0.40 m por ciclo
+    Relación largo/ancho: 2:1 a 4:1
 
     Ecuaciones de diseño
     --------------------
     Volumen de lodos a tratar:
         V_lodo_d = M_SST / C_SST                            [Ec. 8a]
         donde M_SST = producción diaria de lodos (kg SST/d)
-              C_SST = concentración de sólidos en el lodo (kg/m^3)
-              Para UASB: C_SST ~ 15-30 g/L -> adoptado 20 kg/m^3
+              C_SST = concentración de sólidos en el lodo (kg/m³)
 
-    Tiempo de secado en Galápagos (clima cálido y seco):
-        t_s = 15-20 días [OPS/CEPIS, 2005; considerando evaporación alta]
-
-    Área del lecho:
-        A_lecho = V_lodo_d * t_s / (h_arena * ... )        [Ec. 8b]
-        Simplificado: A_lecho = V_lodo_d * t_s * CS         [Ec. 8c]
-        con CS = 2 (dos celdas en rotación)
+    Área del lecho (con rotación de celdas):
+        A_lecho = (V_lodo_d * t_s / h_lodo) * n_celdas     [Ec. 8b]
 
     Tasa de carga superficial de sólidos:
-        ρ_S = M_SST / A_lecho                              [Ec. 8d]
-        Rango: 60-220 kg SST/m^2*año [Metcalf & Eddy, 2014, p. 1148]
+        ρ_S = M_SST * 365 / A_lecho                        [Ec. 8c]
+        Rango: 60-220 kg SST/m²·año [Metcalf & Eddy, 2014, p. 1148]
 
     Referencias
     -----------
@@ -1601,10 +1678,11 @@ def dimensionar_lecho_secado(Q: ConfigDiseno = CFG,
     ref_me = citar("metcalf_2014")
     ref_ops = citar("ops_cepis_2005")
 
-    # Producción de lodos del UASB (si no se provee externamente)
+    # Producción de lodos (si no se provee externamente, usar valor típico)
     if lodos_kg_SST_d is None:
-        uasb = dimensionar_uasb(Q)
-        lodos_kg_SST_d = uasb["lodos_kg_SSV_d"] / 0.75   # SSV/SST ~ 0.75 para lodo UASB
+        # Valor típico de producción de lodos: ~0.10 kg SST/kg DBO removida
+        DBO_removida_kg_d = Q.Q_linea_m3_d * (Q.DBO5_mg_L / 1000) * 0.70
+        lodos_kg_SST_d = 0.10 * DBO_removida_kg_d
 
     # Parámetros de diseño adoptados desde configuración
     C_SST_kg_m3 = Q.lecho_C_SST_kg_m3

@@ -113,14 +113,14 @@ TECNOLOGIAS = [
                 "Generacion Lodos": 7, "Costo Total 20 anos": 7}, "area": 2000, "energia": 0.025},
 ]
 
-# Configuración de fuentes para layouts
+# Configuración de fuentes para layouts (AUMENTADO para mejor visibilidad)
 FONT_CONFIG = {
-    'unidad': 10,      # Nombres de unidades
-    'acotacion': 11,   # Dimensiones
-    'entrada': 10,     # Labels "Línea 1/2" (reducido para no sobrecargar)
-    'leyenda': 12,     # Leyenda
-    'titulo': 14,      # Título del layout
+    'unidad': 14,      # Nombres de unidades
+    'acotacion': 15,   # Dimensiones
+    'entrada': 14,     # Labels "Línea 1/2"
+    'leyenda': 16,     # Leyenda
+    'titulo': 20,      # Título del layout
 }
 
-# Figsize estándar para todos los layouts
-FIGSIZE = (22, 14)
+# Figsize estándar para todos los layouts (AUMENTADO)
+FIGSIZE = (28, 18)
