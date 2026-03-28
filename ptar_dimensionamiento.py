@@ -1234,6 +1234,7 @@ def dimensionar_filtro_percolador(Q: ConfigDiseno = CFG,
         "q_A_real_m3_m2_d": round(Q_A_real * 24, 1),
         "Q_A_max_m3_m2_h": round(Q_A_max_m3_m2_h, 2),
         "Q_A_max_m3_m2_d": round(Q_A_max_m3_m2_h * 24, 2),
+        "Q_A_limite_m3_m2_h": round(Q_A_limite_m3_m2_h, 1),  # Límite para verificación
         "factor_pico": factor_pico,
         "Q_max_m3_d": round(Q_max_m3_d, 1),
         "verif_qmax_texto": verif_qmax_texto,
@@ -1894,11 +1895,17 @@ def dimensionar_lecho_secado(Q: ConfigDiseno = CFG,
         donde M_SST = producción diaria de lodos (kg SST/d)
               C_SST = concentración de sólidos en el lodo (kg/m³)
 
-    Área del lecho (con rotación de celdas):
-        A_lecho = (V_lodo_d * t_s / h_lodo) * n_celdas     [Ec. 8b]
+    Área TOTAL requerida (todas las celdas):
+        A_total = (V_lodo_d * t_s) / h_lodo                 [Ec. 8b]
+
+    Área por BLOQUE (un bloque al final de cada tren):
+        A_bloque = A_total / num_lineas                     [Ec. 8c]
+
+    Área por CELDA (subdivisión interna del bloque):
+        A_celda = A_total / n_celdas                        [Ec. 8d]
 
     Tasa de carga superficial de sólidos:
-        ρ_S = M_SST * 365 / A_lecho                        [Ec. 8c]
+        ρ_S = M_SST * 365 / A_total                         [Ec. 8e]
         Rango: 60-220 kg SST/m²·año [Metcalf & Eddy, 2014, p. 1148]
 
     Referencias
@@ -1930,39 +1937,54 @@ def dimensionar_lecho_secado(Q: ConfigDiseno = CFG,
     # [Ec. 8a] Volumen de lodo a tratar por día
     V_lodo_m3_d = lodos_kg_SST_d / C_SST_kg_m3   # m^3/d
 
-    # [Ec. 8c] Área de CADA lecho (dividir volumen total entre n° de lechos)
+    # [Ec. 8b] ÁREA TOTAL necesaria para el secado (todas las celdas)
     # Volumen total en proceso de secado = V_lodo/d × t_secado
     V_total_secando_m3 = V_lodo_m3_d * t_secado_d
-    # Volumen por lecho = V_total / n_celdas
-    V_por_lecho_m3 = V_total_secando_m3 / n_celdas
-    # Área de cada lecho individual
-    A_lecho_m2 = V_por_lecho_m3 / h_lodo_m
+    # Área total requerida (dividir volumen por altura de lodo)
+    A_total_m2 = V_total_secando_m3 / h_lodo_m
 
-    # Geometría del lecho (relación 3:1)
-    ancho_m = math.sqrt(A_lecho_m2 / 3.0)
+    # [Ec. 8c] ÁREA POR BLOQUE (Tren): dividir área total entre número de líneas
+    # Cada tren tiene un bloque de secado al final
+    A_bloque_m2 = A_total_m2 / Q.num_lineas
+
+    # [Ec. 8d] ÁREA POR CELDA (subdivisión interna de cada bloque)
+    A_celda_m2 = A_total_m2 / n_celdas
+
+    # Geometría del BLOQUE (relación 3:1) - para el layout de cada tren
+    ancho_m = math.sqrt(A_bloque_m2 / 3.0)
     largo_m = 3.0 * ancho_m
 
-    # Tasa de carga de sólidos (por lecho)
-    lodos_por_lecho_kg_d = lodos_kg_SST_d / n_celdas
-    rho_S_kgSST_m2_año = lodos_por_lecho_kg_d * 365 / A_lecho_m2
+    # Tasa de carga de sólidos (por bloque)
+    lodos_por_bloque_kg_d = lodos_kg_SST_d / Q.num_lineas
+    rho_S_kgSST_m2_año = lodos_por_bloque_kg_d * 365 / A_bloque_m2
 
-    # Calcular área total para referencia
-    A_total_m2 = A_lecho_m2 * n_celdas
+    # Dimensiones de la celda (para referencia interna)
+    ancho_celda_m = math.sqrt(A_celda_m2 / 3.0)
+    largo_celda_m = 3.0 * ancho_celda_m
     
     return {
         "unidad": "Lecho de secado de lodos",
         "lodos_kg_SST_d": round(lodos_kg_SST_d, 2),
-        "lodos_por_lecho_kg_d": round(lodos_por_lecho_kg_d, 2),
+        "lodos_por_bloque_kg_d": round(lodos_por_bloque_kg_d, 2),
         "C_SST_kg_m3": C_SST_kg_m3,
         "t_secado_d": t_secado_d,
         "V_lodo_m3_d": round(V_lodo_m3_d, 3),
+        "V_total_secando_m3": round(V_total_secando_m3, 2),
         "n_celdas": n_celdas,
-        "A_lecho_m2": round(A_lecho_m2, 1),  # Área de CADA lecho
-        "A_total_m2": round(A_total_m2, 1),  # Área total de todos los lechos
+        "num_lineas": Q.num_lineas,
+        # Áreas
+        "A_total_m2": round(A_total_m2, 1),      # Área TOTAL de todos los lechos
+        "A_bloque_m2": round(A_bloque_m2, 1),    # Área de CADA bloque (por tren)
+        "A_celda_m2": round(A_celda_m2, 1),      # Área de CADA celda interna
+        # Dimensiones del bloque (para layout)
         "largo_m": round(largo_m, 1),
         "ancho_m": round(ancho_m, 1),
+        # Dimensiones de la celda (referencia)
+        "largo_celda_m": round(largo_celda_m, 1),
+        "ancho_celda_m": round(ancho_celda_m, 1),
         "h_lodo_m": h_lodo_m,
         "rho_S_kgSST_m2_año": round(rho_S_kgSST_m2_año, 1),
+        # Layout usa dimensiones del bloque
         "largo_layout_m": round(largo_m, 1),
         "ancho_layout_m": round(ancho_m, 1),
         "fuente": f"{ref_me} (pp. 1145-1155); {ref_ops} (Cap. 5)",
@@ -1977,7 +1999,7 @@ def calcular_tren_A(Q: ConfigDiseno = None) -> Dict[str, Any]:
     """
     Calcula y resume el dimensionamiento completo del Tren A:
     Rejillas -> Desarenador -> UASB -> Filtro Percolador -> Sed. Secundario
-    -> UV -> Lecho de Secado
+    -> Cloro -> Lecho de Secado
 
     Args:
         Q: Configuración de diseño. Si es None, usa ConfigDiseno() por defecto.
@@ -1993,6 +2015,7 @@ def calcular_tren_A(Q: ConfigDiseno = None) -> Dict[str, Any]:
     # Usar eta_DBO calculado por UASB (ajustado por temperatura) para el FP
     fp         = dimensionar_filtro_percolador(Q, DBO_entrada_mg_L=Q.DBO5_mg_L * (1 - uasb['eta_DBO']))
     sed_sec    = dimensionar_sedimentador_sec(Q)
+    cloro      = dimensionar_desinfeccion_cloro(Q)
     lecho      = dimensionar_lecho_secado(Q)
 
     # Balance de calidad (progresivo) - usando resultados reales del dimensionamiento
@@ -2004,7 +2027,7 @@ def calcular_tren_A(Q: ConfigDiseno = None) -> Dict[str, Any]:
     DBO_efluente = DBO_fp_salida * (1 - 0.30)          # tras sedimentación (30% SST)
 
     print("=" * 70)
-    print("TREN A - UASB + FILTRO PERCOLADOR + UV")
+    print("TREN A - UASB + FILTRO PERCOLADOR + CLORO")
     print("Puerto Baquerizo Moreno, Galápagos")
     print(f"Caudal por línea: {Q.Q_linea_L_s} L/s = {Q.Q_linea_m3_d} m^3/d")
     print("=" * 70)
@@ -2015,6 +2038,7 @@ def calcular_tren_A(Q: ConfigDiseno = None) -> Dict[str, Any]:
         ("UASB",              uasb,        "diametro_layout_m", None),
         ("Filtro Percolador", fp,          "diametro_layout_m", None),
         ("Sed. Secundario",   sed_sec,     "diametro_layout_m", None),
+        ("Cloro",             cloro,       "largo_layout_m",    "ancho_layout_m"),
         ("Lecho de Secado",   lecho,       "largo_layout_m",    "ancho_layout_m"),
     ]
 
@@ -2041,6 +2065,7 @@ def calcular_tren_A(Q: ConfigDiseno = None) -> Dict[str, Any]:
         "uasb": uasb,
         "filtro_percolador": fp,
         "sedimentador_sec": sed_sec,
+        "cloro": cloro,
         "lecho_secado": lecho,
         "balance": {
             "DBO_in_mg_L": DBO_in,
@@ -2054,7 +2079,7 @@ def calcular_tren_A(Q: ConfigDiseno = None) -> Dict[str, Any]:
 def calcular_tren_C() -> Dict[str, Any]:
     """
     Calcula y resume el dimensionamiento completo del Tren C:
-    Rejillas -> Desarenador -> UASB -> Humedal Vertical -> UV -> Lecho de Secado
+    Rejillas -> Desarenador -> UASB -> Humedal Vertical -> Cloro -> Lecho de Secado
     """
     Q = ConfigDiseno()
 
@@ -2069,7 +2094,7 @@ def calcular_tren_C() -> Dict[str, Any]:
     DBO_efluente = humedal["DBO_salida_mg_L"]
 
     print("=" * 70)
-    print("TREN C - UASB + HUMEDAL VERTICAL + UV")
+    print("TREN C - UASB + HUMEDAL VERTICAL + CLORO")
     print(f"Caudal por línea: {Q.Q_linea_L_s} L/s = {Q.Q_linea_m3_d} m^3/d")
     print("=" * 70)
 
@@ -2121,7 +2146,7 @@ def calcular_balance_calidad_agua(Q: ConfigDiseno = None,
         - UASB: DBO ~70%, DQO ~65%, SST ~70%, CF ~30%
         - Filtro Percolador: DBO ~75%, DQO ~70%, SST ~60%
         - Sedimentador: SST ~80% (humus), DBO ~30% (sólidos biológicos)
-        - UV: CF >99.9%
+        - Cloro: CF >99.9%
     
     Referencias:
         Metcalf & Eddy (2014)

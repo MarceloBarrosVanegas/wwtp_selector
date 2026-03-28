@@ -72,13 +72,13 @@ def dimensionar_alternativa_A(cfg):
     # Pasar DBO removida por el FP y DBO de entrada al sedimentador (encadenado)
     DBO_removida_fp_kg_d = resultados['filtro_percolador']['DBO_removida_kg_d']
     DBO_entrada_sed = resultados['filtro_percolador']['DBO_salida_Germain_mg_L']
-    resultados['sedimentador'] = dimensionar_sedimentador_sec(
+    resultados['sedimentador_sec'] = dimensionar_sedimentador_sec(
         cfg, 
         DBO_entrada_mg_L=DBO_entrada_sed,
         DBO_removida_fp_kg_d=DBO_removida_fp_kg_d
     )
-    print(f"   - Diametro: {resultados['sedimentador']['D_m']} m")
-    print(f"   - DBO salida: {resultados['sedimentador']['DBO_salida_mg_L']:.1f} mg/L")
+    print(f"   - Diametro: {resultados['sedimentador_sec']['D_m']} m")
+    print(f"   - DBO salida: {resultados['sedimentador_sec']['DBO_salida_mg_L']:.1f} mg/L")
     
     print("\n6. Dimensionando DESINFECCION CON CLORO...")
     from ptar_dimensionamiento import dimensionar_desinfeccion_cloro
@@ -111,7 +111,8 @@ def dimensionar_alternativa_A(cfg):
     print(f"   - Lodos UASB ({cfg.num_lineas} líneas): {lodos_uasb_kg_d:.2f} kg SST/d")
     print(f"   - Lodos FP ({cfg.num_lineas} líneas): {lodos_fp_kg_d:.2f} kg SST/d")
     print(f"   - Total lodos: {lodos_total_kg_d:.2f} kg SST/d")
-    print(f"   - Area lecho: {resultados['lecho_secado']['A_lecho_m2']} m2")
+    print(f"   - Area total: {resultados['lecho_secado']['A_total_m2']} m2")
+    print(f"   - Area por bloque: {resultados['lecho_secado']['A_bloque_m2']} m2")
     
     # Calcular balance completo de calidad
     print("\n8. Calculando BALANCE DE CALIDAD DEL AGUA...")

@@ -18,6 +18,24 @@ from ptar_config import (
     SEP_UNIDADES, SEP_LINEAS, MARGEN, FONT_CONFIG, FIGSIZE
 )
 
+# Mapeo de nombres de unidades a nombres de display
+NOMBRES_DISPLAY = {
+    'Rejillas': 'Rejillas',
+    'Desarenador': 'Desarenador',
+    'UASB': 'UASB',
+    'Filtro_Percolador': 'Filtro\nPercolador',
+    'Sedimentador': 'Sedimentador\nSecundario',
+    'Sedimentador_Secundario': 'Sedimentador\nSecundario',
+    'Cloro': 'Desinfeccion\nCloro',
+    'Desinfeccion': 'Desinfeccion',
+    'Desinfeccion_Cloro': 'Desinfeccion\nCloro',
+    'UV': 'UV',
+    'Humedal_Vertical': 'Humedal\nVertical',
+    'Humedal_Horizontal': 'Humedal\nHorizontal',
+    'Lodos_Activados': 'Lodos\nActivados',
+    'Reactor_Anaerobico': 'Reactor\nAnaerobico',
+}
+
 
 def get_unidad_altura(unidad: str, DIM: dict = None) -> float:
     """Obtiene la altura/ancho de una unidad"""
@@ -71,7 +89,7 @@ def dibujar_unidad_layout(ax, x: float, y: float, unidad: str, color: str, font_
                        facecolor=color, edgecolor='black', linewidth=2)
         ax.add_patch(circle)
         
-        nombre = unidad.replace('_', '\n')
+        nombre = NOMBRES_DISPLAY.get(unidad, unidad.replace('_', '\n'))
         ax.text(x + radio, y + radio, nombre, ha='center', va='center', 
                fontsize=fontsize, fontweight='bold')
         
@@ -90,7 +108,7 @@ def dibujar_unidad_layout(ax, x: float, y: float, unidad: str, color: str, font_
                         edgecolor='black', linewidth=2)
         ax.add_patch(rect)
         
-        nombre = unidad.replace('_', '\n')
+        nombre = NOMBRES_DISPLAY.get(unidad, unidad.replace('_', '\n'))
         ax.text(x + largo/2, y + ancho/2, nombre, ha='center', va='center',
                fontsize=fontsize, fontweight='bold')
         
@@ -169,9 +187,10 @@ def convertir_resultados_a_dimensiones(resultados: dict) -> dict:
         'desarenador': 'Desarenador',
         'uasb': 'UASB',
         'filtro_percolador': 'Filtro_Percolador',
-        'sedimentador': 'Sedimentador',
-        'sedimentador_sec': 'Sedimentador',
+        'sedimentador': 'Sedimentador\nSecundario',
+        'sedimentador_sec': 'Sedimentador\nSecundario',
         'uv': 'UV',
+        'cloro': 'Desinfeccion\nCloro',
         'desinfeccion': 'Desinfeccion',
         'lecho_secado': None,  # Se maneja separado
     }
@@ -225,6 +244,14 @@ def convertir_resultados_a_dimensiones(resultados: dict) -> dict:
                 'geom': 'rect'
             }
         elif key_res == 'desinfeccion':
+            dim[key_layout] = {
+                'tipo': 'terciario',
+                'largo': res.get('largo_layout_m', res.get('largo_m', 8.0)),
+                'ancho': res.get('ancho_layout_m', res.get('ancho_m', 2.0)),
+                'geom': 'rect'
+            }
+        elif key_res == 'cloro':
+            # Desinfeccion con cloro - usar dimensiones de layout (incluyen margen)
             dim[key_layout] = {
                 'tipo': 'terciario',
                 'largo': res.get('largo_layout_m', res.get('largo_m', 8.0)),
@@ -364,7 +391,7 @@ def generar_layout_2lineas(tipo: str, unidades_linea: list, nombre_alt: str,
         end = get_unidad_left_center(x2, y2, unidad2, DIM)
         dibujar_flecha_flujo(ax, start[0], start[1], end[0], end[1])
     
-    # ============ LECHOS DE SECADO (UNO POR LÍNEA) ============
+    # ============ LECHOS DE SECADO (UNO AL FINAL DE CADA LÍNEA) ============
     # Usar dimensiones calculadas - DEBEN venir en lecho_dimensiones
     if lecho_dimensiones is None:
         raise ValueError("Faltan dimensiones del lecho de secado. Asegúrate de pasar lecho_dimensiones desde los resultados del dimensionamiento.")
@@ -374,68 +401,87 @@ def generar_layout_2lineas(tipo: str, unidades_linea: list, nombre_alt: str,
     if lecho_largo <= 0 or lecho_ancho <= 0:
         raise ValueError(f"Dimensiones del lecho inválidas: largo={lecho_largo}, ancho={lecho_ancho}. Deben ser > 0.")
     
-    # Posición inicial para los lechos
-    x_lecho_base = MARGEN + largo_linea + SEP_UNIDADES
-    
-    # Calcular dimensiones para cada lecho individual
-    # El área total se divide entre el número de lechos (num_lineas)
-    # Pero mantenemos las dimensiones proporcionales
-    
-    # Dibujar 2 lechos uno al lado del otro (horizontalmente)
-    # Lecho 1 (Línea 1) y Lecho 2 (Línea 2)
-    sep_entre_lechos = 1.0  # Separación entre lechos
+    # Posición X: separado de la línea de tratamiento (no justo después del Cloro)
+    # Separación mínima entre el último elemento y los lechos
+    SEP_LECHOS = 1.5  # metros de separación mínima entre Cloro y Lechos
+    x_lecho = MARGEN + largo_linea + SEP_UNIDADES + SEP_LECHOS
     
     fontsize = FONT_CONFIG['unidad']
     acot_fontsize = FONT_CONFIG['acotacion']
     offset_acot = 0.8
     
-    # Posición Y centrada entre las dos líneas de tratamiento
-    y_centro = (centro_linea1 + centro_linea2) / 2
+    # Calcular el centro vertical entre las dos líneas de tratamiento
+    y_centro_lechos = (centro_linea1 + centro_linea2) / 2
     
-    for i in range(2):  # Dibujar 2 lechos
-        x_lecho = x_lecho_base + i * (lecho_ancho + sep_entre_lechos)
-        y_lecho = y_centro - lecho_largo / 2
-        
-        # Dibujar lecho (orientación normal: largo vertical)
-        rect = Rectangle((x_lecho, y_lecho), lecho_ancho, lecho_largo, 
-                         facecolor=COLORES['manejo_lodos'], 
-                         edgecolor='black', linewidth=2)
-        ax.add_patch(rect)
-        
-        # Texto del lecho
-        ax.text(x_lecho + lecho_ancho/2, y_lecho + lecho_largo/2, 
-               f'Lecho de\nSecado {i+1}', 
-               ha='center', va='center', fontsize=fontsize, fontweight='bold')
-        
-        # Acotación horizontal (ancho)
-        ax.annotate('', xy=(x_lecho + lecho_ancho, y_lecho - offset_acot), 
-                   xytext=(x_lecho, y_lecho - offset_acot),
-                   arrowprops=dict(arrowstyle='<->', color='black', lw=1))
-        if i == 0:  # Solo mostrar texto en el primero para no sobrecargar
-            ax.text(x_lecho + lecho_ancho/2, y_lecho - offset_acot - 0.4, 
-                   f'{lecho_ancho:.1f}m', ha='center', fontsize=acot_fontsize,
-                   color='black', fontweight='bold')
-        
-        # Acotación vertical (largo) - solo en el lecho de la derecha
-        if i == 1:
-            ax.annotate('', xy=(x_lecho + lecho_ancho + offset_acot, y_lecho + lecho_largo), 
-                       xytext=(x_lecho + lecho_ancho + offset_acot, y_lecho),
-                       arrowprops=dict(arrowstyle='<->', color='black', lw=1))
-            ax.text(x_lecho + lecho_ancho + offset_acot + 0.4, y_lecho + lecho_largo/2, 
-                   f'{lecho_largo:.1f}m', ha='left', va='center', 
-                   fontsize=acot_fontsize, color='black', fontweight='bold', rotation=90)
+    # Separación horizontal entre los dos lechos
+    SEP_ENTRE_LECHOS = 1.0  # 1 metro de separación entre lechos
     
-    # Para cálculo de dimensiones totales, usar el lecho más a la derecha
-    lecho_ancho_draw = lecho_ancho
+    # Dibujar Lecho 1 (alineado con Línea 1) - a la izquierda
+    # Centrado verticalmente en y_centro_lechos
+    y_lecho1 = y_centro_lechos - lecho_largo / 2
+    x_lecho1 = x_lecho
+    
+    rect1 = Rectangle((x_lecho1, y_lecho1), lecho_ancho, lecho_largo, 
+                     facecolor=COLORES['manejo_lodos'], 
+                     edgecolor='black', linewidth=2)
+    ax.add_patch(rect1)
+    
+    ax.text(x_lecho1 + lecho_ancho/2, y_lecho1 + lecho_largo/2, 
+           'Lecho de\nSecado', 
+           ha='center', va='center', fontsize=fontsize, fontweight='bold')
+    
+    # Acotación horizontal (ancho) - Lecho 1
+    ax.annotate('', xy=(x_lecho1 + lecho_ancho, y_lecho1 - offset_acot), 
+               xytext=(x_lecho1, y_lecho1 - offset_acot),
+               arrowprops=dict(arrowstyle='<->', color='black', lw=1))
+    ax.text(x_lecho1 + lecho_ancho/2, y_lecho1 - offset_acot - 0.4, 
+           f'{lecho_ancho:.1f}m', ha='center', fontsize=acot_fontsize,
+           color='black', fontweight='bold')
+    
+    # Dibujar Lecho 2 (alineado con Línea 2) - a la derecha del Lecho 1
+    # Misma altura vertical (y_centro_lechos), desplazado horizontalmente
+    y_lecho2 = y_centro_lechos - lecho_largo / 2
+    x_lecho2 = x_lecho + lecho_ancho + SEP_ENTRE_LECHOS
+    
+    rect2 = Rectangle((x_lecho2, y_lecho2), lecho_ancho, lecho_largo, 
+                     facecolor=COLORES['manejo_lodos'], 
+                     edgecolor='black', linewidth=2)
+    ax.add_patch(rect2)
+    
+    ax.text(x_lecho2 + lecho_ancho/2, y_lecho2 + lecho_largo/2, 
+           'Lecho de\nSecado', 
+           ha='center', va='center', fontsize=fontsize, fontweight='bold')
+    
+    # Acotación horizontal (ancho) - Lecho 2
+    ax.annotate('', xy=(x_lecho2 + lecho_ancho, y_lecho2 - offset_acot), 
+               xytext=(x_lecho2, y_lecho2 - offset_acot),
+               arrowprops=dict(arrowstyle='<->', color='black', lw=1))
+    ax.text(x_lecho2 + lecho_ancho/2, y_lecho2 - offset_acot - 0.4, 
+           f'{lecho_ancho:.1f}m', ha='center', fontsize=acot_fontsize,
+           color='black', fontweight='bold')
+    
+    # Acotación vertical (largo) compartida para ambos lechos - al lado derecho del Lecho 2
+    ax.annotate('', xy=(x_lecho2 + lecho_ancho + offset_acot, y_lecho2 + lecho_largo), 
+               xytext=(x_lecho2 + lecho_ancho + offset_acot, y_lecho2),
+               arrowprops=dict(arrowstyle='<->', color='black', lw=1))
+    ax.text(x_lecho2 + lecho_ancho + offset_acot + 0.4, y_lecho2 + lecho_largo/2, 
+           f'{lecho_largo:.1f}m', ha='left', va='center', 
+           fontsize=acot_fontsize, color='black', fontweight='bold', rotation=90)
+    
+    # NOTA: Las flechas desde Cloro a los lechos se han eliminado
+    # Los lechos de secado son unidades independientes de manejo de lodos,
+    # no reciben flujo hidráulico directo desde la línea de tratamiento
+    
+    # Para cálculo de dimensiones totales
+    # Ahora hay dos lechos uno al lado del otro
+    lecho_ancho_draw = (lecho_ancho * 2) + SEP_ENTRE_LECHOS  # ancho total de ambos lechos + separación
     lecho_alto_draw = lecho_largo
-    x_lecho = x_lecho_base + (2 - 1) * (lecho_ancho + sep_entre_lechos)
     
     # NOTA: Las flechas de lodos se han eliminado para simplificar el diagrama
     # El lecho de secado recibe lodos del UASB y Sedimentador (línea de lodos)
     
     # Calcular dimensiones del área
-    # Usar lecho_ancho (dimensión horizontal actual = 4.0m) no lecho_largo
-    max_x = x_lecho + lecho_ancho_draw + MARGEN
+    max_x = x_lecho2 + lecho_ancho + MARGEN  # x_lecho2 es la posición del segundo lecho
     max_y = centro_linea2 + max_altura_unidad/2 + MARGEN + 1
     
     # Calcular área REAL del terreno ocupado (no hardcodeada)
@@ -479,7 +525,7 @@ def generar_layout_2lineas(tipo: str, unidades_linea: list, nombre_alt: str,
                arrowprops=dict(arrowstyle='->', color='blue', lw=2.5))
     
     # Separación entre líneas - desde el inicio (x=0)
-    text_fontsize = 9
+    text_fontsize = 11  # Tamaño aumentado para la etiqueta
     mid_x = MARGEN / 2  # Cerca del borde izquierdo
     ax.annotate('', xy=(mid_x, centro_linea2 - max_altura_unidad/2), 
                xytext=(mid_x, centro_linea1 + max_altura_unidad/2),

@@ -113,6 +113,7 @@ def generar_contenido_alternativa_A(cfg, resultados, layout_filename="Layout_A_2
             'afluente': {'DBO5_mg_L': cfg.DBO5_mg_L, 'DQO_mg_L': cfg.DQO_mg_L, 'SST_mg_L': cfg.SST_mg_L, 'CF_NMP': cfg.CF_NMP},
             'tras_uasb': {'DBO5_mg_L': cfg.DBO5_mg_L*0.7, 'DQO_mg_L': cfg.DQO_mg_L*0.65, 'SST_mg_L': cfg.SST_mg_L*0.7, 'CF_NMP': cfg.CF_NMP*0.7},
             'tras_fp': {'DBO5_mg_L': cfg.DBO5_mg_L*0.7*0.8, 'DQO_mg_L': cfg.DQO_mg_L*0.65*0.8, 'SST_mg_L': cfg.SST_mg_L*0.7*0.4, 'CF_NMP': cfg.CF_NMP*0.7*0.8},
+            'tras_sed': {'DBO5_mg_L': cfg.DBO5_mg_L*0.7*0.8*0.85, 'DQO_mg_L': cfg.DQO_mg_L*0.65*0.8*0.85, 'SST_mg_L': cfg.SST_mg_L*0.7*0.4*0.3, 'CF_NMP': cfg.CF_NMP*0.7*0.8},
             'efluente_final': {'DBO5_mg_L': cfg.DBO5_mg_L*0.17, 'DQO_mg_L': cfg.DQO_mg_L*0.2, 'SST_mg_L': cfg.SST_mg_L*0.02, 'CF_NMP': 2500}
         }
     
@@ -169,7 +170,7 @@ def generar_contenido_alternativa_A(cfg, resultados, layout_filename="Layout_A_2
     
     return rf"""
 %============================================================================
-% ALTERNATIVA A: UASB + FILTRO PERCOLADOR + UV
+% ALTERNATIVA A: UASB + FILTRO PERCOLADOR + CLORO
 % Memoria de Cálculo
 %============================================================================
 \newpage
@@ -188,6 +189,7 @@ La pérdida de carga en rejillas limpias se calcula mediante la fórmula de Kirs
 \begin{{equation}}
 h_L = \beta \cdot \left(\frac{{w}}{{b}}\right)^{{4/3}} \cdot \frac{{v^2}}{{2g}} \cdot \sin\theta
 \end{{equation}}
+\captionequation{{Perdida de carga en rejillas limpias - Formula de Kirschmer}}
 
 \textit{{Donde:}}
 \begin{{itemize}}[noitemsep,leftmargin=2em]
@@ -268,6 +270,7 @@ La velocidad calculada $v_{{max}} = {r['v_max_m_s']:.3f}$~m/s se evalúa según:
     \text{{NO ADMISIBLE}} & \text{{si }} v_{{max}} > {cfg.rejillas_v_max_destructivo_m_s:.1f} \text{{ m/s}} \quad \text{{(daño seguro)}}
 \end{{cases}}
 \end{{equation}}
+\captionequation{{Criterios de verificacion de velocidad en rejillas}}
 
 Con la velocidad calculada $v_{{max}} = {r['v_max_m_s']:.3f}$~m/s, {r['verif_vel_texto']}. Respecto a la pérdida de carga, el valor máximo de {r['hL_max_m']*100:.4f}~cm {r['verif_hl_texto']}.
 
@@ -305,6 +308,7 @@ El diseño del desarenador se fundamenta en la teoría de sedimentación discret
 \begin{{equation}}
 v_s = \frac{{g \cdot (S_s - 1) \cdot d^2}}{{18 \cdot \nu}}
 \end{{equation}}
+\captionequation{{Ley de Stokes - Velocidad de sedimentacion de particulas}}
 
 \textit{{Donde:}}
 \begin{{itemize}}[noitemsep,leftmargin=2em]
@@ -367,6 +371,7 @@ Para garantizar que la arena sedimentada no sea resuspendida por el flujo, se ve
 \begin{{equation}}
 v_c = \sqrt{{\frac{{8 \beta g (S_s - 1) d}}{{f}}}}
 \end{{equation}}
+\captionequation{{Velocidad critica de resuspension - Camp-Shields}}
 
 \textit{{Donde:}}
 \begin{{itemize}}[noitemsep,leftmargin=2em]
@@ -381,6 +386,7 @@ v_c = \sqrt{{\frac{{8 \beta g (S_s - 1) d}}{{f}}}}
 \begin{{equation}}
 v_c = \sqrt{{\frac{{8 \times {d['beta']:.2f} \times {d['g_m_s2']:.2f} \times ({d['Ss']:.2f} - 1) \times {d['d_m']:.5f}}}{{{d['f_darcy']:.3f}}}}} = {d['v_c_scour_m_s']:.3f} \text{{ m/s}}
 \end{{equation}}
+\captionequation{{Velocidad critica calculada}}
 
 \subsubsection{{Verificación para Caudal Máximo Horario}}
 
@@ -412,6 +418,7 @@ La velocidad calculada $v_{{h,max}} = {d['v_h_max_m_s']:.3f}$~m/s se evalúa seg
     \text{{RIESGO}} & \text{{si }} v_{{h,max}} > {d['v_c_scour_m_s'] * cfg.desarenador_factor_seguridad_scour:.3f} \text{{ m/s}} \quad \text{{(arena resuspendida)}}
 \end{{cases}}
 \end{{equation}}
+\captionequation{{Criterios de verificacion de resuspension}}
 
 El resultado de la verificación indica que {d['verif_scour_texto']}.
 
@@ -492,6 +499,7 @@ El volumen necesario del reactor se determina mediante la expresión:
 \begin{{equation}}
 V_r = \frac{{Q \cdot S_0}}{{C_v}}
 \end{{equation}}
+\captionequation{{Volumen util del reactor UASB}}
 
 \textit{{Donde:}}
 \begin{{itemize}}[noitemsep,leftmargin=2em]
@@ -512,6 +520,7 @@ Simultáneamente, el criterio hidráulico establece que la velocidad ascendente 
 \begin{{equation}}
 A_s = \frac{{Q}}{{v_{{up}}}}
 \end{{equation}}
+\captionequation{{Area superficial del reactor UASB}}
 
 \textit{{Donde:}}
 \begin{{itemize}}[noitemsep,leftmargin=2em]
@@ -529,6 +538,7 @@ El diámetro del reactor circular se obtiene geométricamente:
 \begin{{equation}}
 D = \sqrt{{\frac{{4 \cdot A_s}}{{\pi}}}}
 \end{{equation}}
+\captionequation{{Diametro del reactor circular}}
 
 \textit{{Donde:}}
 \begin{{itemize}}[noitemsep,leftmargin=2em]
@@ -548,6 +558,7 @@ La producción de biogás se estima mediante la relación estequiométrica de {u
 \begin{{equation}}
 V_{{CH_4}} = (Q_d \cdot S_0 \cdot E) \times {u['factor_biogas_ch4']:.2f}
 \end{{equation}}
+\captionequation{{Produccion de biogas - Relacion estequiometrica}}
 
 \textit{{Donde:}}
 \begin{{itemize}}[noitemsep,leftmargin=2em]
@@ -586,6 +597,7 @@ La velocidad calculada $v_{{up,max}} = {u['v_up_max_m_h']:.2f}$~m/h se evalúa s
     \text{{NO ADMISIBLE}} & \text{{si }} v_{{up,max}} > {cfg.uasb_v_up_max_destructivo_m_h:.1f} \text{{ m/h}} \quad \text{{(pérdida biomasa)}}
 \end{{cases}}
 \end{{equation}}
+\captionequation{{Criterios de verificacion de arrastre del manto en UASB}}
 
 Con la velocidad calculada $v_{{up,max}} = {u['v_up_max_m_h']:.2f}$~m/h, se obtiene el estado \textbf{{{u['estado_verificacion']}}}. {u['verif_vup_max_texto']}
 
@@ -620,6 +632,7 @@ El volumen de medio filtrante requerido se calcula mediante:
 \begin{{equation}}
 V = \frac{{Q \cdot S_0}}{{C_v}}
 \end{{equation}}
+\captionequation{{Volumen de medio filtrante - Filtro Percolador}}
 
 \textit{{Donde:}}
 \begin{{itemize}}[noitemsep,leftmargin=2em]
@@ -644,6 +657,7 @@ La eficiencia de remoción se verifica mediante el modelo de Germain (1966). Pri
 \begin{{equation}}
 k_T = k_{{20}} \cdot \theta^{{(T-20)}}
 \end{{equation}}
+\captionequation{{Correccion de constante cinética por temperatura}}
 
 \textit{{Donde:}}
 \begin{{itemize}}[noitemsep,leftmargin=2em]
@@ -661,6 +675,7 @@ Aplicando el modelo de Germain:
 \begin{{equation}}
 \frac{{S_e}}{{S_0}} = \exp\left(-\frac{{k_T \cdot D}}{{q_A^n}}\right)
 \end{{equation}}
+\captionequation{{Modelo de Germain - Relacion de eficiencia}}
 
 \textit{{Donde:}}
 \begin{{itemize}}[noitemsep,leftmargin=2em]
@@ -682,10 +697,10 @@ Por tanto, la DBO efluente estimada es $S_e = {fp['DBO_entrada_mg_L']:.0f} \time
 
 \subsubsection{{Verificación para Caudal Máximo Horario}}
 
-Se verifica el comportamiento hidráulico para el caudal máximo horario, aplicando un factor de pico típico de 2,5 sobre el caudal medio:
+Se verifica el comportamiento hidráulico para el caudal máximo horario, aplicando un factor de pico típico de {fp['factor_pico']:.1f} sobre el caudal medio:
 
 \begin{{equation}}
-Q_{{max}} = 2,5 \times Q_{{medio}} = 2,5 \times {fp['Q_m3_d']:.1f} = {fp['Q_max_m3_d']:.1f} \text{{ m}}^3\text{{/d}}
+Q_{{max}} = {fp['factor_pico']:.1f} \times Q_{{medio}} = {fp['factor_pico']:.1f} \times {fp['Q_m3_d']:.1f} = {fp['Q_max_m3_d']:.1f} \text{{ m}}^3\text{{/d}}
 \end{{equation}}
 
 A caudal máximo, la tasa hidráulica resulta:
@@ -694,7 +709,7 @@ A caudal máximo, la tasa hidráulica resulta:
 q_{{A,max}} = \frac{{Q_{{max}} \cdot (1 + R)}}{{A_s \cdot 24}} = \frac{{{fp['Q_max_m3_d']:.1f} \times {1+fp['R_recirculacion']:.1f}}}{{{fp['A_sup_m2']:.2f} \times 24}} = {fp['Q_A_max_m3_m2_h']:.2f} \text{{ m}}^3\text{{/m}}^2\text{{·h}}
 \end{{equation}}
 
-El valor obtenido se compara con el límite máximo recomendado de 4,0 m³/m²·h. {fp['verif_qmax_texto']}.
+El valor obtenido se compara con el límite máximo recomendado de {fp['Q_A_limite_m3_m2_h']:.1f} m³/m²·h. {fp['verif_qmax_texto']}.
 
 \subsubsection{{Resultados}}
 
@@ -747,6 +762,7 @@ El área superficial necesaria se calcula mediante:
 \begin{{equation}}
 A_s = \frac{{Q}}{{SOR}}
 \end{{equation}}
+\captionequation{{Area superficial del sedimentador - Criterio SOR}}
 
 \textit{{Donde:}}
 \begin{{itemize}}[noitemsep,leftmargin=2em]
@@ -865,8 +881,9 @@ El diseño busca cumplir el límite de coliformes fecales establecido por la TUL
 La dosis total de cloro se descompone en la demanda del efluente (consumida por amoníaco y materia orgánica) más el residual requerido para desinfección:
 
 \begin{{equation}}
-\text{{Dosis total}} = \text{{Demanda}} + \text{{Residual}} = 3.5 + 0.5 = 4.0 \text{{ mg/L}}
+\text{{Dosis total}} = \text{{Demanda}} + \text{{Residual}} = {cl['demanda_cloro_mg_L']:.1f} + {cl['cloro_residual_mg_L']:.1f} = {cl['dosis_cloro_mg_L']:.1f} \text{{ mg/L}}
 \end{{equation}}
+\captionequation{{Dosis total de cloro}}
 
 \begin{{table}}[H]
 \centering
@@ -876,11 +893,11 @@ La dosis total de cloro se descompone en la demanda del efluente (consumida por 
 \toprule
 Parámetro & Rango recomendado & Valor adoptado & Fuente \\
 \midrule
-Demanda de cloro & 2--5 & 3.5 mg/L & Estimado efluente UASB+FP \\
-Cloro residual & 0.5--2.0 & 0.5 mg/L & OPS/CEPIS \cite{{ops2005}} \\
-Dosis total & 3--10 & 4.0 mg/L & Metcalf \& Eddy \cite{{metcalf2014}} \\
-Tiempo de contacto & 15--45 & 30 min & Metcalf \& Eddy \\
-CT & $\geq$ 15 & 15 mg.min/L & Diseño conservador \\
+Demanda de cloro & 2--5 & {cl['demanda_cloro_mg_L']:.1f} mg/L & Estimado efluente UASB+FP \\
+Cloro residual & 0.5--2.0 & {cl['cloro_residual_mg_L']:.1f} mg/L & OPS/CEPIS \cite{{ops2005}} \\
+Dosis total & 3--10 & {cl['dosis_cloro_mg_L']:.1f} mg/L & Metcalf \& Eddy \cite{{metcalf2014}} \\
+Tiempo de contacto & 15--45 & {cl['TRH_min']:.0f} min & Metcalf \& Eddy \\
+CT & $\geq$ 15 & {cl['CT_mg_min_L']:.0f} mg.min/L & Diseño conservador \\
 \bottomrule
 \end{{tabular}}
 \end{{table}}
@@ -891,16 +908,17 @@ La eficacia de la desinfección se cuantifica mediante el parámetro CT:
 \begin{{equation}}
 CT = C \times t
 \end{{equation}}
+\captionequation{{Producto concentracion-tiempo CT}}
 
 \textit{{Donde:}}
 \begin{{itemize}}[noitemsep,leftmargin=2em]
     \item[$CT$] = Producto concentración-tiempo (mg.min/L)
-    \item[$C$] = Cloro residual (0.5 mg/L)
-    \item[$t$] = Tiempo de contacto (30 min)
+    \item[$C$] = Cloro residual ({cl['cloro_residual_mg_L']:.1f} mg/L)
+    \item[$t$] = Tiempo de contacto ({cl['TRH_min']:.0f} min)
 \end{{itemize}}
 
 \begin{{equation}}
-CT = 0.5 \times 30 = 15 \text{{ mg.min/L}}
+CT = {cl['cloro_residual_mg_L']:.1f} \times {cl['TRH_min']:.0f} = {cl['CT_mg_min_L']:.0f} \text{{ mg.min/L}}
 \end{{equation}}
 
 La reducción de coliformes se estima mediante:
@@ -908,9 +926,10 @@ La reducción de coliformes se estima mediante:
 \begin{{equation}}
 \text{{Log reducción}} \approx 0.22 \times CT
 \end{{equation}}
+\captionequation{{Log reduccion de coliformes}}
 
 \begin{{equation}}
-\text{{Log reducción}} \approx 0.22 \times 15 = 3.3 \text{{ log}}
+\text{{Log reducción}} \approx 0.22 \times {cl['CT_mg_min_L']:.0f} = {cl['log_reduccion']:.1f} \text{{ log}}
 \end{{equation}}
 
 Los coliformes finales se calculan como:
@@ -926,6 +945,7 @@ El volumen del tanque se determina por:
 \begin{{equation}}
 V = Q \times t
 \end{{equation}}
+\captionequation{{Volumen del tanque de contacto}}
 
 \textit{{Donde:}}
 \begin{{itemize}}[noitemsep,leftmargin=2em]
@@ -951,7 +971,7 @@ El efluente final presenta una concentración de coliformes fecales de {cl['CF_f
 El consumo de cloro activo (como Cl$_2$) se calcula como:
 
 \begin{{equation}}
-\text{{Consumo Cl}}_2 = \frac{{D \times Q}}{{1000}} = \frac{{4.0 \times {cl['Q_m3_d']:.1f}}}{{1000}} = {cl['consumo_cloro_kg_d']:.2f} \text{{ kg Cl}}_2\text{{/d}}
+\text{{Consumo Cl}}_2 = \frac{{D \times Q}}{{1000}} = \frac{{{cl['dosis_cloro_mg_L']:.1f} \times {cl['Q_m3_d']:.1f}}}{{1000}} = {cl['consumo_cloro_kg_d']:.2f} \text{{ kg Cl}}_2\text{{/d}}
 \end{{equation}}
 
 \textbf{{Conversión a hipoclorito de sodio comercial (NaOCl):}}
@@ -959,13 +979,14 @@ El consumo de cloro activo (como Cl$_2$) se calcula como:
 El hipoclorito de sodio se comercializa típicamente al 10--12.5\% de cloro disponible. La conversión se realiza mediante:
 
 \begin{{equation}}
-\text{{Consumo NaOCl}} = \frac{{\text{{Consumo Cl}}_2}}{{[\% \text{{ NaOCl}}]}} = \frac{{{cl['consumo_cloro_kg_d']:.2f}}}{{10\%}} = {cl['consumo_NaOCl_kg_d']:.1f} \text{{ kg NaOCl/d}}
+\text{{Consumo NaOCl}} = \frac{{\text{{Consumo Cl}}_2}}{{[\% \text{{ NaOCl}}]}} = \frac{{{cl['consumo_cloro_kg_d']:.2f}}}{{{cl['concentracion_NaOCl_pct']:.0f}\%}} = {cl['consumo_NaOCl_kg_d']:.1f} \text{{ kg NaOCl/d}}
 \end{{equation}}
+\captionequation{{Conversion a hipoclorito de sodio comercial}}
 
-Considerando una densidad de 1.10 kg/L para la solución al 10\%:
+Considerando una densidad de {cfg.desinfeccion_densidad_NaOCl:.2f} kg/L para la solución al {cl['concentracion_NaOCl_pct']:.0f}\%:
 
 \begin{{equation}}
-\text{{Volumen NaOCl}} = \frac{{{cl['consumo_NaOCl_kg_d']:.1f} \text{{ kg/d}}}}{{1.10 \text{{ kg/L}}}} = {cl['volumen_NaOCl_L_d']:.1f} \text{{ L/d}} \approx {cl['volumen_almacenamiento_L']:.0f} \text{{ L/mes}}
+\text{{Volumen NaOCl}} = \frac{{{cl['consumo_NaOCl_kg_d']:.1f} \text{{ kg/d}}}}{{{cfg.desinfeccion_densidad_NaOCl:.2f} \text{{ kg/L}}}} = {cl['volumen_NaOCl_L_d']:.1f} \text{{ L/d}} \approx {cl['volumen_almacenamiento_L']:.0f} \text{{ L/mes}}
 \end{{equation}}
 
 \textbf{{Volumen de almacenamiento:}} Se recomienda almacenamiento para 30 días de operación: {cl['volumen_almacenamiento_L']:.0f} L (equivalente a {cl['volumen_almacenamiento_L']/1000:.1f} m³).
@@ -998,7 +1019,7 @@ CF final & {cl['CF_final_NMP']:.0f} NMP/100mL \\
 \multicolumn{{2}}{{l}}{{\textit{{Consumo de productos}}}} \\
 \midrule
 Consumo Cl$_2$ activo & {cl['consumo_cloro_kg_d']:.2f} kg/d \\
-Concentración NaOCl & 10 \% \\
+Concentración NaOCl & {cl['concentracion_NaOCl_pct']:.0f} \% \\
 Consumo NaOCl & {cl['consumo_NaOCl_kg_d']:.1f} kg/d \\
 Volumen NaOCl & {cl['volumen_NaOCl_L_d']:.1f} L/d ({cl['volumen_almacenamiento_L']:.0f} L/mes) \\
 Almacenamiento (30 d) & {cl['volumen_almacenamiento_L']:.0f} L ({cl['volumen_almacenamiento_L']/1000:.1f} m³) \\
@@ -1042,6 +1063,7 @@ El volumen diario de lodo a tratar se determina mediante:
 \begin{{equation}}
 V_{{lodo}} = \frac{{M_{{SST}}}}{{C_{{SST}}}}
 \end{{equation}}
+\captionequation{{Volumen diario de lodo a tratar}}
 
 \textit{{Donde:}}
 \begin{{itemize}}[noitemsep,leftmargin=2em]
@@ -1059,29 +1081,46 @@ V_{{lodo}} = \frac{{{l['lodos_kg_SST_d']:.2f}}}{{{l['C_SST_kg_m3']:.0f}}} = {l['
 El área requerida se calcula considerando el volumen de lodo, el tiempo de secado y el espesor de aplicación:
 
 \begin{{equation}}
-A_{{lecho}} = \frac{{V_{{lodo}} \cdot t_s}}{{h_{{lodo}}}} \cdot n_{{celdas}}
+A_{{total}} = \frac{{V_{{lodo}} \cdot t_s}}{{h_{{lodo}}}}
 \end{{equation}}
+\captionequation{{Area superficial total del lecho de secado}}
 
 \textit{{Donde:}}
 \begin{{itemize}}[noitemsep,leftmargin=2em]
-    \item[$A_{{lecho}}$] = Área superficial total (m²)
+    \item[$A_{{total}}$] = Área superficial total requerida (m²)
     \item[$t_s$] = Tiempo de secado ({l['t_secado_d']:.0f} días)
     \item[$h_{{lodo}}$] = Espesor de aplicación ({l['h_lodo_m']:.2f} m)
-    \item[$n_{{celdas}}$] = Número de celdas ({l['n_celdas']:.0f})
+    \item[$n_{{celdas}}$] = Número de celdas ({l['n_celdas']:.0f}) (subdivisión interna)
 \end{{itemize}}
 
 \begin{{equation}}
-A_{{lecho}} = \frac{{{l['V_lodo_m3_d']:.3f} \times {l['t_secado_d']:.0f}}}{{{l['h_lodo_m']:.2f} \times {l['n_celdas']:.0f}}} = {l['A_lecho_m2']:.1f} \text{{ m}}^2 \text{{ por lecho}}
+A_{{total}} = \frac{{{l['V_lodo_m3_d']:.3f} \times {l['t_secado_d']:.0f}}}{{{l['h_lodo_m']:.2f}}} = {l['A_total_m2']:.1f} \text{{ m}}^2
 \end{{equation}}
 
-Con una relación largo/ancho de 3:1, las dimensiones resultantes son {l['largo_m']:.1f} m de largo por {l['ancho_m']:.1f} m de ancho por celda.
+\textbf{{Distribución por tren de tratamiento}}
+
+El área total se distribuye en bloques independientes, uno al final de cada tren de tratamiento:
+
+\begin{{equation}}
+A_{{bloque}} = \frac{{A_{{total}}}}{{n_{{lineas}}}} = \frac{{{l['A_total_m2']:.1f}}}{{{l['num_lineas']:.0f}}} = {l['A_bloque_m2']:.1f} \text{{ m}}^2 \text{{ por bloque}}
+\end{{equation}}
+
+\textbf{{Subdivisión interna en celdas}}
+
+Cada bloque se subdivide internamente en celdas para operación por rotación:
+
+\begin{{equation}}
+A_{{celda}} = \frac{{A_{{total}}}}{{n_{{celdas}}}} = \frac{{{l['A_total_m2']:.1f}}}{{{l['n_celdas']:.0f}}} = {l['A_celda_m2']:.1f} \text{{ m}}^2 \text{{ por celda}}
+\end{{equation}}
+
+Con una relación largo/ancho de 3:1, las dimensiones de cada bloque son {l['largo_m']:.1f} m de largo por {l['ancho_m']:.1f} m de ancho.
 
 \subsubsection{{Verificación de carga superficial}}
 
 La carga superficial de sólidos se verifica mediante:
 
 \begin{{equation}}
-\rho_S = \frac{{M_{{SST}} \times 365}}{{A_{{lecho}}}} = \frac{{{l['lodos_kg_SST_d']:.2f} \times 365}}{{{l['A_lecho_m2']:.1f}}} = {l['rho_S_kgSST_m2_año']:.1f} \text{{ kg SST/m}}^2\text{{·año}}
+\rho_S = \frac{{M_{{SST}} \times 365}}{{A_{{total}}}} = \frac{{{l['lodos_kg_SST_d']:.2f} \times 365}}{{{l['A_total_m2']:.1f}}} = {l['rho_S_kgSST_m2_año']:.1f} \text{{ kg SST/m}}^2\text{{·año}}
 \end{{equation}}
 
 El valor obtenido está dentro del rango recomendado de 60--220 kg SST/m²·año para lechos de secado de lodos anaerobios según Metcalf \& Eddy \cite{{metcalf2014}}.
@@ -1090,15 +1129,16 @@ El valor obtenido está dentro del rango recomendado de 60--220 kg SST/m²·año
 
 \begin{{table}}[H]
 \centering
-\caption{{Dimensiones del lecho de secado}}
+\caption{{Resumen del dimensionamiento del lecho de secado}}
 \begin{{tabular}}{{ll}}
 \toprule
 Parámetro & Valor \\
 \midrule
-Largo & {l['largo_m']:.1f} m \\
-Ancho & {l['ancho_m']:.1f} m \\
-Área superficial total & {l['A_lecho_m2']:.1f} m² \\
-Número de celdas & {l['n_celdas']:.0f} \\
+Área total requerida & {l['A_total_m2']:.1f} m² \\
+Número de bloques (uno por tren) & {l['num_lineas']:.0f} \\
+Área por bloque & {l['A_bloque_m2']:.1f} m² \\
+Dimensiones de cada bloque (L×A) & {l['largo_m']:.1f} m × {l['ancho_m']:.1f} m \\
+Número total de celdas & {l['n_celdas']:.0f} \\
 Tiempo de secado & {l['t_secado_d']:.0f} días \\
 Carga de sólidos & {l['rho_S_kgSST_m2_año']:.1f} kg SST/m²·año \\
 \bottomrule
@@ -1187,6 +1227,7 @@ Considerando el area de tratamiento ({area_m2 if area_m2 else 850} m$^2$), amort
 \begin{{equation}}
 A_{{total}} = \frac{{A_{{tratamiento}} + A_{{amortiguacion}} + A_{{complementarias}}}}{{1 - 0.15}}
 \end{{equation}}
+\captionequation{{Formula del area total del predio}}
 
 \begin{{itemize}}[noitemsep,leftmargin=2em]
     \item[$A_{{tratamiento}}$] = {area_m2 if area_m2 else 850} m$^2$
@@ -1270,17 +1311,18 @@ Temperatura & {cfg.T_agua_C:.1f} °C \\
 \begin{{table}}[H]
 \centering
 \caption{{Resumen de unidades de tratamiento}}
-\begin{{tabular}}{{p{{4.5cm}}ccc}}
+\small
+\begin{{tabular}}{{p{{3.2cm}}p{{3.5cm}}p{{1.5cm}}p{{4.8cm}}}}
 \toprule
-\textbf{{Unidad}} & \textbf{{Dimensiones}} & \textbf{{Cantidad}} & \textbf{{Parametro Clave}} \\
+\textbf{{Unidad}} & \textbf{{Dimensiones (m)}} & \textbf{{Cantidad}} & \textbf{{Parametro Clave}} \\
 \midrule
-Rejillas & {rej.get('ancho_layout_m'):.2f} m $\times$ {rej.get('h_tirante_m'):.2f} m & {cfg.num_lineas} canales & Velocidad: {rej.get('v_canal_adoptada_m_s'):.2f} m/s \\
-Desarenador & {des.get('b_canal_m'):.2f} m $\times$ {des.get('L_diseno_m'):.1f} m $\times$ {des.get('H_util_m') + 0.3:.1f} m & {cfg.num_lineas} unidades & TRH: {des.get('t_r_nominal_s'):.0f} s \\
-Reactor UASB & D = {uasb.get('D_m'):.2f} m, H = {uasb.get('H_r_m'):.1f} m & {cfg.num_lineas} unidades & v$_{{up}}$ = {uasb.get('v_up_m_h'):.2f} m/h \\
-Filtro Percolador & D = {fp.get('D_filtro_m'):.2f} m, H = {fp.get('H_total_m'):.1f} m & {cfg.num_lineas} unidades & Q$_A$ = {fp.get('Q_A_max_m3_m2_h'):.2f} m$^3$/m$^2\cdot$h \\
-Sedimentador Secundario & D = {sed.get('D_m'):.2f} m, H = {sed.get('h_sed_m'):.1f} m & {cfg.num_lineas} unidades & SOR = {sed.get('SOR_m3_m2_d'):.1f} m$^3$/m$^2\cdot$d \\
-Desinfeccion (Cloro) & {desinf.get('largo_m'):.1f} m $\times$ {desinf.get('ancho_m'):.1f} m $\times$ {desinf.get('h_total_m'):.1f} m & {cfg.num_lineas} unidades & CT = {desinf.get('CT_mg_min_L'):.0f} mg$\cdot$min/L \\
-Lecho de Secado & {lecho.get('A_lecho_m2'):.1f} m$^2$ ({lecho.get('largo_m'):.1f} m $\times$ {lecho.get('ancho_m'):.1f} m) & {cfg.num_lineas} unidades & Carga: {lecho.get('lodos_kg_SST_d', 0):.1f} kg SST/d \\
+Rejillas & {rej.get('ancho_layout_m'):.2f} $\times$ {rej.get('h_tirante_m'):.2f} & {cfg.num_lineas} & Velocidad: {rej.get('v_canal_adoptada_m_s'):.2f} m/s \\
+Desarenador & {des.get('b_canal_m'):.2f} $\times$ {des.get('L_diseno_m'):.1f} $\times$ {des.get('H_util_m') + 0.3:.1f} & {cfg.num_lineas} & TRH: {des.get('t_r_nominal_s'):.0f} s \\
+Reactor UASB & D = {uasb.get('D_m'):.2f}, H = {uasb.get('H_r_m'):.1f} & {cfg.num_lineas} & v$_{{up}}$ = {uasb.get('v_up_m_h'):.2f} m/h \\
+Filtro Percolador & D = {fp.get('D_filtro_m'):.2f}, H = {fp.get('H_total_m'):.1f} & {cfg.num_lineas} & Q$_A$ = {fp.get('Q_A_max_m3_m2_h'):.2f} m$^3$/m$^2\cdot$h \\
+Sedimentador Secundario & D = {sed.get('D_m'):.2f}, H = {sed.get('h_sed_m'):.1f} & {cfg.num_lineas} & SOR = {sed.get('SOR_m3_m2_d'):.1f} m$^3$/m$^2\cdot$d \\
+Desinfeccion (Cloro) & {desinf.get('largo_m'):.1f} $\times$ {desinf.get('ancho_m'):.1f} $\times$ {desinf.get('h_total_m'):.1f} & {cfg.num_lineas} & CT = {desinf.get('CT_mg_min_L'):.0f} mg$\cdot$min/L \\
+Lecho de Secado & {lecho.get('largo_m'):.1f} $\times$ {lecho.get('ancho_m'):.1f} & {cfg.num_lineas} & Área: {lecho.get('A_bloque_m2'):.1f} m$^2$ \\
 \bottomrule
 \end{{tabular}}
 \end{{table}}
@@ -1356,7 +1398,7 @@ Produccion lodos UASB & {lecho.get('lodos_kg_SST_d', 0):.1f} kg SST/d \\
 Produccion humus FP + Sed & {lecho.get('lodos_fp_kg_d', 0):.1f} kg SST/d \\
 \midrule
 \textbf{{Total lodos a manejar}} & \textbf{{{lecho.get('lodos_total_kg_d', lecho.get('lodos_kg_SST_d', 0)):.1f} kg SST/d}} \\
-Area de lechos de secado & {lecho.get('A_lecho_m2'):.1f} m$^2$ ({cfg.num_lineas} unidades) \\
+Area de lechos de secado & {lecho.get('A_total_m2'):.1f} m$^2$ total ({cfg.num_lineas} bloques de {lecho.get('A_bloque_m2'):.1f} m$^2$ cada uno) \\
 Frecuencia de aplicacion & 1 vez cada 3--4 meses \\
 \bottomrule
 \end{{tabular}}
@@ -1404,7 +1446,7 @@ def generar_latex_alternativa_A(cfg, resultados, output_path, area_m2=None, bala
     
     output_dir = os.path.dirname(output_path) or '.'
     unidades = ["Rejillas", "Desarenador", "UASB", "Filtro_Percolador", 
-                "Sedimentador", "UV"]
+                "Sedimentador", "Cloro"]
     
     print("Generando layout automáticamente...")
     try:
@@ -1437,16 +1479,54 @@ def generar_latex_alternativa_A(cfg, resultados, output_path, area_m2=None, bala
 \usepackage{{float}}
 \usepackage{{xcolor}}
 \usepackage{{hyperref}}
+\usepackage{{tocloft}}
+\usepackage{{titletoc}}
+
+% Configuracion para indice de ecuaciones
+\newcounter{{myequation}}
+\renewcommand{{\theequation}}{{\arabic{{equation}}}}
+\newcommand{{\listequationsname}}{{Indice de Ecuaciones}}
+\newlistof{{equation}}{{loe}}{{\listequationsname}}
+\newcommand{{\captionequation}}[1]{{%
+    \addcontentsline{{loe}}{{equation}}{{\protect\numberline{{\theequation}}#1}}%
+}}
+
 \geometry{{margin=2.5cm}}
 
 \hypersetup{{
     colorlinks=true,
-    linkcolor=blue,
+    linkcolor=black,
     citecolor=blue,
     urlcolor=blue
 }}
 
 \begin{{document}}
+
+% ============================================================================
+% PORTADA
+% ============================================================================
+\begin{{titlepage}}
+    \centering
+    \vspace*{{2cm}}
+    {{\Huge\bfseries Memoria de Calculo}}\\[0.5cm]
+    {{\LARGE Sistema de Tratamiento Anaerobio-Aerobio con Reactor de Flujo Ascendente y Filtracion Percolante}}\\[0.3cm]
+    {{\Large Puerto Baquerizo Moreno, Galapagos}}\\[1cm]
+    {{\large Caudal de disenio: {cfg.Q_linea_L_s * cfg.num_lineas:.1f} L/s}}\\[2cm]
+    \vfill
+    {{\large Fecha: \today}}
+\end{{titlepage}}
+
+% ============================================================================
+% INDICES
+% ============================================================================
+\newpage
+\tableofcontents
+\newpage
+\listoffigures
+\listoftables
+\listof{{equation}}{{\listequationsname}}
+\newpage
+
 {contenido}
 
 {resumen}

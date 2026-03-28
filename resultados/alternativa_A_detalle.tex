@@ -13,19 +13,57 @@
 \usepackage{float}
 \usepackage{xcolor}
 \usepackage{hyperref}
+\usepackage{tocloft}
+\usepackage{titletoc}
+
+% Configuracion para indice de ecuaciones
+\newcounter{myequation}
+\renewcommand{\theequation}{\arabic{equation}}
+\newcommand{\listequationsname}{Indice de Ecuaciones}
+\newlistof{equation}{loe}{\listequationsname}
+\newcommand{\captionequation}[1]{%
+    \addcontentsline{loe}{equation}{\protect\numberline{\theequation}#1}%
+}
+
 \geometry{margin=2.5cm}
 
 \hypersetup{
     colorlinks=true,
-    linkcolor=blue,
+    linkcolor=black,
     citecolor=blue,
     urlcolor=blue
 }
 
 \begin{document}
 
+% ============================================================================
+% PORTADA
+% ============================================================================
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+    {\Huge\bfseries Memoria de Calculo}\\[0.5cm]
+    {\LARGE Sistema de Tratamiento Anaerobio-Aerobio con Reactor de Flujo Ascendente y Filtracion Percolante}\\[0.3cm]
+    {\Large Puerto Baquerizo Moreno, Galapagos}\\[1cm]
+    {\large Caudal de disenio: 10.0 L/s}\\[2cm]
+    \vfill
+    {\large Fecha: \today}
+\end{titlepage}
+
+% ============================================================================
+% INDICES
+% ============================================================================
+\newpage
+\tableofcontents
+\newpage
+\listoffigures
+\listoftables
+\listof{equation}{\listequationsname}
+\newpage
+
+
 %============================================================================
-% ALTERNATIVA A: UASB + FILTRO PERCOLADOR + UV
+% ALTERNATIVA A: UASB + FILTRO PERCOLADOR + CLORO
 % Memoria de Cálculo
 %============================================================================
 \newpage
@@ -44,6 +82,7 @@ La pérdida de carga en rejillas limpias se calcula mediante la fórmula de Kirs
 \begin{equation}
 h_L = \beta \cdot \left(\frac{w}{b}\right)^{4/3} \cdot \frac{v^2}{2g} \cdot \sin\theta
 \end{equation}
+\captionequation{Perdida de carga en rejillas limpias - Formula de Kirschmer}
 
 \textit{Donde:}
 \begin{itemize}[noitemsep,leftmargin=2em]
@@ -124,6 +163,7 @@ La velocidad calculada $v_{max} = 0.052$~m/s se evalúa según:
     \text{NO ADMISIBLE} & \text{si } v_{max} > 2.0 \text{ m/s} \quad \text{(daño seguro)}
 \end{cases}
 \end{equation}
+\captionequation{Criterios de verificacion de velocidad en rejillas}
 
 Con la velocidad calculada $v_{max} = 0.052$~m/s, es menor que el límite recomendado de 1,5~m/s para operación segura. Respecto a la pérdida de carga, el valor máximo de 0.0169~cm es menor que el umbral de 15~cm para limpieza manual aceptable.
 
@@ -234,6 +274,7 @@ El diseño del desarenador se fundamenta en la teoría de sedimentación discret
 \begin{equation}
 v_s = \frac{g \cdot (S_s - 1) \cdot d^2}{18 \cdot \nu}
 \end{equation}
+\captionequation{Ley de Stokes - Velocidad de sedimentacion de particulas}
 
 \textit{Donde:}
 \begin{itemize}[noitemsep,leftmargin=2em]
@@ -296,6 +337,7 @@ Para garantizar que la arena sedimentada no sea resuspendida por el flujo, se ve
 \begin{equation}
 v_c = \sqrt{\frac{8 \beta g (S_s - 1) d}{f}}
 \end{equation}
+\captionequation{Velocidad critica de resuspension - Camp-Shields}
 
 \textit{Donde:}
 \begin{itemize}[noitemsep,leftmargin=2em]
@@ -310,6 +352,7 @@ v_c = \sqrt{\frac{8 \beta g (S_s - 1) d}{f}}
 \begin{equation}
 v_c = \sqrt{\frac{8 \times 0.05 \times 9.81 \times (2.65 - 1) \times 0.00020}{0.025}} = 0.228 \text{ m/s}
 \end{equation}
+\captionequation{Velocidad critica calculada}
 
 \subsubsection{Verificación para Caudal Máximo Horario}
 
@@ -341,6 +384,7 @@ La velocidad calculada $v_{h,max} = 0.052$~m/s se evalúa según (límite: $v_c 
     \text{RIESGO} & \text{si } v_{h,max} > 0.205 \text{ m/s} \quad \text{(arena resuspendida)}
 \end{cases}
 \end{equation}
+\captionequation{Criterios de verificacion de resuspension}
 
 El resultado de la verificación indica que es menor que la velocidad crítica de resuspensión (0.228~m/s), por lo que no se produce resuspensión de la arena depositada.
 
@@ -421,6 +465,7 @@ El volumen necesario del reactor se determina mediante la expresión:
 \begin{equation}
 V_r = \frac{Q \cdot S_0}{C_v}
 \end{equation}
+\captionequation{Volumen util del reactor UASB}
 
 \textit{Donde:}
 \begin{itemize}[noitemsep,leftmargin=2em]
@@ -441,6 +486,7 @@ Simultáneamente, el criterio hidráulico establece que la velocidad ascendente 
 \begin{equation}
 A_s = \frac{Q}{v_{up}}
 \end{equation}
+\captionequation{Area superficial del reactor UASB}
 
 \textit{Donde:}
 \begin{itemize}[noitemsep,leftmargin=2em]
@@ -458,6 +504,7 @@ El diámetro del reactor circular se obtiene geométricamente:
 \begin{equation}
 D = \sqrt{\frac{4 \cdot A_s}{\pi}}
 \end{equation}
+\captionequation{Diametro del reactor circular}
 
 \textit{Donde:}
 \begin{itemize}[noitemsep,leftmargin=2em]
@@ -477,6 +524,7 @@ La producción de biogás se estima mediante la relación estequiométrica de 0.
 \begin{equation}
 V_{CH_4} = (Q_d \cdot S_0 \cdot E) \times 0.35
 \end{equation}
+\captionequation{Produccion de biogas - Relacion estequiometrica}
 
 \textit{Donde:}
 \begin{itemize}[noitemsep,leftmargin=2em]
@@ -515,6 +563,7 @@ La velocidad calculada $v_{up,max} = 1.89$~m/h se evalúa según:
     \text{NO ADMISIBLE} & \text{si } v_{up,max} > 2.0 \text{ m/h} \quad \text{(pérdida biomasa)}
 \end{cases}
 \end{equation}
+\captionequation{Criterios de verificacion de arrastre del manto en UASB}
 
 Con la velocidad calculada $v_{up,max} = 1.89$~m/h, se obtiene el estado \textbf{ACEPTABLE CON MONITOREO}. Se aumentó el diámetro del reactor en 15~cm (de 5.35~m a 5.50~m) para mantener la velocidad máxima por debajo del límite destructivo.
 
@@ -549,6 +598,7 @@ El volumen de medio filtrante requerido se calcula mediante:
 \begin{equation}
 V = \frac{Q \cdot S_0}{C_v}
 \end{equation}
+\captionequation{Volumen de medio filtrante - Filtro Percolador}
 
 \textit{Donde:}
 \begin{itemize}[noitemsep,leftmargin=2em]
@@ -573,6 +623,7 @@ La eficiencia de remoción se verifica mediante el modelo de Germain (1966). Pri
 \begin{equation}
 k_T = k_{20} \cdot \theta^{(T-20)}
 \end{equation}
+\captionequation{Correccion de constante cinética por temperatura}
 
 \textit{Donde:}
 \begin{itemize}[noitemsep,leftmargin=2em]
@@ -590,6 +641,7 @@ Aplicando el modelo de Germain:
 \begin{equation}
 \frac{S_e}{S_0} = \exp\left(-\frac{k_T \cdot D}{q_A^n}\right)
 \end{equation}
+\captionequation{Modelo de Germain - Relacion de eficiencia}
 
 \textit{Donde:}
 \begin{itemize}[noitemsep,leftmargin=2em]
@@ -611,10 +663,10 @@ Por tanto, la DBO efluente estimada es $S_e = 75 \times 0.806 = 60$ mg/L.
 
 \subsubsection{Verificación para Caudal Máximo Horario}
 
-Se verifica el comportamiento hidráulico para el caudal máximo horario, aplicando un factor de pico típico de 2,5 sobre el caudal medio:
+Se verifica el comportamiento hidráulico para el caudal máximo horario, aplicando un factor de pico típico de 2.5 sobre el caudal medio:
 
 \begin{equation}
-Q_{max} = 2,5 \times Q_{medio} = 2,5 \times 432.0 = 1080.0 \text{ m}^3\text{/d}
+Q_{max} = 2.5 \times Q_{medio} = 2.5 \times 432.0 = 1080.0 \text{ m}^3\text{/d}
 \end{equation}
 
 A caudal máximo, la tasa hidráulica resulta:
@@ -623,7 +675,7 @@ A caudal máximo, la tasa hidráulica resulta:
 q_{A,max} = \frac{Q_{max} \cdot (1 + R)}{A_s \cdot 24} = \frac{1080.0 \times 3.0}{33.75 \times 24} = 4.00 \text{ m}^3\text{/m}^2\text{·h}
 \end{equation}
 
-El valor obtenido se compara con el límite máximo recomendado de 4,0 m³/m²·h. el valor obtenido (4.00 m³/m²·h) es menor que el límite máximo recomendado de 4,0 m³/m²·h establecido por Metcalf y Eddy para evitar el arrastre de biopelícula, por lo que el diseño es adecuado.
+El valor obtenido se compara con el límite máximo recomendado de 4.0 m³/m²·h. el valor obtenido (4.00 m³/m²·h) es menor que el límite máximo recomendado de 4,0 m³/m²·h establecido por Metcalf y Eddy para evitar el arrastre de biopelícula, por lo que el diseño es adecuado.
 
 \subsubsection{Resultados}
 
@@ -676,6 +728,7 @@ El área superficial necesaria se calcula mediante:
 \begin{equation}
 A_s = \frac{Q}{SOR}
 \end{equation}
+\captionequation{Area superficial del sedimentador - Criterio SOR}
 
 \textit{Donde:}
 \begin{itemize}[noitemsep,leftmargin=2em]
@@ -796,6 +849,7 @@ La dosis total de cloro se descompone en la demanda del efluente (consumida por 
 \begin{equation}
 \text{Dosis total} = \text{Demanda} + \text{Residual} = 3.5 + 0.5 = 4.0 \text{ mg/L}
 \end{equation}
+\captionequation{Dosis total de cloro}
 
 \begin{table}[H]
 \centering
@@ -820,6 +874,7 @@ La eficacia de la desinfección se cuantifica mediante el parámetro CT:
 \begin{equation}
 CT = C \times t
 \end{equation}
+\captionequation{Producto concentracion-tiempo CT}
 
 \textit{Donde:}
 \begin{itemize}[noitemsep,leftmargin=2em]
@@ -837,6 +892,7 @@ La reducción de coliformes se estima mediante:
 \begin{equation}
 \text{Log reducción} \approx 0.22 \times CT
 \end{equation}
+\captionequation{Log reduccion de coliformes}
 
 \begin{equation}
 \text{Log reducción} \approx 0.22 \times 15 = 3.3 \text{ log}
@@ -855,6 +911,7 @@ El volumen del tanque se determina por:
 \begin{equation}
 V = Q \times t
 \end{equation}
+\captionequation{Volumen del tanque de contacto}
 
 \textit{Donde:}
 \begin{itemize}[noitemsep,leftmargin=2em]
@@ -890,6 +947,7 @@ El hipoclorito de sodio se comercializa típicamente al 10--12.5\% de cloro disp
 \begin{equation}
 \text{Consumo NaOCl} = \frac{\text{Consumo Cl}_2}{[\% \text{ NaOCl}]} = \frac{1.73}{10\%} = 17.3 \text{ kg NaOCl/d}
 \end{equation}
+\captionequation{Conversion a hipoclorito de sodio comercial}
 
 Considerando una densidad de 1.10 kg/L para la solución al 10\%:
 
@@ -971,6 +1029,7 @@ El volumen diario de lodo a tratar se determina mediante:
 \begin{equation}
 V_{lodo} = \frac{M_{SST}}{C_{SST}}
 \end{equation}
+\captionequation{Volumen diario de lodo a tratar}
 
 \textit{Donde:}
 \begin{itemize}[noitemsep,leftmargin=2em]
@@ -988,29 +1047,46 @@ V_{lodo} = \frac{15.12}{20} = 0.756 \text{ m}^3\text{/d}
 El área requerida se calcula considerando el volumen de lodo, el tiempo de secado y el espesor de aplicación:
 
 \begin{equation}
-A_{lecho} = \frac{V_{lodo} \cdot t_s}{h_{lodo}} \cdot n_{celdas}
+A_{total} = \frac{V_{lodo} \cdot t_s}{h_{lodo}}
 \end{equation}
+\captionequation{Area superficial total del lecho de secado}
 
 \textit{Donde:}
 \begin{itemize}[noitemsep,leftmargin=2em]
-    \item[$A_{lecho}$] = Área superficial total (m²)
+    \item[$A_{total}$] = Área superficial total requerida (m²)
     \item[$t_s$] = Tiempo de secado (15 días)
     \item[$h_{lodo}$] = Espesor de aplicación (0.30 m)
-    \item[$n_{celdas}$] = Número de celdas (2)
+    \item[$n_{celdas}$] = Número de celdas (2) (subdivisión interna)
 \end{itemize}
 
 \begin{equation}
-A_{lecho} = \frac{0.756 \times 15}{0.30 \times 2} = 18.9 \text{ m}^2 \text{ por lecho}
+A_{total} = \frac{0.756 \times 15}{0.30} = 37.8 \text{ m}^2
 \end{equation}
 
-Con una relación largo/ancho de 3:1, las dimensiones resultantes son 7.5 m de largo por 2.5 m de ancho por celda.
+\textbf{Distribución por tren de tratamiento}
+
+El área total se distribuye en bloques independientes, uno al final de cada tren de tratamiento:
+
+\begin{equation}
+A_{bloque} = \frac{A_{total}}{n_{lineas}} = \frac{37.8}{2} = 18.9 \text{ m}^2 \text{ por bloque}
+\end{equation}
+
+\textbf{Subdivisión interna en celdas}
+
+Cada bloque se subdivide internamente en celdas para operación por rotación:
+
+\begin{equation}
+A_{celda} = \frac{A_{total}}{n_{celdas}} = \frac{37.8}{2} = 18.9 \text{ m}^2 \text{ por celda}
+\end{equation}
+
+Con una relación largo/ancho de 3:1, las dimensiones de cada bloque son 7.5 m de largo por 2.5 m de ancho.
 
 \subsubsection{Verificación de carga superficial}
 
 La carga superficial de sólidos se verifica mediante:
 
 \begin{equation}
-\rho_S = \frac{M_{SST} \times 365}{A_{lecho}} = \frac{15.12 \times 365}{18.9} = 146.0 \text{ kg SST/m}^2\text{·año}
+\rho_S = \frac{M_{SST} \times 365}{A_{total}} = \frac{15.12 \times 365}{37.8} = 146.0 \text{ kg SST/m}^2\text{·año}
 \end{equation}
 
 El valor obtenido está dentro del rango recomendado de 60--220 kg SST/m²·año para lechos de secado de lodos anaerobios según Metcalf \& Eddy \cite{metcalf2014}.
@@ -1019,15 +1095,16 @@ El valor obtenido está dentro del rango recomendado de 60--220 kg SST/m²·año
 
 \begin{table}[H]
 \centering
-\caption{Dimensiones del lecho de secado}
+\caption{Resumen del dimensionamiento del lecho de secado}
 \begin{tabular}{ll}
 \toprule
 Parámetro & Valor \\
 \midrule
-Largo & 7.5 m \\
-Ancho & 2.5 m \\
-Área superficial total & 18.9 m² \\
-Número de celdas & 2 \\
+Área total requerida & 37.8 m² \\
+Número de bloques (uno por tren) & 2 \\
+Área por bloque & 18.9 m² \\
+Dimensiones de cada bloque (L×A) & 7.5 m × 2.5 m \\
+Número total de celdas & 2 \\
 Tiempo de secado & 15 días \\
 Carga de sólidos & 146.0 kg SST/m²·año \\
 \bottomrule
@@ -1045,10 +1122,10 @@ El tren de tratamiento propuesto alcanza eficiencias de remocion significativas.
 \toprule
 Parametro & Afluente & Post-UASB & Post-FP & Post-Sed & Efluente Final \\
 \midrule
-DBO$_5$ (mg/L) & 250.0 & 75.0 & 60.5 & 42.3 & 42.3 \\
-DQO (mg/L) & 500.0 & 175.0 & 144.4 & 101.1 & 101.1 \\
-SST (mg/L) & 250.0 & 75.0 & 30.0 & 6.0 & 6.0 \\
-CF (NMP/100mL) & 10000000 & 7000000 & 5600000 & 5040000 & 2526 \\
+DBO$_5$ (mg/L) & 250.0 & 175.0 & 140.0 & 119.0 & 42.5 \\
+DQO (mg/L) & 500.0 & 325.0 & 260.0 & 221.0 & 100.0 \\
+SST (mg/L) & 250.0 & 175.0 & 70.0 & 21.0 & 5.0 \\
+CF (NMP/100mL) & 10000000 & 7000000 & 5600000 & 5600000 & 2500 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1068,11 +1145,11 @@ La figura \ref{fig:layout_a} presenta la disposicion espacial de las unidades de
 \label{fig:layout_a}
 \end{figure}
 
-El área de tratamiento calculada (unidades mas margenes minimos) es de aproximadamente 888 m². Sin embargo, para una operacion adecuada se requieren areas complementarias adicionales.
+El área de tratamiento calculada (unidades mas margenes minimos) es de aproximadamente 945 m². Sin embargo, para una operacion adecuada se requieren areas complementarias adicionales.
 
 \textbf{Areas complementarias requeridas}
 
-El area calculada de 888 m$^2$ corresponde unicamente a las unidades de tratamiento con sus margenes minimos de acceso. Sin embargo, para garantizar una operacion segura y eficiente de la planta durante toda su vida util, es necesario prever espacios adicionales para acceso vehicular y peatonal de operarios y visitantes, almacenamiento seguro de productos quimicos y herramientas, realizacion de analisis de control de calidad in-situ, estacionamiento para personal y visitantes, circulacion interna de vehiculos de mantenimiento y retiro de lodos, separacion de limites con zonas verdes para control de olores, y espacios administrativos para control operativo. La siguiente tabla resume las areas complementarias necesarias:
+El area calculada de 945 m$^2$ corresponde unicamente a las unidades de tratamiento con sus margenes minimos de acceso. Sin embargo, para garantizar una operacion segura y eficiente de la planta durante toda su vida util, es necesario prever espacios adicionales para acceso vehicular y peatonal de operarios y visitantes, almacenamiento seguro de productos quimicos y herramientas, realizacion de analisis de control de calidad in-situ, estacionamiento para personal y visitantes, circulacion interna de vehiculos de mantenimiento y retiro de lodos, separacion de limites con zonas verdes para control de olores, y espacios administrativos para control operativo. La siguiente tabla resume las areas complementarias necesarias:
 
 \begin{table}[H]
 \centering
@@ -1111,20 +1188,21 @@ Area verde/buffer & Separacion de limites, revegetacion & 15\% area total \\
 
 \textbf{Area total estimada del predio}
 
-Considerando el area de tratamiento (888 m$^2$), amortiguacion (20\%), complementarias operativas y zona verde (15\% del total):
+Considerando el area de tratamiento (945 m$^2$), amortiguacion (20\%), complementarias operativas y zona verde (15\% del total):
 
 \begin{equation}
 A_{total} = \frac{A_{tratamiento} + A_{amortiguacion} + A_{complementarias}}{1 - 0.15}
 \end{equation}
+\captionequation{Formula del area total del predio}
 
 \begin{itemize}[noitemsep,leftmargin=2em]
-    \item[$A_{tratamiento}$] = 888 m$^2$
-    \item[$A_{amortiguacion}$] = 178 m$^2$ (20\%)
+    \item[$A_{tratamiento}$] = 945 m$^2$
+    \item[$A_{amortiguacion}$] = 189 m$^2$ (20\%)
     \item[$A_{complementarias}$] = 280--340 m$^2$ (operativas)
 \end{itemize}
 
 \begin{equation}
-A_{total} = \frac{888 + 178 + 310}{0.85} \approx \mathbf{1600 \text{--} 1900 \text{ m}^2} \approx \mathbf{0.16 \text{--} 0.19 \text{ ha}}
+A_{total} = \frac{945 + 189 + 310}{0.85} \approx \mathbf{1600 \text{--} 1900 \text{ m}^2} \approx \mathbf{0.16 \text{--} 0.19 \text{ ha}}
 \end{equation}
 
 \textbf{Nota:} El area total del predio debe ser de aproximadamente 1600--1900 m$^2$ (0.16--0.19 ha) para operacion adecuada con circulacion interna, estacionamiento y zonas verdes.
@@ -1161,17 +1239,18 @@ Temperatura & 24.0 °C \\
 \begin{table}[H]
 \centering
 \caption{Resumen de unidades de tratamiento}
-\begin{tabular}{p{4.5cm}ccc}
+\small
+\begin{tabular}{p{3.2cm}p{3.5cm}p{1.5cm}p{4.8cm}}
 \toprule
-\textbf{Unidad} & \textbf{Dimensiones} & \textbf{Cantidad} & \textbf{Parametro Clave} \\
+\textbf{Unidad} & \textbf{Dimensiones (m)} & \textbf{Cantidad} & \textbf{Parametro Clave} \\
 \midrule
-Rejillas & 0.60 m $\times$ 0.40 m & 2 canales & Velocidad: 0.50 m/s \\
-Desarenador & 0.60 m $\times$ 3.0 m $\times$ 0.7 m & 2 unidades & TRH: 30 s \\
-Reactor UASB & D = 5.50 m, H = 3.6 m & 2 unidades & v$_{up}$ = 0.76 m/h \\
-Filtro Percolador & D = 6.56 m, H = 4.3 m & 2 unidades & Q$_A$ = 4.00 m$^3$/m$^2\cdot$h \\
-Sedimentador Secundario & D = 5.87 m, H = 3.5 m & 2 unidades & SOR = 15.9 m$^3$/m$^2\cdot$d \\
-Desinfeccion (Cloro) & 4.2 m $\times$ 1.1 m $\times$ 2.3 m & 2 unidades & CT = 15 mg$\cdot$min/L \\
-Lecho de Secado & 18.9 m$^2$ (7.5 m $\times$ 2.5 m) & 2 unidades & Carga: 15.1 kg SST/d \\
+Rejillas & 0.60 $\times$ 0.40 & 2 & Velocidad: 0.50 m/s \\
+Desarenador & 0.60 $\times$ 3.0 $\times$ 0.7 & 2 & TRH: 30 s \\
+Reactor UASB & D = 5.50, H = 3.6 & 2 & v$_{up}$ = 0.76 m/h \\
+Filtro Percolador & D = 6.56, H = 4.3 & 2 & Q$_A$ = 4.00 m$^3$/m$^2\cdot$h \\
+Sedimentador Secundario & D = 5.87, H = 3.5 & 2 & SOR = 15.9 m$^3$/m$^2\cdot$d \\
+Desinfeccion (Cloro) & 4.2 $\times$ 1.1 $\times$ 2.3 & 2 & CT = 15 mg$\cdot$min/L \\
+Lecho de Secado & 7.5 $\times$ 2.5 & 2 & Área: 18.9 m$^2$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1185,12 +1264,12 @@ Lecho de Secado & 18.9 m$^2$ (7.5 m $\times$ 2.5 m) & 2 unidades & Carga: 15.1 k
 \toprule
 \textbf{Parametro} & \textbf{Afluente} & \textbf{Post-UASB} & \textbf{Post-FP} & \textbf{Post-Sed} & \textbf{Efluente} \\
 \midrule
-DBO$_5$ (mg/L) & 250.0 & 75.0 & 60.5 & 42.3 & 42.3 \\
-DQO (mg/L) & 500.0 & 175.0 & 144.4 & 101.1 & 101.1 \\
-SST (mg/L) & 250.0 & 75.0 & 30.0 & 6.0 & 6.0 \\
-CF (NMP/100mL) & 10000000 & 7000000 & 5600000 & 5040000 & 2526 \\
+DBO$_5$ (mg/L) & 250.0 & 175.0 & 140.0 & 119.0 & 42.5 \\
+DQO (mg/L) & 500.0 & 325.0 & 260.0 & 221.0 & 100.0 \\
+SST (mg/L) & 250.0 & 175.0 & 70.0 & 21.0 & 5.0 \\
+CF (NMP/100mL) & 10000000 & 7000000 & 5600000 & 5600000 & 2500 \\
 \midrule
-\textbf{Remocion etapa} & -- & \textbf{70\%} & \textbf{19\%} & \textbf{30\%} & \textbf{83.1\%} \\
+\textbf{Remocion etapa} & -- & \textbf{70\%} & \textbf{19\%} & \textbf{30\%} & \textbf{83.0\%} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1205,10 +1284,10 @@ CF (NMP/100mL) & 10000000 & 7000000 & 5600000 & 5040000 & 2526 \\
 \toprule
 \textbf{Parametro} & \textbf{Efluente calculado} & \textbf{Limite TULSMA} & \textbf{Estado} \\
 \midrule
-DBO$_5$ & 42.3 mg/L & $\leq$ 100 mg/L & \textcolor{green}{\textbf{CUMPLE}} \\
-DQO & 101.1 mg/L & $\leq$ 250 mg/L & \textcolor{green}{\textbf{CUMPLE}} \\
-SST & 6.0 mg/L & $\leq$ 130 mg/L & \textcolor{green}{\textbf{CUMPLE}} \\
-Coliformes fecales & 2526 NMP/100mL & $\leq$ 3,000 NMP/100mL & \textcolor{green}{\textbf{CUMPLE}} \\
+DBO$_5$ & 42.5 mg/L & $\leq$ 100 mg/L & \textcolor{green}{\textbf{CUMPLE}} \\
+DQO & 100.0 mg/L & $\leq$ 250 mg/L & \textcolor{green}{\textbf{CUMPLE}} \\
+SST & 5.0 mg/L & $\leq$ 130 mg/L & \textcolor{green}{\textbf{CUMPLE}} \\
+Coliformes fecales & 2500 NMP/100mL & $\leq$ 3,000 NMP/100mL & \textcolor{green}{\textbf{CUMPLE}} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1224,12 +1303,12 @@ Coliformes fecales & 2526 NMP/100mL & $\leq$ 3,000 NMP/100mL & \textcolor{green}
 \toprule
 \textbf{Concepto} & \textbf{Area} \\
 \midrule
-Area de tratamiento & 888 m$^2$ \\
-Area de amortiguacion (20\%) & 178 m$^2$ \\
+Area de tratamiento & 945 m$^2$ \\
+Area de amortiguacion (20\%) & 189 m$^2$ \\
 Area complementaria operativa & 310 m$^2$ \\
-Zona verde (15\% del total) & 133 m$^2$ \\
+Zona verde (15\% del total) & 142 m$^2$ \\
 \midrule
-\textbf{Area total requerida} & \textbf{888--1900 m$^2$ (0.16--0.19 ha)} \\
+\textbf{Area total requerida} & \textbf{945--1900 m$^2$ (0.16--0.19 ha)} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1247,7 +1326,7 @@ Produccion lodos UASB & 15.1 kg SST/d \\
 Produccion humus FP + Sed & 0.0 kg SST/d \\
 \midrule
 \textbf{Total lodos a manejar} & \textbf{15.1 kg SST/d} \\
-Area de lechos de secado & 18.9 m$^2$ (2 unidades) \\
+Area de lechos de secado & 37.8 m$^2$ total (2 bloques de 18.9 m$^2$ cada uno) \\
 Frecuencia de aplicacion & 1 vez cada 3--4 meses \\
 \bottomrule
 \end{tabular}
