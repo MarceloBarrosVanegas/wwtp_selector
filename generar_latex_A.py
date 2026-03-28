@@ -174,7 +174,7 @@ def generar_contenido_alternativa_A(cfg, resultados, layout_filename="Layout_A_2
 % Memoria de Cálculo
 %============================================================================
 \newpage
-\section{{Alternativa A: Tratamiento Anaerobio-Aerobio con UASB y Filtro Percolador}}
+\section{{Tratamiento Anaerobio-Aerobio con UASB y Filtro Percolador}}
 
 La presente alternativa propone un esquema de tratamiento que combina procesos anaerobios y aerobios para lograr la remoción de contaminantes de manera eficiente y con bajo consumo energético. El tren de tratamiento completo comprende: rejillas y desarenador para el pretratamiento, reactor UASB para el tratamiento primario anaerobio, filtro percolador para el tratamiento secundario aerobio, sedimentador secundario para la separación de sólidos biológicos, y finalmente desinfección con hipoclorito de sodio antes del vertimiento.
 
@@ -1502,16 +1502,21 @@ def generar_latex_alternativa_A(cfg, resultados, output_path, area_m2=None, bala
 
 \begin{{document}}
 
+% Profundidad del indice: solo secciones principales (sin 1.1, 1.1.1, etc.)
+\setcounter{{tocdepth}}{{2}}
+
 % ============================================================================
 % PORTADA
 % ============================================================================
 \begin{{titlepage}}
     \centering
-    \vspace*{{2cm}}
-    {{\Huge\bfseries Memoria de Calculo}}\\[0.5cm]
-    {{\LARGE Sistema de Tratamiento Anaerobio-Aerobio con Reactor de Flujo Ascendente y Filtracion Percolante}}\\[0.3cm]
-    {{\Large Puerto Baquerizo Moreno, Galapagos}}\\[1cm]
-    {{\large Caudal de disenio: {cfg.Q_linea_L_s * cfg.num_lineas:.1f} L/s}}\\[2cm]
+    \vspace*{{3cm}}
+    {{\Huge\bfseries Memoria de Calculo}}\\[1.5cm]
+    {{\Large Dimensionamiento de:}}\\[0.5cm]
+    {{\LARGE Sistema de Tratamiento Anaerobio-Aerobio}}\\[0.3cm]
+    {{\LARGE con Reactor de Flujo Ascendente y Filtracion Percolante}}\\[2cm]
+    {{\large Caudal de disenio: {cfg.Q_linea_L_s * cfg.num_lineas:.1f} L/s}}\\[0.3cm]
+    {{\large Numero de lineas: {cfg.num_lineas}}}\\[2cm]
     \vfill
     {{\large Fecha: \today}}
 \end{{titlepage}}
@@ -1939,11 +1944,11 @@ Turbiedad & UTN & $\leq$ 10 & -- \\
 
 % ============================================================
 \newpage
-\section{{L\'imites de Descarga de Efluentes}}
+\subsection{{L\'imites de Descarga de Efluentes}}
 % ============================================================
 
 % ----------------------------------------------------------
-\subsection{{Tabla 11 -- Descarga al Sistema de Alcantarillado P\'ublico}}
+\subsubsection{{Tabla 11 -- Descarga al Sistema de Alcantarillado P\'ublico}}
 \tiny
 % ----------------------------------------------------------
 
