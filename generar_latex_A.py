@@ -167,55 +167,48 @@ def generar_contenido_alternativa_A(cfg, resultados, layout_filename="Layout_A_2
     """Genera contenido LaTeX con estilo narrativo fluido"""
     
     # Valores por defecto si no se proporciona balance de calidad
+    # Usar parámetros configurables desde ConfigDiseno
     if balance_calidad is None:
+        # Calcular remociones usando parámetros de configuración
+        dbo_tras_uasb = cfg.DBO5_mg_L * (1 - cfg.balance_remov_uasb_dbo)
+        dqo_tras_uasb = cfg.DQO_mg_L * (1 - cfg.balance_remov_uasb_dqo)
+        sst_tras_uasb = cfg.SST_mg_L * (1 - cfg.balance_remov_uasb_sst)
+        cf_tras_uasb = cfg.CF_NMP * (1 - cfg.balance_remov_uasb_cf)
+        
+        dbo_tras_fp = dbo_tras_uasb * (1 - cfg.balance_remov_fp_dbo)
+        dqo_tras_fp = dqo_tras_uasb * (1 - cfg.balance_remov_fp_dqo_factor * cfg.balance_remov_fp_dbo)
+        sst_tras_fp = sst_tras_uasb * (1 - cfg.balance_remov_fp_sst)
+        cf_tras_fp = cf_tras_uasb * (1 - cfg.balance_remov_fp_cf)
+        
+        dbo_tras_sed = dbo_tras_fp * (1 - cfg.balance_remov_sed_dbo)
+        dqo_tras_sed = dqo_tras_fp  # Asumimos misma remoción relativa
+        sst_tras_sed = sst_tras_fp * (1 - cfg.balance_remov_sed_sst)
+        cf_tras_sed = cf_tras_fp * (1 - cfg.balance_remov_sed_cf)
+        
         balance_calidad = {
             'afluente': {'DBO5_mg_L': cfg.DBO5_mg_L, 'DQO_mg_L': cfg.DQO_mg_L, 'SST_mg_L': cfg.SST_mg_L, 'CF_NMP': cfg.CF_NMP},
-            'tras_uasb': {'DBO5_mg_L': cfg.DBO5_mg_L*0.7, 'DQO_mg_L': cfg.DQO_mg_L*0.65, 'SST_mg_L': cfg.SST_mg_L*0.7, 'CF_NMP': cfg.CF_NMP*0.7},
-            'tras_fp': {'DBO5_mg_L': cfg.DBO5_mg_L*0.7*0.8, 'DQO_mg_L': cfg.DQO_mg_L*0.65*0.8, 'SST_mg_L': cfg.SST_mg_L*0.7*0.4, 'CF_NMP': cfg.CF_NMP*0.7*0.8},
-            'tras_sed': {'DBO5_mg_L': cfg.DBO5_mg_L*0.7*0.8*0.85, 'DQO_mg_L': cfg.DQO_mg_L*0.65*0.8*0.85, 'SST_mg_L': cfg.SST_mg_L*0.7*0.4*0.3, 'CF_NMP': cfg.CF_NMP*0.7*0.8},
-            'efluente_final': {'DBO5_mg_L': cfg.DBO5_mg_L*0.17, 'DQO_mg_L': cfg.DQO_mg_L*0.2, 'SST_mg_L': cfg.SST_mg_L*0.02, 'CF_NMP': 2500}
+            'tras_uasb': {'DBO5_mg_L': dbo_tras_uasb, 'DQO_mg_L': dqo_tras_uasb, 'SST_mg_L': sst_tras_uasb, 'CF_NMP': cf_tras_uasb},
+            'tras_fp': {'DBO5_mg_L': dbo_tras_fp, 'DQO_mg_L': dqo_tras_fp, 'SST_mg_L': sst_tras_fp, 'CF_NMP': cf_tras_fp},
+            'tras_sed': {'DBO5_mg_L': dbo_tras_sed, 'DQO_mg_L': dqo_tras_sed, 'SST_mg_L': sst_tras_sed, 'CF_NMP': cf_tras_sed},
+            'efluente_final': {'DBO5_mg_L': dbo_tras_sed, 'DQO_mg_L': dqo_tras_sed, 'SST_mg_L': sst_tras_sed, 'CF_NMP': cfg.balance_cf_objetivo_nmp}
         }
     
     # Calcular areas complementarias basadas en el area real de tratamiento
+    # Usar parámetros configurables desde ConfigDiseno
     area_tratamiento = area_m2 if area_m2 else 990
-    area_amortiguacion = area_tratamiento * 0.20
-    area_complementaria = area_tratamiento * 0.25
-    area_total_calc = (area_tratamiento + area_amortiguacion + area_complementaria) / 0.85
+    area_amortiguacion = area_tratamiento * cfg.layout_factor_amortiguacion
+    area_complementaria = area_tratamiento * cfg.layout_factor_complementaria
+    area_total_calc = (area_tratamiento + area_amortiguacion + area_complementaria) / (1 - cfg.layout_factor_zona_verde)
     
     r = resultados.get('rejillas', dimensionar_rejillas(cfg))
     d = resultados.get('desarenador', dimensionar_desarenador(cfg))
     u = resultados.get('uasb', dimensionar_uasb(cfg))
     
-    # Generar texto de recomendación según temperatura
-    if u['T_agua_C'] >= 22:
-        temp_recomendacion = (
-            "Para mantener el rendimiento óptimo del reactor en caso de descenso de temperatura, "
-            "se recomienda monitorear periodicamente. Si la temperatura descendiera por debajo de 20°C, "
-            "el sistema debería ajustar automáticamente la carga orgánica y el tiempo de retención."
-        )
-    elif 18 <= u['T_agua_C'] < 22:
-        temp_recomendacion = (
-            "La temperatura está en rango moderado. Se recomienda considerar aislamiento térmico básico "
-            "del reactor para mantener la eficiencia durante períodos fríos."
-        )
-    elif 15 <= u['T_agua_C'] < 18:
-        temp_recomendacion = (
-            "La temperatura es baja, lo que ha reducido automáticamente la carga orgánica y aumentado "
-            "el tiempo de retención. Se recomienda implementar aislamiento térmico del reactor para "
-            "evitar mayor degradación del proceso."
-        )
-    elif 10 <= u['T_agua_C'] < 15:
-        temp_recomendacion = (
-            "ATENCIÓN: La temperatura es muy baja. El sistema ha aplicado ajustes significativos: "
-            "reducción de carga orgánica a 40% del valor base y duplicación del tiempo de retención. "
-            "Se requiere aislamiento térmico obligatorio o considerar calefacción del reactor."
-        )
-    else:
-        temp_recomendacion = (
-            "NO RECOMENDABLE: Temperatura por debajo de 10°C. El proceso anaerobio es inviable sin calentar la biomasa. "
-            "Se requiere calefacción del reactor (mantener 20-25°C) o cambio obligatorio a tecnología aerobia activada. "
-            "Los ajustes automáticos aplicados (carga reducida a 30%, HRT aumentado 150%) NO son suficientes para garantizar tratamiento adecuado."
-        )
+    # Usar texto de recomendación de temperatura del evaluador centralizado
+    # Viene de ptar_dimensionamiento.evaluar_temperatura_uasb()
+    temp_recomendacion = u.get('texto_recomendacion_temp', 
+        "Para mantener el rendimiento óptimo del reactor en caso de descenso de temperatura, "
+        "se recomienda monitorear periodicamente.")
     
     fp = resultados.get('filtro_percolador', dimensionar_filtro_percolador(cfg))
     s = resultados.get('sedimentador', dimensionar_sedimentador_sec(cfg))
@@ -247,7 +240,7 @@ La presente alternativa propone un esquema de tratamiento que combina procesos a
 
 Las rejillas constituyen la primera barrera de protección del sistema, reteniendo sólidos gruesos como plásticos, ramas y papel que podrían dañar equipos o causar obstrucciones en tuberías aguas abajo. El diseño hidráulico de esta unidad debe garantizar velocidades suficientes para arrastrar sólidos sedimentables, pero no tan elevadas que dificulten el paso del agua a través de las barras.
 
-Según los criterios establecidos por Metcalf y Eddy \cite{{metcalf2014}}, las velocidades de diseño en canales con rejillas deben mantenerse entre 0,40 y 0,60 m/s. Para este proyecto se adopta un valor intermedio de {v_canal:.2f} m/s, lo cual resulta apropiado considerando el caudal de diseño. El tirante hidráulico se establece en {h_tirante:.2f} m, valor que permite una velocidad de flujo uniforme en la sección del canal y evita la sedimentación de sólidos orgánicos antes de la rejilla, según los criterios de Metcalf y Eddy \cite{{metcalf2014}}.
+Según los criterios establecidos por Metcalf y Eddy \cite{{metcalf2014}}, las velocidades de diseño en canales con rejillas deben mantenerse entre {cfg.rejillas_v_canal_min_m_s:.2f} y {cfg.rejillas_v_canal_max_m_s:.2f}~m/s. Para este proyecto se adopta un valor intermedio de {v_canal:.2f}~m/s, lo cual resulta apropiado considerando el caudal de diseño. El tirante hidráulico se establece en {h_tirante:.2f}~m, valor que permite una velocidad de flujo uniforme en la sección del canal y evita la sedimentación de sólidos orgánicos antes de la rejilla, según los criterios de Metcalf y Eddy \cite{{metcalf2014}}.
 
 La pérdida de carga en rejillas limpias se calcula mediante la fórmula de Kirschmer (1926), que relaciona la geometría de las barras con las características del flujo. Los parámetros que determinan esta pérdida son: el espaciado entre barras ($b$), el espesor de las barras ($w$), la velocidad del flujo ($v$) y el ángulo de inclinación ($\theta$):
 
@@ -364,7 +357,7 @@ Las dimensiones finales del canal con rejillas son: ancho {r['ancho_layout_m']:.
 
 \subsection{{Desarenador de Flujo Horizontal}}
 
-El desarenador remueve partículas minerales (arena, grava) con diámetro superior a 0,20 mm mediante sedimentación gravitacional. Según Metcalf y Eddy \cite{{metcalf2014}}, los parámetros de diseño son: velocidad horizontal 0,25 - 0,30 m/s (máximo 0,30 m/s para evitar arrastre de sedimentos), tiempo de retención 30 - 60 s, y profundidad de flujo 0,75 - 2,0 m (OPS/CEPIS \cite{{ops2005}} permite valores menores en plantas pequeñas).
+El desarenador remueve partículas minerales (arena, grava) con diámetro superior a 0,20~mm mediante sedimentación gravitacional. Según Metcalf y Eddy \cite{{metcalf2014}}, los parámetros de diseño son: velocidad horizontal {cfg.desarenador_v_h_min_m_s:.2f}--{cfg.desarenador_v_h_max_m_s:.2f}~m/s (máximo {cfg.desarenador_v_h_max_m_s:.2f}~m/s para evitar arrastre de sedimentos), tiempo de retención {cfg.desarenador_t_retencion_min_s:.0f}--{cfg.desarenador_t_retencion_max_s:.0f}~s, y profundidad de flujo {cfg.desarenador_H_min_m:.2f}--{cfg.desarenador_H_max_m:.1f}~m (OPS/CEPIS \cite{{ops2005}} permite valores menores en plantas pequeñas).
 
 La profundidad total del canal incluye: profundidad útil de flujo ({d['H_util_m']:.2f}~m), zona de almacenamiento de arena (0,25 - 0,30~m), y bordo libre (0,30~m).
 
@@ -1256,45 +1249,45 @@ El area calculada de {area_m2} m$^2$ corresponde unicamente a las unidades de tr
 \toprule
 Area & Descripcion & Dimension aprox. \\
 \midrule
-Zona de amortiguacion & Perimetral alrededor de unidades (2-3 m) para acceso y seguridad & {area_m2 * 0.20:.0f} m$^2$ (20\%) \\
+Zona de amortiguacion & Perimetral alrededor de unidades (2-3 m) para acceso y seguridad & {area_m2 * cfg.layout_factor_amortiguacion:.0f} m$^2$ ({cfg.layout_factor_amortiguacion*100:.0f}\%) \\
 \addlinespace
-Bodega de quimicos & Almacenamiento de hipoclorito y productos quimicos & {max(10, area_m2 * 0.012):.0f} m$^2$ \\
+Bodega de quimicos & Almacenamiento de hipoclorito y productos quimicos & {max(cfg.layout_area_min_bodega_quimicos_m2, area_m2 * cfg.layout_factor_bodega_quimicos):.0f} m$^2$ \\
 \addlinespace
-Laboratorio/control & Analisis de calidad del agua (DBO, SST, CF, pH) & {max(15, area_m2 * 0.018):.0f} m$^2$ \\
+Laboratorio/control & Analisis de calidad del agua (DBO, SST, CF, pH) & {max(cfg.layout_area_min_laboratorio_m2, area_m2 * cfg.layout_factor_laboratorio):.0f} m$^2$ \\
 \addlinespace
-Caseta de operacion & Control, panel, escritorio, bano & {max(12, area_m2 * 0.015):.0f} m$^2$ \\
+Caseta de operacion & Control, panel, escritorio, bano & {max(cfg.layout_area_min_caseta_operacion_m2, area_m2 * cfg.layout_factor_caseta):.0f} m$^2$ \\
 \addlinespace
-Area de lavado & Limpieza de equipos y herramientas & {max(8, area_m2 * 0.010):.0f} m$^2$ \\
+Area de lavado & Limpieza de equipos y herramientas & {max(cfg.layout_area_min_lavado_m2, area_m2 * cfg.layout_factor_lavado):.0f} m$^2$ \\
 \addlinespace
-Estacionamiento & Vehiculos del personal y visitantes (2-3 vehiculos) & {max(50, area_m2 * 0.055):.0f} m$^2$ \\
+Estacionamiento & Vehiculos del personal y visitantes (2-3 vehiculos) & {max(cfg.layout_area_min_estacionamiento_m2, area_m2 * cfg.layout_factor_estacionamiento):.0f} m$^2$ \\
 \addlinespace
-Zona de camiones & Acceso de camiones cisterna/retiro de lodo & {max(50, area_m2 * 0.065):.0f} m$^2$ \\
+Zona de camiones & Acceso de camiones cisterna/retiro de lodo & {max(cfg.layout_area_min_zona_camiones_m2, area_m2 * cfg.layout_factor_zona_camiones):.0f} m$^2$ \\
 \addlinespace
-Caminos internas & Circulacion vehicular y peatonal (ancho 3--4 m) & {area_m2 * 0.10:.0f} m$^2$ (10\% area) \\
+Caminos internas & Circulacion vehicular y peatonal (ancho 3--4 m) & {area_m2 * cfg.layout_factor_caminos:.0f} m$^2$ ({cfg.layout_factor_caminos*100:.0f}\% area) \\
 \addlinespace
-Acceso principal & Entrada, porton y caseta de guardia & {max(20, area_m2 * 0.025):.0f} m$^2$ \\
+Acceso principal & Entrada, porton y caseta de guardia & {max(cfg.layout_area_min_acceso_principal_m2, area_m2 * cfg.layout_factor_acceso):.0f} m$^2$ \\
 \addlinespace
-Bodega general & Herramientas, repuestos, EPP & {max(15, area_m2 * 0.018):.0f} m$^2$ \\
+Bodega general & Herramientas, repuestos, EPP & {max(cfg.layout_area_min_bodega_general_m2, area_m2 * cfg.layout_factor_bodega_general):.0f} m$^2$ \\
 \addlinespace
-Zona carga de lodos & Carga/descarga de lodo deshidratado & {max(20, area_m2 * 0.025):.0f} m$^2$ \\
+Zona carga de lodos & Carga/descarga de lodo deshidratado & {max(cfg.layout_area_min_carga_lodos_m2, area_m2 * cfg.layout_factor_carga_lodos):.0f} m$^2$ \\
 \addlinespace
-Area verde/buffer & Separacion de limites, revegetacion & {area_total_calc * 0.15:.0f} m$^2$ (15\% total) \\
+Area verde/buffer & Separacion de limites, revegetacion & {area_total_calc * cfg.layout_factor_zona_verde:.0f} m$^2$ ({cfg.layout_factor_zona_verde*100:.0f}\% total) \\
 \bottomrule
 \end{{tabular}}
 \end{{table}}
 
 \textbf{{Area total estimada del predio}}
 
-Considerando el area de tratamiento ({area_m2:.0f} m$^2$), amortiguacion (20\%), complementarias operativas y zona verde (15\% del total):
+Considerando el area de tratamiento ({area_m2:.0f} m$^2$), amortiguacion ({cfg.layout_factor_amortiguacion*100:.0f}\%), complementarias operativas y zona verde ({cfg.layout_factor_zona_verde*100:.0f}\% del total):
 
 \begin{{equation}}
-A_{{total}} = \frac{{A_{{tratamiento}} + A_{{amortiguacion}} + A_{{complementarias}}}}{{1 - 0.15}}
+A_{{total}} = \frac{{A_{{tratamiento}} + A_{{amortiguacion}} + A_{{complementarias}}}}{{1 - {cfg.layout_factor_zona_verde:.2f}}}
 \end{{equation}}
 \captionequation{{Formula del area total del predio}}
 
 \begin{{itemize}}[noitemsep,leftmargin=2em]
     \item[$A_{{tratamiento}}$] = {area_m2:.0f} m$^2$
-    \item[$A_{{amortiguacion}}$] = {area_m2 * 0.20:.0f} m$^2$ (20\%)
+    \item[$A_{{amortiguacion}}$] = {area_m2 * cfg.layout_factor_amortiguacion:.0f} m$^2$ ({cfg.layout_factor_amortiguacion*100:.0f}\%)
     \item[$A_{{complementarias}}$] = {area_m2 * 0.25:.0f} m$^2$ (25\% operativas estimado)
 \end{{itemize}}
 
@@ -1331,21 +1324,50 @@ def generar_resumen_resultados(cfg, resultados, balance_calidad=None, area_m2=No
     area_complementaria = area_tratamiento * 0.25  # 25% para operativas
     area_total_calc = (area_tratamiento + area_amortiguacion + area_complementaria) / 0.85  # incluye 15% zona verde
     
-    # Verificacion de cumplimiento TULSMA Tabla 12
-    cumple_dbo = efluente.get('DBO5_mg_L', 0) <= 100
-    cumple_dqo = efluente.get('DQO_mg_L', 0) <= 250
-    cumple_sst = efluente.get('SST_mg_L', 0) <= 130
-    cumple_cf = efluente.get('CF_NMP', 0) <= 3000
-    cumple_todos = cumple_dbo and cumple_dqo and cumple_sst and cumple_cf
+    # Valores del efluente
+    dbo_ef = efluente.get('DBO5_mg_L', 0)
+    dqo_ef = efluente.get('DQO_mg_L', 0)
+    sst_ef = efluente.get('SST_mg_L', 0)
+    cf_ef = efluente.get('CF_NMP', 0)
     
-    estado_dbo = r"\textcolor{green}{\textbf{CUMPLE}}" if cumple_dbo else r"\textcolor{red}{\textbf{NO CUMPLE}}"
-    estado_dqo = r"\textcolor{green}{\textbf{CUMPLE}}" if cumple_dqo else r"\textcolor{red}{\textbf{NO CUMPLE}}"
-    estado_sst = r"\textcolor{green}{\textbf{CUMPLE}}" if cumple_sst else r"\textcolor{red}{\textbf{NO CUMPLE}}"
-    estado_cf = r"\textcolor{green}{\textbf{CUMPLE}}" if cumple_cf else r"\textcolor{red}{\textbf{NO CUMPLE}}"
+    # Verificacion de cumplimiento para cada tabla TULSMA
+    # Tabla 12 - Agua dulce
+    cumple_t12_dbo = dbo_ef <= 100
+    cumple_t12_dqo = dqo_ef <= 250
+    cumple_t12_sst = sst_ef <= 130
+    cumple_t12_cf = cf_ef <= 3000
+    cumple_t12 = cumple_t12_dbo and cumple_t12_dqo and cumple_t12_sst and cumple_t12_cf
+    
+    # Tabla 13 - Agua marina
+    cumple_t13_dbo = dbo_ef <= 100
+    cumple_t13_dqo = dqo_ef <= 250
+    cumple_t13_sst = sst_ef <= 100
+    cumple_t13_cf = cf_ef <= 3000
+    cumple_t13 = cumple_t13_dbo and cumple_t13_dqo and cumple_t13_sst and cumple_t13_cf
+    
+    # Tabla 11 - Alcantarillado
+    cumple_t11_dbo = dbo_ef <= 250
+    cumple_t11_dqo = dqo_ef <= 500
+    cumple_t11_sst = sst_ef <= 220
+    cumple_t11 = cumple_t11_dbo and cumple_t11_dqo and cumple_t11_sst
+    
+    # Tabla 3 - Flora y fauna (solo CF)
+    cumple_t3_cf = cf_ef <= 200
+    
+    # Tabla 6/7 - Agricola/Pecuario (solo CF)
+    cumple_t6_cf = cf_ef <= 1000
+    
+    # Tabla 9/10 - Recreativo
+    cumple_t9_cf = cf_ef <= 200
+    cumple_t10_cf = cf_ef <= 2000
+    
+    # Tabla 1 - Consumo humano
+    cumple_t1_dbo = dbo_ef <= 2.0
+    cumple_t1_cf = cf_ef <= 600
     
     conclusion_tulma = (
         r"\textbf{Conclusion:} El sistema dise\~nado cumple satisfactoriamente con todos los limites establecidos en la TULSMA (Tabla 12) para descarga a cuerpo de agua dulce."
-        if cumple_todos else
+        if cumple_t12 else
         r"\textbf{Advertencia:} El sistema NO cumple con uno o mas limites de la TULSMA. Se requiere revisar el dise\~no o considerar tratamiento adicional."
     )
     
@@ -1417,18 +1439,27 @@ CF (NMP/100mL) & {afluente.get('CF_NMP'):.0f} & {bal.get('tras_uasb').get('CF_NM
 
 \subsection{{Verificacion de Cumplimiento TULSMA}}
 
-% Limites TULSMA Tabla 12 - Descarga a cuerpo de agua dulce
+\textbf{{Efluente calculado:}} DBO$_5$ = {dbo_ef:.1f} mg/L | DQO = {dqo_ef:.1f} mg/L | SST = {sst_ef:.1f} mg/L | CF = {cf_ef:.0f} NMP/100mL
+
+\vspace{{0.5em}}
 \begin{{table}}[H]
 \centering
-\caption{{Verificacion de cumplimiento con limites TULSMA (Tabla 12 -- Descarga a cuerpo de agua dulce)}}
-\begin{{tabular}}{{lcccc}}
+\small
+\caption{{Comparacion con limites TULSMA por uso del agua}}
+\begin{{tabular}}{{lcccccc}}
 \toprule
-\textbf{{Parametro}} & \textbf{{Efluente calculado}} & \textbf{{Limite TULSMA}} & \textbf{{Estado}} \\
+\textbf{{Uso / Tabla TULSMA}} & \textbf{{DBO$_5$}} & \textbf{{DQO}} & \textbf{{SST}} & \textbf{{CF}} & \textbf{{Dictamen}} \\
+& \textbf{{(limite)}} & \textbf{{(limite)}} & \textbf{{(limite)}} & \textbf{{(limite)}} & \\
 \midrule
-DBO$_5$ & {efluente.get('DBO5_mg_L'):.1f} mg/L & $\leq$ 100 mg/L & {estado_dbo} \\
-DQO & {efluente.get('DQO_mg_L'):.1f} mg/L & $\leq$ 250 mg/L & {estado_dqo} \\
-SST & {efluente.get('SST_mg_L'):.1f} mg/L & $\leq$ 130 mg/L & {estado_sst} \\
-Coliformes fecales & {efluente.get('CF_NMP'):.0f} NMP/100mL & $\leq$ 3,000 NMP/100mL & {estado_cf} \\
+Agua dulce -- Tabla 12 & $\leq$100 & $\leq$250 & $\leq$130 & $\leq$3000 & {'CUMPLE' if cumple_t12 else 'NO CUMPLE'} \\
+Agua marina -- Tabla 13 & $\leq$100 & $\leq$250 & $\leq$100 & $\leq$3000 & {'CUMPLE' if cumple_t13 else 'NO CUMPLE'} \\
+Alcantarillado -- Tabla 11 & $\leq$250 & $\leq$500 & $\leq$220 & --- & {'CUMPLE' if cumple_t11 else 'NO CUMPLE'} \\
+Flora y fauna -- Tabla 3 & --- & --- & --- & $\leq$200 & {'CUMPLE' if cumple_t3_cf else 'NO CUMPLE'} \\
+Agricola/riego -- Tabla 6 & --- & --- & --- & $\leq$1000 & {'CUMPLE' if cumple_t6_cf else 'NO CUMPLE'} \\
+Pecuario -- Tabla 7 & --- & --- & --- & $\leq$1000 & {'CUMPLE' if cumple_t6_cf else 'NO CUMPLE'} \\
+Recreativo primario -- Tabla 9 & --- & --- & --- & $\leq$200 & {'CUMPLE' if cumple_t9_cf else 'NO CUMPLE'} \\
+Recreativo secundario -- Tabla 10 & --- & --- & --- & $\leq$2000 & {'CUMPLE' if cumple_t10_cf else 'NO CUMPLE'} \\
+Consumo humano trat. conv. -- Tabla 1 & $\leq$2.0 & --- & --- & $\leq$600 & {'CUMPLE' if (cumple_t1_dbo and cumple_t1_cf) else 'NO CUMPLE'} \\
 \bottomrule
 \end{{tabular}}
 \end{{table}}
