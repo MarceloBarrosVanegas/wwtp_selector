@@ -232,7 +232,7 @@ def convertir_resultados_a_dimensiones(resultados: dict) -> dict:
         elif key_res == 'sedimentador':
             diam = res.get('D_m', res.get('diametro_m', 5.0))
             dim[key_layout] = {
-                'tipo': 'sedimentacion',
+                'tipo': 'tratamiento_secundario',
                 'diametro': diam,
                 'geom': 'circ'
             }

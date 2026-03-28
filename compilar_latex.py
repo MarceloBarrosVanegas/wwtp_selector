@@ -49,9 +49,11 @@ def compilar(tex_path, output_dir=None):
     print(f"Usando: {pdflatex}")
     print()
     
-    # Ejecutar pdflatex dos veces para referencias
-    for i in range(2):
-        print(f"  Paso {i+1}/2...")
+    # Ejecutar pdflatex tres veces para resolver todas las referencias
+    # (referencias cruzadas, TOC, bibliografía, etc.)
+    num_pasadas = 3
+    for i in range(num_pasadas):
+        print(f"  Paso {i+1}/{num_pasadas}...")
         try:
             result = subprocess.run(
                 [pdflatex, "-interaction=nonstopmode", "-output-directory", output_dir, tex_name],
@@ -78,6 +80,33 @@ def compilar(tex_path, output_dir=None):
             return False, "Tiempo de espera agotado", None
         except Exception as e:
             return False, f"Error ejecutando pdflatex: {e}", None
+    
+    # Verificar si hay archivo referencias.bib y ejecutar bibtex si existe
+    bib_path = os.path.join(tex_dir, 'referencias.bib')
+    if os.path.exists(bib_path):
+        print("  Ejecutando BibTeX para referencias bibliográficas...")
+        bibtex = shutil.which("bibtex")
+        if bibtex:
+            try:
+                result = subprocess.run(
+                    [bibtex, tex_name.replace('.tex', '')],
+                    cwd=tex_dir,
+                    capture_output=True,
+                    text=True,
+                    timeout=60
+                )
+                # Ejecutar pdflatex 2 veces más después de bibtex
+                for i in range(2):
+                    print(f"  Paso {num_pasadas + i + 1}/{num_pasadas + 2} (post-BibTeX)...")
+                    result = subprocess.run(
+                        [pdflatex, "-interaction=nonstopmode", "-output-directory", output_dir, tex_name],
+                        cwd=tex_dir,
+                        capture_output=True,
+                        text=True,
+                        timeout=120
+                    )
+            except Exception as e:
+                print(f"  [ADVERTENCIA] Error con BibTeX: {e}")
     
     # Verificar que se generó el PDF
     pdf_name = tex_name.replace('.tex', '.pdf')

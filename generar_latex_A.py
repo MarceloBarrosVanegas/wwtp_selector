@@ -20,6 +20,65 @@ from ptar_dimensionamiento import (
 )
 
 
+def _generar_bibliografia(output_dir):
+    """Genera el archivo .bib con las referencias bibliográficas"""
+    bib_content = r'''%% Archivo de referencias bibliográficas
+%% Generado automáticamente - Alternativa A
+
+@book{metcalf2014,
+    author    = {Metcalf and Eddy, Inc.},
+    title     = {Wastewater Engineering: Treatment and Resource Recovery},
+    edition   = {5th},
+    publisher = {McGraw-Hill Education},
+    year      = {2014},
+    address   = {New York, NY},
+    isbn      = {978-0073401188}
+}
+
+@techreport{ops2005,
+    author      = {{OPS/CEPIS}},
+    title       = {Guía para el diseño de plantas de tratamiento de aguas residuales},
+    institution = {Organización Panamericana de la Salud / Centro Panamericano de Ingeniería Sanitaria y Ciencias del Ambiente},
+    year        = {2005},
+    address     = {Lima, Perú},
+    type        = {Guía Técnica}
+}
+
+@techreport{senagua2012,
+    author      = {{SENAGUA}},
+    title       = {Normativa para el diseño de sistemas de tratamiento de aguas residuales},
+    institution = {Secretaría Nacional del Agua del Ecuador},
+    year        = {2012},
+    address     = {Quito, Ecuador},
+    type        = {Norma Técnica}
+}
+
+@book{vanhaandel1994,
+    author    = {Van Haandel, A. C. and Lettinga, G.},
+    title     = {Anaerobic Sewage Treatment: A Practical Guide for Regions with a Hot Climate},
+    publisher = {John Wiley \& Sons},
+    year      = {1994},
+    address   = {Chichester, UK},
+    isbn      = {978-0471951055}
+}
+
+@book{sperling2007,
+    author    = {von Sperling, M.},
+    title     = {Activated Sludge and Aerobic Biofilm Reactors},
+    series    = {Biological Wastewater Treatment Series},
+    volume    = {5},
+    publisher = {IWA Publishing},
+    year      = {2007},
+    address   = {London, UK},
+    isbn      = {978-1843391651}
+}
+'''
+    bib_path = os.path.join(output_dir, 'referencias.bib')
+    with open(bib_path, 'w', encoding='utf-8') as f:
+        f.write(bib_content)
+    return bib_path
+
+
 def _generar_tikz_rejillas(r, angulo_rej):
     """Genera el código TikZ para el esquema de rejillas - Version con circulo azul"""
     h = r['h_tirante_m']
@@ -116,6 +175,12 @@ def generar_contenido_alternativa_A(cfg, resultados, layout_filename="Layout_A_2
             'tras_sed': {'DBO5_mg_L': cfg.DBO5_mg_L*0.7*0.8*0.85, 'DQO_mg_L': cfg.DQO_mg_L*0.65*0.8*0.85, 'SST_mg_L': cfg.SST_mg_L*0.7*0.4*0.3, 'CF_NMP': cfg.CF_NMP*0.7*0.8},
             'efluente_final': {'DBO5_mg_L': cfg.DBO5_mg_L*0.17, 'DQO_mg_L': cfg.DQO_mg_L*0.2, 'SST_mg_L': cfg.SST_mg_L*0.02, 'CF_NMP': 2500}
         }
+    
+    # Calcular areas complementarias basadas en el area real de tratamiento
+    area_tratamiento = area_m2 if area_m2 else 990
+    area_amortiguacion = area_tratamiento * 0.20
+    area_complementaria = area_tratamiento * 0.25
+    area_total_calc = (area_tratamiento + area_amortiguacion + area_complementaria) / 0.85
     
     r = resultados.get('rejillas', dimensionar_rejillas(cfg))
     d = resultados.get('desarenador', dimensionar_desarenador(cfg))
@@ -1191,36 +1256,36 @@ El area calculada de {area_m2} m$^2$ corresponde unicamente a las unidades de tr
 \toprule
 Area & Descripcion & Dimension aprox. \\
 \midrule
-Zona de amortiguacion & Perimetral alrededor de unidades (2-3 m) para acceso y seguridad & +20\% area tratamiento \\
+Zona de amortiguacion & Perimetral alrededor de unidades (2-3 m) para acceso y seguridad & {area_m2 * 0.20:.0f} m$^2$ (20\%) \\
 \addlinespace
-Bodega de quimicos & Almacenamiento de hipoclorito y productos quimicos & 10--15 m$^2$ \\
+Bodega de quimicos & Almacenamiento de hipoclorito y productos quimicos & {max(10, area_m2 * 0.012):.0f} m$^2$ \\
 \addlinespace
-Laboratorio/control & Analisis de calidad del agua (DBO, SST, CF, pH) & 15--20 m$^2$ \\
+Laboratorio/control & Analisis de calidad del agua (DBO, SST, CF, pH) & {max(15, area_m2 * 0.018):.0f} m$^2$ \\
 \addlinespace
-Caseta de operacion & Control, panel, escritorio, bano & 12--15 m$^2$ \\
+Caseta de operacion & Control, panel, escritorio, bano & {max(12, area_m2 * 0.015):.0f} m$^2$ \\
 \addlinespace
-Area de lavado & Limpieza de equipos y herramientas & 8--10 m$^2$ \\
+Area de lavado & Limpieza de equipos y herramientas & {max(8, area_m2 * 0.010):.0f} m$^2$ \\
 \addlinespace
-Estacionamiento & Vehiculos del personal y visitantes (2-3 vehiculos) & 50--60 m$^2$ \\
+Estacionamiento & Vehiculos del personal y visitantes (2-3 vehiculos) & {max(50, area_m2 * 0.055):.0f} m$^2$ \\
 \addlinespace
-Zona de camiones & Acceso de camiones cisterna/retiro de lodo & 50--80 m$^2$ \\
+Zona de camiones & Acceso de camiones cisterna/retiro de lodo & {max(50, area_m2 * 0.065):.0f} m$^2$ \\
 \addlinespace
-Caminos internas & Circulacion vehicular y peatonal (ancho 3--4 m) & 80--120 m$^2$ \\
+Caminos internas & Circulacion vehicular y peatonal (ancho 3--4 m) & {area_m2 * 0.10:.0f} m$^2$ (10\% area) \\
 \addlinespace
-Acceso principal & Entrada, porton y caseta de guardia & 20--30 m$^2$ \\
+Acceso principal & Entrada, porton y caseta de guardia & {max(20, area_m2 * 0.025):.0f} m$^2$ \\
 \addlinespace
-Bodega general & Herramientas, repuestos, EPP & 15--20 m$^2$ \\
+Bodega general & Herramientas, repuestos, EPP & {max(15, area_m2 * 0.018):.0f} m$^2$ \\
 \addlinespace
-Zona carga de lodos & Carga/descarga de lodo deshidratado & 20--30 m$^2$ \\
+Zona carga de lodos & Carga/descarga de lodo deshidratado & {max(20, area_m2 * 0.025):.0f} m$^2$ \\
 \addlinespace
-Area verde/buffer & Separacion de limites, revegetacion & 15\% area total \\
+Area verde/buffer & Separacion de limites, revegetacion & {area_total_calc * 0.15:.0f} m$^2$ (15\% total) \\
 \bottomrule
 \end{{tabular}}
 \end{{table}}
 
 \textbf{{Area total estimada del predio}}
 
-Considerando el area de tratamiento ({area_m2 if area_m2 else 850} m$^2$), amortiguacion (20\%), complementarias operativas y zona verde (15\% del total):
+Considerando el area de tratamiento ({area_m2:.0f} m$^2$), amortiguacion (20\%), complementarias operativas y zona verde (15\% del total):
 
 \begin{{equation}}
 A_{{total}} = \frac{{A_{{tratamiento}} + A_{{amortiguacion}} + A_{{complementarias}}}}{{1 - 0.15}}
@@ -1228,16 +1293,16 @@ A_{{total}} = \frac{{A_{{tratamiento}} + A_{{amortiguacion}} + A_{{complementari
 \captionequation{{Formula del area total del predio}}
 
 \begin{{itemize}}[noitemsep,leftmargin=2em]
-    \item[$A_{{tratamiento}}$] = {area_m2 if area_m2 else 850} m$^2$
-    \item[$A_{{amortiguacion}}$] = {area_m2 * 0.20 if area_m2 else 170:.0f} m$^2$ (20\%)
-    \item[$A_{{complementarias}}$] = 280--340 m$^2$ (operativas)
+    \item[$A_{{tratamiento}}$] = {area_m2:.0f} m$^2$
+    \item[$A_{{amortiguacion}}$] = {area_m2 * 0.20:.0f} m$^2$ (20\%)
+    \item[$A_{{complementarias}}$] = {area_m2 * 0.25:.0f} m$^2$ (25\% operativas estimado)
 \end{{itemize}}
 
 \begin{{equation}}
-A_{{total}} = \frac{{{area_m2 if area_m2 else 850} + {area_m2 * 0.20 if area_m2 else 170:.0f} + 310}}{{0.85}} \approx \mathbf{{1600 \text{{--}} 1900 \text{{ m}}^2}} \approx \mathbf{{0.16 \text{{--}} 0.19 \text{{ ha}}}}
+A_{{total}} = \frac{{{area_m2:.0f} + {area_m2 * 0.20:.0f} + {area_m2 * 0.25:.0f}}}{{0.85}} \approx \mathbf{{{((area_m2 * 1.45) / 0.85):.0f} \text{{ m}}^2}} \approx \mathbf{{{(area_m2 * 1.705 / 10000):.2f} \text{{ ha}}}}
 \end{{equation}}
 
-\textbf{{Nota:}} El area total del predio debe ser de aproximadamente 1600--1900 m$^2$ (0.16--0.19 ha) para operacion adecuada con circulacion interna, estacionamiento y zonas verdes.
+\textbf{{Nota:}} El area total del predio debe ser de aproximadamente {((area_m2 * 1.45) / 0.85):.0f} m$^2$ ({(area_m2 * 1.705 / 10000):.2f} ha) para operacion adecuada con circulacion interna, estacionamiento y zonas verdes.
 """
 
 
@@ -1259,6 +1324,12 @@ def generar_resumen_resultados(cfg, resultados, balance_calidad=None, area_m2=No
     # Valores de calidad
     afluente = bal.get('afluente', {})
     efluente = bal.get('efluente_final', {})
+    
+    # Calcular area total del predio (dinamico)
+    area_tratamiento = area_m2 if area_m2 else 990  # valor default si no se proporciona
+    area_amortiguacion = area_tratamiento * 0.20
+    area_complementaria = area_tratamiento * 0.25  # 25% para operativas
+    area_total_calc = (area_tratamiento + area_amortiguacion + area_complementaria) / 0.85  # incluye 15% zona verde
     
     # Verificacion de cumplimiento TULSMA Tabla 12
     cumple_dbo = efluente.get('DBO5_mg_L', 0) <= 100
@@ -1373,12 +1444,12 @@ Coliformes fecales & {efluente.get('CF_NMP'):.0f} NMP/100mL & $\leq$ 3,000 NMP/1
 \toprule
 \textbf{{Concepto}} & \textbf{{Area}} \\
 \midrule
-Area de tratamiento & {area_m2 if area_m2 else 850:.0f} m$^2$ \\
-Area de amortiguacion (20\%) & {(area_m2 if area_m2 else 850) * 0.20:.0f} m$^2$ \\
-Area complementaria operativa & 310 m$^2$ \\
-Zona verde (15\% del total) & {(area_m2 if area_m2 else 1600) * 0.15:.0f} m$^2$ \\
+Area de tratamiento & {area_m2:.0f} m$^2$ \\
+Area de amortiguacion (20\%) & {area_m2 * 0.20:.0f} m$^2$ \\
+Area complementaria operativa & {area_m2 * 0.25:.0f} m$^2$ (25\% estimado) \\
+Zona verde (15\% del total) & {area_total_calc * 0.15:.0f} m$^2$ \\
 \midrule
-\textbf{{Area total requerida}} & \textbf{{{area_m2 if area_m2 else 1600:.0f}--1900 m$^2$ (0.16--0.19 ha)}} \\
+\textbf{{Area total requerida}} & \textbf{{{area_total_calc:.0f} m$^2$ ({(area_total_calc/10000):.2f} ha)}} \\
 \bottomrule
 \end{{tabular}}
 \end{{table}}
@@ -1459,6 +1530,14 @@ def generar_latex_alternativa_A(cfg, resultados, output_path, area_m2=None, bala
         print(f"  [ADVERTENCIA] No se pudo generar layout: {e}")
         layout_filename = "Layout_A_2lineas.png"
     
+    # Generar archivo de bibliografía
+    print("Generando archivo de bibliografía...")
+    try:
+        _generar_bibliografia(output_dir)
+        print("  Bibliografía generada: referencias.bib")
+    except Exception as e:
+        print(f"  [ADVERTENCIA] No se pudo generar bibliografía: {e}")
+    
     contenido = generar_contenido_alternativa_A(cfg, resultados, layout_filename=layout_filename, area_m2=area_m2, balance_calidad=balance_calidad)
     resumen = generar_resumen_resultados(cfg, resultados, balance_calidad=balance_calidad, area_m2=area_m2)
     
@@ -1479,14 +1558,14 @@ def generar_latex_alternativa_A(cfg, resultados, output_path, area_m2=None, bala
 \usepackage{{hyperref}}
 \usepackage{{tocloft}}
 \usepackage{{titletoc}}
+\usepackage{{natbib}}
 
 % Configuracion para indice de ecuaciones
-\newcounter{{myequation}}
-\renewcommand{{\theequation}}{{\arabic{{equation}}}}
 \newcommand{{\listequationsname}}{{Indice de Ecuaciones}}
-\newlistof{{equation}}{{loe}}{{\listequationsname}}
+\newlistof{{myequation}}{{loe}}{{\listequationsname}}
+\renewcommand{{\themyequation}}{{\arabic{{equation}}}}
 \newcommand{{\captionequation}}[1]{{%
-    \addcontentsline{{loe}}{{equation}}{{\protect\numberline{{\theequation}}#1}}%
+    \addcontentsline{{loe}}{{myequation}}{{\protect\numberline{{\themyequation}}#1}}%
 }}
 
 \geometry{{margin=2.5cm}}
@@ -1527,7 +1606,7 @@ def generar_latex_alternativa_A(cfg, resultados, output_path, area_m2=None, bala
 \newpage
 \listoffigures
 \listoftables
-\listof{{equation}}{{\listequationsname}}
+\listof{{myequation}}{{\listequationsname}}
 \newpage
 
 {contenido}
@@ -2002,44 +2081,8 @@ Zinc & Zn & mg/L & $\leq$ 5,0 \\
 %============================================================================
 % BIBLIOGRAFÍA
 %============================================================================
-\begin{{thebibliography}}{{9}}
-
-\bibitem{{metcalf2014}}
-Metcalf \& Eddy, AECOM. (2014).
-\textit{{Wastewater Engineering: Treatment and Resource Recovery}}, 5th ed.
-McGraw-Hill Education.
-
-\bibitem{{vanhaandel1994}}
-Van Haandel, A.C., \& Lettinga, G. (1994).
-\textit{{Anaerobic Sewage Treatment: A Practical Guide for Regions with a Hot Climate}}.
-John Wiley \& Sons.
-
-\bibitem{{sperling2007}}
-Sperling, M.V. (2007).
-\textit{{Biological Wastewater Treatment}} (Vols. 1-6).
-Departamento de Engenharia Sanitaria e Ambiental, UFMG.
-
-\bibitem{{wef2010}}
-Water Environment Federation. (2010).
-\textit{{WEF Manual of Practice No. 8: Design of Municipal Wastewater Treatment Plants}}, 5th ed.
-WEF Press.
-
-\bibitem{{romero2004}}
-Romero Rojas, J.A. (2004).
-\textit{{Tratamiento de Aguas Residuales: Teoría y Principios de Diseño}}.
-Editorial Escuela Colombiana de Ingeniería.
-
-\bibitem{{ops2005}}
-OPS/CEPIS. (2005).
-\textit{{Guía para el Diseño de Sistemas de Tratamiento de Aguas Residuales en Zonas Rurales y Pequeñas Comunidades}}.
-Organización Panamericana de la Salud.
-
-\bibitem{{kadlec2009}}
-Kadlec, R.H., \& Wallace, S.D. (2009).
-\textit{{Treatment Wetlands}}, 2nd ed.
-CRC Press.
-
-\end{{thebibliography}}
+\bibliographystyle{{plain}}
+\bibliography{{referencias}}
 
 \end{{document}}
 """

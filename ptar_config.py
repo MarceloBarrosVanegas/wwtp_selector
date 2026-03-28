@@ -55,7 +55,7 @@ DIMENSIONES = {
     'Lodos_Activados': {'tipo': 'tratamiento_secundario', 'largo': 12.0, 'ancho': 8.0, 'geom': 'rect'},
     'Sedimentador_Secundario': {'tipo': 'sedimentacion', 'diametro': 7.0, 'geom': 'circ'},
     'Decantador': {'tipo': 'sedimentacion', 'diametro': 6.0, 'geom': 'circ'},
-    'Sedimentador': {'tipo': 'sedimentacion', 'diametro': 4.8, 'geom': 'circ'},
+    'Sedimentador': {'tipo': 'tratamiento_secundario', 'diametro': 4.8, 'geom': 'circ'},
     'UV': {'tipo': 'terciario', 'largo': 3.0, 'ancho': 1.0, 'geom': 'rect'},
     'Cloro': {'tipo': 'terciario', 'largo': 4.2, 'ancho': 1.1, 'geom': 'rect'},
     'Desinfeccion': {'tipo': 'terciario', 'largo': 8.0, 'ancho': 2.0, 'geom': 'rect'},
