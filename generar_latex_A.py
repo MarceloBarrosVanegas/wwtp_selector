@@ -170,7 +170,7 @@ def generar_contenido_alternativa_A(cfg, resultados, layout_filename="Layout_A_2
     
     return rf"""
 %============================================================================
-% ALTERNATIVA A: UASB + FILTRO PERCOLADOR + CLORO
+%  UASB + FILTRO PERCOLADOR + CLORO
 % Memoria de Cálculo
 %============================================================================
 \newpage
@@ -1166,8 +1166,6 @@ CF (NMP/100mL) & {balance_calidad['afluente']['CF_NMP']:.0f} & {balance_calidad[
 
 Los parametros del efluente final cumplen con los limites establecidos en la TULSMA (DBO$_5$ $\leq$ 100 mg/L, SST $\leq$ 100 mg/L, CF $\leq$ 3000 NMP/100mL).
 
-
-\newpage
 \subsection{{Disposicion de la Planta y Areas de Predio}}
 
 La figura \ref{{fig:layout_a}} presenta la disposicion espacial de las unidades de tratamiento. El layout muestra dos lineas paralelas operativas, cada una con capacidad para tratar {cfg.Q_linea_L_s:.1f} L/s, permitiendo la operacion con una sola linea durante mantenimiento o reparaciones.
@@ -1175,7 +1173,7 @@ La figura \ref{{fig:layout_a}} presenta la disposicion espacial de las unidades 
 \begin{{figure}}[H]
 \centering
 \includegraphics[width=\textwidth]{{{layout_filename}}}
-\caption{{Disposición espacial de unidades - Alternativa A}}
+\caption{{Disposición espacial de unidades}}
 \label{{fig:layout_a}}
 \end{{figure}}
 
@@ -1428,7 +1426,7 @@ Consumo hipoclorito anual & {desinf.get('volumen_NaOCl_L_d') * 365 / 1000:.0f} &
 \begin{{minipage}}{{0.9\textwidth}}
 \centering
 \textbf{{RESUMEN EJECUTIVO}}\\[0.5em]
-La PTAR Alternativa A (UASB + Filtro Percolador) para {cfg.Q_linea_L_s * 2:.1f} L/s\\
+La PTAR (UASB + Filtro Percolador) para {cfg.Q_linea_L_s * 2:.1f} L/s\\
 requiere un area total de \textbf{{0.16--0.19 ha}} y produce un efluente que\\
 cumple con la \textbf{{TULSMA}} para descarga a cuerpos de agua Clase 3.
 \end{{minipage}}
@@ -1438,7 +1436,7 @@ cumple con la \textbf{{TULSMA}} para descarga a cuerpos de agua Clase 3.
 
 
 def generar_latex_alternativa_A(cfg, resultados, output_path, area_m2=None, balance_calidad=None):
-    """Genera archivo LaTeX completo de Alternativa A (incluye layout automático)"""
+    """Genera archivo LaTeX completo (incluye layout automático)"""
     
     # Importar y generar layout automáticamente
     from ptar_layout_graficador import generar_layout_con_resultados
