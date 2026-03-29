@@ -1223,11 +1223,7 @@ V = {cl['Q_m3_d']/24/60:.3f} \times {cl['TRH_min']:.0f} = {cl['V_contacto_m3']:.
 
 Con una profundidad de 2.0 m y relación largo/ancho de 4:1, las dimensiones resultantes son {cl['largo_m']:.1f} m de largo por {cl['ancho_m']:.1f} m de ancho.
 
-\textbf{{Verificación de cumplimiento}}
-
-\textbf{{Cumplimiento TULSMA}}
-
-El efluente final presenta una concentración de coliformes fecales de {cl['CF_final_NMP']:.0f} NMP/100mL, valor que cumple satisfactoriamente con el límite de 3000 NMP/100mL establecido por la TULSMA.
+El efluente final presenta una concentración de coliformes fecales de {cl['CF_final_NMP']:.0f} NMP/100mL.
 
 \textbf{{Consumo de cloro y requerimientos de producto comercial}}
 
@@ -1630,7 +1626,7 @@ Temperatura & {cfg.T_agua_C:.1f} °C \\
 \midrule
 Rejillas & {rej.get('ancho_layout_m'):.2f} $\times$ {rej.get('h_tirante_m'):.2f} & {cfg.num_lineas} & Velocidad: {rej.get('v_canal_adoptada_m_s'):.2f} m/s \\
 Desarenador & {des.get('b_canal_m'):.2f} $\times$ {des.get('L_diseno_m'):.1f} $\times$ {des.get('H_util_m') + 0.3:.1f} & {cfg.num_lineas} & TRH: {des.get('t_r_real_s', des.get('t_r_nominal_s', 30)):.0f}~s (referencia: 30--60~s) \\
-Reactor UASB & D = {uasb.get('D_m'):.2f}, H = {uasb.get('H_r_m'):.1f} & {cfg.num_lineas} & v$_{{up}}$ = {uasb.get('v_up_m_h'):.2f} m/h \\
+Reactor UASB & D = {uasb.get('D_m'):.2f}, H = {uasb.get('H_total_construccion_m'):.1f} & {cfg.num_lineas} & v$_{{up}}$ = {uasb.get('v_up_m_h'):.2f} m/h \\
 Filtro Percolador & D = {fp.get('D_filtro_m'):.2f}, H = {fp.get('H_total_m'):.1f} & {cfg.num_lineas} & Q$_A$ = {fp.get('Q_A_real_m3_m2_h', 0):.3f} m$^3$/m$^2$·h (máx: {fp.get('Q_A_max_m3_m2_h', 0):.2f}) \\
 Sedimentador Secundario & D = {sed.get('D_m'):.2f}, H = {sed.get('h_sed_m'):.1f} & {cfg.num_lineas} & SOR = {sed.get('SOR_m3_m2_d'):.1f} m$^3$/m$^2\cdot$d \\
 Desinfeccion (Cloro) & {desinf.get('largo_m'):.1f} $\times$ {desinf.get('ancho_m'):.1f} $\times$ {desinf.get('h_total_m'):.1f} & {cfg.num_lineas} & CT = {desinf.get('CT_mg_min_L'):.0f} mg$\cdot$min/L \\
@@ -1714,10 +1710,10 @@ Zona verde (15\% del total) & {area_total_calc * 0.15:.0f} m$^2$ \\
 \toprule
 \textbf{{Concepto}} & \textbf{{Por línea}} & \textbf{{Total planta}} \\
 \midrule
-Produccion lodos UASB & {lecho.get('lodos_uasb_kg_d_por_linea', lecho.get('lodos_uasb_kg_d', 0)/2):.1f} kg SST/d & {lecho.get('lodos_uasb_kg_d', 0):.1f} kg SST/d \\
-Produccion humus FP + Sed & {lecho.get('lodos_fp_kg_d_por_linea', lecho.get('lodos_fp_kg_d', 0)/2):.1f} kg SST/d & {lecho.get('lodos_fp_kg_d', 0):.1f} kg SST/d \\
+Produccion lodos UASB & {lecho.get('lodos_uasb_kg_d_por_linea', lecho.get('lodos_uasb_kg_d', 0)/2):.2f} kg SST/d & {lecho.get('lodos_uasb_kg_d', 0):.2f} kg SST/d \\
+Produccion humus FP + Sed & {lecho.get('lodos_fp_kg_d_por_linea', lecho.get('lodos_fp_kg_d', 0)/2):.2f} kg SST/d & {lecho.get('lodos_fp_kg_d', 0):.2f} kg SST/d \\
 \midrule
-\textbf{{Total lodos}} & \textbf{{{lecho.get('lodos_total_kg_d_por_linea', lecho.get('lodos_total_kg_d', 0)/2):.1f} kg SST/d}} & \textbf{{{lecho.get('lodos_total_kg_d', 0):.1f} kg SST/d}} \\
+\textbf{{Total lodos}} & \textbf{{{lecho.get('lodos_total_kg_d_por_linea', lecho.get('lodos_total_kg_d', 0)/2):.2f} kg SST/d}} & \textbf{{{lecho.get('lodos_total_kg_d', 0):.2f} kg SST/d}} \\
 Area de lechos de secado & --- & {lecho.get('A_total_m2'):.1f} m$^2$ ({cfg.num_lineas} bloques) \\
 Frecuencia de aplicacion & --- & 1 vez cada 3--4 meses \\
 \bottomrule

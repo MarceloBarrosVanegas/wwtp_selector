@@ -261,7 +261,7 @@ class ConfigDiseno:
     sed_SOR_m3_m2_d: float = 18.0           # Tasa desbordamiento superficial (conservador)
     sed_h_sed_m: float = 3.50               # Profundidad lateral (m)
     sed_factor_produccion_humus: float = 0.15  # Factor producción humus (kg SST/kg DBO removida FP)
-    sed_eta_DBO: float = 0.30               # Eficiencia remoción DBO en sedimentador (fracción)
+    sed_eta_DBO: float = 0.15               # Eficiencia remoción DBO en sedimentador (fracción) - Valor conservador según Metcalf & Eddy (2014) para sedimentador secundario tras filtro percolador (10-15%)
     
     # =============================================================================
     # PARÁMETROS DE BALANCE DE CALIDAD DEL AGUA
