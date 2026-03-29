@@ -718,11 +718,11 @@ t_{{sed}} = \frac{{V_{{sed}}}}{{Q}} = \frac{{{u['V_sed_m3']:.2f}}}{{{u['Q_m3_h']
 
 \subsubsection{{Cámara de Sedimentación -- Verificación}}
 
-\textbf{{Principio de verificación de la sedimentación:}} La cámara de sedimentación superior del reactor UASB debe verificarse tanto para condiciones de caudal medio como para caudal máximo. Según Chernicharo \cite{{chernicharo2007}}, la verificación a caudal medio permite evaluar si el diseño opera dentro del rango óptimo de eficiencia, mientras que la verificación a caudal máximo determina si se evita el arrastre de sólidos durante picos de flujo.
+El principio de verificación de la sedimentación establece que la cámara de sedimentación superior del reactor UASB debe evaluarse tanto para condiciones de caudal medio como para caudal máximo. Según Chernicharo \cite{{chernicharo2007}}, la verificación a caudal medio permite evaluar si el diseño opera dentro del rango óptimo de eficiencia, mientras que la verificación a caudal máximo determina si se evita el arrastre de sólidos durante picos de flujo.
 
 El autor establece que, aunque el criterio crítico es el SOR máximo ($<$ {cfg.uasb_SOR_max_limite_m_h:.1f} m/h), también es deseable que el SOR medio se mantenga entre 0,6 y 0,8 m/h. Valores inferiores a este rango, aunque conservadores, indican que el área del sedimentador es mayor de lo estrictamente necesario, lo cual no representa un problema operativo pero implica mayores costos de construcción. Valores superiores sugieren riesgo de arrastre incluso en operación normal.
 
-\textbf{{Cálculo de la Carga Superficial Operacional:}} Aplicando la ecuación fundamental del SOR para ambas condiciones de caudal:
+El cálculo de la Carga Superficial Operacional se realiza aplicando la ecuación fundamental del SOR para ambas condiciones de caudal:
 
 Para caudal medio (condición de operación normal):
 \begin{{equation}}
@@ -734,7 +734,7 @@ Para caudal máximo horario (condición de pico):
 SOR_{{max}} = \frac{{Q_{{max}}}}{{A_{{sed}}}} = \frac{{{u['Q_max_m3_h']:.2f}}}{{{u['A_sed_efectiva_m2']:.2f}}} = {u['SOR_max_m_h']:.2f} \text{{ m/h}}
 \end{{equation}}
 
-\textbf{{Análisis de cumplimiento de criterios:}} Los valores calculados se evalúan según los criterios establecidos por Chernicharo (2007) para sedimentadores en reactores UASB:
+El análisis de cumplimiento de criterios evalúa los valores calculados según los parámetros establecidos por Chernicharo (2007) para sedimentadores en reactores UASB:
 
 \begin{{itemize}}[leftmargin=2em]
     \item \textbf{{SOR máximo}}: El valor de {u['SOR_max_m_h']:.2f} m/h se compara contra el límite crítico de {cfg.uasb_SOR_max_limite_m_h:.1f} m/h. Este límite representa la velocidad de asentamiento mínima de los agregados de lodos anaerobios. Superar este valor implica que el flujo ascendente supera la velocidad de caída de los sólidos, causando su arrastre hacia el efluente.
