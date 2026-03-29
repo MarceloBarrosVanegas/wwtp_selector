@@ -547,7 +547,7 @@ Crítica & $<$ 10 & No recomendable & Requiere calefacción \\
 
 {temp_recomendacion}
 
-Notas importantes de diseño: se debe incluir un separador gas-líquido-sólido (GLS) en la parte superior (altura 0,8--1,2 m) y un sistema de distribución uniforme en el fondo. El biogás requiere sistema de recolección y manejo seguro (prevención contra explosión).
+Notas importantes de diseño: se debe incluir un separador gas-líquido-sólido (GLS) en la parte superior (altura referencial de {cfg.uasb_H_GLS_m:.1f} m) y un sistema de distribución uniforme en el fondo. El biogás requiere sistema de recolección y manejo seguro (prevención contra explosión).
 
 Los siguientes parámetros han sido seleccionados como criterios de diseño para el reactor UASB:
 
@@ -561,9 +561,9 @@ Los siguientes parámetros han sido seleccionados como criterios de diseño para
 Caudal por línea ($Q$) & {u['Q_m3_h']:.2f} m³/h & - \\
 Carga orgánica volumétrica ($C_v$) & {u['Cv_kgDQO_m3_d']:.2f} kg DQO/m³·d & {u['rango_Cv']} \\
 Velocidad ascendente de diseño ($v_{{up}}$) & {cfg.uasb_v_up_m_h:.2f} m/h & {u['rango_vup']} \\
-Altura máxima del reactor ($H_{{max}}$) & {cfg.uasb_H_max_m:.1f} m & 4,0--6,0 m \\
-Factor de efectividad sedimentador & {int(cfg.uasb_factor_efectividad_sed*100):d}\% & 85--95\% \\
-Altura sedimentador ($H_{{sed}}$) & {cfg.uasb_TRH_sed_medio_min_h:.1f} m & 1,5--2,0 m \\
+Altura máxima del reactor ($H_{{max}}$) & {cfg.uasb_H_max_m:.1f} m & {cfg.uasb_H_min_m:.1f}--{cfg.uasb_H_max_m:.1f} m \\
+Factor de efectividad sedimentador & {int(cfg.uasb_factor_efectividad_sed*100):d}\% & {int(cfg.uasb_factor_efectividad_sed*100 - 5):d}--{int(cfg.uasb_factor_efectividad_sed*100 + 5):d}\% \\
+Altura sedimentador ($H_{{sed}}$) & {cfg.uasb_H_sed_m:.1f} m & {cfg.uasb_H_sed_min_m:.1f}--{cfg.uasb_H_sed_max_m:.1f} m \\
 Carga superficial máxima límite (SOR) & {cfg.uasb_SOR_max_limite_m_h:.1f} m/h & $<$ {cfg.uasb_SOR_max_limite_m_h:.1f} m/h \\
 \bottomrule
 \end{{tabular}}
@@ -739,7 +739,7 @@ El análisis de cumplimiento de criterios evalúa los valores calculados según 
 \begin{{itemize}}[leftmargin=2em]
     \item \textbf{{SOR máximo}}: El valor de {u['SOR_max_m_h']:.2f} m/h se compara contra el límite crítico de {cfg.uasb_SOR_max_limite_m_h:.1f} m/h. Este límite representa la velocidad de asentamiento mínima de los agregados de lodos anaerobios. Superar este valor implica que el flujo ascendente supera la velocidad de caída de los sólidos, causando su arrastre hacia el efluente.
     
-    \item \textbf{{SOR medio}}: El valor de {u['SOR_medio_m_h']:.2f} m/h se evalúa respecto al rango óptimo de 0,6--0,8 m/h. Según Chernicharo, este rango garantiza una eficiente separación sólido-líquido sin requerir áreas excesivas. Valores inferiores (como en este caso) son aceptables y proporcionan un margen de seguridad adicional.
+    \item \textbf{{SOR medio}}: El valor de {u['SOR_medio_m_h']:.2f} m/h se evalúa respecto al rango óptimo de {cfg.uasb_SOR_medio_min_m_h:.1f}--{cfg.uasb_SOR_medio_max_m_h:.1f} m/h. Según Chernicharo, este rango garantiza una eficiente separación sólido-líquido sin requerir áreas excesivas. Valores inferiores (como en este caso) son aceptables y proporcionan un margen de seguridad adicional.
     
     \item \textbf{{TRH en sedimentador}}: El tiempo de retención de {u['TRH_sed_medio_h']:.2f} h cumple ampliamente con el mínimo de {cfg.uasb_TRH_sed_medio_min_h:.1f} h recomendado por Chernicharo para permitir la adecuada separación gas-líquido-sólido y la sedimentación de partículas finas.
 \end{{itemize}}
@@ -752,7 +752,7 @@ El análisis de cumplimiento de criterios evalúa los valores calculados según 
 \textbf{{Parámetro}} & \textbf{{Valor calculado}} & \textbf{{Criterio}} & \textbf{{Estado}} \\
 \midrule
 SOR máximo & {u['SOR_max_m_h']:.2f} m/h & $<$ {cfg.uasb_SOR_max_limite_m_h:.1f} m/h & {'Cumple' if u.get('SOR_max_cumple', False) else 'No cumple'} \\
-SOR medio & {u['SOR_medio_m_h']:.2f} m/h & 0,6--0,8 m/h & {'Cumple (conservador)' if u.get('SOR_medio_cumple', False) else 'Bajo (aceptable)'} \\
+SOR medio & {u['SOR_medio_m_h']:.2f} m/h & {cfg.uasb_SOR_medio_min_m_h:.1f}--{cfg.uasb_SOR_medio_max_m_h:.1f} m/h & {'Cumple (conservador)' if u.get('SOR_medio_cumple', False) else 'Bajo (aceptable)'} \\
 TRH sedimentador & {u['TRH_sed_medio_h']:.2f} h & $\geq$ {cfg.uasb_TRH_sed_medio_min_h:.1f} h & {'Cumple' if u.get('TRH_sed_cumple', False) else 'No cumple'} \\
 \bottomrule
 \end{{tabular}}
@@ -789,6 +789,34 @@ v_{{ab,max}} = \frac{{Q_{{max}}}}{{A_{{ab}}}} = \frac{{{u['Q_max_m3_h']:.2f}}}{{
 \end{{equation}}
 
 Adicionalmente, el GLS debe construirse con pendientes de {cfg.uasb_GLS_pendiente_min_grados:.0f}° a {cfg.uasb_GLS_pendiente_max_grados:.0f}° (adoptado {u['GLS_pendiente_adoptada_grados']:.0f}°) y un traslape de {cfg.uasb_GLS_traslape_m:.2f} m sobre las aberturas para garantizar la retención de sólidos.
+
+\subsubsection{{Distribución del Afluente -- Dimensionamiento}}
+
+La distribución uniforme del afluente en el fondo del reactor es crítica para garantizar un flujo ascendente homogéneo y evitar cortocircuitos que reducirían la eficiencia del tratamiento. Según Chernicharo \cite{{chernicharo2007}}, el número de puntos de distribución se determina en función del área del reactor y el área de influencia que puede atender cada punto.
+
+El área de influencia por punto recomendada varía entre {cfg.uasb_A_inf_min_m2:.1f} y {cfg.uasb_A_inf_max_m2:.1f} m² por punto. Adoptando un valor intermedio de {u['A_inf_adoptada_m2']:.2f} m²/punto, el número de puntos de distribución resulta:
+
+\begin{{equation}}
+N = \frac{{A}}{{A_{{inf}}}} = \frac{{{u['A_sup_m2']:.2f}}}{{{u['A_inf_adoptada_m2']:.2f}}} = {u['num_puntos_distribucion']:.0f} \text{{ puntos}}
+\end{{equation}}
+\captionequation{{Numero de puntos de distribucion del afluente}}
+
+El caudal por punto de distribución se calcula dividiendo el caudal total entre el número de puntos:
+
+\begin{{equation}}
+q = \frac{{Q}}{{N}} = \frac{{{u['Q_m3_s']:.3f} \times 1000}}{{{u['num_puntos_distribucion']:.0f}}} = {u['caudal_por_punto_L_s']:.3f} \text{{ L/s}}
+\end{{equation}}
+
+
+Los tubos de distribución deben dimensionarse para garantizar velocidades que permitan una distribución uniforme sin obstrucciones. Se utilizan diámetros comerciales estándar disponibles en el mercado (50, 75, 100, 150, 200 mm). Para este diseño se adopta un tubo de distribución de {u['diam_tubo_distribucion_mm']:.0f} mm de diámetro nominal. La boca de salida de cada distribuidor utiliza un diámetro de {u['diam_boca_salida_mm']:.0f} mm.
+
+Verificando la velocidad dentro del tubo de distribución:
+
+\begin{{equation}}
+v_{{tubo}} = \frac{{q}}{{a_{{tubo}}}} = \frac{{{u['caudal_por_punto_L_s']:.3f} \times 10^{{-3}}}}{{\pi \times ({u['diam_tubo_distribucion_mm']:.0f} \times 10^{{-3}})^2 / 4}} = {u['velocidad_tubo_m_s']:.3f} \text{{ m/s}}
+\end{{equation}}
+
+La velocidad calculada de {u['velocidad_tubo_m_s']:.3f} m/s es adecuada para garantizar el arrastre de sólidos hacia la zona de digestión sin riesgo de obstrucción de los distribuidores.
 
 \subsubsection{{Resultados del Reactor UASB}}
 
@@ -1271,10 +1299,10 @@ La producción de lodos se estima considerando:
 \toprule
 \textbf{{Origen}} & \textbf{{Por línea (kg SST/d)}} & \textbf{{Total planta ({l.get('num_lineas', 2)} líneas) (kg SST/d)}} \\
 \midrule
-Lodos UASB (anaerobios) & {l.get('lodos_uasb_kg_d_por_linea', l['lodos_uasb_kg_d']/2):.2f} & {l['lodos_uasb_kg_d']:.2f} \\
-Humus FP + Sedimentador & {l.get('lodos_fp_kg_d_por_linea', l['lodos_fp_kg_d']/2):.2f} & {l['lodos_fp_kg_d']:.2f} \\
+Lodos UASB (anaerobios) & {l.get('lodos_uasb_kg_d_por_linea', l['lodos_kg_SST_d']/2):.2f} & {l['lodos_kg_SST_d']:.2f} \\
+Humus FP + Sedimentador & {l.get('lodos_fp_kg_d_por_linea', l['lodos_kg_SST_d']/2):.2f} & {l['lodos_kg_SST_d']:.2f} \\
 \midrule
-\textbf{{Total}} & \textbf{{{(l.get('lodos_uasb_kg_d_por_linea', l['lodos_uasb_kg_d']/2) + l.get('lodos_fp_kg_d_por_linea', l['lodos_fp_kg_d']/2)):.2f}}} & \textbf{{{l['lodos_total_kg_d']:.2f}}} \\
+\textbf{{Total}} & \textbf{{{(l.get('lodos_uasb_kg_d_por_linea', l['lodos_kg_SST_d']/2) + l.get('lodos_fp_kg_d_por_linea', l['lodos_kg_SST_d']/2)):.2f}}} & \textbf{{{l.get('lodos_total_kg_d', l['lodos_kg_SST_d'])}}} \\
 \bottomrule
 \end{{tabular}}
 \end{{table}}
@@ -1291,12 +1319,12 @@ V_{{lodo}} = \frac{{M_{{SST}}}}{{C_{{SST}}}}
 \textit{{Donde:}}
 \begin{{itemize}}[noitemsep,leftmargin=2em]
     \item[$V_{{lodo}}$] = Volumen diario de lodo (m³/d)
-    \item[$M_{{SST}}$] = Masa de sólidos producidos TOTAL ({l['lodos_total_kg_d']:.2f} kg SST/d)
+    \item[$M_{{SST}}$] = Masa de sólidos producidos TOTAL ({l.get('lodos_total_kg_d', l['lodos_kg_SST_d']):.2f} kg SST/d)
     \item[$C_{{SST}}$] = Concentración de sólidos ({l['C_SST_kg_m3']:.0f} kg/m³)
 \end{{itemize}}
 
 \begin{{equation}}
-V_{{lodo}} = \frac{{{l['lodos_total_kg_d']:.2f}}}{{{l['C_SST_kg_m3']:.0f}}} = {l['V_lodo_m3_d']:.3f} \text{{ m}}^3\text{{/d}}
+V_{{lodo}} = \frac{{{l.get('lodos_total_kg_d', l['lodos_kg_SST_d']):.2f}}}{{{l['C_SST_kg_m3']:.0f}}} = {l['V_lodo_m3_d']:.3f} \text{{ m}}^3\text{{/d}}
 \end{{equation}}
 
 \textbf{{Dimensionamiento del área}}

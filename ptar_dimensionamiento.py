@@ -139,7 +139,9 @@ class ConfigDiseno:
     uasb_H_max_m: float = 6.0               # Altura máxima zona de reacción (m) - límite constructivo
     uasb_H_GLS_m: float = 1.0               # Altura separador gas-líquido-sólido (m) - típico 0.8-1.2 m
     uasb_H_distribucion_m: float = 0.30     # Altura zona de distribución (fondo) (m) - típico 0.3-0.5 m
-    uasb_H_sed_m: float = 1.6               # Altura compartimiento sedimentación (m) - típico 1.5-2.0 m
+    uasb_H_sed_min_m: float = 1.5           # Altura mínima compartimiento sedimentación (m)
+    uasb_H_sed_max_m: float = 2.0           # Altura máxima compartimiento sedimentación (m)
+    uasb_H_sed_m: float = 1.6               # Altura operativa compartimiento sedimentación (m) - típico 1.5-2.0 m
     uasb_factor_efectividad_sed: float = 0.90  # Factor de área efectiva sedimentación (90% típico)
     uasb_porcion_lecho_granular: float = 0.40  # Fracción de altura para lecho granular (típico 0.35-0.45)
     uasb_porcion_manto_expandido: float = 0.60 # Fracción de altura para manto expandido (típico 0.55-0.65)
@@ -177,6 +179,15 @@ class ConfigDiseno:
     uasb_GLS_pendiente_min_grados: float = 50.0  # Pendiente mínima del GLS (grados)
     uasb_GLS_pendiente_max_grados: float = 60.0  # Pendiente máxima del GLS (grados)
     uasb_GLS_traslape_m: float = 0.15            # Traslape del GLS sobre la abertura (m)
+    
+    # =========================================================================
+    # PARÁMETROS DISTRIBUCIÓN AFLUENTE (Chernicharo 2007; Metcalf & Eddy 2014)
+    # =========================================================================
+    uasb_A_inf_min_m2: float = 2.0      # Área de influencia mínima por punto (m²/punto)
+    uasb_A_inf_max_m2: float = 3.0      # Área de influencia máxima por punto (m²/punto)
+    # Diámetros comerciales estándar disponibles: 50, 75, 100, 150, 200, 250, 300, 350 mm
+    uasb_diam_tubo_distribucion_mm: float = 75.0       # Diámetro tubo distribución (mm) - estándar
+    uasb_diam_boca_salida_mm: float = 50.0             # Diámetro boca de salida (mm) - estándar
     
     # =============================================================================
     # PARÁMETROS DE DISEÑO - FILTRO PERCOLADOR
@@ -1236,8 +1247,7 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
     # - Si H_sed < 1.5 m, usar H_sed = 1.5 m (mínimo) y aceptar TRH_sed mayor
     
     factor_efectividad_sed = Q.uasb_factor_efectividad_sed
-    H_sed_min_m = Q.uasb_TRH_sed_medio_min_h  # 1.5 m (altura mínima típica)
-    H_sed_max_m = Q.uasb_TRH_sed_medio_max_h  # 2.0 m (altura máxima típica)
+    H_sed_operativo_m = Q.uasb_H_sed_m  # 1.6 m desde configuración
     
     # PASO 1: Asegurar SOR_max < límite (criterio más crítico)
     iteracion_sed = 0
@@ -1260,10 +1270,10 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
             break
     
     # PASO 2: Establecer altura del sedimentador
-    # Usamos H_sed = 1.5 m (mínimo recomendado por Chernicharo)
+    # Usamos la altura configurada H_sed (típicamente 1.5 - 2.0 m)
     # Esto asegura suficiente volumen para sedimentación
     A_sed_efectiva_m2 = A_sup_sed * factor_efectividad_sed
-    H_sed_m = H_sed_min_m  # 1.5 m (mínimo recomendado)
+    H_sed_m = H_sed_operativo_m  # desde configuración
     V_sed_m3 = A_sed_efectiva_m2 * H_sed_m
     TRH_sed_medio_h = V_sed_m3 / Q_m3_h
     
@@ -1361,6 +1371,34 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
     GLS_pendiente_adoptada_grados = (Q.uasb_GLS_pendiente_min_grados + Q.uasb_GLS_pendiente_max_grados) / 2  # 55°
     
     # =========================================================================
+    # CÁLCULO DE DISTRIBUCIÓN DEL AFLUENTE (Chernicharo 2007; Metcalf & Eddy 2014)
+    # =========================================================================
+    # Según Chernicharo (2007), el número de puntos de distribución se calcula
+    # en función del área del reactor y el área de influencia por punto.
+    # Una distribución adecuada garantiza un flujo uniforme y evita cortocircuitos.
+    
+    A_inf_adoptada_m2 = (Q.uasb_A_inf_min_m2 + Q.uasb_A_inf_max_m2) / 2  # 2.5 m²/punto
+    
+    # Número de puntos de distribución (redondeado al entero superior)
+    num_puntos_distribucion = math.ceil(A_sup_m2 / A_inf_adoptada_m2)
+    
+    # Caudal por punto
+    caudal_por_punto_L_s = (Q_m3_s * 1000) / num_puntos_distribucion
+    
+    # Diámetro adoptado para tubos de distribución (diámetro comercial estándar)
+    diam_tubo_distribucion_mm = Q.uasb_diam_tubo_distribucion_mm  # 75 mm estándar
+    diam_tubo_distribucion_m = diam_tubo_distribucion_mm / 1000.0
+    
+    # Área interna del tubo
+    area_tubo_m2 = math.pi * (diam_tubo_distribucion_m ** 2) / 4
+    
+    # Velocidad dentro del tubo
+    velocidad_tubo_m_s = (caudal_por_punto_L_s / 1000) / area_tubo_m2
+    
+    # Diámetro de boca de salida (diámetro comercial estándar)
+    diam_boca_salida_mm = Q.uasb_diam_boca_salida_mm  # 50 mm estándar
+    
+    # =========================================================================
     # RECALCULO FINAL DE ALTURAS DEPENDIENTES
     # (Se realiza aquí para asegurar que usan el H_r_m final tras todos los bucles)
     # =========================================================================
@@ -1431,6 +1469,14 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
         "v_abertura_max_cumple": v_abertura_max_cumple,
         "GLS_pendiente_adoptada_grados": round(GLS_pendiente_adoptada_grados, 1),
         "GLS_traslape_m": Q.uasb_GLS_traslape_m,
+        # Distribución del afluente (Paso 10 manual)
+        "Q_m3_s": round(Q_m3_s, 6),  # Caudal en m³/s para cálculos de distribución
+        "num_puntos_distribucion": num_puntos_distribucion,
+        "A_inf_adoptada_m2": round(A_inf_adoptada_m2, 2),
+        "caudal_por_punto_L_s": round(caudal_por_punto_L_s, 3),
+        "diam_tubo_distribucion_mm": round(diam_tubo_distribucion_mm, 0),
+        "velocidad_tubo_m_s": round(velocidad_tubo_m_s, 3),
+        "diam_boca_salida_mm": round(diam_boca_salida_mm, 0),
         # Producción de subproductos
         "factor_biogas_ch4": factor_biogas,   # Factor usado (m³ CH4 / kg DQO removida)
         "DQO_removida_kg_d": round(DQO_removida_kg_d, 2),
