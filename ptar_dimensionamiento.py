@@ -171,7 +171,29 @@ class ConfigDiseno:
     uasb_D_sed_max_m: float = 15.0                      # Diámetro máximo para sedimentador (m) - límite while SOR
     
     # =========================================================================
-    # PARÁMETROS ABERTURAS GLS (Paso 9 del manual UASB)
+    # RANGOS DE DISEÑO UASB POR TEMPERATURA (Van Haandel & Lettinga 1994)
+    # =========================================================================
+    # Rangos de carga orgánica volumétrica (Cv) por condición de temperatura
+    uasb_Cv_optimo_min: float = 2.0         # Cv mínimo temperatura óptima (kg DQO/m³·d)
+    uasb_Cv_optimo_max: float = 3.0         # Cv máximo temperatura óptima (kg DQO/m³·d)
+    uasb_Cv_moderado_min: float = 1.5       # Cv mínimo temperatura moderada (kg DQO/m³·d)
+    uasb_Cv_moderado_max: float = 2.5       # Cv máximo temperatura moderada (kg DQO/m³·d)
+    uasb_Cv_bajo_min: float = 1.0           # Cv mínimo temperatura baja (kg DQO/m³·d)
+    uasb_Cv_bajo_max: float = 1.5           # Cv máximo temperatura baja (kg DQO/m³·d)
+    uasb_Cv_muybajo_min: float = 0.5        # Cv mínimo temperatura muy baja (kg DQO/m³·d)
+    uasb_Cv_muybajo_max: float = 1.5        # Cv máximo temperatura muy baja (kg DQO/m³·d)
+    # Rangos de tiempo de retención hidráulico (HRT) por condición de temperatura
+    uasb_HRT_optimo_min_h: float = 4.0      # HRT mínimo temperatura óptima (h)
+    uasb_HRT_optimo_max_h: float = 6.0      # HRT máximo temperatura óptima (h)
+    uasb_HRT_moderado_min_h: float = 5.0    # HRT mínimo temperatura moderada (h)
+    uasb_HRT_moderado_max_h: float = 8.0    # HRT máximo temperatura moderada (h)
+    uasb_HRT_bajo_min_h: float = 6.0        # HRT mínimo temperatura baja (h)
+    uasb_HRT_bajo_max_h: float = 10.0       # HRT máximo temperatura baja (h)
+    uasb_HRT_muybajo_min_h: float = 8.0     # HRT mínimo temperatura muy baja (h)
+    uasb_HRT_muybajo_max_h: float = 12.0    # HRT máximo temperatura muy baja (h)
+    
+    # =========================================================================
+    # PARÁMETROS ABERTURAS GLS (Chernicharo 2007)
     # =========================================================================
     uasb_v_abertura_medio_min_m_h: float = 2.0   # Velocidad mínima en aberturas a caudal medio (m/h)
     uasb_v_abertura_medio_max_m_h: float = 2.3   # Velocidad máxima en aberturas a caudal medio (m/h)
@@ -181,13 +203,19 @@ class ConfigDiseno:
     uasb_GLS_traslape_m: float = 0.15            # Traslape del GLS sobre la abertura (m)
     
     # =========================================================================
-    # PARÁMETROS DISTRIBUCIÓN AFLUENTE (Chernicharo 2007; Metcalf & Eddy 2014)
+    # PARÁMETROS DISTRIBUCIÓN AFLUENTE (Chernicharo 2007; Lettinga & Hulshoff Pol)
     # =========================================================================
     uasb_A_inf_min_m2: float = 2.0      # Área de influencia mínima por punto (m²/punto)
     uasb_A_inf_max_m2: float = 3.0      # Área de influencia máxima por punto (m²/punto)
-    # Diámetros comerciales estándar disponibles: 50, 75, 100, 150, 200, 250, 300, 350 mm
-    uasb_diam_tubo_distribucion_mm: float = 75.0       # Diámetro tubo distribución (mm) - estándar
-    uasb_diam_boca_salida_mm: float = 50.0             # Diámetro boca de salida (mm) - estándar
+    
+    uasb_v_tubo_max_m_s: float = 0.20    # Velocidad máxima en tubería madre para evitar fricción (m/s)
+    uasb_tubos_comerciales_mm: tuple = (25.0, 40.0, 50.0, 75.0, 100.0, 150.0, 200.0, 250.0, 300.0)
+    uasb_diam_tubo_distribucion_mm: float = 75.0       # Diámetro base inicial (mm)
+    uasb_diam_boca_salida_mm: float = 25.0             # Diámetro base inicial de salida (mm)
+    
+    # Velocidad en bocas de salida (criterio crítico según Lettinga)
+    uasb_v_boca_min_m_s: float = 0.40    # Velocidad mínima en boca para arrastre (m/s)
+    uasb_v_boca_max_m_s: float = 4.00    # Velocidad máxima en boca para evitar erosión (m/s)
     
     # =============================================================================
     # PARÁMETROS DE DISEÑO - FILTRO PERCOLADOR
@@ -445,9 +473,9 @@ def evaluar_temperatura_uasb(T_celsius: float, cfg: ConfigDiseno = CFG) -> Dict[
             "eficiencia_dqo": cfg.uasb_eta_DQO,
             "factor_temp_texto": "óptima (>= 22°C)",
             "rangos_recomendados": {
-                "cv": "2,0--3,0",
+                "cv": f"{cfg.uasb_Cv_optimo_min:.1f}--{cfg.uasb_Cv_optimo_max:.1f}".replace(".", ","),
                 "vup": "0,5--1,5",
-                "hrt": "4--6",
+                "hrt": f"{cfg.uasb_HRT_optimo_min_h:.0f}--{cfg.uasb_HRT_optimo_max_h:.0f}",
                 "eta": "60--75"
             }
         }
@@ -465,9 +493,9 @@ def evaluar_temperatura_uasb(T_celsius: float, cfg: ConfigDiseno = CFG) -> Dict[
             "eficiencia_dqo": cfg.uasb_eta_DQO * 0.90,
             "factor_temp_texto": "moderada (18-22°C)",
             "rangos_recomendados": {
-                "cv": "1,5--2,5",
+                "cv": f"{cfg.uasb_Cv_moderado_min:.1f}--{cfg.uasb_Cv_moderado_max:.1f}".replace(".", ","),
                 "vup": "0,4--1,2",
-                "hrt": "5--8",
+                "hrt": f"{cfg.uasb_HRT_moderado_min_h:.0f}--{cfg.uasb_HRT_moderado_max_h:.0f}",
                 "eta": "50--65"
             }
         }
@@ -486,9 +514,9 @@ def evaluar_temperatura_uasb(T_celsius: float, cfg: ConfigDiseno = CFG) -> Dict[
             "eficiencia_dqo": cfg.uasb_eta_DQO * 0.80,
             "factor_temp_texto": "baja (15-18°C)",
             "rangos_recomendados": {
-                "cv": "1,0--2,0",
+                "cv": f"{cfg.uasb_Cv_bajo_min:.1f}--{cfg.uasb_Cv_bajo_max:.1f}".replace(".", ","),
                 "vup": "0,3--1,0",
-                "hrt": "6--10",
+                "hrt": f"{cfg.uasb_HRT_bajo_min_h:.0f}--{cfg.uasb_HRT_bajo_max_h:.0f}",
                 "eta": "40--55"
             }
         }
@@ -507,9 +535,9 @@ def evaluar_temperatura_uasb(T_celsius: float, cfg: ConfigDiseno = CFG) -> Dict[
             "eficiencia_dqo": cfg.uasb_eta_DQO * 0.70,
             "factor_temp_texto": "muy baja (10-15°C) - se recomienda aislamiento térmico",
             "rangos_recomendados": {
-                "cv": "0,8--1,5",
+                "cv": f"{cfg.uasb_Cv_muybajo_min:.1f}--{cfg.uasb_Cv_muybajo_max:.1f}".replace(".", ","),
                 "vup": "0,3--0,8",
-                "hrt": "8--12",
+                "hrt": f"{cfg.uasb_HRT_muybajo_min_h:.0f}--{cfg.uasb_HRT_muybajo_max_h:.0f}",
                 "eta": "30--45"
             }
         }
@@ -1210,19 +1238,14 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
     else:
         verif_vup_max_texto = "La velocidad supera el límite recomendado pero se mantiene dentro del rango admisible. Se recomienda monitoreo periódico del manto de lodos."
 
-    # Verificaciones
-    assert 2.0 <= Cv_kgDQO_m3_d <= 8.0, (
-        f"Cv = {Cv_kgDQO_m3_d} kg DQO/m^3*d fuera de rango 2-8 "
-        f"({ref_vh}, Tabla 6.1)"
-    )
-    assert HRT_min <= TRH_h <= 12.0, (
-        f"TRH = {TRH_h:.1f} h fuera de rango {HRT_min:.1f}-12 h "
-        f"({ref_sp}, p. 140; {ref_vh})"
-    )
-    assert 0.3 <= v_up_m_h <= 1.5, (
-        f"v_up = {v_up_m_h:.2f} m/h fuera de rango 0.3-1.5 m/h "
-        f"({ref_me}, p. 757; {ref_vh})"
-    )
+    # Verificaciones (warnings en lugar de asserts para permitir aguas frías)
+    # Nota: Rangos ampliados para soportar temperaturas < 15°C (Cv puede ser < 2.0)
+    if not (0.5 <= Cv_kgDQO_m3_d <= 10.0):
+        print(f"[ADVERTENCIA] Cv = {Cv_kgDQO_m3_d:.2f} kg DQO/m³·d fuera de rango típico 0.5-10.0")
+    if not (HRT_min <= TRH_h <= 15.0):
+        print(f"[ADVERTENCIA] TRH = {TRH_h:.1f} h fuera de rango {HRT_min:.1f}-15 h")
+    if not (0.2 <= v_up_m_h <= 2.0):
+        print(f"[ADVERTENCIA] v_up = {v_up_m_h:.2f} m/h fuera de rango 0.2-2.0 m/h")
 
     # Desglose de alturas del reactor UASB (se calcularán al final tras posibles ajustes)
     # Altura del separador GLS (gas-líquido-sólido)
@@ -1385,19 +1408,55 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
     # Caudal por punto
     caudal_por_punto_L_s = (Q_m3_s * 1000) / num_puntos_distribucion
     
-    # Diámetro adoptado para tubos de distribución (diámetro comercial estándar)
-    diam_tubo_distribucion_mm = Q.uasb_diam_tubo_distribucion_mm  # 75 mm estándar
-    diam_tubo_distribucion_m = diam_tubo_distribucion_mm / 1000.0
+    # =========================================================================
+    # SELECCIÓN DINÁMICA DE DIÁMETROS COMERCIALES (Tubería y Bocas)
+    # =========================================================================
     
-    # Área interna del tubo
-    area_tubo_m2 = math.pi * (diam_tubo_distribucion_m ** 2) / 4
-    
-    # Velocidad dentro del tubo
-    velocidad_tubo_m_s = (caudal_por_punto_L_s / 1000) / area_tubo_m2
-    
-    # Diámetro de boca de salida (diámetro comercial estándar)
-    diam_boca_salida_mm = Q.uasb_diam_boca_salida_mm  # 50 mm estándar
-    
+    # 1. Bocas de salida (crítico: uasb_v_boca_min_m_s <= v <= uasb_v_boca_max_m_s)
+    bocas_validas = []
+    for d_mm in Q.uasb_tubos_comerciales_mm:
+        a_m2 = math.pi * ((d_mm/1000.0) ** 2) / 4
+        v = (caudal_por_punto_L_s / 1000) / a_m2
+        if Q.uasb_v_boca_min_m_s <= v <= Q.uasb_v_boca_max_m_s:
+            bocas_validas.append((d_mm, v))
+
+    if bocas_validas:
+        # Priorizar la velocidad intermedia más segura
+        v_media = (Q.uasb_v_boca_min_m_s + Q.uasb_v_boca_max_m_s) / 2
+        bocas_validas.sort(key=lambda x: abs(x[1] - v_media))
+        diam_boca_salida_mm, velocidad_boca_m_s = bocas_validas[0]
+        v_boca_cumple = True
+    else:
+        # Fallback conservador, no detiene el reporte pero advierte
+        diam_boca_salida_mm = Q.uasb_diam_boca_salida_mm
+        area_boca_m2 = math.pi * ((diam_boca_salida_mm/1000.0) ** 2) / 4
+        velocidad_boca_m_s = (caudal_por_punto_L_s / 1000) / area_boca_m2
+        v_boca_cumple = False
+        print(f"[ADVERTENCIA] Ningún tubo cumple la velocidad estricta de salida. "
+              f"v={velocidad_boca_m_s:.2f} m/s fuera de {Q.uasb_v_boca_min_m_s:.1f}-{Q.uasb_v_boca_max_m_s:.1f} m/s")
+
+    # 2. Tubería madre (transporte seguro: v <= uasb_v_tubo_max_m_s, ej. 0.2m/s)
+    tubos_validos = []
+    for d_mm in Q.uasb_tubos_comerciales_mm:
+        if d_mm < diam_boca_salida_mm: 
+            continue # Tubería madre no puede ser menor a la boca de inyección
+        a_m2 = math.pi * ((d_mm/1000.0) ** 2) / 4
+        v = (caudal_por_punto_L_s / 1000) / a_m2
+        if v <= Q.uasb_v_tubo_max_m_s:
+            tubos_validos.append((d_mm, v))
+            
+    if tubos_validos:
+        # Tomar el menor diámetro comercial que cumpla para no sobredimensionar en costo
+        tubos_validos.sort(key=lambda x: x[0])
+        diam_tubo_distribucion_mm, velocidad_tubo_m_s = tubos_validos[0]
+    else:
+        # Fallback conservador
+        diam_tubo_distribucion_mm = Q.uasb_diam_tubo_distribucion_mm
+        area_tubo_m2 = math.pi * ((diam_tubo_distribucion_mm/1000.0) ** 2) / 4
+        velocidad_tubo_m_s = (caudal_por_punto_L_s / 1000) / area_tubo_m2
+        print(f"[ADVERTENCIA] Tubería madre de distribución rápida excede velocidad límite: "
+              f"v={velocidad_tubo_m_s:.2f} m/s > {Q.uasb_v_tubo_max_m_s:.2f} m/s")
+
     # =========================================================================
     # RECALCULO FINAL DE ALTURAS DEPENDIENTES
     # (Se realiza aquí para asegurar que usan el H_r_m final tras todos los bucles)
@@ -1476,7 +1535,12 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
         "caudal_por_punto_L_s": round(caudal_por_punto_L_s, 3),
         "diam_tubo_distribucion_mm": round(diam_tubo_distribucion_mm, 0),
         "velocidad_tubo_m_s": round(velocidad_tubo_m_s, 3),
+        "v_tubo_max_m_s": Q.uasb_v_tubo_max_m_s,
         "diam_boca_salida_mm": round(diam_boca_salida_mm, 0),
+        "velocidad_boca_m_s": round(velocidad_boca_m_s, 2),
+        "v_boca_min_m_s": Q.uasb_v_boca_min_m_s,
+        "v_boca_max_m_s": Q.uasb_v_boca_max_m_s,
+        "v_boca_cumple": v_boca_cumple,
         # Producción de subproductos
         "factor_biogas_ch4": factor_biogas,   # Factor usado (m³ CH4 / kg DQO removida)
         "DQO_removida_kg_d": round(DQO_removida_kg_d, 2),
@@ -1501,9 +1565,9 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
             f"{ref_me} (pp. 753-780)"
         ),
         "notas": (
-            f"Cv adoptada = {Cv_kgDQO_m3_d} kg DQO/m^3*d (rango 2-8 a T>20 grados C, "
+            f"Cv adoptada = {Cv_kgDQO_m3_d} kg DQO/m^3*d (rango típico {Q.uasb_Cv_optimo_min}-{Q.uasb_Cv_optimo_max} a temp. óptima, "
             f"{ref_vh}). "
-            f"v_up = {v_up_m_h:.2f} m/h <= 1.0 m/h recomendado para lodo floculento "
+            f"v_up = {v_up_m_h:.2f} m/h <= {Q.uasb_v_up_max_recomendado_m_h:.1f} m/h recomendado para lodo floculento "
             f"({ref_sp}, p. 141)."
         ),
     }

@@ -536,10 +536,10 @@ Para el presente diseño, la temperatura del agua residual es \textbf{{{u['T_agu
 \toprule
 \textbf{{Condición}} & \textbf{{T (°C)}} & \textbf{{Cv (kg/m³·d)}} & \textbf{{HRT (h)}} \\
 \midrule
-Óptima & $>=$ {cfg.uasb_temp_optimina_C:.0f} & 2,0--3,0 & 4--6 \\
-Moderada & {cfg.uasb_temp_min_operativa_C:.0f}--{cfg.uasb_temp_optimina_C:.0f} & 1,5--2,5 & 5--8 \\
-Baja & 15--{cfg.uasb_temp_min_operativa_C:.0f} & 1,0--1,5 & 6--10 \\
-Muy baja & 10--15 & 0,5--1,5 & 8--12 \\
+Óptima & $>=$ {cfg.uasb_temp_optimina_C:.0f} & {cfg.uasb_Cv_optimo_min:.1f}--{cfg.uasb_Cv_optimo_max:.1f} & {cfg.uasb_HRT_optimo_min_h:.0f}--{cfg.uasb_HRT_optimo_max_h:.0f} \\
+Moderada & {cfg.uasb_temp_min_operativa_C:.0f}--{cfg.uasb_temp_optimina_C:.0f} & {cfg.uasb_Cv_moderado_min:.1f}--{cfg.uasb_Cv_moderado_max:.1f} & {cfg.uasb_HRT_moderado_min_h:.0f}--{cfg.uasb_HRT_moderado_max_h:.0f} \\
+Baja & 15--{cfg.uasb_temp_min_operativa_C:.0f} & {cfg.uasb_Cv_bajo_min:.1f}--{cfg.uasb_Cv_bajo_max:.1f} & {cfg.uasb_HRT_bajo_min_h:.0f}--{cfg.uasb_HRT_bajo_max_h:.0f} \\
+Muy baja & 10--15 & {cfg.uasb_Cv_muybajo_min:.1f}--{cfg.uasb_Cv_muybajo_max:.1f} & {cfg.uasb_HRT_muybajo_min_h:.0f}--{cfg.uasb_HRT_muybajo_max_h:.0f} \\
 Crítica & $<$ 10 & No recomendable & Requiere calefacción \\
 \bottomrule
 \end{{tabular}}
@@ -573,7 +573,7 @@ Carga superficial máxima límite (SOR) & {cfg.uasb_SOR_max_limite_m_h:.1f} m/h 
 
 El dimensionamiento del reactor UASB se fundamenta en dos criterios complementarios: el criterio biológico (carga orgánica volumétrica) y el criterio hidráulico (velocidad ascendente). Ambos enfoques deben satisfacerse simultáneamente para garantizar el correcto funcionamiento del sistema.
 
-\textbf{{Criterio biológico:}} Según Van Haandel y Lettinga \cite{{vanhaandel1994}}, el volumen del reactor se determina a partir de la carga orgánica volumétrica ($C_v$), que representa la cantidad de materia orgánica que debe procesar el reactor por unidad de volumen y tiempo. Para aguas residuales municipales a temperaturas superiores a {cfg.uasb_temp_optimina_C:.0f}°C, los autores recomiendan una carga entre 2,0 y 3,0 kg DQO/m³·d. La expresión fundamental es:
+\textbf{{Criterio biológico:}} Según Van Haandel y Lettinga \cite{{vanhaandel1994}}, el volumen del reactor se determina a partir de la carga orgánica volumétrica ($C_v$), que representa la cantidad de materia orgánica que debe procesar el reactor por unidad de volumen y tiempo. Para aguas residuales municipales a temperaturas superiores a {cfg.uasb_temp_optimina_C:.0f}°C, los autores recomiendan una carga entre {cfg.uasb_Cv_optimo_min:.1f} y {cfg.uasb_Cv_optimo_max:.1f} kg DQO/m³·d. La expresión fundamental es:
 
 \begin{{equation}}
 V_r = \frac{{Q \cdot S_0}}{{C_v}}
@@ -594,7 +594,7 @@ Sustituyendo los valores del proyecto:
 V_r = \frac{{{u['Q_m3_d']:.1f} \times {u['DQO_kg_m3']:.4f}}}{{{u['Cv_kgDQO_m3_d']:.1f}}} = {u['V_r_m3']:.1f} \text{{ m}}^3
 \end{{equation}}
 
-Este volumen garantiza el tiempo de retención hidráulico necesario para que los microorganismos anaerobios degraden la materia orgánica. Van Haandel y Lettinga establecen que a temperaturas óptimas ($>${cfg.uasb_temp_optimina_C:.0f}°C), el TRH debe estar entre 4 y 6 horas para asegurar la estabilidad del manto de lodos.
+Este volumen garantiza el tiempo de retención hidráulico necesario para que los microorganismos anaerobios degraden la materia orgánica. Van Haandel y Lettinga establecen que a temperaturas óptimas ($>${cfg.uasb_temp_optimina_C:.0f}°C), el TRH debe estar entre {cfg.uasb_HRT_optimo_min_h:.0f} y {cfg.uasb_HRT_optimo_max_h:.0f} horas para asegurar la estabilidad del manto de lodos.
 
 \textbf{{Criterio hidráulico:}} De manera simultánea, según Sperling \cite{{sperling2007}}, la velocidad ascendente ($v_{{up}}$) debe mantenerse dentro de rangos que permitan retener el manto de lodos sin arrastre. El autor recomienda velocidades entre 0,5 y {cfg.uasb_v_up_max_recomendado_m_h:.1f} m/h para condiciones normales, con un máximo de {cfg.uasb_v_up_max_destructivo_m_h:.1f} m/h durante picos de caudal. Con la velocidad adoptada de {u['v_up_m_h']:.2f} m/h, el área superficial requerida se calcula como:
 
@@ -655,9 +655,7 @@ V_{{CH_4}} = ({u['Q_m3_d']:.1f} \times {u['DQO_kg_m3']:.3f} \times {u['eta_DQO']
 
 \subsubsection{{Zona de Reacción -- Verificación}}
 
-El fundamento de la verificación hidráulica establece que el diseño del reactor UASB debe garantizar no solo el funcionamiento adecuado bajo condiciones normales (caudal medio), sino también durante eventos de pico de caudal que ocurren típicamente en horas de mayor consumo de agua. Según Metcalf y Eddy \cite{{metcalf2014}}, los sistemas de tratamiento deben verificarse para el caudal máximo horario, el cual se estima aplicando un factor de pico sobre el caudal medio diario. Este factor, denominado $f_p$, típicamente varía entre 2,0 y 3,0 para aguas residuales municipales, reflejando las variaciones horarias del consumo de agua en la población.
-
-El factor de pico adoptado de {u['factor_pico']:.1f} considera las características de la zona de estudio y las variaciones esperadas del caudal durante el día. La aplicación de este factor permite determinar el caudal máximo horario de diseño:
+El fundamento de la verificación hidráulica establece que el diseño del reactor UASB debe garantizar no solo el funcionamiento adecuado bajo condiciones normales (caudal medio), sino también durante eventos de pico de caudal que ocurren típicamente en horas de mayor consumo de agua. Según Metcalf y Eddy \cite{{metcalf2014}}, los sistemas de tratamiento deben verificarse para el caudal máximo horario, el cual se estima aplicando un factor de pico sobre el caudal medio diario. El factor denominado $f_p$, adoptado de {u['factor_pico']:.1f} considera las características de la zona de estudio y las variaciones esperadas del caudal durante el día. La aplicación de este factor permite determinar el caudal máximo horario de diseño:
 
 \begin{{equation}}
 Q_{{max}} = f_p \times Q_{{medio}} = {u['factor_pico']:.1f} \times {u['Q_m3_d']:.1f} = {u['Q_max_m3_d']:.1f} \text{{ m}}^3\text{{/d}} = {u['Q_max_m3_h']:.2f} \text{{ m}}^3\text{{/h}}
@@ -762,7 +760,7 @@ La verificación demuestra que el compartimiento de sedimentación diseñado cum
 
 \subsubsection{{Aberturas GLS -- Dimensionamiento}}
 
-El separador gas-líquido-sólido (GLS) incluye aberturas que permiten el paso del líquido clarificado desde la zona de digestión hacia el compartimiento de sedimentación. Según el manual de diseño UASB, estas aberturas deben dimensionarse cuidadosamente para evitar velocidades que arrastren sólidos hacia el efluente.
+El separador gas-líquido-sólido (GLS) incluye aberturas que permiten el paso del líquido clarificado desde la zona de digestión hacia el compartimiento de sedimentación. Según Chernicharo \\cite{{chernicharo2007}}, estas aberturas deben dimensionarse cuidadosamente para evitar velocidades que arrastren sólidos hacia el efluente.
 
 La velocidad admisible en las aberturas es mayor que en el cuerpo del reactor porque el líquido ya está parcialmente clarificado. Los valores recomendados son {cfg.uasb_v_abertura_medio_min_m_h:.1f}--{cfg.uasb_v_abertura_medio_max_m_h:.1f} m/h a caudal medio y hasta {cfg.uasb_v_abertura_max_m_h:.1f} m/h a caudal máximo. El área mínima requerida se calcula como:
 
@@ -808,15 +806,36 @@ q = \frac{{Q}}{{N}} = \frac{{{u['Q_m3_s']:.3f} \times 1000}}{{{u['num_puntos_dis
 \end{{equation}}
 
 
-Los tubos de distribución deben dimensionarse para garantizar velocidades que permitan una distribución uniforme sin obstrucciones. Se utilizan diámetros comerciales estándar disponibles en el mercado (50, 75, 100, 150, 200 mm). Para este diseño se adopta un tubo de distribución de {u['diam_tubo_distribucion_mm']:.0f} mm de diámetro nominal. La boca de salida de cada distribuidor utiliza un diámetro de {u['diam_boca_salida_mm']:.0f} mm.
+Los tubos de distribución se diseñan según la práctica estándar de Lettinga y Hulshoff Pol: tubería madre de gran diámetro para transporte sin obstrucciones, con bocas de salida reducidas para garantizar velocidad de inyección adecuada. Se adopta una tubería de distribución de {u['diam_tubo_distribucion_mm']:.0f} mm con bocas de salida de {u['diam_boca_salida_mm']:.0f} mm.
 
-Verificando la velocidad dentro del tubo de distribución:
+\textbf{{Verificación de velocidades:}}
+
+La velocidad en la tubería madre (transporte) se calcula como:
 
 \begin{{equation}}
 v_{{tubo}} = \frac{{q}}{{a_{{tubo}}}} = \frac{{{u['caudal_por_punto_L_s']:.3f} \times 10^{{-3}}}}{{\pi \times ({u['diam_tubo_distribucion_mm']:.0f} \times 10^{{-3}})^2 / 4}} = {u['velocidad_tubo_m_s']:.3f} \text{{ m/s}}
 \end{{equation}}
 
-La velocidad calculada de {u['velocidad_tubo_m_s']:.3f} m/s es adecuada para garantizar el arrastre de sólidos hacia la zona de digestión sin riesgo de obstrucción de los distribuidores.
+La velocidad en la boca de salida (inyección al lecho de lodo) es el parámetro crítico según Lettinga. Debe estar entre {u['v_boca_min_m_s']:.1f} y {u['v_boca_max_m_s']:.1f} m/s para garantizar arrastre de sólidos sin erosión:
+
+\begin{{equation}}
+v_{{boca}} = \frac{{q}}{{a_{{boca}}}} = \frac{{{u['caudal_por_punto_L_s']:.3f} \times 10^{{-3}}}}{{\pi \times ({u['diam_boca_salida_mm']:.0f} \times 10^{{-3}})^2 / 4}} = {u['velocidad_boca_m_s']:.2f} \text{{ m/s}}
+\end{{equation}}
+
+\begin{{table}}[H]
+\centering
+\caption{{Verificación de velocidades en sistema de distribución}}
+\begin{{tabular}}{{lccc}}
+\toprule
+\textbf{{Parámetro}} & \textbf{{Valor}} & \textbf{{Criterio}} & \textbf{{Estado}} \\
+\midrule
+Velocidad en tubería madre & {u['velocidad_tubo_m_s']:.3f} m/s & Transporte sin obstrucción ($<$ {u['v_tubo_max_m_s']:.2f} m/s) & {'Adecuado' if u['velocidad_tubo_m_s'] <= u['v_tubo_max_m_s'] else 'Revisar'} \\
+Velocidad en boca de salida & {u['velocidad_boca_m_s']:.2f} m/s & {u['v_boca_min_m_s']:.1f}--{u['v_boca_max_m_s']:.1f} m/s & {'Cumple' if u['v_boca_cumple'] else 'No cumple'} \\
+\bottomrule
+\end{{tabular}}
+\end{{table}}
+
+La velocidad en boca de {u['velocidad_boca_m_s']:.2f} m/s {'cumple con el rango recomendado por Lettinga y Hulshoff Pol para inyección adecuada en el lecho de lodo.' if u['v_boca_cumple'] else 'está fuera del rango recomendado. Se recomienda revisar el diámetro de las bocas de salida.'}
 
 \subsubsection{{Resultados del Reactor UASB}}
 
@@ -829,12 +848,12 @@ Parámetro & Valor \\
 \midrule
 Diámetro & {u['D_m']:.2f} m \\
 \multicolumn{{2}}{{l}}{{\textit{{Desglose de alturas:}}}} \\
-\quad Zona de distribución (fondo) & {u.get('H_distribucion_m', 0.30):.2f} m \\
-\quad Zona de reacción (manto de lodos) & {u.get('H_zona_reaccion_m', u['H_r_m']):.2f} m \\
-\quad Separador GLS & {u.get('H_GLS_m', 1.0):.2f} m \\
-\quad Bordo libre & {u.get('H_bordo_libre_m', 0.50):.2f} m \\
+\quad Zona de distribución (fondo) & {u['H_distribucion_m']:.2f} m \\
+\quad Zona de reacción (manto de lodos) & {u['H_zona_reaccion_m']:.2f} m \\
+\quad Separador GLS & {u['H_GLS_m']:.2f} m \\
+\quad Bordo libre & {u['H_bordo_libre_m']:.2f} m \\
 \midrule
-\textbf{{Altura total de construcción}} & \textbf{{{u.get('H_total_construccion_m', u['H_r_m'] + 1.8):.2f} m}} \\
+\textbf{{Altura total de construcción}} & \textbf{{{u['H_total_construccion_m']:.2f} m}} \\
 \midrule
 Volumen útil & {u['V_r_m3']:.1f} m³ \\
 Área superficial & {u['A_sup_m2']:.2f} m² \\
@@ -849,7 +868,7 @@ Biogás producido & {u['biogaz_m3_d']:.1f} m$^3$ CH$_4$/d \\
 \end{{tabular}}
 \end{{table}}
 
-La subdivisión interna de la zona de reacción sigue criterios establecidos en el manual de diseño UASB. El lecho de lodo denso o granular (aproximadamente {cfg.uasb_porcion_lecho_granular*100:.0f}\% de la altura útil) contiene los lodos más viejos y densos, mientras que el manto de lodos expandido (aproximadamente {cfg.uasb_porcion_manto_expandido*100:.0f}\% de la altura útil) mantiene los lodos en suspensión activa donde ocurre la mayor parte de la degradación biológica. Esta subdivisión es conceptualmente útil para dibujos y explicaciones del funcionamiento del reactor, aunque el cálculo principal se basa en la altura útil total.
+La subdivisión interna de la zona de reacción sigue criterios establecidos por Chernicharo \\cite{{chernicharo2007}}. El lecho de lodo denso o granular (aproximadamente {cfg.uasb_porcion_lecho_granular*100:.0f}\% de la altura útil) contiene los lodos más viejos y densos, mientras que el manto de lodos expandido (aproximadamente {cfg.uasb_porcion_manto_expandido*100:.0f}\% de la altura útil) mantiene los lodos en suspensión activa donde ocurre la mayor parte de la degradación biológica. 
 
 \subsection{{Filtro Percolador}}
 
