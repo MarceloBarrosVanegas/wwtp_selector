@@ -581,3 +581,256 @@ def generar_layout_2lineas(tipo: str, unidades_linea: list, nombre_alt: str,
     plt.close()
     
     return max_x, max_y
+
+
+def generar_esquema_uasb(resultados_uasb: dict, output_dir: str = "resultados") -> str:
+    """
+    Genera un esquema técnico del reactor UASB con sus componentes principales.
+    
+    Args:
+        resultados_uasb: Diccionario con resultados del dimensionamiento UASB
+        output_dir: Directorio de salida para la imagen
+        
+    Returns:
+        Ruta del archivo generado
+    """
+    import matplotlib.pyplot as plt
+    import matplotlib.patches as mpatches
+    from matplotlib.patches import FancyBboxPatch, Polygon, Circle, FancyArrowPatch
+    import numpy as np
+    
+    # Extraer valores del resultado
+    D = resultados_uasb.get('D_m', 7.3)
+    H_total = resultados_uasb.get('H_total_construccion_m', 
+                                  resultados_uasb.get('H_r_m', 3.0) + 1.8)
+    H_reaccion = resultados_uasb.get('H_zona_reaccion_m', 
+                                     resultados_uasb.get('H_r_m', 3.0))
+    H_GLS = resultados_uasb.get('H_GLS_m', 1.0)
+    H_distribucion = resultados_uasb.get('H_distribucion_m', 0.3)
+    H_sed = resultados_uasb.get('H_sed_m', 1.5)
+    
+    v_up = resultados_uasb.get('v_up_m_h', 0.8)
+    TRH = resultados_uasb.get('TRH_h', 5.0)
+    biogas = resultados_uasb.get('biogaz_m3_d', 48.9)
+    Q_L_s = resultados_uasb.get('Q_m3_h', 18.0) * 1000 / 3600
+    n_puntos = resultados_uasb.get('num_puntos_distribucion', 17)
+    
+    # Crear figura
+    fig, ax = plt.subplots(figsize=(10, 12))
+    
+    # Dimensiones del reactor
+    ancho = D
+    altura_total = H_total
+    x_centro = 5
+    y_base = 1
+    
+    # Colores
+    color_lecho = '#D4A574'  # Marrón claro para lecho granular
+    color_manto = '#E8D4C4'  # Beige para manto de lodos
+    color_liquido = '#B8D4E3'  # Azul claro para zona líquida
+    color_GLS = '#E0E0E0'  # Gris para GLS
+    color_biogas = '#C8E6C9'  # Verde claro para cámara biogás
+    
+    # 1. Dibujar cuerpo principal del reactor (rectángulo redondeado)
+    reactor = FancyBboxPatch((x_centro - ancho/2, y_base), ancho, altura_total,
+                            boxstyle="round,pad=0.1", 
+                            facecolor='white', edgecolor='#333333', linewidth=2)
+    ax.add_patch(reactor)
+    
+    # 2. Lecho granular (parte inferior ~40% de zona de reacción)
+    H_lecho = H_reaccion * 0.4
+    lecho = Rectangle((x_centro - ancho/2 + 0.1, y_base + H_distribucion), 
+                      ancho - 0.2, H_lecho,
+                      facecolor=color_lecho, edgecolor='none', alpha=0.8)
+    ax.add_patch(lecho)
+    
+    # Círculos representando gránulos
+    np.random.seed(42)
+    for _ in range(25):
+        cx = x_centro + np.random.uniform(-ancho/3, ancho/3)
+        cy = y_base + H_distribucion + np.random.uniform(0.1, H_lecho-0.1)
+        radio = np.random.uniform(0.08, 0.15)
+        granulo = Circle((cx, cy), radio, facecolor='#B8956A', 
+                        edgecolor='#8B7355', alpha=0.7)
+        ax.add_patch(granulo)
+    
+    # 3. Manto de lodos expandido (60% superior de zona de reacción)
+    H_manto = H_reaccion * 0.6
+    manto = Rectangle((x_centro - ancho/2 + 0.1, y_base + H_distribucion + H_lecho),
+                      ancho - 0.2, H_manto,
+                      facecolor=color_manto, edgecolor='none', alpha=0.6)
+    ax.add_patch(manto)
+    
+    # Burbujas de biogás en el manto
+    for _ in range(15):
+        cx = x_centro + np.random.uniform(-ancho/3, ancho/3)
+        cy = y_base + H_distribucion + H_lecho + np.random.uniform(0.2, H_manto-0.2)
+        radio = np.random.uniform(0.05, 0.12)
+        burbuja = Circle((cx, cy), radio, facecolor='#A8D5BA', 
+                        edgecolor='#7CB87C', alpha=0.5)
+        ax.add_patch(burbuja)
+    
+    # 4. Zona líquida sedimentación
+    y_liquido = y_base + H_distribucion + H_reaccion
+    liquido = Rectangle((x_centro - ancho/2 + 0.1, y_liquido),
+                        ancho - 0.2, H_sed,
+                        facecolor=color_liquido, edgecolor='none', alpha=0.5)
+    ax.add_patch(liquido)
+    
+    # Flechas de flujo ascendente
+    for i in range(3):
+        fx = x_centro - ancho/4 + i * (ancho/4)
+        fy_inicio = y_base + H_distribucion + H_reaccion * 0.3
+        fy_fin = y_liquido + H_sed * 0.7
+        ax.annotate('', xy=(fx, fy_fin), xytext=(fx, fy_inicio),
+                   arrowprops=dict(arrowstyle='->', color='#4A90A4', 
+                                  lw=2, alpha=0.7))
+    
+    # 5. Separador GLS (triángulos invertidos)
+    y_GLS = y_liquido + H_sed
+    # Placas inclinadas
+    for lado in [-1, 1]:
+        x_inicio = x_centro + lado * (ancho/2 - 0.3)
+        x_fin = x_centro + lado * (ancho/4)
+        y_inicio = y_GLS + H_GLS - 0.2
+        y_fin = y_GLS + 0.2
+        
+        placa = Polygon([(x_inicio, y_inicio), (x_fin, y_fin), 
+                        (x_inicio + lado*0.1, y_fin)],
+                       facecolor='#B0B0B0', edgecolor='#808080', linewidth=1)
+        ax.add_patch(placa)
+    
+    # 6. Cámara de biogás (parte superior)
+    y_biogas = y_GLS + H_GLS
+    H_camara_biogas = altura_total - (H_distribucion + H_reaccion + H_sed + H_GLS)
+    camara_biogas = Rectangle((x_centro - ancho/2 + 0.1, y_biogas),
+                              ancho - 0.2, H_camara_biogas - 0.1,
+                              facecolor=color_biogas, edgecolor='none', alpha=0.6)
+    ax.add_patch(camara_biogas)
+    
+    # Burbujas de biogás en cámara superior
+    for _ in range(12):
+        cx = x_centro + np.random.uniform(-ancho/3, ancho/3)
+        cy = y_biogas + np.random.uniform(0.1, H_camara_biogas-0.2)
+        radio = np.random.uniform(0.06, 0.14)
+        burbuja = Circle((cx, cy), radio, facecolor='#7FC97F', 
+                        edgecolor='#5A9A5A', alpha=0.6)
+        ax.add_patch(burbuja)
+    
+    # 7. Tubería de entrada (afluente)
+    tuberia_y = y_base + 0.15
+    ax.plot([x_centro - ancho/2 - 1.5, x_centro - ancho/2], [tuberia_y, tuberia_y],
+            'k-', linewidth=4)
+    
+    # Puntos de distribución (círculos negros)
+    for i in range(min(n_puntos, 5)):  # Mostrar máximo 5 para claridad
+        x_punto = x_centro - ancho/3 + i * (ancho/6)
+        punto = Circle((x_punto, tuberia_y), 0.08, facecolor='#333333', 
+                      edgecolor='black')
+        ax.add_patch(punto)
+    
+    # Flecha de entrada
+    ax.annotate('', xy=(x_centro - ancho/2, tuberia_y), 
+               xytext=(x_centro - ancho/2 - 1.2, tuberia_y),
+               arrowprops=dict(arrowstyle='->', color='#2E7D32', lw=2.5))
+    
+    # 8. Caño de salida de efluente
+    y_efluente = y_liquido + H_sed * 0.7
+    ax.plot([x_centro + ancho/2, x_centro + ancho/2 + 1.2], 
+            [y_efluente, y_efluente], 'k-', linewidth=3)
+    # Caja de salida
+    salida = Rectangle((x_centro + ancho/2, y_efluente - 0.15), 0.4, 0.3,
+                      facecolor='#B8D4E3', edgecolor='#333333')
+    ax.add_patch(salida)
+    ax.annotate('', xy=(x_centro + ancho/2 + 1.0, y_efluente),
+               xytext=(x_centro + ancho/2 + 0.4, y_efluente),
+               arrowprops=dict(arrowstyle='->', color='#1565C0', lw=2.5))
+    
+    # 9. Chimenea de biogás
+    x_chimenea = x_centro
+    y_chimenea = y_base + altura_total
+    ax.plot([x_chimenea, x_chimenea], [y_chimenea, y_chimenea + 0.8], 
+            'k-', linewidth=3)
+    # Caja del colector
+    colector = Rectangle((x_chimenea - 0.3, y_chimenea), 0.6, 0.25,
+                        facecolor='#E8E8E8', edgecolor='#333333')
+    ax.add_patch(colector)
+    # Flecha verde hacia arriba
+    ax.annotate('', xy=(x_chimenea, y_chimenea + 0.8),
+               xytext=(x_chimenea, y_chimenea + 0.25),
+               arrowprops=dict(arrowstyle='->', color='#2E7D32', lw=3))
+    
+    # === ETIQUETAS ===
+    
+    # Título
+    ax.text(x_centro, y_base + altura_total + 1.5, 
+           'REACTOR UASB - Esquema de Funcionamiento',
+           ha='center', va='center', fontsize=14, fontweight='bold')
+    
+    # Biogás
+    ax.text(x_chimenea + 0.8, y_chimenea + 0.5, 
+           f'Biogás\n{biogas:.1f} m³ CH₄/d',
+           ha='left', va='center', fontsize=10, color='#2E7D32', fontweight='bold')
+    
+    # Cámara biogás
+    ax.text(x_centro + ancho/2 + 0.8, y_biogas + H_camara_biogas/2,
+           'Cámara de biogás\nrecolección CH₄',
+           ha='left', va='center', fontsize=9)
+    
+    # Separador GLS
+    ax.text(x_centro + ancho/2 + 0.8, y_GLS + H_GLS/2,
+           'Separador GLS\ngas-líquido-sólido',
+           ha='left', va='center', fontsize=9)
+    
+    # Zona líquida
+    ax.text(x_centro + ancho/2 + 0.8, y_liquido + H_sed/2,
+           'Zona líquida\nsedimentación',
+           ha='left', va='center', fontsize=9)
+    
+    # Manto de lodos
+    y_manto_centro = y_base + H_distribucion + H_lecho + H_manto/2
+    ax.text(x_centro + ancho/2 + 0.8, y_manto_centro,
+           f'Manto de lodos\nvup = {v_up:.2f} m/h',
+           ha='left', va='center', fontsize=9, fontweight='bold')
+    
+    # Lecho granular
+    y_lecho_centro = y_base + H_distribucion + H_lecho/2
+    ax.text(x_centro + ancho/2 + 0.8, y_lecho_centro,
+           f'Lecho granular\nHRT = {TRH:.1f} h',
+           ha='left', va='center', fontsize=9, fontweight='bold')
+    
+    # Distribución
+    ax.text(x_centro + ancho/2 + 0.8, y_base + H_distribucion/2,
+           f'Distribución afluente\n{n_puntos} puntos de entrada',
+           ha='left', va='center', fontsize=9)
+    
+    # Afluente
+    ax.text(x_centro - ancho/2 - 0.8, tuberia_y - 0.5,
+           f'Afluente\n{Q_L_s:.1f} L/s',
+           ha='center', va='top', fontsize=10, fontweight='bold', color='#2E7D32')
+    
+    # Efluente
+    ax.text(x_centro + ancho/2 + 0.8, y_efluente + 0.3,
+           'Efluente\ntratado',
+           ha='center', va='bottom', fontsize=10, fontweight='bold', color='#1565C0')
+    
+    # Líneas divisorias (líneas punteadas horizontales)
+    line_style = dict(linestyle='--', color='#888888', linewidth=1, alpha=0.7)
+    ax.axhline(y=y_base + H_distribucion, xmin=0.15, xmax=0.85, **line_style)
+    ax.axhline(y=y_base + H_distribucion + H_lecho, xmin=0.15, xmax=0.85, **line_style)
+    ax.axhline(y=y_liquido, xmin=0.15, xmax=0.85, **line_style)
+    ax.axhline(y=y_GLS, xmin=0.15, xmax=0.85, **line_style)
+    
+    # Configuración del plot
+    ax.set_xlim(0, 12)
+    ax.set_ylim(0, y_base + altura_total + 2.5)
+    ax.set_aspect('equal')
+    ax.axis('off')
+    
+    # Guardar
+    fig_path = os.path.join(output_dir, 'Esquema_UASB.png')
+    fig.savefig(fig_path, dpi=200, bbox_inches='tight', facecolor='white', 
+                pad_inches=0.3)
+    plt.close()
+    
+    return fig_path

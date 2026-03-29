@@ -870,6 +870,19 @@ Biogás producido & {u['biogaz_m3_d']:.1f} m$^3$ CH$_4$/d \\
 
 La subdivisión interna de la zona de reacción sigue criterios establecidos por Chernicharo \\cite{{chernicharo2007}}. El lecho de lodo denso o granular (aproximadamente {cfg.uasb_porcion_lecho_granular*100:.0f}\% de la altura útil) contiene los lodos más viejos y densos, mientras que el manto de lodos expandido (aproximadamente {cfg.uasb_porcion_manto_expandido*100:.0f}\% de la altura útil) mantiene los lodos en suspensión activa donde ocurre la mayor parte de la degradación biológica. 
 
+\subsubsection{{Esquema de Funcionamiento del Reactor UASB}}
+
+La siguiente figura presenta un esquema del reactor UASB con sus componentes principales y los flujos de agua y biogás:
+
+\begin{{figure}}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{{Esquema_UASB.png}}
+\caption{{Esquema del reactor UASB: distribución del afluente, zonas de reacción, separación gas-líquido-sólido y recolección de biogás. Caudal por línea: {u['Q_m3_h']:.2f} m³/h, Biogás: {u['biogaz_m3_d']:.1f} m³ CH$_4$/d, {u['num_puntos_distribucion']:.0f} puntos de distribución.}}
+\label{{fig:esquema_uasb}}
+\end{{figure}}
+
+El esquema ilustra el flujo ascendente del afluente a través del lecho de lodo granular, donde ocurre la digestión anaerobia. El biogás producido se separa en el GLS y se recolecta en la cámara superior, mientras que el efluente tratado sale por el lateral del reactor. La velocidad ascendente de diseño de {u['v_up_m_h']:.2f} m/h garantiza la retención del manto de lodos.
+
 \subsection{{Filtro Percolador}}
 
 El filtro percolador constituye la unidad de tratamiento secundario aerobio, diseñada para remover la carga orgánica restante después del tratamiento anaerobio en el UASB. El diseño se fundamenta en el modelo cinético de Germain (1966), que describe la remoción de DBO mediante la expresión exponencial, y en criterios de carga orgánica volumétrica según WEF (2010) y Metcalf \& Eddy (2014).
@@ -1734,7 +1747,7 @@ def generar_latex_alternativa_A(cfg, resultados, output_path, area_m2=None, bala
     """Genera archivo LaTeX completo (incluye layout automático)"""
     
     # Importar y generar layout automáticamente
-    from ptar_layout_graficador import generar_layout_con_resultados
+    from ptar_layout_graficador import generar_layout_con_resultados, generar_esquema_uasb
     import os
     
     output_dir = os.path.dirname(output_path) or '.'
@@ -1753,6 +1766,20 @@ def generar_latex_alternativa_A(cfg, resultados, output_path, area_m2=None, bala
     except Exception as e:
         print(f"  [ADVERTENCIA] No se pudo generar layout: {e}")
         layout_filename = "Layout_A_2lineas.png"
+    
+    # Generar esquema del UASB
+    print("Generando esquema del reactor UASB...")
+    try:
+        uasb_resultados = resultados.get('uasb', {})
+        if uasb_resultados:
+            esquema_path = generar_esquema_uasb(uasb_resultados, output_dir)
+            esquema_filename = "Esquema_UASB.png"
+            print(f"  Esquema UASB generado: {esquema_filename}")
+        else:
+            esquema_filename = None
+    except Exception as e:
+        print(f"  [ADVERTENCIA] No se pudo generar esquema UASB: {e}")
+        esquema_filename = None
     
     # Generar archivo de bibliografía
     print("Generando archivo de bibliografía...")
