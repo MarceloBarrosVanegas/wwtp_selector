@@ -760,6 +760,36 @@ TRH sedimentador & {u['TRH_sed_medio_h']:.2f} h & $\geq$ {cfg.uasb_TRH_sed_medio
 
 La verificación demuestra que el compartimiento de sedimentación diseñado cumple satisfactoriamente con todos los criterios técnicos establecidos en la literatura especializada para reactores UASB.
 
+\subsubsection{{Aberturas GLS -- Dimensionamiento}}
+
+El separador gas-líquido-sólido (GLS) incluye aberturas que permiten el paso del líquido clarificado desde la zona de digestión hacia el compartimiento de sedimentación. Según el manual de diseño UASB, estas aberturas deben dimensionarse cuidadosamente para evitar velocidades que arrastren sólidos hacia el efluente.
+
+La velocidad admisible en las aberturas es mayor que en el cuerpo del reactor porque el líquido ya está parcialmente clarificado. Los valores recomendados son {cfg.uasb_v_abertura_medio_min_m_h:.1f}--{cfg.uasb_v_abertura_medio_max_m_h:.1f} m/h a caudal medio y hasta {cfg.uasb_v_abertura_max_m_h:.1f} m/h a caudal máximo. El área mínima requerida se calcula como:
+
+\begin{{equation}}
+A_{{ab}} = \frac{{Q}}{{v_{{adm}}}}
+\end{{equation}}
+\captionequation{{Area minima de aberturas GLS}}
+
+\textit{{Donde:}}
+\begin{{itemize}}[noitemsep,leftmargin=2em]
+    \item[$A_{{ab}}$] = Área total libre de aberturas (m²)
+    \item[$Q$] = Caudal por línea ({u['Q_m3_h']:.2f} m³/h)
+    \item[$v_{{adm}}$] = Velocidad admisible adoptada ({u['v_abertura_adoptada_m_h']:.2f} m/h)
+\end{{itemize}}
+
+\begin{{equation}}
+A_{{ab}} = \frac{{{u['Q_m3_h']:.2f}}}{{{u['v_abertura_adoptada_m_h']:.2f}}} = {u['A_aberturas_min_m2']:.2f} \text{{ m}}^2
+\end{{equation}}
+
+Verificando para caudal máximo ($Q_{{max}} = {u['Q_max_m3_h']:.2f}$ m³/h):
+
+\begin{{equation}}
+v_{{ab,max}} = \frac{{Q_{{max}}}}{{A_{{ab}}}} = \frac{{{u['Q_max_m3_h']:.2f}}}{{{u['A_aberturas_min_m2']:.2f}}} = {u['v_abertura_max_calculada_m_h']:.2f} \text{{ m/h}} \quad {'< ' + str(cfg.uasb_v_abertura_max_m_h) if u['v_abertura_max_cumple'] else '> ' + str(cfg.uasb_v_abertura_max_m_h)} \text{{ m/h }} \text{{({'Cumple' if u['v_abertura_max_cumple'] else 'No cumple'})}}
+\end{{equation}}
+
+Adicionalmente, el GLS debe construirse con pendientes de {cfg.uasb_GLS_pendiente_min_grados:.0f}° a {cfg.uasb_GLS_pendiente_max_grados:.0f}° (adoptado {u['GLS_pendiente_adoptada_grados']:.0f}°) y un traslape de {cfg.uasb_GLS_traslape_m:.2f} m sobre las aberturas para garantizar la retención de sólidos.
+
 \subsubsection{{Resultados del Reactor UASB}}
 
 \begin{{table}}[H]
@@ -783,9 +813,15 @@ Volumen útil & {u['V_r_m3']:.1f} m³ \\
 Tiempo de retención hidráulico & {u['TRH_h']:.1f} h \\
 Carga orgánica volumétrica & {u['Cv_kgDQO_m3_d']:.1f} kg DQO/m³·d \\
 Biogás producido & {u['biogaz_m3_d']:.1f} m$^3$ CH$_4$/d \\
+\midrule
+\multicolumn{{2}}{{l}}{{\textit{{Subdivisión zona de reacción:}}}} \\
+\quad Lecho granular ({cfg.uasb_porcion_lecho_granular*100:.0f}\%) & {u.get('H_lecho_granular_m', u['H_r_m']*cfg.uasb_porcion_lecho_granular):.2f} m \\
+\quad Manto expandido ({cfg.uasb_porcion_manto_expandido*100:.0f}\%) & {u.get('H_manto_expandido_m', u['H_r_m']*cfg.uasb_porcion_manto_expandido):.2f} m \\
 \bottomrule
 \end{{tabular}}
 \end{{table}}
+
+La subdivisión interna de la zona de reacción sigue criterios establecidos en el manual de diseño UASB. El lecho de lodo denso o granular (aproximadamente {cfg.uasb_porcion_lecho_granular*100:.0f}\% de la altura útil) contiene los lodos más viejos y densos, mientras que el manto de lodos expandido (aproximadamente {cfg.uasb_porcion_manto_expandido*100:.0f}\% de la altura útil) mantiene los lodos en suspensión activa donde ocurre la mayor parte de la degradación biológica. Esta subdivisión es conceptualmente útil para dibujos y explicaciones del funcionamiento del reactor, aunque el cálculo principal se basa en la altura útil total.
 
 \subsection{{Filtro Percolador}}
 

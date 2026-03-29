@@ -141,6 +141,8 @@ class ConfigDiseno:
     uasb_H_distribucion_m: float = 0.30     # Altura zona de distribución (fondo) (m) - típico 0.3-0.5 m
     uasb_H_sed_m: float = 1.6               # Altura compartimiento sedimentación (m) - típico 1.5-2.0 m
     uasb_factor_efectividad_sed: float = 0.90  # Factor de área efectiva sedimentación (90% típico)
+    uasb_porcion_lecho_granular: float = 0.40  # Fracción de altura para lecho granular (típico 0.35-0.45)
+    uasb_porcion_manto_expandido: float = 0.60 # Fracción de altura para manto expandido (típico 0.55-0.65)
     
     # =========================================================================
     # LÍMITES DE SEDIMENTADOR SUPERIOR UASB (Chernicharo)
@@ -165,6 +167,16 @@ class ConfigDiseno:
     uasb_rendimiento_lodos_kg_SSV_kg_DBO: float = 0.10  # Rendimiento de lodos (kg SSV/kg DBO removida)
     uasb_D_max_m: float = 10.0                          # Diámetro máximo del reactor (m) - límite while v_up
     uasb_D_sed_max_m: float = 15.0                      # Diámetro máximo para sedimentador (m) - límite while SOR
+    
+    # =========================================================================
+    # PARÁMETROS ABERTURAS GLS (Paso 9 del manual UASB)
+    # =========================================================================
+    uasb_v_abertura_medio_min_m_h: float = 2.0   # Velocidad mínima en aberturas a caudal medio (m/h)
+    uasb_v_abertura_medio_max_m_h: float = 2.3   # Velocidad máxima en aberturas a caudal medio (m/h)
+    uasb_v_abertura_max_m_h: float = 4.2         # Velocidad máxima en aberturas a caudal máximo (m/h)
+    uasb_GLS_pendiente_min_grados: float = 50.0  # Pendiente mínima del GLS (grados)
+    uasb_GLS_pendiente_max_grados: float = 60.0  # Pendiente máxima del GLS (grados)
+    uasb_GLS_traslape_m: float = 0.15            # Traslape del GLS sobre la abertura (m)
     
     # =============================================================================
     # PARÁMETROS DE DISEÑO - FILTRO PERCOLADOR
@@ -1201,17 +1213,14 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
         f"({ref_me}, p. 757; {ref_vh})"
     )
 
-    # Desglose de alturas del reactor UASB
-    # Altura de zona de reacción (manto de lodos)
-    H_zona_reaccion_m = H_r_m  # Altura útil calculada
+    # Desglose de alturas del reactor UASB (se calcularán al final tras posibles ajustes)
     # Altura del separador GLS (gas-líquido-sólido)
     H_GLS_m = Q.uasb_H_GLS_m  # Desde configuración (típico 0.8-1.2 m)
     # Altura de zona de distribución (fondo)
     H_distribucion_m = Q.uasb_H_distribucion_m  # Desde configuración (típico 0.3-0.5 m)
     # Bordo libre
     H_bordo_libre_m = Q.bordo_libre_uasb_m  # Desde configuración (típico 0.3-0.5 m)
-    # Altura total de construcción
-    H_total_construccion_m = H_distribucion_m + H_zona_reaccion_m + H_GLS_m + H_bordo_libre_m
+    
     
     # =========================================================================
     # CÁLCULO DEL COMPARTIMIENTO DE SEDIMENTACIÓN SUPERIOR (Paso 7 del manual)
@@ -1320,6 +1329,51 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
     else:
         SOR_max_texto = f"La carga superficial máxima de {SOR_max_m_h:.2f} m/h excede el límite recomendado (< {SOR_limite_val:.1f} m/h)"
     
+    # =========================================================================
+    # CÁLCULO DE ABERTURAS GLS (Paso 9 del manual UASB)
+    # =========================================================================
+    # Según el manual de diseño UASB, las aberturas entre la zona de digestión
+    # y el sedimentador deben dimensionarse para evitar velocidades excesivas
+    # que arrastren sólidos. La velocidad admisible típica es 2.0-2.3 m/h a
+    # caudal medio y 4.0-4.2 m/h a caudal máximo.
+    
+    v_abertura_adoptada_m_h = (Q.uasb_v_abertura_medio_min_m_h + Q.uasb_v_abertura_medio_max_m_h) / 2  # 2.15 m/h
+    
+    # Área mínima de aberturas para caudal medio
+    A_aberturas_min_m2 = Q_m3_h / v_abertura_adoptada_m_h
+    
+    # Verificación a caudal máximo
+    v_abertura_max_calculada_m_h = Q_max_m3_h / A_aberturas_min_m2
+    
+    # Lógica de auto-dimensionamiento interno: 
+    # Las aberturas son deflectoras (físicamente construidas dentro del área total A_sup_m2). 
+    # Por lo tanto, no modifican el diámetro del reactor, solo su propia geometría.
+    if v_abertura_max_calculada_m_h > Q.uasb_v_abertura_max_m_h:
+        # Forzar el cumplimiento en pico aumentando el tamaño de las aberturas GLS
+        A_aberturas_min_m2 = Q_max_m3_h / Q.uasb_v_abertura_max_m_h
+        v_abertura_max_calculada_m_h = Q.uasb_v_abertura_max_m_h
+        # La apertura agrandada hará que la velocidad a caudal normal baje, lo cual es seguro.
+        v_abertura_adoptada_m_h = Q_m3_h / A_aberturas_min_m2
+        
+    v_abertura_max_cumple = v_abertura_max_calculada_m_h <= Q.uasb_v_abertura_max_m_h
+    
+    # Características geométricas del GLS
+    GLS_pendiente_adoptada_grados = (Q.uasb_GLS_pendiente_min_grados + Q.uasb_GLS_pendiente_max_grados) / 2  # 55°
+    
+    # =========================================================================
+    # RECALCULO FINAL DE ALTURAS DEPENDIENTES
+    # (Se realiza aquí para asegurar que usan el H_r_m final tras todos los bucles)
+    # =========================================================================
+    H_zona_reaccion_m = H_r_m  # Altura útil final
+    H_total_construccion_m = H_distribucion_m + H_zona_reaccion_m + H_GLS_m + H_bordo_libre_m
+    
+    # Subdivisión interna de la zona de reacción (según manual UASB)
+    # Lecho de lodo denso/granular
+    # Manto de lodos expandido
+    H_lecho_granular_m = H_zona_reaccion_m * Q.uasb_porcion_lecho_granular
+    H_manto_expandido_m = H_zona_reaccion_m * Q.uasb_porcion_manto_expandido
+    
+    
     return {
         "unidad": "Reactor UASB",
         # Datos de entrada
@@ -1354,6 +1408,9 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
         "H_distribucion_m": round(H_distribucion_m, 2),
         "H_bordo_libre_m": round(H_bordo_libre_m, 2),
         "H_total_construccion_m": round(H_total_construccion_m, 2),
+        # Subdivisión interna zona de reacción (manual UASB)
+        "H_lecho_granular_m": round(H_lecho_granular_m, 2),
+        "H_manto_expandido_m": round(H_manto_expandido_m, 2),
         # Compartimiento de sedimentación superior (Paso 7 manual)
         "H_sed_m": round(H_sed_m, 2),
         "A_sed_efectiva_m2": round(A_sed_efectiva_m2, 2),
@@ -1367,6 +1424,13 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
         "TRH_sed_medio_h": round(TRH_sed_medio_h, 2),
         "TRH_sed_max_h": round(TRH_sed_max_h, 2),
         "TRH_sed_cumple": TRH_sed_cumple,
+        # Aberturas GLS (Paso 9 manual)
+        "A_aberturas_min_m2": round(A_aberturas_min_m2, 2),
+        "v_abertura_adoptada_m_h": round(v_abertura_adoptada_m_h, 2),
+        "v_abertura_max_calculada_m_h": round(v_abertura_max_calculada_m_h, 2),
+        "v_abertura_max_cumple": v_abertura_max_cumple,
+        "GLS_pendiente_adoptada_grados": round(GLS_pendiente_adoptada_grados, 1),
+        "GLS_traslape_m": Q.uasb_GLS_traslape_m,
         # Producción de subproductos
         "factor_biogas_ch4": factor_biogas,   # Factor usado (m³ CH4 / kg DQO removida)
         "DQO_removida_kg_d": round(DQO_removida_kg_d, 2),
