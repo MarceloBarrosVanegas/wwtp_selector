@@ -759,18 +759,86 @@ def generar_esquema_uasb(resultados_uasb: dict, output_dir: str = "resultados") 
     # Entre GLS y biogás
     ax.axhline(y=y_bio_bottom, xmin=0.18, xmax=0.82, **dash)
     
+    # === LÍNEAS DE DIMENSIÓN ===
+    
+    # Posición X para líneas de dimensión izquierdas
+    x_dim_izq = x_izq - 1.8
+    
+    # Función auxiliar para dibujar línea de dimensión con flechas
+    def draw_dim_line(y1, y2, x_pos, label, offset_x=0):
+        # Línea vertical
+        ax.plot([x_pos, x_pos], [y1, y2], 'k-', linewidth=0.8)
+        # Ticks horizontales
+        ax.plot([x_pos - 0.1, x_pos + 0.1], [y1, y1], 'k-', linewidth=0.8)
+        ax.plot([x_pos - 0.1, x_pos + 0.1], [y2, y2], 'k-', linewidth=0.8)
+        # Flechas
+        ax.annotate('', xy=(x_pos, y2 - 0.05), xytext=(x_pos, y2 - 0.25),
+                   arrowprops=dict(arrowstyle='->', color='black', lw=0.8))
+        ax.annotate('', xy=(x_pos, y1 + 0.05), xytext=(x_pos, y1 + 0.25),
+                   arrowprops=dict(arrowstyle='->', color='black', lw=0.8))
+        # Texto
+        ax.text(x_pos - 0.15, (y1 + y2) / 2, label, ha='right', va='center',
+               fontsize=7, rotation=0)
+    
+    # Dibujar dimensiones verticales (de abajo hacia arriba)
+    # Distribución
+    if h_dist > 0.3:
+        draw_dim_line(y_bottom, y_bottom + h_dist, x_dim_izq, f'{H_distribucion:.1f} m')
+    
+    # Lecho granular
+    draw_dim_line(y_lecho_bottom, y_lecho_bottom + h_lecho, x_dim_izq, 
+                  f'{H_reaccion * 0.4:.1f} m')
+    
+    # Manto de lodos
+    draw_dim_line(y_manto_bottom, y_manto_bottom + h_manto, x_dim_izq,
+                  f'{H_reaccion * 0.6:.1f} m')
+    
+    # Zona líquida sedimentación
+    draw_dim_line(y_liq_bottom, y_liq_bottom + h_sed, x_dim_izq,
+                  f'{H_sed:.1f} m')
+    
+    # GLS
+    draw_dim_line(y_gls_bottom, y_gls_bottom + h_gls, x_dim_izq,
+                  f'{H_GLS:.1f} m')
+    
+    # Bordo libre / Cámara biogás
+    if h_bordo > 0.2:
+        draw_dim_line(y_bio_bottom, y_bio_bottom + h_bordo - 0.1, x_dim_izq,
+                      f'{H_bordo:.1f} m')
+    
+    # Dimensión horizontal (ancho)
+    y_dim_bottom = y_bottom - 0.8
+    ax.plot([x_izq, x_der], [y_dim_bottom, y_dim_bottom], 'k-', linewidth=0.8)
+    ax.plot([x_izq, x_izq], [y_dim_bottom - 0.1, y_dim_bottom + 0.1], 'k-', linewidth=0.8)
+    ax.plot([x_der, x_der], [y_dim_bottom - 0.1, y_dim_bottom + 0.1], 'k-', linewidth=0.8)
+    # Flechas
+    ax.annotate('', xy=(x_izq + 0.25, y_dim_bottom), xytext=(x_izq + 0.05, y_dim_bottom),
+               arrowprops=dict(arrowstyle='->', color='black', lw=0.8))
+    ax.annotate('', xy=(x_der - 0.25, y_dim_bottom), xytext=(x_der - 0.05, y_dim_bottom),
+               arrowprops=dict(arrowstyle='->', color='black', lw=0.8))
+    # Texto
+    ax.text(x_centro, y_dim_bottom - 0.15, f'Ø {D:.1f} m', ha='center', va='top', fontsize=8)
+    
+    # Altura total (línea izquierda completa)
+    x_dim_total = x_izq - 2.3
+    ax.plot([x_dim_total, x_dim_total], [y_bottom, y_top], 'k-', linewidth=0.8)
+    ax.plot([x_dim_total - 0.1, x_dim_total + 0.1], [y_bottom, y_bottom], 'k-', linewidth=0.8)
+    ax.plot([x_dim_total - 0.1, x_dim_total + 0.1], [y_top, y_top], 'k-', linewidth=0.8)
+    ax.text(x_dim_total - 0.15, (y_bottom + y_top) / 2, f'H = {H_total:.1f} m',
+           ha='right', va='center', fontsize=8, fontweight='bold')
+    
     # === ETIQUETAS (bien distribuidas) ===
     
     # Título arriba
-    ax.text(x_centro, y_top + 1.2, 'REACTOR UASB - Esquema de Funcionamiento',
+    ax.text(x_centro, y_top + 1.5, 'REACTOR UASB - Esquema de Funcionamiento',
            ha='center', va='bottom', fontsize=13, fontweight='bold')
     
     # Biogás (arriba a la derecha)
-    ax.text(x_centro + 0.5, y_chim + 0.3, f'Biogás\n{biogas:.1f} m³ CH₄/d',
+    ax.text(x_centro + 0.5, y_chim + 0.5, f'Biogás\n{biogas:.1f} m³ CH₄/d',
            ha='left', va='bottom', fontsize=9, color='#2E7D32', fontweight='bold')
     
     # Etiquetas laterales derechas (alineadas con cada zona)
-    offset_x = x_der + 0.4
+    offset_x = x_der + 0.5
     
     # Cámara biogás
     ax.text(offset_x, y_bio_bottom + h_bordo/2, 'Cámara de biogás\nrecolección CH₄',
@@ -797,16 +865,16 @@ def generar_esquema_uasb(resultados_uasb: dict, output_dir: str = "resultados") 
            ha='left', va='center', fontsize=8)
     
     # Afluente (abajo izquierda)
-    ax.text(x_izq - 0.8, y_entrada - 0.3, f'Afluente\n{Q_L_s:.1f} L/s',
+    ax.text(x_izq - 0.8, y_entrada - 0.5, f'Afluente\n{Q_L_s:.1f} L/s',
            ha='center', va='top', fontsize=9, fontweight='bold', color='#2E7D32')
     
-    # Efluente (derecha, nivel salida)
-    ax.text(x_der + 0.8, y_salida + 0.2, 'Efluente\ntratado',
+    # Efluente (derecha, más arriba para evitar solapamiento)
+    ax.text(x_der + 1.0, y_salida + 0.6, 'Efluente\ntratado',
            ha='center', va='bottom', fontsize=9, fontweight='bold', color='#1565C0')
     
     # === CONFIGURACIÓN ===
-    ax.set_xlim(0, 10)
-    ax.set_ylim(-0.5, y_top + 1.8)
+    ax.set_xlim(x_izq - 2.8, x_der + 1.8)
+    ax.set_ylim(y_bottom - 1.2, y_top + 1.8)
     ax.set_aspect('equal')
     ax.axis('off')
     
