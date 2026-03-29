@@ -689,6 +689,22 @@ def generar_esquema_uasb(resultados_uasb: dict, output_dir: str = "resultados") 
                        facecolor=c_liquido, edgecolor='none', alpha=0.8)
     ax.add_patch(liquido)
     
+    # Calcular posición de salida (lo necesito para las flechas de flujo)
+    y_salida = y_liq_bottom + h_sed * 0.6
+    
+    # Flechas de flujo ascendente en zona líquida (azules, curvas indicando movimiento)
+    for i, fx in enumerate([x_centro - 1.0, x_centro, x_centro + 1.0]):
+        # Flecha vertical ascendente
+        ax.annotate('', xy=(fx, y_liq_bottom + h_sed * 0.85), 
+                   xytext=(fx, y_liq_bottom + h_sed * 0.15),
+                   arrowprops=dict(arrowstyle='->', color='#5B9BD5', lw=2, alpha=0.8))
+        # Flecha curva hacia la salida (para la derecha)
+        if i == 2:
+            ax.annotate('', xy=(x_der - 0.3, y_salida), 
+                       xytext=(fx + 0.3, y_liq_bottom + h_sed * 0.7),
+                       arrowprops=dict(arrowstyle='->', color='#5B9BD5', lw=1.5, 
+                                      connectionstyle="arc3,rad=0.3", alpha=0.7))
+    
     # 4. Separador GLS (placas inclinadas 50-55° según Lettinga & Hulshoff Pol)
     y_gls_bottom = y_liq_bottom + h_sed
     
@@ -756,18 +772,24 @@ def generar_esquema_uasb(resultados_uasb: dict, output_dir: str = "resultados") 
         x_p = x_izq + 0.3 + i * ((ancho - 0.6) / (n_show - 1)) if n_show > 1 else x_centro
         ax.add_patch(Circle((x_p, y_entrada), 0.06, facecolor='black'))
     
-    # Flecha entrada
+    # Flecha entrada (verde, más visible)
     ax.annotate('', xy=(x_izq, y_entrada), xytext=(x_izq - 1.2, y_entrada),
-               arrowprops=dict(arrowstyle='->', color='#2E7D32', lw=2))
+               arrowprops=dict(arrowstyle='->', color='#2E7D32', lw=3))
+    # Flecha de dirección en la tubería de entrada
+    ax.annotate('', xy=(x_izq - 0.3, y_entrada), xytext=(x_izq - 0.8, y_entrada),
+               arrowprops=dict(arrowstyle='->', color='#2E7D32', lw=2.5))
     
-    # Salida de efluente (lateral derecho, nivel líquido)
-    y_salida = y_liq_bottom + h_sed * 0.6
+    # Salida de efluente (lateral derecho, nivel líquido) - y_salida ya calculado arriba
     ax.plot([x_der, x_der + 1.0], [y_salida, y_salida], 'k-', linewidth=2.5)
     ax.plot([x_der, x_der], [y_salida - 0.15, y_salida + 0.15], 'k-', linewidth=2)
     ax.add_patch(Rectangle((x_der, y_salida - 0.12), 0.3, 0.24, 
                           facecolor=c_liquido, edgecolor='#555555'))
-    ax.annotate('', xy=(x_der + 0.8, y_salida), xytext=(x_der + 0.3, y_salida),
-               arrowprops=dict(arrowstyle='->', color='#1565C0', lw=2))
+    # Flecha de salida azul (más visible)
+    ax.annotate('', xy=(x_der + 0.8, y_salida), xytext=(x_der + 0.2, y_salida),
+               arrowprops=dict(arrowstyle='->', color='#1565C0', lw=3))
+    # Flecha de dirección dentro de la caja de salida
+    ax.annotate('', xy=(x_der + 0.35, y_salida), xytext=(x_der + 0.1, y_salida),
+               arrowprops=dict(arrowstyle='->', color='#1565C0', lw=2.5))
     
     # Chimenea de biogás (arriba, centro)
     y_chim = y_top
@@ -849,8 +871,8 @@ def generar_esquema_uasb(resultados_uasb: dict, output_dir: str = "resultados") 
     # Texto
     ax.text(x_centro, y_dim_bottom - 0.15, f'Ø {D:.1f} m', ha='center', va='top', fontsize=8)
     
-    # Altura total (línea izquierda completa)
-    x_dim_total = x_izq - 2.3
+    # Altura total (línea izquierda completa) - más a la izquierda para evitar solapamiento
+    x_dim_total = x_izq - 2.8
     ax.plot([x_dim_total, x_dim_total], [y_bottom, y_top], 'k-', linewidth=0.8)
     ax.plot([x_dim_total - 0.1, x_dim_total + 0.1], [y_bottom, y_bottom], 'k-', linewidth=0.8)
     ax.plot([x_dim_total - 0.1, x_dim_total + 0.1], [y_top, y_top], 'k-', linewidth=0.8)
@@ -903,7 +925,7 @@ def generar_esquema_uasb(resultados_uasb: dict, output_dir: str = "resultados") 
            ha='center', va='bottom', fontsize=9, fontweight='bold', color='#1565C0')
     
     # === CONFIGURACIÓN ===
-    ax.set_xlim(x_izq - 2.8, x_der + 1.8)
+    ax.set_xlim(x_izq - 3.3, x_der + 2.0)
     ax.set_ylim(y_bottom - 1.2, y_top + 1.8)
     ax.set_aspect('equal')
     ax.axis('off')
