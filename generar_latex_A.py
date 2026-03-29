@@ -760,7 +760,7 @@ La verificación demuestra que el compartimiento de sedimentación diseñado cum
 
 \subsubsection{{Aberturas GLS -- Dimensionamiento}}
 
-El separador gas-líquido-sólido (GLS) incluye aberturas que permiten el paso del líquido clarificado desde la zona de digestión hacia el compartimiento de sedimentación. Según Chernicharo \\cite{{chernicharo2007}}, estas aberturas deben dimensionarse cuidadosamente para evitar velocidades que arrastren sólidos hacia el efluente.
+El separador gas-líquido-sólido (GLS) incluye aberturas que permiten el paso del líquido clarificado desde la zona de digestión hacia el compartimiento de sedimentación. Según Chernicharo \cite{{chernicharo2007}}, estas aberturas deben dimensionarse cuidadosamente para evitar velocidades que arrastren sólidos hacia el efluente.
 
 La velocidad admisible en las aberturas es mayor que en el cuerpo del reactor porque el líquido ya está parcialmente clarificado. Los valores recomendados son {cfg.uasb_v_abertura_medio_min_m_h:.1f}--{cfg.uasb_v_abertura_medio_max_m_h:.1f} m/h a caudal medio y hasta {cfg.uasb_v_abertura_max_m_h:.1f} m/h a caudal máximo. El área mínima requerida se calcula como:
 
@@ -869,9 +869,9 @@ Biogás producido & {u['biogaz_m3_d']:.1f} m$^3$ CH$_4$/d \\
 \end{{tabular}}
 \end{{table}}
 
-La subdivisión interna de la zona de reacción sigue criterios establecidos por Chernicharo \\cite{{chernicharo2007}}. El lecho de lodo denso o granular (aproximadamente {cfg.uasb_porcion_lecho_granular*100:.0f}\% de la altura útil) contiene los lodos más viejos y densos, mientras que el manto de lodos expandido (aproximadamente {cfg.uasb_porcion_manto_expandido*100:.0f}\% de la altura útil) mantiene los lodos en suspensión activa donde ocurre la mayor parte de la degradación biológica. 
+La subdivisión interna de la zona de reacción sigue criterios establecidos por Chernicharo \cite{{chernicharo2007}}. El lecho de lodo denso o granular (aproximadamente {cfg.uasb_porcion_lecho_granular*100:.0f}\% de la altura útil) contiene los lodos más viejos y densos, mientras que el manto de lodos expandido (aproximadamente {cfg.uasb_porcion_manto_expandido*100:.0f}\% de la altura útil) mantiene los lodos en suspensión activa donde ocurre la mayor parte de la degradación biológica.
 
-\subsubsection{{Esquema de Funcionamiento del Reactor UASB}}
+El reactor UASB requiere un inóculo inicial de lodo anaeróbico granular o, en su defecto, lodo digerido anaeróbicamente. Según Lettinga y Hulshoff-Pol \cite{{vanhaandel1994}}, la cantidad recomendada de inóculo para el arranque es de 10--15 kg SSV/m³ (sólidos suspendidos volátiles), equivalente a llenar aproximadamente el 15--30% del volumen del reactor. El lodo granular consiste en agregados microbianos densos de 0,5--5 mm de diámetro, con velocidades de sedimentación superiores a 50 m/h. Si no se dispone de lodo granular, pueden utilizarse alternativas como lodo de digestor anaerobio, estiércol de cerdo/vaca o lodo de fosas sépticas, desarrollándose la granulación natural en un período de 2--6 meses mediante aumento gradual de la carga orgánica. 
 
 La siguiente figura presenta un esquema del reactor UASB con sus componentes principales y los flujos de agua y biogás:
 
