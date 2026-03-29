@@ -511,16 +511,14 @@ Ancho & {d['b_canal_m']:.2f} m (mínimo constructivo) \\
 Profundidad útil & {d['H_util_m']:.2f} m \\
 Velocidad horizontal real & {d['v_h_real_m_s']:.3f} m/s \\
 Velocidad crítica resuspensión & {d['v_c_scour_m_s']:.3f} m/s (Camp-Shields) \\
-Tiempo retención real & {d['t_r_real_s']:.1f} s$^b$ \\
+Tiempo retención real & {d['t_r_real_s']:.1f} s \\
 \bottomrule
 \end{{tabular}}
-\small
-$^b$ El tiempo de retención excede el rango 30--60 s por el ancho mínimo constructivo. Esto no afecta la sedimentación de arena; el criterio crítico es la velocidad horizontal (< 0,30 m/s).
 \end{{table}}
 
 \subsection{{Reactor UASB}}
 
-El reactor UASB (Upflow Anaerobic Sludge Blanket), desarrollado por Lettinga y colaboradores en 1980 en la Universidad de Wageningen de los Países Bajos \cite{{vanhaandel1994}}, es uno de los sistemas de tratamiento anaerobio de alta tasa más utilizados en el mundo para aguas residuales municipales y agroindustriales. El agua residual entra por la parte inferior y fluye en sentido ascendente a través de un manto denso de lodos granulares, donde los microorganismos anaerobios degradan la materia orgánica mediante metanogénesis, convirtiéndola en biogás (metano y CO$_2$) y biomasa. El proceso ocurre sin oxígeno molecular, por lo que no requiere aireación, reduciendo drásticamente el consumo energético (5--10 veces menos que un sistema aerobio convencional).
+El reactor UASB (Upflow Anaerobic Sludge Blanket), desarrollado por Lettinga y colaboradores en 1980 en la Universidad de Wageningen de los Países Bajos \cite{{vanhaandel1994}}, es uno de los sistemas de tratamiento anaerobio de alta tasa más utilizados en el mundo para aguas residuales municipales y agroindustriales. El agua residual entra por la parte inferior y fluye en sentido ascendente a través de un manto denso de lodo anaerobio, donde los microorganismos anaerobios degradan la materia orgánica mediante metanogénesis, convirtiéndola en biogás (metano y CO$_2$) y biomasa. El proceso ocurre sin oxígeno molecular, por lo que no requiere aireación, reduciendo drásticamente el consumo energético (5--10 veces menos que un sistema aerobio convencional).
 
 El diseño se fundamenta en criterios biológicos e hidráulicos establecidos por Van Haandel y Lettinga \cite{{vanhaandel1994}}, Sperling \cite{{sperling2007}} y Metcalf y Eddy \cite{{metcalf2014}}.
 
@@ -865,7 +863,7 @@ Carga orgánica volumétrica & {u['Cv_kgDQO_m3_d']:.1f} kg DQO/m³·d \\
 Biogás producido & {u['biogaz_m3_d']:.1f} m$^3$ CH$_4$/d \\
 \midrule
 \multicolumn{{2}}{{l}}{{\textit{{Subdivisión zona de reacción:}}}} \\
-\quad Lecho granular ({cfg.uasb_porcion_lecho_granular*100:.0f}\%) & {u.get('H_lecho_granular_m', u['H_r_m']*cfg.uasb_porcion_lecho_granular):.2f} m \\
+\quad Lecho de lodo denso/granular ({cfg.uasb_porcion_lecho_granular*100:.0f}\%) & {u.get('H_lecho_granular_m', u['H_r_m']*cfg.uasb_porcion_lecho_granular):.2f} m \\
 \quad Manto expandido ({cfg.uasb_porcion_manto_expandido*100:.0f}\%) & {u.get('H_manto_expandido_m', u['H_r_m']*cfg.uasb_porcion_manto_expandido):.2f} m \\
 \bottomrule
 \end{{tabular}}
@@ -873,7 +871,7 @@ Biogás producido & {u['biogaz_m3_d']:.1f} m$^3$ CH$_4$/d \\
 
 La subdivisión interna de la zona de reacción sigue criterios establecidos por Chernicharo \cite{{chernicharo2007}}. El lecho de lodo denso o granular (aproximadamente {cfg.uasb_porcion_lecho_granular*100:.0f}\% de la altura útil) contiene los lodos más viejos y densos, mientras que el manto de lodos expandido (aproximadamente {cfg.uasb_porcion_manto_expandido*100:.0f}\% de la altura útil) mantiene los lodos en suspensión activa donde ocurre la mayor parte de la degradación biológica.
 
-El reactor UASB requiere un inóculo inicial de lodo anaeróbico granular o, en su defecto, lodo digerido anaeróbicamente. Según Lettinga y Hulshoff-Pol \cite{{vanhaandel1994}}, la cantidad recomendada de inóculo para el arranque es de 10--15 kg SSV/m³ (sólidos suspendidos volátiles), equivalente a llenar aproximadamente el 15--30% del volumen del reactor. El lodo granular consiste en agregados microbianos densos de 0,5--5 mm de diámetro, con velocidades de sedimentación superiores a 50 m/h. Si no se dispone de lodo granular, pueden utilizarse alternativas como lodo de digestor anaerobio, estiércol de cerdo/vaca o lodo de fosas sépticas, desarrollándose la granulación natural en un período de 2--6 meses mediante aumento gradual de la carga orgánica. 
+El reactor UASB requiere un inóculo inicial de lodo anaeróbico denso/granular o, en su defecto, lodo digerido anaeróbicamente. Según Lettinga y Hulshoff-Pol \cite{{vanhaandel1994}}, la cantidad recomendada de inóculo para el arranque es de 10--15 kg SSV/m³ (sólidos suspendidos volátiles), equivalente a llenar aproximadamente el 15--30% del volumen del reactor. El lodo granular consiste en agregados microbianos densos de 0,5--5 mm de diámetro, con velocidades de sedimentación superiores a 50 m/h. Si no se dispone de lodo granular, pueden utilizarse alternativas como lodo de digestor anaerobio, estiércol de cerdo/vaca o lodo de fosas sépticas, desarrollándose la granulación natural en un período de 2--6 meses mediante aumento gradual de la carga orgánica. 
 
 La siguiente figura presenta un esquema del reactor UASB con sus componentes principales y los flujos de agua y biogás:
 
@@ -884,7 +882,7 @@ La siguiente figura presenta un esquema del reactor UASB con sus componentes pri
 \label{{fig:esquema_uasb}}
 \end{{figure}}
 
-El esquema ilustra el flujo ascendente del afluente a través del lecho de lodo granular, donde ocurre la digestión anaerobia. El biogás producido se separa en el GLS y se recolecta en la cámara superior, mientras que el efluente tratado sale por el lateral del reactor. La velocidad ascendente de diseño de {u['v_up_m_h']:.2f} m/h garantiza la retención del manto de lodos.
+El esquema ilustra el flujo ascendente del afluente a través del lecho de lodo denso, donde ocurre la digestión anaerobia. El biogás producido se separa en el GLS y se recolecta en la cámara superior, mientras que el efluente tratado sale por el lateral del reactor. La velocidad ascendente de diseño de {u['v_up_m_h']:.2f} m/h garantiza la retención del manto de lodos.
 
 \subsection{{Filtro Percolador}}
 
