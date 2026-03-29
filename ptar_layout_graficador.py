@@ -609,7 +609,7 @@ def generar_esquema_uasb(resultados_uasb: dict, output_dir: str = "resultados") 
     n_puntos = resultados_uasb.get('num_puntos_distribucion', 17)
     
     # Proporciones del esquema (más vertical, como referencia)
-    ancho = 4.0  # Ancho fijo para estética
+    ancho = 5.0  # Ancho fijo para estética (20% más ancho)
     altura_total = 8.0  # Altura total del diagrama
     escala = altura_total / (H_distribucion + H_reaccion + H_sed + H_GLS + H_bordo + 0.5)
     
@@ -868,9 +868,9 @@ def generar_esquema_uasb(resultados_uasb: dict, output_dir: str = "resultados") 
     
     # === ETIQUETAS (bien distribuidas) ===
     
-    # Título arriba
-    ax.text(x_centro, y_top + 1.5, 'REACTOR UASB - Esquema de Funcionamiento',
-           ha='center', va='bottom', fontsize=13, fontweight='bold')
+    # Título eliminado - se pone en LaTeX
+    # ax.text(x_centro, y_top + 1.5, 'REACTOR UASB - Esquema de Funcionamiento',
+    #        ha='center', va='bottom', fontsize=13, fontweight='bold')
     
     # Biogás (arriba a la derecha)
     ax.text(x_centro + 0.5, y_chim + 0.5, f'Biogás\n{biogas:.1f} m³ CH₄/d',
@@ -888,7 +888,7 @@ def generar_esquema_uasb(resultados_uasb: dict, output_dir: str = "resultados") 
            ha='left', va='center', fontsize=8)
     
     # Zona líquida
-    ax.text(offset_x, y_liq_bottom + h_sed/2, 'Zona líquida\nsedimentación',
+    ax.text(offset_x, y_liq_bottom + h_sed/2 - 0.4, 'Zona líquida\nsedimentación',
            ha='left', va='center', fontsize=8)
     
     # Manto de lodos
@@ -908,7 +908,7 @@ def generar_esquema_uasb(resultados_uasb: dict, output_dir: str = "resultados") 
            ha='center', va='top', fontsize=9, fontweight='bold', color='#2E7D32')
     
     # Efluente (derecha)
-    ax.text(x_der + 1.0, y_salida + 0.6, 'Efluente\ntratado',
+    ax.text(x_der + 1.0, y_salida + 0.1, 'Efluente\ntratado',
            ha='center', va='bottom', fontsize=9, fontweight='bold', color='#1565C0')
     
     # === CONFIGURACIÓN ===

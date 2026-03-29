@@ -877,7 +877,7 @@ La siguiente figura presenta un esquema del reactor UASB con sus componentes pri
 
 \begin{{figure}}[H]
 \centering
-\includegraphics[width=0.75\textwidth]{{Esquema_UASB.png}}
+\includegraphics[width=\textwidth]{{Esquema_UASB.png}}
 \caption{{Esquema del reactor UASB: distribución del afluente, zonas de reacción, separación gas-líquido-sólido y recolección de biogás. Caudal por línea: {u['Q_m3_h']:.2f} m³/h, Biogás: {u['biogaz_m3_d']:.1f} m³ CH$_4$/d, {u['num_puntos_distribucion']:.0f} puntos de distribución.}}
 \label{{fig:esquema_uasb}}
 \end{{figure}}
