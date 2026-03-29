@@ -82,8 +82,13 @@ def dimensionar_alternativa_A(cfg):
     
     print("\n6. Dimensionando DESINFECCION CON CLORO...")
     from ptar_dimensionamiento import dimensionar_desinfeccion_cloro
-    # Estimar CF de entrada (post-sedimentador)
-    CF_entrada = 5e6  # NMP/100mL típico post-sedimentador
+    # Calcular CF de entrada (post-sedimentador) basado en eficiencias configuradas
+    # CF afluente típico: 1e7 NMP/100mL (aguas residuales sin tratar)
+    cf_afluente = 1e7  # NMP/100mL
+    cf_tras_uasb = cf_afluente * (1 - cfg.balance_eta_CF_uasb)
+    cf_tras_fp = cf_tras_uasb * (1 - cfg.balance_eta_CF_fp)
+    cf_tras_sed = cf_tras_fp * (1 - cfg.balance_eta_CF_sed)
+    CF_entrada = cf_tras_sed
     resultados['desinfeccion'] = dimensionar_desinfeccion_cloro(cfg, CF_entrada_NMP=CF_entrada)
     d = resultados['desinfeccion']
     print(f"   - Tanque: {d['largo_m']} m x {d['ancho_m']} m")
@@ -94,23 +99,38 @@ def dimensionar_alternativa_A(cfg):
     print(f"   - Cumple TULSMA: {'SI' if d['cumple_TULSMA'] else 'NO'}")
     
     print("\n7. Dimensionando LECHO DE SECADO...")
-    # Calcular producción total de lodos del sistema (UASB + FP)
-    # NOTA: Multiplicar por num_lineas porque el lecho es compartido para todas las líneas
+    # Calcular producción de lodos POR LÍNEA
     # UASB: lodos anaerobios (factor de producción desde config)
-    DBO_removida_uasb_kg_d = cfg.Q_linea_m3_d * (cfg.DBO5_mg_L / 1000) * resultados['uasb']['eta_DBO']
-    lodos_uasb_kg_d = cfg.lecho_factor_produccion_lodos * DBO_removida_uasb_kg_d * cfg.num_lineas
-    # Filtro Percolador: humus (ya calculado en el dimensionamiento del FP)
-    lodos_fp_kg_d = resultados['filtro_percolador']['DBO_removida_kg_d'] * cfg.num_lineas
+    DBO_removida_uasb_kg_d_por_linea = cfg.Q_linea_m3_d * (cfg.DBO5_mg_L / 1000) * resultados['uasb']['eta_DBO']
+    lodos_uasb_kg_d_por_linea = cfg.lecho_factor_produccion_lodos * DBO_removida_uasb_kg_d_por_linea
+    # Filtro Percolador: humus (ya calculado en el dimensionamiento del FP - por línea)
+    lodos_fp_kg_d_por_linea = resultados['filtro_percolador']['DBO_removida_kg_d']
     # Producción total de lodos (ambas líneas)
-    lodos_total_kg_d = lodos_uasb_kg_d + lodos_fp_kg_d
-    resultados['lecho_secado'] = dimensionar_lecho_secado(cfg, lodos_kg_SST_d=lodos_total_kg_d)
+    lodos_total_kg_d_por_linea = lodos_uasb_kg_d_por_linea + lodos_fp_kg_d_por_linea
+    lodos_uasb_kg_d_total = lodos_uasb_kg_d_por_linea * cfg.num_lineas
+    lodos_fp_kg_d_total = lodos_fp_kg_d_por_linea * cfg.num_lineas
+    lodos_total_kg_d_total = lodos_total_kg_d_por_linea * cfg.num_lineas
+    
+    # Dimensionar lecho con TOTAL de lodos
+    resultados['lecho_secado'] = dimensionar_lecho_secado(cfg, lodos_kg_SST_d=lodos_total_kg_d_total)
+    
     # Agregar detalles de producción de lodos al resultado para el reporte
-    resultados['lecho_secado']['lodos_uasb_kg_d'] = lodos_uasb_kg_d
-    resultados['lecho_secado']['lodos_fp_kg_d'] = lodos_fp_kg_d
-    resultados['lecho_secado']['lodos_total_kg_d'] = lodos_total_kg_d
-    print(f"   - Lodos UASB ({cfg.num_lineas} líneas): {lodos_uasb_kg_d:.2f} kg SST/d")
-    print(f"   - Lodos FP ({cfg.num_lineas} líneas): {lodos_fp_kg_d:.2f} kg SST/d")
-    print(f"   - Total lodos: {lodos_total_kg_d:.2f} kg SST/d")
+    # Por línea
+    resultados['lecho_secado']['lodos_uasb_kg_d_por_linea'] = lodos_uasb_kg_d_por_linea
+    resultados['lecho_secado']['lodos_fp_kg_d_por_linea'] = lodos_fp_kg_d_por_linea
+    resultados['lecho_secado']['lodos_total_kg_d_por_linea'] = lodos_total_kg_d_por_linea
+    # Total planta
+    resultados['lecho_secado']['lodos_uasb_kg_d'] = lodos_uasb_kg_d_total
+    resultados['lecho_secado']['lodos_fp_kg_d'] = lodos_fp_kg_d_total
+    resultados['lecho_secado']['lodos_total_kg_d'] = lodos_total_kg_d_total
+    resultados['lecho_secado']['num_lineas'] = cfg.num_lineas
+    
+    print(f"   - Lodos UASB por línea: {lodos_uasb_kg_d_por_linea:.2f} kg SST/d")
+    print(f"   - Lodos FP por línea: {lodos_fp_kg_d_por_linea:.2f} kg SST/d")
+    print(f"   - Total por línea: {lodos_total_kg_d_por_linea:.2f} kg SST/d")
+    print(f"   - Lodos UASB total ({cfg.num_lineas} líneas): {lodos_uasb_kg_d_total:.2f} kg SST/d")
+    print(f"   - Lodos FP total ({cfg.num_lineas} líneas): {lodos_fp_kg_d_total:.2f} kg SST/d")
+    print(f"   - TOTAL LODOS PLANTA: {lodos_total_kg_d_total:.2f} kg SST/d")
     print(f"   - Area total: {resultados['lecho_secado']['A_total_m2']} m2")
     print(f"   - Area por bloque: {resultados['lecho_secado']['A_bloque_m2']} m2")
     

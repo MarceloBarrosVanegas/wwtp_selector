@@ -131,6 +131,9 @@ class ConfigDiseno:
     uasb_eta_DQO: float = 0.65              # Eficiencia remoción DQO (fracción) - usado solo como referencia inicial
     uasb_H_max_m: float = 5.5               # Altura máxima reactor (m)
     uasb_factor_biogas_ch4: float = 0.35    # Factor de conversión biogás (m³ CH4 / kg DQO removida)
+    # Alturas del reactor UASB (desglose constructivo)
+    uasb_H_GLS_m: float = 1.0               # Altura separador gas-líquido-sólido (m) - típico 0.8-1.2 m
+    uasb_H_distribucion_m: float = 0.30     # Altura zona de distribución (fondo) (m) - típico 0.3-0.5 m
     # Límites de velocidad ascendente para verificación (Metcalf & Eddy, 2014)
     # v_up_max debe controlarse para evitar arrastre del manto de lodos
     uasb_v_up_max_recomendado_m_h: float = 1.5   # Límite recomendado (m/h)
@@ -242,6 +245,100 @@ class ConfigDiseno:
     tulsma_bario_limite_mg_L: float = 2.0
     tulsma_hierro_limite_mg_L: float = 10.0
     tulsma_manganeso_limite_mg_L: float = 2.0
+    
+    # =========================================================================
+    # PARÁMETROS DE BALANCE DE CALIDAD DEL AGUA (REMOciones por unidad)
+    # =========================================================================
+    balance_remov_uasb_dbo: float = 0.70       # Eficiencia remoción DBO en UASB
+    balance_remov_uasb_dqo: float = 0.65       # Eficiencia remoción DQO en UASB
+    balance_remov_uasb_sst: float = 0.70       # Eficiencia remoción SST en UASB
+    balance_remov_uasb_cf: float = 0.30        # Eficiencia remoción CF en UASB
+    balance_remov_fp_dbo: float = 0.80         # Eficiencia remoción DBO en Filtro Percolador
+    balance_remov_fp_dqo_factor: float = 0.90  # Factor para calcular ηDQO desde ηDBO en FP
+    balance_remov_fp_sst: float = 0.60         # Eficiencia remoción SST en FP
+    balance_remov_fp_cf: float = 0.20          # Eficiencia remoción CF en FP
+    balance_remov_sed_dbo: float = 0.30        # Eficiencia remoción DBO en Sedimentador
+    balance_remov_sed_sst: float = 0.80        # Eficiencia remoción SST en Sedimentador
+    balance_remov_sed_cf: float = 0.10         # Eficiencia remoción CF en Sedimentador
+    balance_log_reduccion_desinf: float = 4.0  # Log reducción por desinfección
+    balance_cf_objetivo_nmp: float = 2500.0    # Objetivo CF final (NMP/100mL)
+    
+    # =========================================================================
+    # RANGOS NORMATIVOS PARA TEXTOS EN REPORTES (referencias bibliográficas)
+    # =========================================================================
+    # Rejillas - Metcalf & Eddy
+    rejillas_v_canal_min_m_s: float = 0.40     # Velocidad mínima en canal (m/s)
+    rejillas_v_canal_max_m_s: float = 0.60     # Velocidad máxima en canal (m/s)
+    rejillas_h_tirante_min_m: float = 0.30     # Tirante mínimo (m)
+    rejillas_h_tirante_max_m: float = 0.80     # Tirante máximo (m)
+    
+    # Desarenador - Metcalf & Eddy / OPS-CEPIS
+    desarenador_v_h_min_m_s: float = 0.25      # Velocidad horizontal mínima (m/s)
+    desarenador_v_h_max_m_s: float = 0.30      # Velocidad horizontal máxima (m/s)
+    desarenador_t_retencion_min_s: float = 30.0  # Tiempo retención mínimo (s)
+    desarenador_t_retencion_max_s: float = 60.0  # Tiempo retención máximo (s)
+    desarenador_H_min_m: float = 0.75          # Profundidad mínima (m)
+    desarenador_H_max_m: float = 2.0           # Profundidad máxima (m)
+    
+    # UASB - Van Haandel & Lettinga / Sperling
+    uasb_temp_optimina_C: float = 22.0         # Temperatura óptima mínima (°C)
+    uasb_temp_min_operativa_C: float = 15.0    # Temperatura mínima operativa (°C)
+    uasb_trh_min_optimo_h: float = 4.0         # TRH mínimo óptimo (h)
+    uasb_trh_min_baja_temp_h: float = 6.0      # TRH mínimo baja temp (h)
+    uasb_v_up_min_m_h: float = 0.5             # Velocidad ascendente mínima (m/h)
+    uasb_v_up_max_m_h: float = 1.5             # Velocidad ascendente máxima (m/h)
+    
+    # =========================================================================
+    # UMBRALES Y CRITERIOS DE DISEÑO
+    # =========================================================================
+    desarenador_umbral_caudal_pequeno_L_s: float = 20.0  # Umbral caudal pequeño (L/s)
+    desarenador_factor_escala_caudal_pequeno: float = 0.5  # Factor de escala para caudales pequeños
+    
+    # =========================================================================
+    # HOLGURAS, BORDOS LIBRES Y MARGENES CONSTRUCTIVOS
+    # =========================================================================
+    # Bordos libres (m)
+    bordo_libre_rejillas_m: float = 0.30       # Rejillas
+    bordo_libre_desarenador_m: float = 0.30    # Desarenador
+    bordo_libre_uasb_m: float = 0.50           # UASB
+    bordo_libre_fp_m: float = 0.80             # Filtro Percolador (distribución + recolección)
+    bordo_libre_sed_m: float = 0.50            # Sedimentador
+    bordo_libre_desinfeccion_m: float = 0.30   # Desinfección
+    
+    # Margen constructivo para layouts (muros, accesos)
+    layout_margen_muros_m: float = 0.15        # Espesor muros (m) cada lado
+    layout_margen_acceso_m: float = 0.30       # Margen adicional para acceso
+    
+    # =========================================================================
+    # PARÁMETROS PARA ÁREAS COMPLEMENTARIAS DEL PREDIO
+    # =========================================================================
+    # Factores porcentuales
+    layout_factor_amortiguacion: float = 0.20      # 20% del área de tratamiento
+    layout_factor_complementaria: float = 0.25     # 25% del área de tratamiento
+    layout_factor_zona_verde: float = 0.15         # 15% del área total
+    layout_factor_caminos: float = 0.10            # 10% del área de tratamiento
+    
+    # Áreas mínimas (m²) - valores de referencia para plantas pequeñas
+    layout_area_min_bodega_quimicos_m2: float = 12.0
+    layout_area_min_laboratorio_m2: float = 15.0
+    layout_area_min_caseta_operacion_m2: float = 12.0
+    layout_area_min_lavado_m2: float = 8.0
+    layout_area_min_estacionamiento_m2: float = 50.0
+    layout_area_min_zona_camiones_m2: float = 50.0
+    layout_area_min_acceso_principal_m2: float = 20.0
+    layout_area_min_bodega_general_m2: float = 15.0
+    layout_area_min_carga_lodos_m2: float = 20.0
+    
+    # Factores de proporcionalidad (% del área de tratamiento)
+    layout_factor_bodega_quimicos: float = 0.012   # 1.2%
+    layout_factor_laboratorio: float = 0.018       # 1.8%
+    layout_factor_caseta: float = 0.015            # 1.5%
+    layout_factor_lavado: float = 0.010            # 1.0%
+    layout_factor_estacionamiento: float = 0.055   # 5.5%
+    layout_factor_zona_camiones: float = 0.065     # 6.5%
+    layout_factor_acceso: float = 0.025            # 2.5%
+    layout_factor_bodega_general: float = 0.018    # 1.8%
+    layout_factor_carga_lodos: float = 0.025       # 2.5%
 
     def __post_init__(self):
         # Caudal por línea en m^3/d (conversión exacta: 1 L/s = 86.4 m^3/d)
@@ -254,6 +351,134 @@ class ConfigDiseno:
 
 
 CFG = ConfigDiseno()
+
+
+# =============================================================================
+# FUNCIÓN DE EVALUACIÓN DE TEMPERATURA PARA UASB
+# =============================================================================
+
+def evaluar_temperatura_uasb(T_celsius: float, cfg: ConfigDiseno = CFG) -> Dict[str, Any]:
+    """
+    Evalúa la temperatura del agua y retorna parámetros de diseño recomendados
+    para el reactor UASB según criterios de Van Haandel & Lettinga (1994).
+    
+    Args:
+        T_celsius: Temperatura del agua en grados Celsius
+        cfg: Configuración de diseño
+        
+    Returns:
+        Dict con:
+        - texto_recomendacion: str (para insertar en reporte)
+        - cv_kgDQO_m3_d: float (carga orgánica volumétrica)
+        - trh_h: float (tiempo retención hidráulico)
+        - eficiencia_dbo: float (eficiencia esperada remoción DBO)
+        - eficiencia_dqo: float (eficiencia esperada remoción DQO)
+        - factor_temp_texto: str (descripción del rango)
+        - rangos_recomendados: dict (rangos para mostrar en reporte)
+    """
+    # Base de parámetros
+    Cv_base = cfg.uasb_Cv_kgDQO_m3_d
+    HRT_base = cfg.uasb_trh_min_optimo_h
+    
+    if T_celsius >= cfg.uasb_temp_optimina_C:
+        # Temperatura óptima
+        return {
+            "texto_recomendacion": (
+                "Para mantener el rendimiento óptimo del reactor en caso de descenso de temperatura, "
+                "se recomienda monitorear periodicamente. Si la temperatura descendiera por debajo de 20°C, "
+                "el sistema debería ajustar automáticamente la carga orgánica y el tiempo de retención."
+            ),
+            "cv_kgDQO_m3_d": Cv_base,
+            "trh_h": HRT_base,
+            "eficiencia_dbo": cfg.uasb_eta_DBO,
+            "eficiencia_dqo": cfg.uasb_eta_DQO,
+            "factor_temp_texto": "óptima (>= 22°C)",
+            "rangos_recomendados": {
+                "cv": "2,0--3,0",
+                "vup": "0,5--1,5",
+                "hrt": "4--6",
+                "eta": "60--75"
+            }
+        }
+    elif 18 <= T_celsius < cfg.uasb_temp_optimina_C:
+        # Temperatura moderada
+        return {
+            "texto_recomendacion": (
+                "La temperatura está en rango moderado. Se recomienda considerar aislamiento térmico básico "
+                "del reactor para mantener la eficiencia durante períodos fríos."
+            ),
+            "cv_kgDQO_m3_d": Cv_base * 0.85,
+            "trh_h": HRT_base * 1.2,
+            "eficiencia_dbo": cfg.uasb_eta_DBO * 0.90,
+            "eficiencia_dqo": cfg.uasb_eta_DQO * 0.90,
+            "factor_temp_texto": "moderada (18-22°C)",
+            "rangos_recomendados": {
+                "cv": "1,5--2,5",
+                "vup": "0,4--1,2",
+                "hrt": "5--8",
+                "eta": "50--65"
+            }
+        }
+    elif cfg.uasb_temp_min_operativa_C <= T_celsius < 18:
+        # Temperatura baja
+        return {
+            "texto_recomendacion": (
+                "La temperatura es baja, lo que ha reducido automáticamente la carga orgánica y aumentado "
+                "el tiempo de retención. Se recomienda implementar aislamiento térmico del reactor para "
+                "evitar mayor degradación del proceso."
+            ),
+            "cv_kgDQO_m3_d": Cv_base * 0.60,
+            "trh_h": HRT_base * 1.5,
+            "eficiencia_dbo": cfg.uasb_eta_DBO * 0.80,
+            "eficiencia_dqo": cfg.uasb_eta_DQO * 0.80,
+            "factor_temp_texto": "baja (15-18°C)",
+            "rangos_recomendados": {
+                "cv": "1,0--2,0",
+                "vup": "0,3--1,0",
+                "hrt": "6--10",
+                "eta": "40--55"
+            }
+        }
+    elif 10 <= T_celsius < cfg.uasb_temp_min_operativa_C:
+        # Temperatura muy baja
+        return {
+            "texto_recomendacion": (
+                "ATENCIÓN: La temperatura es muy baja. El sistema ha aplicado ajustes significativos: "
+                "reducción de carga orgánica a 40% del valor base y duplicación del tiempo de retención. "
+                "Se requiere aislamiento térmico obligatorio o considerar calefacción del reactor."
+            ),
+            "cv_kgDQO_m3_d": Cv_base * 0.40,
+            "trh_h": HRT_base * 2.0,
+            "eficiencia_dbo": cfg.uasb_eta_DBO * 0.70,
+            "eficiencia_dqo": cfg.uasb_eta_DQO * 0.70,
+            "factor_temp_texto": "muy baja (10-15°C) - se recomienda aislamiento térmico",
+            "rangos_recomendados": {
+                "cv": "0,8--1,5",
+                "vup": "0,3--0,8",
+                "hrt": "8--12",
+                "eta": "30--45"
+            }
+        }
+    else:
+        # Temperatura crítica
+        return {
+            "texto_recomendacion": (
+                "NO RECOMENDABLE: Temperatura por debajo de 10°C. El proceso anaerobio es inviable sin calentar la biomasa. "
+                "Se requiere calefacción del reactor (mantener 20-25°C) o cambio obligatorio a tecnología aerobia activada. "
+                "Los ajustes automáticos aplicados (carga reducida a 30%, HRT aumentado 150%) NO son suficientes para garantizar tratamiento adecuado."
+            ),
+            "cv_kgDQO_m3_d": Cv_base * 0.30,
+            "trh_h": HRT_base * 2.5,
+            "eficiencia_dbo": cfg.uasb_eta_DBO * 0.60,
+            "eficiencia_dqo": cfg.uasb_eta_DQO * 0.60,
+            "factor_temp_texto": "crítica (< 10°C) - requiere calefacción o cambio de tecnología",
+            "rangos_recomendados": {
+                "cv": "0,5--1,0",
+                "vup": "0,2--0,6",
+                "hrt": "10--15",
+                "eta": "20--35"
+            }
+        }
 
 
 # =============================================================================
@@ -603,8 +828,9 @@ def dimensionar_desarenador(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
     L_teorica_metcatlf = v_h_adoptada * t_r_nominal  # = 9.0 m
     
     # Para caudales pequeños, aplicar factor de escala práctico según OPS/CEPIS
-    if Q_L_s < 20:
-        # Factor de escala: a 5 L/s → longitud práctica mínima
+    # Usar parámetro configurable desde ConfigDiseno
+    if Q_L_s < Q.desarenador_umbral_caudal_pequeno_L_s:
+        # Factor de escala: caudales pequeños → longitud práctica mínima
         # Se adopta el menor valor entre criterio teórico-Stokes y práctico
         L_diseno = max(L_min_constructivo, L_teorica_stokes)
     else:
@@ -802,37 +1028,19 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
     # =============================================================================
     T_agua = Q.T_agua_C  # Temperatura del agua (°C)
     
-    # Parámetros base (para T >= 20°C)
-    Cv_base = Q.uasb_Cv_kgDQO_m3_d  # 2.5 kg/m³·d
-    HRT_min_base = 4.0  # horas
+    # Usar función centralizada para evaluación de temperatura
+    temp_eval = evaluar_temperatura_uasb(T_agua, Q)
     
-    # Ajuste por temperatura según Van Haandel & Lettinga (1994)
-    # y Sperling (2007), Tabla 5.3
-    if T_agua >= 22:
-        # Temperatura óptima - parámetros base
-        Cv_kgDQO_m3_d = Cv_base
-        HRT_min = HRT_min_base
-        factor_temp_texto = "óptima (>= 22°C)"
-    elif 18 <= T_agua < 22:
-        # Temperatura moderada - ligera reducción de carga
-        Cv_kgDQO_m3_d = Cv_base * 0.85  # -15%
-        HRT_min = HRT_min_base * 1.2     # +20%
-        factor_temp_texto = "moderada (18-22°C)"
-    elif 15 <= T_agua < 18:
-        # Temperatura baja - reducción significativa
-        Cv_kgDQO_m3_d = Cv_base * 0.60  # -40%
-        HRT_min = HRT_min_base * 1.5     # +50%
-        factor_temp_texto = "baja (15-18°C)"
-    elif 10 <= T_agua < 15:
-        # Temperatura muy baja - requiere aislamiento o medidas especiales
-        Cv_kgDQO_m3_d = Cv_base * 0.40  # -60%
-        HRT_min = HRT_min_base * 2.0     # +100%
-        factor_temp_texto = "muy baja (10-15°C) - se recomienda aislamiento térmico"
-    else:
-        # Temperatura crítica - no recomendable para UASB sin calefacción
-        Cv_kgDQO_m3_d = Cv_base * 0.30  # -70%
-        HRT_min = HRT_min_base * 2.5     # +150%
-        factor_temp_texto = "crítica (< 10°C) - requiere calefacción o cambio de tecnología"
+    # Extraer parámetros calculados
+    Cv_kgDQO_m3_d = temp_eval["cv_kgDQO_m3_d"]
+    HRT_min = temp_eval["trh_h"]
+    factor_temp_texto = temp_eval["factor_temp_texto"]
+    texto_recomendacion_temp = temp_eval["texto_recomendacion"]
+    rangos = temp_eval["rangos_recomendados"]
+    
+    # Eficiencias ajustadas por temperatura
+    eta_DBO = temp_eval["eficiencia_dbo"]
+    eta_DQO = temp_eval["eficiencia_dqo"]
     
     # Velocidad ascendente ajustada por temperatura
     if T_agua >= 20:
@@ -973,6 +1181,18 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
         f"({ref_me}, p. 757; {ref_vh})"
     )
 
+    # Desglose de alturas del reactor UASB
+    # Altura de zona de reacción (manto de lodos)
+    H_zona_reaccion_m = H_r_m  # Altura útil calculada
+    # Altura del separador GLS (gas-líquido-sólido)
+    H_GLS_m = Q.uasb_H_GLS_m  # Desde configuración (típico 0.8-1.2 m)
+    # Altura de zona de distribución (fondo)
+    H_distribucion_m = Q.uasb_H_distribucion_m  # Desde configuración (típico 0.3-0.5 m)
+    # Bordo libre
+    H_bordo_libre_m = Q.bordo_libre_uasb_m  # Desde configuración (típico 0.3-0.5 m)
+    # Altura total de construcción
+    H_total_construccion_m = H_distribucion_m + H_zona_reaccion_m + H_GLS_m + H_bordo_libre_m
+    
     return {
         "unidad": "Reactor UASB",
         # Datos de entrada
@@ -983,12 +1203,13 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
         # Parámetros de temperatura
         "T_agua_C": T_agua,
         "factor_temp_texto": factor_temp_texto,
+        "texto_recomendacion_temp": texto_recomendacion_temp,
         "Cv_base": Q.uasb_Cv_kgDQO_m3_d,
-        # Rangos recomendados según temperatura
-        "rango_Cv": "2,0--3,0" if T_agua >= 22 else ("1,5--2,5" if T_agua >= 18 else "1,0--2,0"),
-        "rango_vup": "0,5--1,5" if T_agua >= 22 else ("0,4--1,2" if T_agua >= 18 else "0,3--1,0"),
-        "rango_HRT": "4--6" if T_agua >= 22 else ("5--8" if T_agua >= 18 else "6--10"),
-        "rango_eta": "60--75" if T_agua >= 22 else ("50--65" if T_agua >= 18 else "40--55"),
+        # Rangos recomendados según temperatura (del evaluador centralizado)
+        "rango_Cv": rangos["cv"],
+        "rango_vup": rangos["vup"],
+        "rango_HRT": rangos["hrt"],
+        "rango_eta": rangos["eta"],
         # Parámetros de diseño adoptados (ajustados por temperatura)
         "Cv_kgDQO_m3_d": round(Cv_kgDQO_m3_d, 2),
         "v_up_m_h": round(v_up_m_h, 3),
@@ -1000,6 +1221,12 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
         "A_sup_m2": round(A_sup_m2, 2),
         "H_r_m": round(H_r_m, 2),
         "D_m": round(D_m, 2),
+        # Desglose de alturas
+        "H_zona_reaccion_m": round(H_zona_reaccion_m, 2),
+        "H_GLS_m": round(H_GLS_m, 2),
+        "H_distribucion_m": round(H_distribucion_m, 2),
+        "H_bordo_libre_m": round(H_bordo_libre_m, 2),
+        "H_total_construccion_m": round(H_total_construccion_m, 2),
         # Producción de subproductos
         "factor_biogas_ch4": factor_biogas,   # Factor usado (m³ CH4 / kg DQO removida)
         "DQO_removida_kg_d": round(DQO_removida_kg_d, 2),

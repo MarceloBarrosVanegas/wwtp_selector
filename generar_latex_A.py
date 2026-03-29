@@ -185,12 +185,19 @@ def generar_contenido_alternativa_A(cfg, resultados, layout_filename="Layout_A_2
         sst_tras_sed = sst_tras_fp * (1 - cfg.balance_remov_sed_sst)
         cf_tras_sed = cf_tras_fp * (1 - cfg.balance_remov_sed_cf)
         
+        # CF final desde resultado de desinfección si está disponible
+        cf_final = cfg.balance_cf_objetivo_nmp
+        if 'desinfeccion' in resultados:
+            cf_final = resultados['desinfeccion'].get('CF_final_NMP', cf_final)
+        elif 'cloro' in resultados:
+            cf_final = resultados['cloro'].get('CF_final_NMP', cf_final)
+        
         balance_calidad = {
             'afluente': {'DBO5_mg_L': cfg.DBO5_mg_L, 'DQO_mg_L': cfg.DQO_mg_L, 'SST_mg_L': cfg.SST_mg_L, 'CF_NMP': cfg.CF_NMP},
             'tras_uasb': {'DBO5_mg_L': dbo_tras_uasb, 'DQO_mg_L': dqo_tras_uasb, 'SST_mg_L': sst_tras_uasb, 'CF_NMP': cf_tras_uasb},
             'tras_fp': {'DBO5_mg_L': dbo_tras_fp, 'DQO_mg_L': dqo_tras_fp, 'SST_mg_L': sst_tras_fp, 'CF_NMP': cf_tras_fp},
             'tras_sed': {'DBO5_mg_L': dbo_tras_sed, 'DQO_mg_L': dqo_tras_sed, 'SST_mg_L': sst_tras_sed, 'CF_NMP': cf_tras_sed},
-            'efluente_final': {'DBO5_mg_L': dbo_tras_sed, 'DQO_mg_L': dqo_tras_sed, 'SST_mg_L': sst_tras_sed, 'CF_NMP': cfg.balance_cf_objetivo_nmp}
+            'efluente_final': {'DBO5_mg_L': dbo_tras_sed, 'DQO_mg_L': dqo_tras_sed, 'SST_mg_L': sst_tras_sed, 'CF_NMP': cf_final}
         }
     
     # Calcular areas complementarias basadas en el area real de tratamiento
@@ -609,7 +616,7 @@ D = \sqrt{{\frac{{4 \cdot A_s}}{{\pi}}}}
 D = \sqrt{{\frac{{4 \times {u['A_sup_m2']:.2f}}}{{\pi}}}} = {u['D_m']:.2f} \text{{ m}}
 \end{{equation}}
 
-La altura resultante del reactor es {u['H_r_m']:.2f} m, proporcionando un tiempo de retención hidráulico de {u['TRH_h']:.1f} horas, valor adecuado según Sperling \cite{{sperling2007}} para temperaturas superiores a 22°C.
+La altura de la zona de reacción (manto de lodos) resulta {u['H_r_m']:.2f}~m, proporcionando un tiempo de retención hidráulico de {u['TRH_h']:.1f} horas, valor adecuado según Sperling \cite{{sperling2007}} para temperaturas superiores a 22°C. La altura total de construcción incluye: zona de distribución ({u.get('H_distribucion_m', 0.30):.2f}~m), separador GLS ({u.get('H_GLS_m', 1.0):.2f}~m) y bordo libre ({u.get('H_bordo_libre_m', 0.50):.2f}~m), resultando en {u.get('H_total_construccion_m', u['H_r_m'] + 1.8):.2f}~m.
 
 La producción de biogás se estima mediante la relación estequiométrica de {u['factor_biogas_ch4']:.2f} m³ de metano por kilogramo de DQO removida:
 
@@ -669,7 +676,14 @@ Con la velocidad calculada $v_{{up,max}} = {u['v_up_max_m_h']:.2f}$~m/h, se obti
 Parámetro & Valor \\
 \midrule
 Diámetro & {u['D_m']:.2f} m \\
-Altura total & {u['H_r_m']:.2f} m \\
+\multicolumn{{2}}{{l}}{{\textit{{Desglose de alturas:}}}} \\
+\quad Zona de distribución (fondo) & {u.get('H_distribucion_m', 0.30):.2f} m \\
+\quad Zona de reacción (manto de lodos) & {u.get('H_zona_reaccion_m', u['H_r_m']):.2f} m \\
+\quad Separador GLS & {u.get('H_GLS_m', 1.0):.2f} m \\
+\quad Bordo libre & {u.get('H_bordo_libre_m', 0.50):.2f} m \\
+\midrule
+\textbf{{Altura total de construcción}} & \textbf{{{u.get('H_total_construccion_m', u['H_r_m'] + 1.8):.2f} m}} \\
+\midrule
 Volumen útil & {u['V_r_m3']:.1f} m³ \\
 Área superficial & {u['A_sup_m2']:.2f} m² \\
 Tiempo de retención hidráulico & {u['TRH_h']:.1f} h \\
@@ -1112,7 +1126,28 @@ Relación Largo/Ancho & 2:1--4:1 & 3:1 & Práctica común \\
 
 \textbf{{Producción de lodos}}
 
-La producción de lodos se estima considerando una producción específica típica de 0,10 kg SSV/kg DBO removida. Para la carga aplicada, se estima una producción de {l['lodos_kg_SST_d']:.2f} kg SST/d por línea.
+La producción de lodos se estima considerando:
+\begin{{itemize}}[noitemsep,leftmargin=2em]
+    \item \textbf{{Lodos UASB:}} producción de 0,10 kg SST/kg DBO removida (factor configurado)
+    \item \textbf{{Humus FP + Sedimentador:}} producción asociada a la DBO removida en el tratamiento secundario
+\end{{itemize}}
+
+\textbf{{Balance de producción de lodos:}}
+
+\begin{{table}}[H]
+\centering
+\caption{{Producción de lodos por línea y total planta}}
+\begin{{tabular}}{{lcc}}
+\toprule
+\textbf{{Origen}} & \textbf{{Por línea (kg SST/d)}} & \textbf{{Total planta ({l.get('num_lineas', 2)} líneas) (kg SST/d)}} \\
+\midrule
+Lodos UASB (anaerobios) & {l.get('lodos_uasb_kg_d_por_linea', l['lodos_uasb_kg_d']/2):.2f} & {l['lodos_uasb_kg_d']:.2f} \\
+Humus FP + Sedimentador & {l.get('lodos_fp_kg_d_por_linea', l['lodos_fp_kg_d']/2):.2f} & {l['lodos_fp_kg_d']:.2f} \\
+\midrule
+\textbf{{Total}} & \textbf{{{(l.get('lodos_uasb_kg_d_por_linea', l['lodos_uasb_kg_d']/2) + l.get('lodos_fp_kg_d_por_linea', l['lodos_fp_kg_d']/2)):.2f}}} & \textbf{{{l['lodos_total_kg_d']:.2f}}} \\
+\bottomrule
+\end{{tabular}}
+\end{{table}}
 
 \textbf{{Ecuaciones de diseño}}
 
@@ -1126,12 +1161,12 @@ V_{{lodo}} = \frac{{M_{{SST}}}}{{C_{{SST}}}}
 \textit{{Donde:}}
 \begin{{itemize}}[noitemsep,leftmargin=2em]
     \item[$V_{{lodo}}$] = Volumen diario de lodo (m³/d)
-    \item[$M_{{SST}}$] = Masa de sólidos producidos ({l['lodos_kg_SST_d']:.2f} kg SST/d)
+    \item[$M_{{SST}}$] = Masa de sólidos producidos TOTAL ({l['lodos_total_kg_d']:.2f} kg SST/d)
     \item[$C_{{SST}}$] = Concentración de sólidos ({l['C_SST_kg_m3']:.0f} kg/m³)
 \end{{itemize}}
 
 \begin{{equation}}
-V_{{lodo}} = \frac{{{l['lodos_kg_SST_d']:.2f}}}{{{l['C_SST_kg_m3']:.0f}}} = {l['V_lodo_m3_d']:.3f} \text{{ m}}^3\text{{/d}}
+V_{{lodo}} = \frac{{{l['lodos_total_kg_d']:.2f}}}{{{l['C_SST_kg_m3']:.0f}}} = {l['V_lodo_m3_d']:.3f} \text{{ m}}^3\text{{/d}}
 \end{{equation}}
 
 \textbf{{Dimensionamiento del área}}
@@ -1178,7 +1213,7 @@ Con una relación largo/ancho de 3:1, las dimensiones de cada bloque son {l['lar
 La carga superficial de sólidos se verifica mediante:
 
 \begin{{equation}}
-\rho_S = \frac{{M_{{SST}} \times 365}}{{A_{{total}}}} = \frac{{{l['lodos_kg_SST_d']:.2f} \times 365}}{{{l['A_total_m2']:.1f}}} = {l['rho_S_kgSST_m2_año']:.1f} \text{{ kg SST/m}}^2\text{{·año}}
+\rho_S = \frac{{M_{{SST}} \times 365}}{{A_{{total}}}} = \frac{{{l.get('lodos_total_kg_d', l['lodos_kg_SST_d']):.2f} \times 365}}{{{l['A_total_m2']:.1f}}} = {l['rho_S_kgSST_m2_año']:.1f} \text{{ kg SST/m}}^2\text{{·año}}
 \end{{equation}}
 
 El valor obtenido está dentro del rango recomendado de 60--220 kg SST/m²·año para lechos de secado de lodos anaerobios según Metcalf \& Eddy \cite{{metcalf2014}}.
@@ -1221,8 +1256,6 @@ CF (NMP/100mL) & {balance_calidad['afluente']['CF_NMP']:.0f} & {balance_calidad[
 \bottomrule
 \end{{tabular}}
 \end{{table}}
-
-Los parametros del efluente final cumplen con los limites establecidos en la TULSMA (DBO$_5$ $\leq$ 100 mg/L, SST $\leq$ 100 mg/L, CF $\leq$ 3000 NMP/100mL).
 
 \subsection{{Disposicion de la Planta y Areas de Predio}}
 
@@ -1365,11 +1398,8 @@ def generar_resumen_resultados(cfg, resultados, balance_calidad=None, area_m2=No
     cumple_t1_dbo = dbo_ef <= 2.0
     cumple_t1_cf = cf_ef <= 600
     
-    conclusion_tulma = (
-        r"\textbf{Conclusion:} El sistema dise\~nado cumple satisfactoriamente con todos los limites establecidos en la TULSMA (Tabla 12) para descarga a cuerpo de agua dulce."
-        if cumple_t12 else
-        r"\textbf{Advertencia:} El sistema NO cumple con uno o mas limites de la TULSMA. Se requiere revisar el dise\~no o considerar tratamiento adicional."
-    )
+    # Estado de cumplimiento (sin conclusiones textuales, solo datos)
+    estado_cumplimiento = "Cumple" if cumple_t12 else "No cumple"
     
     return rf"""
 %============================================================================
@@ -1408,9 +1438,9 @@ Temperatura & {cfg.T_agua_C:.1f} °C \\
 \textbf{{Unidad}} & \textbf{{Dimensiones (m)}} & \textbf{{Cantidad}} & \textbf{{Parametro Clave}} \\
 \midrule
 Rejillas & {rej.get('ancho_layout_m'):.2f} $\times$ {rej.get('h_tirante_m'):.2f} & {cfg.num_lineas} & Velocidad: {rej.get('v_canal_adoptada_m_s'):.2f} m/s \\
-Desarenador & {des.get('b_canal_m'):.2f} $\times$ {des.get('L_diseno_m'):.1f} $\times$ {des.get('H_util_m') + 0.3:.1f} & {cfg.num_lineas} & TRH: {des.get('t_r_nominal_s'):.0f} s \\
+Desarenador & {des.get('b_canal_m'):.2f} $\times$ {des.get('L_diseno_m'):.1f} $\times$ {des.get('H_util_m') + 0.3:.1f} & {cfg.num_lineas} & TRH: {des.get('t_r_real_s', des.get('t_r_nominal_s', 30)):.0f}~s (referencia: 30--60~s) \\
 Reactor UASB & D = {uasb.get('D_m'):.2f}, H = {uasb.get('H_r_m'):.1f} & {cfg.num_lineas} & v$_{{up}}$ = {uasb.get('v_up_m_h'):.2f} m/h \\
-Filtro Percolador & D = {fp.get('D_filtro_m'):.2f}, H = {fp.get('H_total_m'):.1f} & {cfg.num_lineas} & Q$_A$ = {fp.get('Q_A_max_m3_m2_h'):.2f} m$^3$/m$^2\cdot$h \\
+Filtro Percolador & D = {fp.get('D_filtro_m'):.2f}, H = {fp.get('H_total_m'):.1f} & {cfg.num_lineas} & Q$_A$ = {fp.get('Q_A_real_m3_m2_h', 0):.3f} m$^3$/m$^2$·h (máx: {fp.get('Q_A_max_m3_m2_h', 0):.2f}) \\
 Sedimentador Secundario & D = {sed.get('D_m'):.2f}, H = {sed.get('h_sed_m'):.1f} & {cfg.num_lineas} & SOR = {sed.get('SOR_m3_m2_d'):.1f} m$^3$/m$^2\cdot$d \\
 Desinfeccion (Cloro) & {desinf.get('largo_m'):.1f} $\times$ {desinf.get('ancho_m'):.1f} $\times$ {desinf.get('h_total_m'):.1f} & {cfg.num_lineas} & CT = {desinf.get('CT_mg_min_L'):.0f} mg$\cdot$min/L \\
 Lecho de Secado & {lecho.get('largo_m'):.1f} $\times$ {lecho.get('ancho_m'):.1f} & {cfg.num_lineas} & Área: {lecho.get('A_bloque_m2'):.1f} m$^2$ \\
@@ -1464,8 +1494,6 @@ Consumo humano trat. conv. -- Tabla 1 & $\leq$2.0 & --- & --- & $\leq$600 & {'CU
 \end{{tabular}}
 \end{{table}}
 
-{conclusion_tulma}
-
 \subsection{{Requerimientos de Terreno}}
 
 \begin{{table}}[H]
@@ -1487,19 +1515,20 @@ Zona verde (15\% del total) & {area_total_calc * 0.15:.0f} m$^2$ \\
 
 \subsection{{Produccion de Lodos}}
 
+% Calcular valores por línea para tabla
 \begin{{table}}[H]
 \centering
-\caption{{Generacion y manejo de lodos}}
-\begin{{tabular}}{{lc}}
+\caption{{Generacion y manejo de lodos - TOTAL PLANTA ({cfg.num_lineas} líneas)}}
+\begin{{tabular}}{{lcc}}
 \toprule
-\textbf{{Concepto}} & \textbf{{Valor}} \\
+\textbf{{Concepto}} & \textbf{{Por línea}} & \textbf{{Total planta}} \\
 \midrule
-Produccion lodos UASB & {lecho.get('lodos_kg_SST_d', 0):.1f} kg SST/d \\
-Produccion humus FP + Sed & {lecho.get('lodos_fp_kg_d', 0):.1f} kg SST/d \\
+Produccion lodos UASB & {lecho.get('lodos_uasb_kg_d_por_linea', lecho.get('lodos_uasb_kg_d', 0)/2):.1f} kg SST/d & {lecho.get('lodos_uasb_kg_d', 0):.1f} kg SST/d \\
+Produccion humus FP + Sed & {lecho.get('lodos_fp_kg_d_por_linea', lecho.get('lodos_fp_kg_d', 0)/2):.1f} kg SST/d & {lecho.get('lodos_fp_kg_d', 0):.1f} kg SST/d \\
 \midrule
-\textbf{{Total lodos a manejar}} & \textbf{{{lecho.get('lodos_total_kg_d', lecho.get('lodos_kg_SST_d', 0)):.1f} kg SST/d}} \\
-Area de lechos de secado & {lecho.get('A_total_m2'):.1f} m$^2$ total ({cfg.num_lineas} bloques de {lecho.get('A_bloque_m2'):.1f} m$^2$ cada uno) \\
-Frecuencia de aplicacion & 1 vez cada 3--4 meses \\
+\textbf{{Total lodos}} & \textbf{{{lecho.get('lodos_total_kg_d_por_linea', lecho.get('lodos_total_kg_d', 0)/2):.1f} kg SST/d}} & \textbf{{{lecho.get('lodos_total_kg_d', 0):.1f} kg SST/d}} \\
+Area de lechos de secado & --- & {lecho.get('A_total_m2'):.1f} m$^2$ ({cfg.num_lineas} bloques) \\
+Frecuencia de aplicacion & --- & 1 vez cada 3--4 meses \\
 \bottomrule
 \end{{tabular}}
 \end{{table}}
@@ -1515,25 +1544,12 @@ Frecuencia de aplicacion & 1 vez cada 3--4 meses \\
 \midrule
 Potencia electrica estimada & 5--8 & kW \\
 Consumo energia & 40,000--60,000 & kWh/a\~no \\
-Hipoclorito de sodio (12\%) & {desinf.get('volumen_NaOCl_L_d'):.1f} & L/d \\
+Hipoclorito de sodio ({desinf.get('concentracion_NaOCl_pct', 10):.0f}\\%) & {desinf.get('volumen_NaOCl_L_d'):.1f} & L/d \\
 Consumo hipoclorito anual & {desinf.get('volumen_NaOCl_L_d') * 365 / 1000:.0f} & m$^3$/a\~no \\
 \bottomrule
 \end{{tabular}}
 \end{{table}}
 
-\vspace{{1cm}}
-
-\begin{{center}}
-\fbox{{
-\begin{{minipage}}{{0.9\textwidth}}
-\centering
-\textbf{{RESUMEN EJECUTIVO}}\\[0.5em]
-La PTAR (UASB + Filtro Percolador) para {cfg.Q_linea_L_s * 2:.1f} L/s\\
-requiere un area total de \textbf{{0.16--0.19 ha}} y produce un efluente que\\
-cumple con la \textbf{{TULSMA}} para descarga a cuerpos de agua Clase 3.
-\end{{minipage}}
-}}
-\end{{center}}
 """
 
 
