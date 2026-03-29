@@ -4,31 +4,32 @@
 \contentsline {table}{\numberline {3}{\ignorespaces Rangos de diseño según temperatura del agua residual}}{9}{table.3}%
 \contentsline {table}{\numberline {4}{\ignorespaces Parámetros seleccionados para el diseño UASB}}{10}{table.4}%
 \contentsline {table}{\numberline {5}{\ignorespaces Verificación de criterios de diseño de la cámara de sedimentación según Chernicharo (2007)}}{14}{table.5}%
-\contentsline {table}{\numberline {6}{\ignorespaces Dimensiones y parámetros del reactor UASB}}{15}{table.6}%
-\contentsline {table}{\numberline {7}{\ignorespaces Dimensiones del filtro percolador}}{17}{table.7}%
-\contentsline {table}{\numberline {8}{\ignorespaces Rangos de diseño para sedimentador secundario después de filtro percolador}}{18}{table.8}%
-\contentsline {table}{\numberline {9}{\ignorespaces Dimensiones del sedimentador secundario}}{19}{table.9}%
-\contentsline {table}{\numberline {10}{\ignorespaces Parámetros de diseño de la desinfección}}{20}{table.10}%
-\contentsline {table}{\numberline {11}{\ignorespaces Dimensiones del tanque de desinfección}}{22}{table.11}%
-\contentsline {table}{\numberline {12}{\ignorespaces Parámetros de diseño del lecho de secado}}{22}{table.12}%
-\contentsline {table}{\numberline {13}{\ignorespaces Producción de lodos por línea y total planta}}{23}{table.13}%
-\contentsline {table}{\numberline {14}{\ignorespaces Resumen del dimensionamiento del lecho de secado}}{24}{table.14}%
-\contentsline {table}{\numberline {15}{\ignorespaces Balance de calidad del agua a traves del tren de tratamiento}}{24}{table.15}%
-\contentsline {table}{\numberline {16}{\ignorespaces Areas complementarias de la planta}}{26}{table.16}%
-\contentsline {table}{\numberline {17}{\ignorespaces Parametros de entrada del sistema}}{27}{table.17}%
-\contentsline {table}{\numberline {18}{\ignorespaces Resumen de unidades de tratamiento}}{27}{table.18}%
-\contentsline {table}{\numberline {19}{\ignorespaces Evolucion de parametros de calidad a traves del tratamiento}}{27}{table.19}%
-\contentsline {table}{\numberline {20}{\ignorespaces Comparacion con limites TULSMA por uso del agua}}{28}{table.20}%
-\contentsline {table}{\numberline {21}{\ignorespaces Resumen de areas requeridas}}{28}{table.21}%
-\contentsline {table}{\numberline {22}{\ignorespaces Generacion y manejo de lodos - TOTAL PLANTA (2 líneas)}}{28}{table.22}%
-\contentsline {table}{\numberline {23}{\ignorespaces Consumos de energia y productos quimicos}}{29}{table.23}%
-\contentsline {table}{\numberline {24}{L\'imites m\'aximos permisibles para aguas de consumo humano y uso dom\'estico que \'unicamente requieren tratamiento convencional (TULSMA, Tabla~1).}}{30}{table.24}%
-\contentsline {table}{\numberline {25}{L\'imites m\'aximos permisibles de descarga a un cuerpo de agua dulce (TULSMA, Tabla~12).}}{31}{table.25}%
-\contentsline {table}{\numberline {26}{L\'imites m\'aximos permisibles de descarga a un cuerpo de agua marina (TULSMA, Tabla~13).}}{32}{table.26}%
-\contentsline {table}{\numberline {27}{L\'imites m\'aximos permisibles para aguas de consumo humano que \'unicamente requieren desinfecci\'on (TULSMA, Tabla~2).}}{33}{table.27}%
-\contentsline {table}{\numberline {28}{Criterios de calidad admisibles para la preservaci\'on de flora y fauna en aguas dulces y marinas (TULSMA, Tabla~3).}}{34}{table.28}%
-\contentsline {table}{\numberline {29}{Criterios de calidad admisibles para aguas de uso agr\'icola o de riego (TULSMA, Tabla~6).}}{35}{table.29}%
-\contentsline {table}{\numberline {30}{Criterios de calidad admisibles para aguas de uso pecuario (TULSMA, Tabla~7).}}{36}{table.30}%
-\contentsline {table}{\numberline {31}{Criterios de calidad para aguas destinadas a fines recreativos (TULSMA, Tablas~9 y 10).}}{37}{table.31}%
-\contentsline {table}{\numberline {32}{L\'imites m\'aximos permisibles de descarga al sistema de alcantarillado p\'ublico (TULSMA, Tabla~11).}}{38}{table.32}%
+\contentsline {table}{\numberline {6}{\ignorespaces Verificación de velocidades en sistema de distribución}}{16}{table.6}%
+\contentsline {table}{\numberline {7}{\ignorespaces Dimensiones y parámetros del reactor UASB}}{16}{table.7}%
+\contentsline {table}{\numberline {8}{\ignorespaces Dimensiones del filtro percolador}}{19}{table.8}%
+\contentsline {table}{\numberline {9}{\ignorespaces Rangos de diseño para sedimentador secundario después de filtro percolador}}{19}{table.9}%
+\contentsline {table}{\numberline {10}{\ignorespaces Dimensiones del sedimentador secundario}}{21}{table.10}%
+\contentsline {table}{\numberline {11}{\ignorespaces Parámetros de diseño de la desinfección}}{22}{table.11}%
+\contentsline {table}{\numberline {12}{\ignorespaces Dimensiones del tanque de desinfección}}{24}{table.12}%
+\contentsline {table}{\numberline {13}{\ignorespaces Parámetros de diseño del lecho de secado}}{24}{table.13}%
+\contentsline {table}{\numberline {14}{\ignorespaces Producción de lodos por línea y total planta}}{25}{table.14}%
+\contentsline {table}{\numberline {15}{\ignorespaces Resumen del dimensionamiento del lecho de secado}}{26}{table.15}%
+\contentsline {table}{\numberline {16}{\ignorespaces Balance de calidad del agua a traves del tren de tratamiento}}{26}{table.16}%
+\contentsline {table}{\numberline {17}{\ignorespaces Areas complementarias de la planta}}{28}{table.17}%
+\contentsline {table}{\numberline {18}{\ignorespaces Parametros de entrada del sistema}}{29}{table.18}%
+\contentsline {table}{\numberline {19}{\ignorespaces Resumen de unidades de tratamiento}}{29}{table.19}%
+\contentsline {table}{\numberline {20}{\ignorespaces Evolucion de parametros de calidad a traves del tratamiento}}{29}{table.20}%
+\contentsline {table}{\numberline {21}{\ignorespaces Comparacion con limites TULSMA por uso del agua}}{30}{table.21}%
+\contentsline {table}{\numberline {22}{\ignorespaces Resumen de areas requeridas}}{30}{table.22}%
+\contentsline {table}{\numberline {23}{\ignorespaces Generacion y manejo de lodos - TOTAL PLANTA (2 líneas)}}{30}{table.23}%
+\contentsline {table}{\numberline {24}{\ignorespaces Consumos de energia y productos quimicos}}{31}{table.24}%
+\contentsline {table}{\numberline {25}{L\'imites m\'aximos permisibles para aguas de consumo humano y uso dom\'estico que \'unicamente requieren tratamiento convencional (TULSMA, Tabla~1).}}{32}{table.25}%
+\contentsline {table}{\numberline {26}{L\'imites m\'aximos permisibles de descarga a un cuerpo de agua dulce (TULSMA, Tabla~12).}}{33}{table.26}%
+\contentsline {table}{\numberline {27}{L\'imites m\'aximos permisibles de descarga a un cuerpo de agua marina (TULSMA, Tabla~13).}}{34}{table.27}%
+\contentsline {table}{\numberline {28}{L\'imites m\'aximos permisibles para aguas de consumo humano que \'unicamente requieren desinfecci\'on (TULSMA, Tabla~2).}}{35}{table.28}%
+\contentsline {table}{\numberline {29}{Criterios de calidad admisibles para la preservaci\'on de flora y fauna en aguas dulces y marinas (TULSMA, Tabla~3).}}{36}{table.29}%
+\contentsline {table}{\numberline {30}{Criterios de calidad admisibles para aguas de uso agr\'icola o de riego (TULSMA, Tabla~6).}}{37}{table.30}%
+\contentsline {table}{\numberline {31}{Criterios de calidad admisibles para aguas de uso pecuario (TULSMA, Tabla~7).}}{38}{table.31}%
+\contentsline {table}{\numberline {32}{Criterios de calidad para aguas destinadas a fines recreativos (TULSMA, Tablas~9 y 10).}}{39}{table.32}%
+\contentsline {table}{\numberline {33}{L\'imites m\'aximos permisibles de descarga al sistema de alcantarillado p\'ublico (TULSMA, Tabla~11).}}{40}{table.33}%
 \contentsfinish 

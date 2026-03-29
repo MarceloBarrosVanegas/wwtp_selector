@@ -677,33 +677,14 @@ def generar_esquema_uasb(resultados_uasb: dict, output_dir: str = "resultados") 
         r = np.random.uniform(0.04, 0.08)
         ax.add_patch(Circle((cx, cy), r, facecolor='#A8D5BA', edgecolor='#7CB87C', alpha=0.6))
     
-    # Flechas de flujo ascendente (finas y azules)
-    for fx in [x_centro - 1.2, x_centro, x_centro + 1.2]:
-        ax.annotate('', xy=(fx, y_manto_bottom + h_manto * 0.9), 
-                   xytext=(fx, y_lecho_bottom + h_lecho * 0.1),
-                   arrowprops=dict(arrowstyle='->', color='#7FB3D5', lw=1.5, alpha=0.7))
-    
     # 3. Zona líquida sedimentación
     y_liq_bottom = y_manto_bottom + h_manto
     liquido = Rectangle((x_izq + 0.1, y_liq_bottom), ancho - 0.2, h_sed,
                        facecolor=c_liquido, edgecolor='none', alpha=0.8)
     ax.add_patch(liquido)
     
-    # Calcular posición de salida (lo necesito para las flechas de flujo)
+    # Calcular posición de salida
     y_salida = y_liq_bottom + h_sed * 0.6
-    
-    # Flechas de flujo ascendente en zona líquida (azules, curvas indicando movimiento)
-    for i, fx in enumerate([x_centro - 1.0, x_centro, x_centro + 1.0]):
-        # Flecha vertical ascendente
-        ax.annotate('', xy=(fx, y_liq_bottom + h_sed * 0.85), 
-                   xytext=(fx, y_liq_bottom + h_sed * 0.15),
-                   arrowprops=dict(arrowstyle='->', color='#5B9BD5', lw=2, alpha=0.8))
-        # Flecha curva hacia la salida (para la derecha)
-        if i == 2:
-            ax.annotate('', xy=(x_der - 0.3, y_salida), 
-                       xytext=(fx + 0.3, y_liq_bottom + h_sed * 0.7),
-                       arrowprops=dict(arrowstyle='->', color='#5B9BD5', lw=1.5, 
-                                      connectionstyle="arc3,rad=0.3", alpha=0.7))
     
     # 4. Separador GLS (placas inclinadas 50-55° según Lettinga & Hulshoff Pol)
     y_gls_bottom = y_liq_bottom + h_sed
@@ -748,6 +729,27 @@ def generar_esquema_uasb(resultados_uasb: dict, output_dir: str = "resultados") 
     y_traslape = y_placa_izq_arriba - traslape
     ax.axhline(y=y_traslape, xmin=0.25, xmax=0.75, linestyle=':', color='#666666', linewidth=0.8, alpha=0.7)
     
+    # === FLECHAS DE FLUJO INTERNO CURVADAS (estilo olla) ===
+    # Flechas curvas desde lecho granular pasando por zona líquida hasta GLS
+    for i, fx in enumerate([x_centro - 1.0, x_centro, x_centro + 1.0]):
+        # Primera parte: desde lecho hasta mitad de zona líquida (curva suave)
+        ax.annotate('', xy=(fx, y_liq_bottom + h_sed * 0.4), 
+                   xytext=(fx, y_lecho_bottom + h_lecho * 0.2),
+                   arrowprops=dict(arrowstyle='->', color='#4A90C6', lw=3,
+                                  connectionstyle='arc3,rad=0.08'))
+        # Segunda parte: desde mitad zona líquida hasta debajo de GLS (curva inversa)
+        rad2 = '-0.08' if i == 1 else '0.1'
+        ax.annotate('', xy=(fx + 0.2 if i == 0 else fx - 0.2 if i == 2 else fx, y_gls_bottom - 0.15), 
+                   xytext=(fx, y_liq_bottom + h_sed * 0.4),
+                   arrowprops=dict(arrowstyle='->', color='#4A90C6', lw=3,
+                                  connectionstyle=f'arc3,rad={rad2}'))
+    
+    # Flecha curva hacia la salida (desde zona líquida derecha)
+    ax.annotate('', xy=(x_der - 0.2, y_salida), 
+               xytext=(x_centro + 1.2, y_liq_bottom + h_sed * 0.5),
+               arrowprops=dict(arrowstyle='->', color='#4A90C6', lw=3, 
+                              connectionstyle='arc3,rad=0.25'))
+    
     # 5. Cámara de biogás
     y_bio_bottom = y_gls_bottom + h_gls
     camara = Rectangle((x_izq + 0.1, y_bio_bottom), ancho - 0.2, h_bordo - 0.1,
@@ -772,24 +774,20 @@ def generar_esquema_uasb(resultados_uasb: dict, output_dir: str = "resultados") 
         x_p = x_izq + 0.3 + i * ((ancho - 0.6) / (n_show - 1)) if n_show > 1 else x_centro
         ax.add_patch(Circle((x_p, y_entrada), 0.06, facecolor='black'))
     
-    # Flecha entrada (verde, más visible)
-    ax.annotate('', xy=(x_izq, y_entrada), xytext=(x_izq - 1.2, y_entrada),
-               arrowprops=dict(arrowstyle='->', color='#2E7D32', lw=3))
-    # Flecha de dirección en la tubería de entrada
-    ax.annotate('', xy=(x_izq - 0.3, y_entrada), xytext=(x_izq - 0.8, y_entrada),
-               arrowprops=dict(arrowstyle='->', color='#2E7D32', lw=2.5))
+    # Flecha de entrada curva (debajo del texto, verde)
+    ax.annotate('', xy=(x_izq + 0.2, y_entrada), xytext=(x_izq - 0.8, y_entrada - 0.5),
+               arrowprops=dict(arrowstyle='->', color='#2E7D32', lw=3.5,
+                              connectionstyle='arc3,rad=0.15'))
     
     # Salida de efluente (lateral derecho, nivel líquido) - y_salida ya calculado arriba
     ax.plot([x_der, x_der + 1.0], [y_salida, y_salida], 'k-', linewidth=2.5)
     ax.plot([x_der, x_der], [y_salida - 0.15, y_salida + 0.15], 'k-', linewidth=2)
     ax.add_patch(Rectangle((x_der, y_salida - 0.12), 0.3, 0.24, 
                           facecolor=c_liquido, edgecolor='#555555'))
-    # Flecha de salida azul (más visible)
-    ax.annotate('', xy=(x_der + 0.8, y_salida), xytext=(x_der + 0.2, y_salida),
-               arrowprops=dict(arrowstyle='->', color='#1565C0', lw=3))
-    # Flecha de dirección dentro de la caja de salida
-    ax.annotate('', xy=(x_der + 0.35, y_salida), xytext=(x_der + 0.1, y_salida),
-               arrowprops=dict(arrowstyle='->', color='#1565C0', lw=2.5))
+    # Flecha de salida curva (debajo del texto, azul)
+    ax.annotate('', xy=(x_der + 0.3, y_salida), xytext=(x_der + 0.9, y_salida - 0.6),
+               arrowprops=dict(arrowstyle='->', color='#1565C0', lw=3.5,
+                              connectionstyle='arc3,rad=-0.2'))
     
     # Chimenea de biogás (arriba, centro)
     y_chim = y_top
@@ -916,12 +914,12 @@ def generar_esquema_uasb(resultados_uasb: dict, output_dir: str = "resultados") 
     ax.text(offset_x, y_bottom + h_dist/2, f'Distribución afluente\n{n_puntos} puntos',
            ha='left', va='center', fontsize=8)
     
-    # Afluente (abajo izquierda)
-    ax.text(x_izq - 0.8, y_entrada - 0.5, f'Afluente\n{Q_L_s:.1f} L/s',
+    # Afluente (abajo izquierda, flecha debajo del texto)
+    ax.text(x_izq - 0.8, y_entrada - 0.2, f'Afluente\n{Q_L_s:.1f} L/s',
            ha='center', va='top', fontsize=9, fontweight='bold', color='#2E7D32')
     
-    # Efluente (derecha, más arriba para evitar solapamiento)
-    ax.text(x_der + 1.0, y_salida + 0.6, 'Efluente\ntratado',
+    # Efluente (derecha, flecha debajo del texto)
+    ax.text(x_der + 1.0, y_salida + 0.5, 'Efluente\ntratado',
            ha='center', va='bottom', fontsize=9, fontweight='bold', color='#1565C0')
     
     # === CONFIGURACIÓN ===

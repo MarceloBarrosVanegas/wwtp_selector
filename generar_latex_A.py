@@ -806,11 +806,11 @@ q = \frac{{Q}}{{N}} = \frac{{{u['Q_m3_s']:.3f} \times 1000}}{{{u['num_puntos_dis
 \end{{equation}}
 
 
-Los tubos de distribución se diseñan según la práctica estándar de Lettinga y Hulshoff Pol: tubería madre de gran diámetro para transporte sin obstrucciones, con bocas de salida reducidas para garantizar velocidad de inyección adecuada. Se adopta una tubería de distribución de {u['diam_tubo_distribucion_mm']:.0f} mm con bocas de salida de {u['diam_boca_salida_mm']:.0f} mm.
+Los tubos de distribución se diseñan según la práctica estándar de Lettinga y Hulshoff Pol: tubería principal de gran diámetro para transporte sin obstrucciones, con bocas de salida reducidas para garantizar velocidad de inyección adecuada. Se adopta una tubería de distribución de {u['diam_tubo_distribucion_mm']:.0f} mm con bocas de salida de {u['diam_boca_salida_mm']:.0f} mm.
 
 \textbf{{Verificación de velocidades:}}
 
-La velocidad en la tubería madre (transporte) se calcula como:
+La velocidad en la tubería principal(transporte) se calcula como:
 
 \begin{{equation}}
 v_{{tubo}} = \frac{{q}}{{a_{{tubo}}}} = \frac{{{u['caudal_por_punto_L_s']:.3f} \times 10^{{-3}}}}{{\pi \times ({u['diam_tubo_distribucion_mm']:.0f} \times 10^{{-3}})^2 / 4}} = {u['velocidad_tubo_m_s']:.3f} \text{{ m/s}}
@@ -829,7 +829,7 @@ v_{{boca}} = \frac{{q}}{{a_{{boca}}}} = \frac{{{u['caudal_por_punto_L_s']:.3f} \
 \toprule
 \textbf{{Parámetro}} & \textbf{{Valor}} & \textbf{{Criterio}} & \textbf{{Estado}} \\
 \midrule
-Velocidad en tubería madre & {u['velocidad_tubo_m_s']:.3f} m/s & Transporte sin obstrucción ($<$ {u['v_tubo_max_m_s']:.2f} m/s) & {'Adecuado' if u['velocidad_tubo_m_s'] <= u['v_tubo_max_m_s'] else 'Revisar'} \\
+Velocidad en tubería principal& {u['velocidad_tubo_m_s']:.3f} m/s & Transporte sin obstrucción ($<$ {u['v_tubo_max_m_s']:.2f} m/s) & {'Adecuado' if u['velocidad_tubo_m_s'] <= u['v_tubo_max_m_s'] else 'Revisar'} \\
 Velocidad en boca de salida & {u['velocidad_boca_m_s']:.2f} m/s & {u['v_boca_min_m_s']:.1f}--{u['v_boca_max_m_s']:.1f} m/s & {'Cumple' if u['v_boca_cumple'] else 'No cumple'} \\
 \bottomrule
 \end{{tabular}}
@@ -850,6 +850,7 @@ Diámetro & {u['D_m']:.2f} m \\
 \multicolumn{{2}}{{l}}{{\textit{{Desglose de alturas:}}}} \\
 \quad Zona de distribución (fondo) & {u['H_distribucion_m']:.2f} m \\
 \quad Zona de reacción (manto de lodos) & {u['H_zona_reaccion_m']:.2f} m \\
+\quad Zona de sedimentación & {u['H_sed_m']:.2f} m \\
 \quad Separador GLS & {u['H_GLS_m']:.2f} m \\
 \quad Bordo libre & {u['H_bordo_libre_m']:.2f} m \\
 \midrule

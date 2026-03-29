@@ -1461,8 +1461,9 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
     # RECALCULO FINAL DE ALTURAS DEPENDIENTES
     # (Se realiza aquí para asegurar que usan el H_r_m final tras todos los bucles)
     # =========================================================================
-    H_zona_reaccion_m = H_r_m  # Altura útil final
-    H_total_construccion_m = H_distribucion_m + H_zona_reaccion_m + H_GLS_m + H_bordo_libre_m
+    H_zona_reaccion_m = H_r_m  # Altura útil de digestión
+    # La altura total de construcción incluye TODAS las zonas físicas (fondo, digestión, sedimentación, campana GLS divergente y bordo)
+    H_total_construccion_m = H_distribucion_m + H_zona_reaccion_m + H_sed_m + H_GLS_m + H_bordo_libre_m
     
     # Subdivisión interna de la zona de reacción (según manual UASB)
     # Lecho de lodo denso/granular
