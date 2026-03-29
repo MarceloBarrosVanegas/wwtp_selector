@@ -689,18 +689,48 @@ def generar_esquema_uasb(resultados_uasb: dict, output_dir: str = "resultados") 
                        facecolor=c_liquido, edgecolor='none', alpha=0.8)
     ax.add_patch(liquido)
     
-    # 4. Separador GLS (placas inclinadas grises)
+    # 4. Separador GLS (placas inclinadas 50-55° según Lettinga & Hulshoff Pol)
     y_gls_bottom = y_liq_bottom + h_sed
-    # Placa izquierda
-    ax.add_patch(Polygon([(x_izq + 0.2, y_gls_bottom + h_gls - 0.1),
-                         (x_centro - 0.8, y_gls_bottom + 0.1),
-                         (x_izq + 0.1, y_gls_bottom + 0.1)],
-                        facecolor=c_gris_placa, edgecolor='#A0A0A0', linewidth=1))
-    # Placa derecha
-    ax.add_patch(Polygon([(x_der - 0.2, y_gls_bottom + h_gls - 0.1),
-                         (x_centro + 0.8, y_gls_bottom + 0.1),
-                         (x_der - 0.1, y_gls_bottom + 0.1)],
-                        facecolor=c_gris_placa, edgecolor='#A0A0A0', linewidth=1))
+    
+    # Parámetros del GLS
+    angulo_gls = 52  # grados - valor típico dentro del rango 45-60°
+    rad = np.radians(angulo_gls)
+    traslape = 0.15  # 15 cm de traslape
+    espesor_placa = 0.06  # espesor visual de la placa
+    
+    # Longitud horizontal de la placa desde la pared
+    dx = (h_gls - 0.1) / np.tan(rad)
+    
+    # Placa izquierda (triángulo que sobresale desde la pared)
+    x_placa_izq_base = x_izq + 0.1
+    x_placa_izq_punta = x_placa_izq_base + dx
+    y_placa_izq_abajo = y_gls_bottom + 0.05
+    y_placa_izq_arriba = y_gls_bottom + h_gls - 0.05
+    
+    # Dibujar placa izquierda más delgada y angulada
+    ax.add_patch(Polygon([
+        (x_placa_izq_base, y_placa_izq_abajo),  # abajo izquierda
+        (x_placa_izq_punta, y_placa_izq_arriba),  # punta arriba
+        (x_placa_izq_punta + espesor_placa * np.cos(rad), y_placa_izq_arriba - espesor_placa * np.sin(rad)),  # punta abajo
+        (x_placa_izq_base + espesor_placa * np.cos(rad), y_placa_izq_abajo - espesor_placa * np.sin(rad)),  # abajo derecha
+    ], facecolor=c_gris_placa, edgecolor='#808080', linewidth=0.8))
+    
+    # Placa derecha (espejo)
+    x_placa_der_base = x_der - 0.1
+    x_placa_der_punta = x_placa_der_base - dx
+    y_placa_der_abajo = y_gls_bottom + 0.05
+    y_placa_der_arriba = y_gls_bottom + h_gls - 0.05
+    
+    ax.add_patch(Polygon([
+        (x_placa_der_base, y_placa_der_abajo),
+        (x_placa_der_punta, y_placa_der_arriba),
+        (x_placa_der_punta - espesor_placa * np.cos(rad), y_placa_der_arriba - espesor_placa * np.sin(rad)),
+        (x_placa_der_base - espesor_placa * np.cos(rad), y_placa_der_abajo - espesor_placa * np.sin(rad)),
+    ], facecolor=c_gris_placa, edgecolor='#808080', linewidth=0.8))
+    
+    # Línea punteada mostrando el traslape (overlap) - concepto importante según Lettinga
+    y_traslape = y_placa_izq_arriba - traslape
+    ax.axhline(y=y_traslape, xmin=0.25, xmax=0.75, linestyle=':', color='#666666', linewidth=0.8, alpha=0.7)
     
     # 5. Cámara de biogás
     y_bio_bottom = y_gls_bottom + h_gls
