@@ -1172,9 +1172,9 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
     incremento_diametro_cm = round((D_m - D_m_original) * 100)
     
     # Estado de verificación para el texto del documento
-    if v_up_max_m_h <= 1.5:
+    if v_up_max_m_h <= v_up_max_limite_recomendado:
         estado_verificacion = "ÓPTIMO"
-    elif v_up_max_m_h <= 2.0:
+    elif v_up_max_m_h <= v_up_max_limite_destructivo:
         estado_verificacion = "ACEPTABLE CON MONITOREO"
     else:
         estado_verificacion = "NO ADMISIBLE - REQUIERE REDIMENSIONAMIENTO"
@@ -1278,9 +1278,9 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
         v_up_max_m_h = Q_max_m3_h / A_sup_m2
     
     # Recalcular estado de verificación con valores finales (después de todos los ajustes)
-    if v_up_max_m_h <= 1.5:
+    if v_up_max_m_h <= v_up_max_limite_recomendado:
         estado_verificacion = "ÓPTIMO"
-    elif v_up_max_m_h <= 2.0:
+    elif v_up_max_m_h <= v_up_max_limite_destructivo:
         estado_verificacion = "ACEPTABLE CON MONITOREO"
     else:
         estado_verificacion = "NO ADMISIBLE - REQUIERE REDIMENSIONAMIENTO"

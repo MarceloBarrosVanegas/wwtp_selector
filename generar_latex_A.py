@@ -72,6 +72,16 @@ def _generar_bibliografia(output_dir):
     address   = {London, UK},
     isbn      = {978-1843391651}
 }
+
+@book{chernicharo2007,
+    author    = {Chernicharo, C. A. L.},
+    title     = {Biological Wastewater Treatment in Warm Climate Regions},
+    volume    = {2},
+    publisher = {IWA Publishing},
+    year      = {2007},
+    address   = {London, UK},
+    isbn      = {978-1843391613}
+}
 '''
     bib_path = os.path.join(output_dir, 'referencias.bib')
     with open(bib_path, 'w', encoding='utf-8') as f:
@@ -554,7 +564,7 @@ Velocidad ascendente de diseño ($v_{{up}}$) & {cfg.uasb_v_up_m_h:.2f} m/h & {u[
 Altura máxima del reactor ($H_{{max}}$) & {cfg.uasb_H_max_m:.1f} m & 4,0--6,0 m \\
 Factor de efectividad sedimentador & {int(cfg.uasb_factor_efectividad_sed*100):d}\% & 85--95\% \\
 Altura sedimentador ($H_{{sed}}$) & {cfg.uasb_TRH_sed_medio_min_h:.1f} m & 1,5--2,0 m \\
-Carga superficial máxima límite (SOR) & {cfg.uasb_SOR_max_limite_m_h:.1f} m/h & $<$ 1,2 m/h \\
+Carga superficial máxima límite (SOR) & {cfg.uasb_SOR_max_limite_m_h:.1f} m/h & $<$ {cfg.uasb_SOR_max_limite_m_h:.1f} m/h \\
 \bottomrule
 \end{{tabular}}
 \end{{table}}
@@ -563,7 +573,7 @@ Carga superficial máxima límite (SOR) & {cfg.uasb_SOR_max_limite_m_h:.1f} m/h 
 
 El dimensionamiento del reactor UASB se fundamenta en dos criterios complementarios: el criterio biológico (carga orgánica volumétrica) y el criterio hidráulico (velocidad ascendente). Ambos enfoques deben satisfacerse simultáneamente para garantizar el correcto funcionamiento del sistema.
 
-\textbf{{Criterio biológico:}} Según Van Haandel y Lettinga \cite{{vanhaandel1994}}, el volumen del reactor se determina a partir de la carga orgánica volumétrica ($C_v$), que representa la cantidad de materia orgánica que debe procesar el reactor por unidad de volumen y tiempo. Para aguas residuales municipales a temperaturas superiores a 20°C, los autores recomiendan una carga entre 2,0 y 3,0 kg DQO/m³·d. La expresión fundamental es:
+\textbf{{Criterio biológico:}} Según Van Haandel y Lettinga \cite{{vanhaandel1994}}, el volumen del reactor se determina a partir de la carga orgánica volumétrica ($C_v$), que representa la cantidad de materia orgánica que debe procesar el reactor por unidad de volumen y tiempo. Para aguas residuales municipales a temperaturas superiores a {cfg.uasb_temp_optimina_C:.0f}°C, los autores recomiendan una carga entre 2,0 y 3,0 kg DQO/m³·d. La expresión fundamental es:
 
 \begin{{equation}}
 V_r = \frac{{Q \cdot S_0}}{{C_v}}
@@ -584,9 +594,9 @@ Sustituyendo los valores del proyecto:
 V_r = \frac{{{u['Q_m3_d']:.1f} \times {u['DQO_kg_m3']:.4f}}}{{{u['Cv_kgDQO_m3_d']:.1f}}} = {u['V_r_m3']:.1f} \text{{ m}}^3
 \end{{equation}}
 
-Este volumen garantiza el tiempo de retención hidráulico necesario para que los microorganismos anaerobios degraden la materia orgánica. Van Haandel y Lettinga establecen que a temperaturas óptimas ($>$22°C), el TRH debe estar entre 4 y 6 horas para asegurar la estabilidad del manto de lodos.
+Este volumen garantiza el tiempo de retención hidráulico necesario para que los microorganismos anaerobios degraden la materia orgánica. Van Haandel y Lettinga establecen que a temperaturas óptimas ($>${cfg.uasb_temp_optimina_C:.0f}°C), el TRH debe estar entre 4 y 6 horas para asegurar la estabilidad del manto de lodos.
 
-\textbf{{Criterio hidráulico:}} De manera simultánea, según Sperling \cite{{sperling2007}}, la velocidad ascendente ($v_{{up}}$) debe mantenerse dentro de rangos que permitan retener el manto de lodos sin arrastre. El autor recomienda velocidades entre 0,5 y 1,5 m/h para condiciones normales, con un máximo de 2,0 m/h durante picos de caudal. Con la velocidad adoptada de {u['v_up_m_h']:.2f} m/h, el área superficial requerida se calcula como:
+\textbf{{Criterio hidráulico:}} De manera simultánea, según Sperling \cite{{sperling2007}}, la velocidad ascendente ($v_{{up}}$) debe mantenerse dentro de rangos que permitan retener el manto de lodos sin arrastre. El autor recomienda velocidades entre 0,5 y {cfg.uasb_v_up_max_recomendado_m_h:.1f} m/h para condiciones normales, con un máximo de {cfg.uasb_v_up_max_destructivo_m_h:.1f} m/h durante picos de caudal. Con la velocidad adoptada de {u['v_up_m_h']:.2f} m/h, el área superficial requerida se calcula como:
 
 \begin{{equation}}
 A_s = \frac{{Q}}{{v_{{up}}}}
@@ -645,7 +655,7 @@ V_{{CH_4}} = ({u['Q_m3_d']:.1f} \times {u['DQO_kg_m3']:.3f} \times {u['eta_DQO']
 
 \subsubsection{{Zona de Reacción -- Verificación}}
 
-\textbf{{Fundamento de la verificación hidráulica:}} El diseño del reactor UASB debe garantizar no solo el funcionamiento adecuado bajo condiciones normales (caudal medio), sino también durante eventos de pico de caudal que ocurren típicamente en horas de mayor consumo de agua. Según Metcalf y Eddy \cite{{metcalf2014}}, los sistemas de tratamiento deben verificarse para el caudal máximo horario, el cual se estima aplicando un factor de pico sobre el caudal medio diario. Este factor, denominado $f_p$, típicamente varía entre 2,0 y 3,0 para aguas residuales municipales, reflejando las variaciones horarias del consumo de agua en la población.
+El fundamento de la verificación hidráulica establece que el diseño del reactor UASB debe garantizar no solo el funcionamiento adecuado bajo condiciones normales (caudal medio), sino también durante eventos de pico de caudal que ocurren típicamente en horas de mayor consumo de agua. Según Metcalf y Eddy \cite{{metcalf2014}}, los sistemas de tratamiento deben verificarse para el caudal máximo horario, el cual se estima aplicando un factor de pico sobre el caudal medio diario. Este factor, denominado $f_p$, típicamente varía entre 2,0 y 3,0 para aguas residuales municipales, reflejando las variaciones horarias del consumo de agua en la población.
 
 El factor de pico adoptado de {u['factor_pico']:.1f} considera las características de la zona de estudio y las variaciones esperadas del caudal durante el día. La aplicación de este factor permite determinar el caudal máximo horario de diseño:
 
@@ -653,23 +663,13 @@ El factor de pico adoptado de {u['factor_pico']:.1f} considera las característi
 Q_{{max}} = f_p \times Q_{{medio}} = {u['factor_pico']:.1f} \times {u['Q_m3_d']:.1f} = {u['Q_max_m3_d']:.1f} \text{{ m}}^3\text{{/d}} = {u['Q_max_m3_h']:.2f} \text{{ m}}^3\text{{/h}}
 \end{{equation}}
 
-\textbf{{Análisis de la velocidad ascendente de pico:}} Bajo condiciones de caudal máximo, la velocidad ascendente en el reactor aumenta proporcionalmente. Esta velocidad de pico, $v_{{up,max}}$, se calcula manteniendo el área superficial del reactor (determinada previamente por el criterio de velocidad media) pero incrementando el caudal al valor máximo esperado:
+El análisis de la velocidad ascendente de pico considera que, bajo condiciones de caudal máximo, la velocidad ascendente en el reactor aumenta proporcionalmente. Esta velocidad de pico, $v_{{up,max}}$, se calcula manteniendo el área superficial del reactor (determinada previamente por el criterio de velocidad media) pero incrementando el caudal al valor máximo esperado:
 
 \begin{{equation}}
 v_{{up,max}} = \frac{{Q_{{max}}}}{{A_s}} = \frac{{{u['Q_max_m3_h']:.2f}}}{{{u['A_sup_m2']:.2f}}} = {u['v_up_max_m_h']:.2f} \text{{ m/h}}
 \end{{equation}}
 
-\textbf{{Criterios de evaluación del estado del reactor:}} Metcalf y Eddy \cite{{metcalf2014}} establecen una clasificación del estado operacional del reactor según la velocidad ascendente máxima calculada. Esta clasificación permite determinar si el diseño garantiza la estabilidad del manto de lodos o si existe riesgo de arrastre de biomasa. Los autores definen tres estados operacionales basados en estudios experimentales de la hidrodinámica de reactores UASB:
-
-\begin{{itemize}}[leftmargin=2em]
-    \item \textbf{{Estado ÓPTIMO}} ($v_{{up,max}} \leq$ {cfg.uasb_v_up_max_recomendado_m_h:.1f} m/h): El manto de lodos se mantiene completamente estable. No existe riesgo de arrastre de biomasa hacia el efluente. El reactor opera con máxima eficiencia de retención de sólidos.
-    
-    \item \textbf{{Estado ACEPTABLE}} ({cfg.uasb_v_up_max_recomendado_m_h:.1f} $< v_{{up,max}} \leq$ {cfg.uasb_v_up_max_destructivo_m_h:.1f} m/h): Se presenta algún riesgo moderado de arrastre selectivo de partículas más ligeras del manto. Se recomienda monitoreo periódico de la profundidad del manto de lodos y calidad del efluente. El diseño es admisible pero requiere atención operativa durante eventos de pico.
-    
-    \item \textbf{{Estado NO ADMISIBLE}} ($v_{{up,max}} >$ {cfg.uasb_v_up_max_destructivo_m_h:.1f} m/h): Riesgo severo de arrastre del manto de lodos con pérdida significativa de biomasa. El efluente presentaría alta concentración de sólidos. El diseño debe modificarse aumentando el área superficial del reactor.
-\end{{itemize}}
-
-Formalmente, el estado se determina mediante:
+Los criterios de evaluación del estado del reactor, según Metcalf y Eddy \cite{{metcalf2014}}, clasifican el estado operacional en función de la velocidad ascendente máxima calculada. Esta clasificación permite determinar si el diseño garantiza la estabilidad del manto de lodos o si existe riesgo de arrastre de biomasa. Los autores definen tres estados operacionales basados en estudios experimentales de la hidrodinámica de reactores UASB. Formalmente, el estado se determina mediante:
 
 \begin{{equation}}
 \text{{Estado}} = \begin{{cases}}
@@ -686,9 +686,9 @@ Para el presente diseño, con una velocidad ascendente máxima calculada de $v_{
 
 El compartimiento de sedimentación superior constituye una zona crítica del reactor UASB, ya que debe retener los sólidos biológicos antes de que salgan con el efluente. Según Chernicharo \cite{{chernicharo2007}}, el diseño de esta zona se fundamenta en el concepto de Carga Superficial (SOR - Surface Overflow Rate), análogo al utilizado en sedimentadores convencionales, pero adaptado a las condiciones particulares del UASB donde el biogás generado puede afectar la sedimentación.
 
-Chernicharo recomienda que la carga superficial a caudal máximo no debe exceder 1,2 m/h para evitar el arrastre de sólidos hacia el efluente. Este valor es más restrictivo que el utilizado en sedimentadores primarios convencionales debido a la presencia de biogás y la naturaleza floculenta de los lodos anaerobios. Adicionalmente, el autor sugiere una altura mínima del compartimiento de sedimentación entre 1,5 y 2,0 m para garantizar el tiempo necesario de separación gas-líquido-sólido.
+Chernicharo recomienda que la carga superficial a caudal máximo no debe exceder {cfg.uasb_SOR_max_limite_m_h:.1f} m/h para evitar el arrastre de sólidos hacia el efluente. Este valor es más restrictivo que el utilizado en sedimentadores primarios convencionales debido a la presencia de biogás y la naturaleza floculenta de los lodos anaerobios. Adicionalmente, el autor sugiere una altura mínima del compartimiento de sedimentación entre {cfg.uasb_TRH_sed_medio_min_h:.1f} y {cfg.uasb_TRH_sed_medio_max_h:.1f} m para garantizar el tiempo necesario de separación gas-líquido-sólido.
 
-\textbf{{Criterios de diseño según Chernicharo (2007):}}
+Los criterios de diseño según Chernicharo (2007) son:
 
 \begin{{equation}}
 \text{{SOR}}_{{max}} < {cfg.uasb_SOR_max_limite_m_h:.1f} \text{{ m/h}} \quad \text{{(límite para evitar arrastre de sólidos)}}
@@ -698,7 +698,7 @@ Chernicharo recomienda que la carga superficial a caudal máximo no debe exceder
 H_{{sed}} \geq {cfg.uasb_TRH_sed_medio_min_h:.1f} \text{{ m}} \quad \text{{(altura mínima constructiva)}}
 \end{{equation}}
 
-El área efectiva de sedimentación considera el factor de efectividad del 90\% del área total (Chernicharo):
+El área efectiva de sedimentación considera el factor de efectividad del {cfg.uasb_factor_efectividad_sed*100:.0f}\% del área total (Chernicharo):
 
 \begin{{equation}}
 A_{{sed}} = {cfg.uasb_factor_efectividad_sed:.2f} \times A_{{sup}} = {cfg.uasb_factor_efectividad_sed:.2f} \times {u['A_sup_m2']:.2f} = {u['A_sed_efectiva_m2']:.2f} \text{{ m}}^2
@@ -720,7 +720,7 @@ t_{{sed}} = \frac{{V_{{sed}}}}{{Q}} = \frac{{{u['V_sed_m3']:.2f}}}{{{u['Q_m3_h']
 
 El principio de verificación de la sedimentación establece que la cámara de sedimentación superior del reactor UASB debe evaluarse tanto para condiciones de caudal medio como para caudal máximo. Según Chernicharo \cite{{chernicharo2007}}, la verificación a caudal medio permite evaluar si el diseño opera dentro del rango óptimo de eficiencia, mientras que la verificación a caudal máximo determina si se evita el arrastre de sólidos durante picos de flujo.
 
-El autor establece que, aunque el criterio crítico es el SOR máximo ($<$ {cfg.uasb_SOR_max_limite_m_h:.1f} m/h), también es deseable que el SOR medio se mantenga entre 0,6 y 0,8 m/h. Valores inferiores a este rango, aunque conservadores, indican que el área del sedimentador es mayor de lo estrictamente necesario, lo cual no representa un problema operativo pero implica mayores costos de construcción. Valores superiores sugieren riesgo de arrastre incluso en operación normal.
+El autor establece que, aunque el criterio crítico es el SOR máximo ($<$ {cfg.uasb_SOR_max_limite_m_h:.1f} m/h), también es deseable que el SOR medio se mantenga entre {cfg.uasb_SOR_medio_min_m_h:.1f} y {cfg.uasb_SOR_medio_max_m_h:.1f} m/h. Valores inferiores a este rango, aunque conservadores, indican que el área del sedimentador es mayor de lo estrictamente necesario, lo cual no representa un problema operativo pero implica mayores costos de construcción. Valores superiores sugieren riesgo de arrastre incluso en operación normal.
 
 El cálculo de la Carga Superficial Operacional se realiza aplicando la ecuación fundamental del SOR para ambas condiciones de caudal:
 
