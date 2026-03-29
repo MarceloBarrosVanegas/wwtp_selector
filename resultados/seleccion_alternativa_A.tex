@@ -467,28 +467,32 @@ Carga superficial máxima límite (SOR) & 1.2 m/h & $<$ 1,2 m/h \\
 
 \subsubsection{Zona de Reacción -- Dimensionamiento}
 
-El volumen necesario del reactor se determina mediante la expresión:
+El dimensionamiento del reactor UASB se fundamenta en dos criterios complementarios: el criterio biológico (carga orgánica volumétrica) y el criterio hidráulico (velocidad ascendente). Ambos enfoques deben satisfacerse simultáneamente para garantizar el correcto funcionamiento del sistema.
+
+\textbf{Criterio biológico:} Según Van Haandel y Lettinga \cite{vanhaandel1994}, el volumen del reactor se determina a partir de la carga orgánica volumétrica ($C_v$), que representa la cantidad de materia orgánica que debe procesar el reactor por unidad de volumen y tiempo. Para aguas residuales municipales a temperaturas superiores a 20°C, los autores recomiendan una carga entre 2,0 y 3,0 kg DQO/m³·d. La expresión fundamental es:
 
 \begin{equation}
 V_r = \frac{Q \cdot S_0}{C_v}
 \end{equation}
-\captionequation{Volumen util del reactor UASB}
+\captionequation{Volumen util del reactor UASB segun Van Haandel y Lettinga (1994)}
 
 \textit{Donde:}
 \begin{itemize}[noitemsep,leftmargin=2em]
     \item[$V_r$] = Volumen útil del reactor (m³)
     \item[$Q$] = Caudal diario (432.0 m³/d)
     \item[$S_0$] = Concentración de DQO afluente (0.4980 kg/m³)
-    \item[$C_v$] = Carga orgánica volumétrica (2.5 kg DQO/m³·d)
+    \item[$C_v$] = Carga orgánica volumétrica adoptada (2.5 kg DQO/m³·d)
 \end{itemize}
+
+Sustituyendo los valores del proyecto:
 
 \begin{equation}
 V_r = \frac{432.0 \times 0.4980}{2.5} = 125.6 \text{ m}^3
 \end{equation}
 
-Este volumen garantiza el tiempo de retención hidráulico necesario para la degradación biológica.
+Este volumen garantiza el tiempo de retención hidráulico necesario para que los microorganismos anaerobios degraden la materia orgánica. Van Haandel y Lettinga establecen que a temperaturas óptimas ($>$22°C), el TRH debe estar entre 4 y 6 horas para asegurar la estabilidad del manto de lodos.
 
-Simultáneamente, el criterio hidráulico establece que la velocidad ascendente debe mantenerse entre 0,5 y 1,0 m/h para retener el manto de lodos sin arrastre. Con la velocidad adoptada de 0.43 m/h, el área superficial requerida resulta:
+\textbf{Criterio hidráulico:} De manera simultánea, según Sperling \cite{sperling2007}, la velocidad ascendente ($v_{up}$) debe mantenerse dentro de rangos que permitan retener el manto de lodos sin arrastre. El autor recomienda velocidades entre 0,5 y 1,5 m/h para condiciones normales, con un máximo de 2,0 m/h durante picos de caudal. Con la velocidad adoptada de 0.43 m/h, el área superficial requerida se calcula como:
 
 \begin{equation}
 A_s = \frac{Q}{v_{up}}
@@ -506,12 +510,12 @@ A_s = \frac{Q}{v_{up}}
 A_s = \frac{18.00}{0.43} = 41.88 \text{ m}^2
 \end{equation}
 
-El diámetro del reactor circular se obtiene geométricamente:
+El diámetro del reactor circular se obtiene a partir de la geometría del círculo, considerando que el área superficial debe ser la calculada hidráulicamente. Esta formulación geométrica estándar permite determinar las dimensiones constructivas del reactor:
 
 \begin{equation}
 D = \sqrt{\frac{4 \cdot A_s}{\pi}}
 \end{equation}
-\captionequation{Diametro del reactor circular}
+\captionequation{Diametro del reactor circular - Geometria basica}
 
 \textit{Donde:}
 \begin{itemize}[noitemsep,leftmargin=2em]
@@ -526,7 +530,7 @@ D = \sqrt{\frac{4 \times 41.88}{\pi}} = 7.30 \text{ m}
 
 La altura de la zona de reacción (manto de lodos) resulta 3.00~m, proporcionando un tiempo de retención hidráulico de 7.0 horas, valor adecuado según Sperling \cite{sperling2007} para la temperatura de 25.6°C del agua residual.
 
-La producción de biogás se estima mediante la relación estequiométrica de 0.35 m³ de metano por kilogramo de DQO removida:
+\textbf{Producción de biogás:} La metanogénesis en el reactor UASB genera biogás compuesto principalmente por metano (CH$_4$) y dióxido de carbono (CO$_2$). Según Van Haandel y Lettinga \cite{vanhaandel1994}, la producción teórica de metano puede estimarse mediante relaciones estequiométricas. Experimentalmente se ha determinado que por cada kilogramo de DQO removida en condiciones anaerobias, se producen aproximadamente 0,35 m³ de metano (a condiciones estándar). Esta relación permite estimar la producción esperada de biogás:
 
 \begin{equation}
 V_{CH_4} = (Q_d \cdot S_0 \cdot E) \times 0.35
@@ -559,9 +563,7 @@ A caudal máximo, la velocidad ascendente resulta:
 v_{up,max} = \frac{Q_{max}}{A_s} = \frac{45.00}{41.88} = 1.07 \text{ m/h}
 \end{equation}
 
-\textbf{Criterios de verificación de arrastre del manto} (Metcalf y Eddy \cite{metcalf2014}):
-
-La velocidad calculada $v_{up,max} = 1.07$~m/h se evalúa según:
+\textbf{Verificación hidráulica para caudal máximo:} Metcalf y Eddy \cite{metcalf2014} establecen límites de velocidad ascendente para proteger el manto de lodos durante condiciones de pico de caudal. Según estos autores, velocidades superiores a 1.5 m/h pueden provocar arrastre del manto, mientras que valores mayores a 2.0 m/h causan pérdida severa de biomasa. La velocidad calculada $v_{up,max} = 1.07$~m/h se evalúa según los siguientes criterios de diseño:
 
 \begin{equation}
 \text{Estado} = \begin{cases}
@@ -576,16 +578,18 @@ Con la velocidad calculada $v_{up,max} = 1.07$~m/h, se obtiene el estado \textbf
 
 \subsubsection{Cámara de Sedimentación -- Dimensionamiento}
 
-El compartimiento de sedimentación superior se dimensiona siguiendo los criterios de Chernicharo \cite{chernicharo2007}, quien establece que la carga superficial (SOR) es el parámetro crítico para evitar el arrastre de sólidos hacia el efluente.
+El compartimiento de sedimentación superior constituye una zona crítica del reactor UASB, ya que debe retener los sólidos biológicos antes de que salgan con el efluente. Según Chernicharo \cite{chernicharo2007}, el diseño de esta zona se fundamenta en el concepto de Carga Superficial (SOR - Surface Overflow Rate), análogo al utilizado en sedimentadores convencionales, pero adaptado a las condiciones particulares del UASB donde el biogás generado puede afectar la sedimentación.
 
-\textbf{Criterios de diseño adoptados:}
+Chernicharo recomienda que la carga superficial a caudal máximo no debe exceder 1,2 m/h para evitar el arrastre de sólidos hacia el efluente. Este valor es más restrictivo que el utilizado en sedimentadores primarios convencionales debido a la presencia de biogás y la naturaleza floculenta de los lodos anaerobios. Adicionalmente, el autor sugiere una altura mínima del compartimiento de sedimentación entre 1,5 y 2,0 m para garantizar el tiempo necesario de separación gas-líquido-sólido.
+
+\textbf{Criterios de diseño según Chernicharo (2007):}
 
 \begin{equation}
-\text{SOR}_{max} < 1.2 \text{ m/h} \quad \text{(crítico para evitar arrastre de sólidos)}
+\text{SOR}_{max} < 1.2 \text{ m/h} \quad \text{(límite para evitar arrastre de sólidos)}
 \end{equation}
 
 \begin{equation}
-H_{sed} \geq 1.5 \text{ m} \quad \text{(altura mínima del sedimentador)}
+H_{sed} \geq 1.5 \text{ m} \quad \text{(altura mínima constructiva)}
 \end{equation}
 
 El área efectiva de sedimentación considera el factor de efectividad del 90\% del área total (Chernicharo):
