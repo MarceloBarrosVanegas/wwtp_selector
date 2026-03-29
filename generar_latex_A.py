@@ -569,6 +569,8 @@ Carga superficial máxima límite (SOR) & {cfg.uasb_SOR_max_limite_m_h:.1f} m/h 
 \end{{tabular}}
 \end{{table}}
 
+\textit{{Nota: El valor de velocidad ascendente indicado en el cuadro corresponde al parámetro de diseño configurado. Sin embargo, tras el proceso de verificación hidráulica según las condiciones de temperatura del agua residual ({u['T_agua_C']:.1f}°C) y los criterios de estabilidad del manto de lodos, el valor efectivo adoptado para el cálculo del área superficial es {u['v_up_m_h']:.2f} m/h, resultando en un área de {u['A_sup_m2']:.2f} m².}}
+
 \subsubsection{{Zona de Reacción -- Dimensionamiento}}
 
 El dimensionamiento del reactor UASB se fundamenta en dos criterios complementarios: el criterio biológico (carga orgánica volumétrica) y el criterio hidráulico (velocidad ascendente). Ambos enfoques deben satisfacerse simultáneamente para garantizar el correcto funcionamiento del sistema.
@@ -1332,10 +1334,10 @@ La producción de lodos se estima considerando:
 \toprule
 \textbf{{Origen}} & \textbf{{Por línea (kg SST/d)}} & \textbf{{Total planta ({l.get('num_lineas', 2)} líneas) (kg SST/d)}} \\
 \midrule
-Lodos UASB (anaerobios) & {l.get('lodos_uasb_kg_d_por_linea', l['lodos_kg_SST_d']/2):.2f} & {l['lodos_kg_SST_d']:.2f} \\
-Humus FP + Sedimentador & {l.get('lodos_fp_kg_d_por_linea', l['lodos_kg_SST_d']/2):.2f} & {l['lodos_kg_SST_d']:.2f} \\
+Lodos UASB (anaerobios) & {l.get('lodos_uasb_kg_d_por_linea', l['lodos_kg_SST_d']/2):.2f} & {l.get('lodos_uasb_kg_d', l['lodos_kg_SST_d']/2*l.get('num_lineas', 2)):.2f} \\
+Humus FP + Sedimentador & {l.get('lodos_fp_kg_d_por_linea', l['lodos_kg_SST_d']/2):.2f} & {l.get('lodos_fp_kg_d', l['lodos_kg_SST_d']/2*l.get('num_lineas', 2)):.2f} \\
 \midrule
-\textbf{{Total}} & \textbf{{{(l.get('lodos_uasb_kg_d_por_linea', l['lodos_kg_SST_d']/2) + l.get('lodos_fp_kg_d_por_linea', l['lodos_kg_SST_d']/2)):.2f}}} & \textbf{{{l.get('lodos_total_kg_d', l['lodos_kg_SST_d'])}}} \\
+\textbf{{Total}} & \textbf{{{(l.get('lodos_uasb_kg_d_por_linea', l['lodos_kg_SST_d']/2) + l.get('lodos_fp_kg_d_por_linea', l['lodos_kg_SST_d']/2)):.2f}}} & \textbf{{{l.get('lodos_total_kg_d', l['lodos_kg_SST_d']):.2f}}} \\
 \bottomrule
 \end{{tabular}}
 \end{{table}}
