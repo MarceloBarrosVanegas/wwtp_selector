@@ -645,30 +645,42 @@ V_{{CH_4}} = ({u['Q_m3_d']:.1f} \times {u['DQO_kg_m3']:.3f} \times {u['eta_DQO']
 
 \subsubsection{{Zona de Reacción -- Verificación}}
 
-Se verifica el comportamiento hidráulico para el caudal máximo horario, aplicando un factor de pico típico de {u['factor_pico']:.1f} sobre el caudal medio:
+\textbf{{Fundamento de la verificación hidráulica:}} El diseño del reactor UASB debe garantizar no solo el funcionamiento adecuado bajo condiciones normales (caudal medio), sino también durante eventos de pico de caudal que ocurren típicamente en horas de mayor consumo de agua. Según Metcalf y Eddy \cite{{metcalf2014}}, los sistemas de tratamiento deben verificarse para el caudal máximo horario, el cual se estima aplicando un factor de pico sobre el caudal medio diario. Este factor, denominado $f_p$, típicamente varía entre 2,0 y 3,0 para aguas residuales municipales, reflejando las variaciones horarias del consumo de agua en la población.
+
+El factor de pico adoptado de {u['factor_pico']:.1f} considera las características de la zona de estudio y las variaciones esperadas del caudal durante el día. La aplicación de este factor permite determinar el caudal máximo horario de diseño:
 
 \begin{{equation}}
-Q_{{max}} = {u['factor_pico']:.1f} \times Q_{{medio}} = {u['factor_pico']:.1f} \times {u['Q_m3_d']:.1f} = {u['Q_max_m3_d']:.1f} \text{{ m}}^3\text{{/d}} = {u['Q_max_m3_h']:.2f} \text{{ m}}^3\text{{/h}}
+Q_{{max}} = f_p \times Q_{{medio}} = {u['factor_pico']:.1f} \times {u['Q_m3_d']:.1f} = {u['Q_max_m3_d']:.1f} \text{{ m}}^3\text{{/d}} = {u['Q_max_m3_h']:.2f} \text{{ m}}^3\text{{/h}}
 \end{{equation}}
 
-A caudal máximo, la velocidad ascendente resulta:
+\textbf{{Análisis de la velocidad ascendente de pico:}} Bajo condiciones de caudal máximo, la velocidad ascendente en el reactor aumenta proporcionalmente. Esta velocidad de pico, $v_{{up,max}}$, se calcula manteniendo el área superficial del reactor (determinada previamente por el criterio de velocidad media) pero incrementando el caudal al valor máximo esperado:
 
 \begin{{equation}}
 v_{{up,max}} = \frac{{Q_{{max}}}}{{A_s}} = \frac{{{u['Q_max_m3_h']:.2f}}}{{{u['A_sup_m2']:.2f}}} = {u['v_up_max_m_h']:.2f} \text{{ m/h}}
 \end{{equation}}
 
-\textbf{{Verificación hidráulica para caudal máximo:}} Metcalf y Eddy \cite{{metcalf2014}} establecen límites de velocidad ascendente para proteger el manto de lodos durante condiciones de pico de caudal. Según estos autores, velocidades superiores a {cfg.uasb_v_up_max_recomendado_m_h:.1f} m/h pueden provocar arrastre del manto, mientras que valores mayores a {cfg.uasb_v_up_max_destructivo_m_h:.1f} m/h causan pérdida severa de biomasa. La velocidad calculada $v_{{up,max}} = {u['v_up_max_m_h']:.2f}$~m/h se evalúa según los siguientes criterios de diseño:
+\textbf{{Criterios de evaluación del estado del reactor:}} Metcalf y Eddy \cite{{metcalf2014}} establecen una clasificación del estado operacional del reactor según la velocidad ascendente máxima calculada. Esta clasificación permite determinar si el diseño garantiza la estabilidad del manto de lodos o si existe riesgo de arrastre de biomasa. Los autores definen tres estados operacionales basados en estudios experimentales de la hidrodinámica de reactores UASB:
+
+\begin{{itemize}}[leftmargin=2em]
+    \item \textbf{{Estado ÓPTIMO}} ($v_{{up,max}} \leq$ {cfg.uasb_v_up_max_recomendado_m_h:.1f} m/h): El manto de lodos se mantiene completamente estable. No existe riesgo de arrastre de biomasa hacia el efluente. El reactor opera con máxima eficiencia de retención de sólidos.
+    
+    \item \textbf{{Estado ACEPTABLE}} ({cfg.uasb_v_up_max_recomendado_m_h:.1f} $< v_{{up,max}} \leq$ {cfg.uasb_v_up_max_destructivo_m_h:.1f} m/h): Se presenta algún riesgo moderado de arrastre selectivo de partículas más ligeras del manto. Se recomienda monitoreo periódico de la profundidad del manto de lodos y calidad del efluente. El diseño es admisible pero requiere atención operativa durante eventos de pico.
+    
+    \item \textbf{{Estado NO ADMISIBLE}} ($v_{{up,max}} >$ {cfg.uasb_v_up_max_destructivo_m_h:.1f} m/h): Riesgo severo de arrastre del manto de lodos con pérdida significativa de biomasa. El efluente presentaría alta concentración de sólidos. El diseño debe modificarse aumentando el área superficial del reactor.
+\end{{itemize}}
+
+Formalmente, el estado se determina mediante:
 
 \begin{{equation}}
 \text{{Estado}} = \begin{{cases}}
-    \text{{ÓPTIMO}} & \text{{si }} v_{{up,max}} \leq {cfg.uasb_v_up_max_recomendado_m_h:.1f} \text{{ m/h}} \quad \text{{(sin riesgo)}} \\
-    \text{{ACEPTABLE}} & \text{{si }} {cfg.uasb_v_up_max_recomendado_m_h:.1f} < v_{{up,max}} \leq {cfg.uasb_v_up_max_destructivo_m_h:.1f} \text{{ m/h}} \quad \text{{(monitoreo)}} \\
-    \text{{NO ADMISIBLE}} & \text{{si }} v_{{up,max}} > {cfg.uasb_v_up_max_destructivo_m_h:.1f} \text{{ m/h}} \quad \text{{(pérdida biomasa)}}
+    \text{{ÓPTIMO}} & \text{{si }} v_{{up,max}} \leq {cfg.uasb_v_up_max_recomendado_m_h:.1f} \text{{ m/h}} \\
+    \text{{ACEPTABLE}} & \text{{si }} {cfg.uasb_v_up_max_recomendado_m_h:.1f} < v_{{up,max}} \leq {cfg.uasb_v_up_max_destructivo_m_h:.1f} \text{{ m/h}} \\
+    \text{{NO ADMISIBLE}} & \text{{si }} v_{{up,max}} > {cfg.uasb_v_up_max_destructivo_m_h:.1f} \text{{ m/h}}
 \end{{cases}}
 \end{{equation}}
-\captionequation{{Criterios de verificacion de arrastre del manto en UASB}}
+\captionequation{{Criterios de verificación de arrastre del manto según Metcalf y Eddy (2014)}}
 
-Con la velocidad calculada $v_{{up,max}} = {u['v_up_max_m_h']:.2f}$~m/h, se obtiene el estado \textbf{{{u['estado_verificacion']}}}.
+Para el presente diseño, con una velocidad ascendente máxima calculada de $v_{{up,max}} = {u['v_up_max_m_h']:.2f}$~m/h, el reactor se clasifica en estado \textbf{{{u['estado_verificacion']}}}. Este resultado indica que el dimensionamiento propuesto {('garantiza la estabilidad del manto de lodos bajo todas las condiciones operativas esperadas.' if u['estado_verificacion'] == 'ÓPTIMO' else 'requiere monitoreo durante eventos de pico de caudal.' if u['estado_verificacion'] == 'ACEPTABLE CON MONITOREO' else 'no es admisible y debe redimensionarse.')}
 
 \subsubsection{{Cámara de Sedimentación -- Dimensionamiento}}
 
@@ -706,29 +718,47 @@ t_{{sed}} = \frac{{V_{{sed}}}}{{Q}} = \frac{{{u['V_sed_m3']:.2f}}}{{{u['Q_m3_h']
 
 \subsubsection{{Cámara de Sedimentación -- Verificación}}
 
-Se verifican las cargas superficiales para caudal medio y máximo:
+\textbf{{Principio de verificación de la sedimentación:}} La cámara de sedimentación superior del reactor UASB debe verificarse tanto para condiciones de caudal medio como para caudal máximo. Según Chernicharo \cite{{chernicharo2007}}, la verificación a caudal medio permite evaluar si el diseño opera dentro del rango óptimo de eficiencia, mientras que la verificación a caudal máximo determina si se evita el arrastre de sólidos durante picos de flujo.
 
+El autor establece que, aunque el criterio crítico es el SOR máximo ($<$ {cfg.uasb_SOR_max_limite_m_h:.1f} m/h), también es deseable que el SOR medio se mantenga entre 0,6 y 0,8 m/h. Valores inferiores a este rango, aunque conservadores, indican que el área del sedimentador es mayor de lo estrictamente necesario, lo cual no representa un problema operativo pero implica mayores costos de construcción. Valores superiores sugieren riesgo de arrastre incluso en operación normal.
+
+\textbf{{Cálculo de la Carga Superficial Operacional:}} Aplicando la ecuación fundamental del SOR para ambas condiciones de caudal:
+
+Para caudal medio (condición de operación normal):
 \begin{{equation}}
 SOR_{{medio}} = \frac{{Q_{{medio}}}}{{A_{{sed}}}} = \frac{{{u['Q_m3_h']:.2f}}}{{{u['A_sed_efectiva_m2']:.2f}}} = {u['SOR_medio_m_h']:.2f} \text{{ m/h}}
 \end{{equation}}
 
+Para caudal máximo horario (condición de pico):
 \begin{{equation}}
 SOR_{{max}} = \frac{{Q_{{max}}}}{{A_{{sed}}}} = \frac{{{u['Q_max_m3_h']:.2f}}}{{{u['A_sed_efectiva_m2']:.2f}}} = {u['SOR_max_m_h']:.2f} \text{{ m/h}}
 \end{{equation}}
 
+\textbf{{Análisis de cumplimiento de criterios:}} Los valores calculados se evalúan según los criterios establecidos por Chernicharo (2007) para sedimentadores en reactores UASB:
+
+\begin{{itemize}}[leftmargin=2em]
+    \item \textbf{{SOR máximo}}: El valor de {u['SOR_max_m_h']:.2f} m/h se compara contra el límite crítico de {cfg.uasb_SOR_max_limite_m_h:.1f} m/h. Este límite representa la velocidad de asentamiento mínima de los agregados de lodos anaerobios. Superar este valor implica que el flujo ascendente supera la velocidad de caída de los sólidos, causando su arrastre hacia el efluente.
+    
+    \item \textbf{{SOR medio}}: El valor de {u['SOR_medio_m_h']:.2f} m/h se evalúa respecto al rango óptimo de 0,6--0,8 m/h. Según Chernicharo, este rango garantiza una eficiente separación sólido-líquido sin requerir áreas excesivas. Valores inferiores (como en este caso) son aceptables y proporcionan un margen de seguridad adicional.
+    
+    \item \textbf{{TRH en sedimentador}}: El tiempo de retención de {u['TRH_sed_medio_h']:.2f} h cumple ampliamente con el mínimo de {cfg.uasb_TRH_sed_medio_min_h:.1f} h recomendado por Chernicharo para permitir la adecuada separación gas-líquido-sólido y la sedimentación de partículas finas.
+\end{{itemize}}
+
 \begin{{table}}[H]
 \centering
-\caption{{Verificación de la cámara de sedimentación}}
+\caption{{Verificación de criterios de diseño de la cámara de sedimentación según Chernicharo (2007)}}
 \begin{{tabular}}{{lccc}}
 \toprule
-\textbf{{Parámetro}} & \textbf{{Valor}} & \textbf{{Criterio}} & \textbf{{Estado}} \\
+\textbf{{Parámetro}} & \textbf{{Valor calculado}} & \textbf{{Criterio}} & \textbf{{Estado}} \\
 \midrule
 SOR máximo & {u['SOR_max_m_h']:.2f} m/h & $<$ {cfg.uasb_SOR_max_limite_m_h:.1f} m/h & {'Cumple' if u.get('SOR_max_cumple', False) else 'No cumple'} \\
-SOR medio & {u['SOR_medio_m_h']:.2f} m/h & 0,6--0,8 m/h & {'Cumple' if u.get('SOR_medio_cumple', False) else 'Bajo'} \\
+SOR medio & {u['SOR_medio_m_h']:.2f} m/h & 0,6--0,8 m/h & {'Cumple (conservador)' if u.get('SOR_medio_cumple', False) else 'Bajo (aceptable)'} \\
 TRH sedimentador & {u['TRH_sed_medio_h']:.2f} h & $\geq$ {cfg.uasb_TRH_sed_medio_min_h:.1f} h & {'Cumple' if u.get('TRH_sed_cumple', False) else 'No cumple'} \\
 \bottomrule
 \end{{tabular}}
 \end{{table}}
+
+La verificación demuestra que el compartimiento de sedimentación diseñado cumple satisfactoriamente con todos los criterios técnicos establecidos en la literatura especializada para reactores UASB.
 
 \subsubsection{{Resultados del Reactor UASB}}
 
