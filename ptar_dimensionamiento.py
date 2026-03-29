@@ -131,13 +131,40 @@ class ConfigDiseno:
     uasb_eta_DQO: float = 0.65              # Eficiencia remoción DQO (fracción) - usado solo como referencia inicial
     uasb_H_max_m: float = 5.5               # Altura máxima reactor (m)
     uasb_factor_biogas_ch4: float = 0.35    # Factor de conversión biogás (m³ CH4 / kg DQO removida)
-    # Alturas del reactor UASB (desglose constructivo)
+    
+    # =========================================================================
+    # PARÁMETROS GEOMÉTRICOS UASB (todas las alturas en m)
+    # =========================================================================
+    uasb_H_min_m: float = 3.0               # Altura mínima zona de reacción (m) - físicamente requerido
+    uasb_H_max_m: float = 6.0               # Altura máxima zona de reacción (m) - límite constructivo
     uasb_H_GLS_m: float = 1.0               # Altura separador gas-líquido-sólido (m) - típico 0.8-1.2 m
     uasb_H_distribucion_m: float = 0.30     # Altura zona de distribución (fondo) (m) - típico 0.3-0.5 m
-    # Límites de velocidad ascendente para verificación (Metcalf & Eddy, 2014)
+    uasb_H_sed_m: float = 1.6               # Altura compartimiento sedimentación (m) - típico 1.5-2.0 m
+    uasb_factor_efectividad_sed: float = 0.90  # Factor de área efectiva sedimentación (90% típico)
+    
+    # =========================================================================
+    # LÍMITES DE SEDIMENTADOR SUPERIOR UASB (Chernicharo)
+    # =========================================================================
+    # Carga superficial (SOR) - rango óptimo y límites
+    uasb_SOR_medio_min_m_h: float = 0.60     # SOR mínimo caudal medio (m/h)
+    uasb_SOR_medio_max_m_h: float = 0.80     # SOR máximo caudal medio (m/h)
+    uasb_SOR_max_limite_m_h: float = 1.20    # SOR límite caudal máximo (m/h)
+    # Tiempo de retención en sedimentador
+    uasb_TRH_sed_medio_min_h: float = 1.5    # TRH mínimo sedimentador caudal medio (h)
+    uasb_TRH_sed_medio_max_h: float = 2.0    # TRH máximo sedimentador caudal medio (h)
+    
+    # =========================================================================
+    # LÍMITES DE VELOCIDAD ASCENSIONAL UASB (Metcalf & Eddy, 2014)
     # v_up_max debe controlarse para evitar arrastre del manto de lodos
     uasb_v_up_max_recomendado_m_h: float = 1.5   # Límite recomendado (m/h)
     uasb_v_up_max_destructivo_m_h: float = 2.0   # Límite destructivo (m/h)
+    
+    # =========================================================================
+    # PARÁMETROS DE CÁLCULO UASB
+    # =========================================================================
+    uasb_rendimiento_lodos_kg_SSV_kg_DBO: float = 0.10  # Rendimiento de lodos (kg SSV/kg DBO removida)
+    uasb_D_max_m: float = 10.0                          # Diámetro máximo del reactor (m) - límite while v_up
+    uasb_D_sed_max_m: float = 15.0                      # Diámetro máximo para sedimentador (m) - límite while SOR
     
     # =============================================================================
     # PARÁMETROS DE DISEÑO - FILTRO PERCOLADOR
@@ -390,6 +417,7 @@ def evaluar_temperatura_uasb(T_celsius: float, cfg: ConfigDiseno = CFG) -> Dict[
             ),
             "cv_kgDQO_m3_d": Cv_base,
             "trh_h": HRT_base,
+            "v_up_m_h": cfg.uasb_v_up_m_h,
             "eficiencia_dbo": cfg.uasb_eta_DBO,
             "eficiencia_dqo": cfg.uasb_eta_DQO,
             "factor_temp_texto": "óptima (>= 22°C)",
@@ -409,6 +437,7 @@ def evaluar_temperatura_uasb(T_celsius: float, cfg: ConfigDiseno = CFG) -> Dict[
             ),
             "cv_kgDQO_m3_d": Cv_base * 0.85,
             "trh_h": HRT_base * 1.2,
+            "v_up_m_h": cfg.uasb_v_up_m_h * 0.75,
             "eficiencia_dbo": cfg.uasb_eta_DBO * 0.90,
             "eficiencia_dqo": cfg.uasb_eta_DQO * 0.90,
             "factor_temp_texto": "moderada (18-22°C)",
@@ -429,6 +458,7 @@ def evaluar_temperatura_uasb(T_celsius: float, cfg: ConfigDiseno = CFG) -> Dict[
             ),
             "cv_kgDQO_m3_d": Cv_base * 0.60,
             "trh_h": HRT_base * 1.5,
+            "v_up_m_h": cfg.uasb_v_up_m_h * 0.625,
             "eficiencia_dbo": cfg.uasb_eta_DBO * 0.80,
             "eficiencia_dqo": cfg.uasb_eta_DQO * 0.80,
             "factor_temp_texto": "baja (15-18°C)",
@@ -449,6 +479,7 @@ def evaluar_temperatura_uasb(T_celsius: float, cfg: ConfigDiseno = CFG) -> Dict[
             ),
             "cv_kgDQO_m3_d": Cv_base * 0.40,
             "trh_h": HRT_base * 2.0,
+            "v_up_m_h": cfg.uasb_v_up_m_h * 0.50,
             "eficiencia_dbo": cfg.uasb_eta_DBO * 0.70,
             "eficiencia_dqo": cfg.uasb_eta_DQO * 0.70,
             "factor_temp_texto": "muy baja (10-15°C) - se recomienda aislamiento térmico",
@@ -469,6 +500,7 @@ def evaluar_temperatura_uasb(T_celsius: float, cfg: ConfigDiseno = CFG) -> Dict[
             ),
             "cv_kgDQO_m3_d": Cv_base * 0.30,
             "trh_h": HRT_base * 2.5,
+            "v_up_m_h": cfg.uasb_v_up_m_h * 0.375,
             "eficiencia_dbo": cfg.uasb_eta_DBO * 0.60,
             "eficiencia_dqo": cfg.uasb_eta_DQO * 0.60,
             "factor_temp_texto": "crítica (< 10°C) - requiere calefacción o cambio de tecnología",
@@ -1031,35 +1063,17 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
     # Usar función centralizada para evaluación de temperatura
     temp_eval = evaluar_temperatura_uasb(T_agua, Q)
     
-    # Extraer parámetros calculados
+    # Extraer parámetros calculados desde función centralizada
     Cv_kgDQO_m3_d = temp_eval["cv_kgDQO_m3_d"]
     HRT_min = temp_eval["trh_h"]
+    v_up_m_h = temp_eval["v_up_m_h"]  # Velocidad ya ajustada por temperatura
     factor_temp_texto = temp_eval["factor_temp_texto"]
     texto_recomendacion_temp = temp_eval["texto_recomendacion"]
     rangos = temp_eval["rangos_recomendados"]
     
-    # Eficiencias ajustadas por temperatura
+    # Eficiencias ajustadas por temperatura (de la función centralizada)
     eta_DBO = temp_eval["eficiencia_dbo"]
     eta_DQO = temp_eval["eficiencia_dqo"]
-    
-    # Velocidad ascendente ajustada por temperatura
-    if T_agua >= 20:
-        v_up_m_h = Q.uasb_v_up_m_h  # 0.80 m/h (valor base)
-    elif 15 <= T_agua < 20:
-        v_up_m_h = 0.60  # Reducir velocidad para mejor retención a baja T
-    else:
-        v_up_m_h = 0.50  # Velocidad mínima recomendada
-    
-    # Parámetros de eficiencia (menor eficiencia a bajas temperaturas)
-    if T_agua >= 20:
-        eta_DBO = Q.uasb_eta_DBO  # 70%
-        eta_DQO = Q.uasb_eta_DQO  # 65%
-    elif 15 <= T_agua < 20:
-        eta_DBO = 0.60  # -10 puntos
-        eta_DQO = 0.55  # -10 puntos
-    else:
-        eta_DBO = 0.50  # -20 puntos
-        eta_DQO = 0.45  # -20 puntos
     
     H_max = Q.uasb_H_max_m
 
@@ -1099,12 +1113,12 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
     # Producción de lodos
     DBO_kg_m3 = Q.DBO5_mg_L * 1e-3
     DBO_removida_kg_d = Q_m3_d * DBO_kg_m3 * eta_DBO
-    lodos_kg_SSV_d = 0.10 * DBO_removida_kg_d   # kg SSV/d (usando valor medio)
+    lodos_kg_SSV_d = Q.uasb_rendimiento_lodos_kg_SSV_kg_DBO * DBO_removida_kg_d   # kg SSV/d
     
     # =============================================================================
     # VERIFICACIÓN PARA CAUDAL MÁXIMO HORARIO (SOLO VERIFICACIÓN, NO DISEÑO)
     # =============================================================================
-    factor_pico_uasb = 2.5  # Factor típico Qmax/Qmedio
+    factor_pico_uasb = Q.factor_pico_Qmax  # Factor típico Qmax/Qmedio (de configuración global)
     Q_max_m3_d = Q_m3_d * factor_pico_uasb
     Q_max_m3_h = Q_max_m3_d / 24.0
     
@@ -1139,12 +1153,18 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
         iteracion += 1
         
         # Seguridad: límite máximo de iteraciones
-        if D_m > 10.0:  # máximo 10 metros
+        if D_m > Q.uasb_D_max_m:  # máximo configurable (default 10m)
             break
     
-    # Recalcular valores finales si hubo ajuste
+    # Recalcular valores finales si hubo ajuste (protegiendo altura mínima)
     if ajuste_realizado:
-        H_r_m = V_r_m3 / A_sup_m2
+        H_r_calculada = V_r_m3 / A_sup_m2
+        if H_r_calculada < Q.uasb_H_min_m:
+            H_r_m = Q.uasb_H_min_m
+            V_r_m3 = A_sup_m2 * H_r_m
+            TRH_h = V_r_m3 / Q_m3_h
+        else:
+            H_r_m = H_r_calculada
         v_up_m_h = Q_m3_h / A_sup_m2
         v_up_max_m_h = Q_max_m3_h / A_sup_m2
     
@@ -1193,6 +1213,113 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
     # Altura total de construcción
     H_total_construccion_m = H_distribucion_m + H_zona_reaccion_m + H_GLS_m + H_bordo_libre_m
     
+    # =========================================================================
+    # CÁLCULO DEL COMPARTIMIENTO DE SEDIMENTACIÓN SUPERIOR (Paso 7 del manual)
+    # =========================================================================
+    # Según Chernicharo:
+    # 1. Criterio prioritario: SOR_max < 1.2 m/h (para no arrastrar sólidos)
+    # 2. Criterio secundario: H_sed entre 1.5-2.0 m (altura típica)
+    # 3. El TRH_sed resulta de V_sed/Q, donde V_sed = A_sed × H_sed
+    #
+    # Estrategia:
+    # - Primero cumplir SOR_max aumentando diámetro si es necesario
+    # - Luego calcular H_sed = V_sed_objetivo / A_sed
+    # - Si H_sed < 1.5 m, usar H_sed = 1.5 m (mínimo) y aceptar TRH_sed mayor
+    
+    factor_efectividad_sed = Q.uasb_factor_efectividad_sed
+    H_sed_min_m = Q.uasb_TRH_sed_medio_min_h  # 1.5 m (altura mínima típica)
+    H_sed_max_m = Q.uasb_TRH_sed_medio_max_h  # 2.0 m (altura máxima típica)
+    
+    # PASO 1: Asegurar SOR_max < límite (criterio más crítico)
+    iteracion_sed = 0
+    max_iteraciones_sed = 500
+    D_m_sed = D_m
+    A_sup_sed = A_sup_m2
+    
+    while iteracion_sed < max_iteraciones_sed:
+        A_sed_efectiva_m2 = A_sup_sed * factor_efectividad_sed
+        SOR_max_m_h = Q_max_m3_h / A_sed_efectiva_m2
+        
+        if SOR_max_m_h < Q.uasb_SOR_max_limite_m_h:
+            break  # Cumple SOR_max
+        
+        D_m_sed += 0.05
+        A_sup_sed = math.pi * (D_m_sed ** 2) / 4
+        iteracion_sed += 1
+        
+        if D_m_sed > Q.uasb_D_sed_max_m:
+            break
+    
+    # PASO 2: Establecer altura del sedimentador
+    # Usamos H_sed = 1.5 m (mínimo recomendado por Chernicharo)
+    # Esto asegura suficiente volumen para sedimentación
+    A_sed_efectiva_m2 = A_sup_sed * factor_efectividad_sed
+    H_sed_m = H_sed_min_m  # 1.5 m (mínimo recomendado)
+    V_sed_m3 = A_sed_efectiva_m2 * H_sed_m
+    TRH_sed_medio_h = V_sed_m3 / Q_m3_h
+    
+    # Nota: Con caudales pequeños, TRH_sed puede ser > 2.0 h
+    # Esto es conservador (más tiempo de sedimentación), no es un problema
+    
+    # Si el diámetro cambió, actualizar reactor manteniendo altura mínima física
+    if D_m_sed != D_m:
+        D_m = D_m_sed
+        A_sup_m2 = A_sup_sed
+        # La altura NO puede ser menor que la mínima física (ej: 3.0 m para UASB funcional)
+        H_r_calculada = V_r_m3 / A_sup_m2
+        if H_r_calculada < Q.uasb_H_min_m:
+            # Mantener altura mínima y aceptar mayor TRH (diseño conservador)
+            H_r_m = Q.uasb_H_min_m
+            V_r_m3 = A_sup_m2 * H_r_m  # Volumen aumentado proporcionalmente
+            TRH_h = V_r_m3 / Q_m3_h    # TRH resultante mayor
+        else:
+            H_r_m = H_r_calculada
+        v_up_m_h = Q_m3_h / A_sup_m2
+        v_up_max_m_h = Q_max_m3_h / A_sup_m2
+    
+    # Recalcular estado de verificación con valores finales (después de todos los ajustes)
+    if v_up_max_m_h <= 1.5:
+        estado_verificacion = "ÓPTIMO"
+    elif v_up_max_m_h <= 2.0:
+        estado_verificacion = "ACEPTABLE CON MONITOREO"
+    else:
+        estado_verificacion = "NO ADMISIBLE - REQUIERE REDIMENSIONAMIENTO"
+    
+    # Recalcular con valores finales
+    A_sed_efectiva_m2 = A_sup_m2 * factor_efectividad_sed
+    V_sed_m3 = A_sed_efectiva_m2 * H_sed_m
+    
+    # Cargas superficiales
+    SOR_medio_m_h = Q_m3_h / A_sed_efectiva_m2
+    SOR_max_m_h = Q_max_m3_h / A_sed_efectiva_m2
+    
+    # TRH en sedimentador
+    TRH_sed_medio_h = V_sed_m3 / Q_m3_h
+    TRH_sed_max_h = V_sed_m3 / Q_max_m3_h
+    
+    # Verificación de criterios
+    SOR_medio_cumple = Q.uasb_SOR_medio_min_m_h <= SOR_medio_m_h <= Q.uasb_SOR_medio_max_m_h
+    SOR_max_cumple = SOR_max_m_h < Q.uasb_SOR_max_limite_m_h
+    # TRH_sed puede ser > 2.0 h, eso es conservador, no malo
+    TRH_sed_cumple = TRH_sed_medio_h >= Q.uasb_TRH_sed_medio_min_h
+    
+    # Textos de verificación
+    SOR_min_val = Q.uasb_SOR_medio_min_m_h
+    SOR_max_val = Q.uasb_SOR_medio_max_m_h
+    SOR_limite_val = Q.uasb_SOR_max_limite_m_h
+    
+    if SOR_medio_cumple:
+        SOR_medio_texto = f"La carga superficial de {SOR_medio_m_h:.2f} m/h está dentro del rango recomendado ({SOR_min_val:.1f}-{SOR_max_val:.1f} m/h)"
+    elif SOR_medio_m_h < SOR_min_val:
+        SOR_medio_texto = f"La carga superficial de {SOR_medio_m_h:.2f} m/h está por debajo del rango ({SOR_min_val:.1f}-{SOR_max_val:.1f} m/h), pero es aceptable para diseño conservador"
+    else:
+        SOR_medio_texto = f"La carga superficial de {SOR_medio_m_h:.2f} m/h está por encima del rango recomendado ({SOR_min_val:.1f}-{SOR_max_val:.1f} m/h)"
+    
+    if SOR_max_cumple:
+        SOR_max_texto = f"La carga superficial máxima de {SOR_max_m_h:.2f} m/h cumple con el límite (< {SOR_limite_val:.1f} m/h)"
+    else:
+        SOR_max_texto = f"La carga superficial máxima de {SOR_max_m_h:.2f} m/h excede el límite recomendado (< {SOR_limite_val:.1f} m/h)"
+    
     return {
         "unidad": "Reactor UASB",
         # Datos de entrada
@@ -1227,6 +1354,19 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
         "H_distribucion_m": round(H_distribucion_m, 2),
         "H_bordo_libre_m": round(H_bordo_libre_m, 2),
         "H_total_construccion_m": round(H_total_construccion_m, 2),
+        # Compartimiento de sedimentación superior (Paso 7 manual)
+        "H_sed_m": round(H_sed_m, 2),
+        "A_sed_efectiva_m2": round(A_sed_efectiva_m2, 2),
+        "V_sed_m3": round(V_sed_m3, 2),
+        "SOR_medio_m_h": round(SOR_medio_m_h, 2),
+        "SOR_max_m_h": round(SOR_max_m_h, 2),
+        "SOR_medio_cumple": SOR_medio_cumple,
+        "SOR_max_cumple": SOR_max_cumple,
+        "SOR_medio_texto": SOR_medio_texto,
+        "SOR_max_texto": SOR_max_texto,
+        "TRH_sed_medio_h": round(TRH_sed_medio_h, 2),
+        "TRH_sed_max_h": round(TRH_sed_max_h, 2),
+        "TRH_sed_cumple": TRH_sed_cumple,
         # Producción de subproductos
         "factor_biogas_ch4": factor_biogas,   # Factor usado (m³ CH4 / kg DQO removida)
         "DQO_removida_kg_d": round(DQO_removida_kg_d, 2),

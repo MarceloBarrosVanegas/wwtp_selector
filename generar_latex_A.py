@@ -526,31 +526,11 @@ Para el presente diseño, la temperatura del agua residual es \textbf{{{u['T_agu
 \toprule
 \textbf{{Condición}} & \textbf{{T (°C)}} & \textbf{{Cv (kg/m³·d)}} & \textbf{{HRT (h)}} \\
 \midrule
-Óptima & >= 22 & 2,0--3,0 & 4--6 \\
-Moderada & 18--22 & 1,5--2,5 & 5--8 \\
-Baja & 15--18 & 1,0--1,5 & 6--10 \\
+Óptima & $>=$ {cfg.uasb_temp_optimina_C:.0f} & 2,0--3,0 & 4--6 \\
+Moderada & {cfg.uasb_temp_min_operativa_C:.0f}--{cfg.uasb_temp_optimina_C:.0f} & 1,5--2,5 & 5--8 \\
+Baja & 15--{cfg.uasb_temp_min_operativa_C:.0f} & 1,0--1,5 & 6--10 \\
 Muy baja & 10--15 & 0,5--1,5 & 8--12 \\
-Crítica & < 10 & No recomendable & Requiere calefacción \\
-\bottomrule
-\end{{tabular}}
-\end{{table}}
-
-Para la temperatura actual de {u['T_agua_C']:.1f}°C, los parámetros de diseño adoptados son:
-
-\begin{{table}}[H]
-\centering
-\caption{{Parámetros de diseño del reactor UASB (T = {u['T_agua_C']:.1f}°C)}}
-\small
-\begin{{tabular}}{{p{{4.5cm}}ccc}}
-\toprule
-Parámetro & Rango & Valor adoptado & Fuente \\
-\midrule
-Carga orgánica ($C_v$) & {u['rango_Cv']} & {u['Cv_kgDQO_m3_d']:.2f} kg/m³·d & Van Haandel [4] \\
-Velocidad ascendente & {u['rango_vup']} & {u['v_up_m_h']:.2f} m/h & Sperling [3] \\
-Tiempo retención (HRT) & {u['rango_HRT']} & {u['TRH_h']:.1f} h & Van Haandel [4] \\
-Eficiencia DQO & {u['rango_eta']} & {u['eta_DQO']*100:.0f}\% & OPS/CEPIS [5] \\
-Altura útil & 3,0--6,0 m & {u['H_r_m']:.2f} m & Van Haandel [4] \\
-Relación H/D & 0,5--1,5 & {u['H_r_m']/u['D_m']:.2f} & Van Haandel [4] \\
+Crítica & $<$ 10 & No recomendable & Requiere calefacción \\
 \bottomrule
 \end{{tabular}}
 \end{{table}}
@@ -558,6 +538,28 @@ Relación H/D & 0,5--1,5 & {u['H_r_m']/u['D_m']:.2f} & Van Haandel [4] \\
 {temp_recomendacion}
 
 Notas importantes de diseño: se debe incluir un separador gas-líquido-sólido (GLS) en la parte superior (altura 0,8--1,2 m) y un sistema de distribución uniforme en el fondo. El biogás requiere sistema de recolección y manejo seguro (prevención contra explosión).
+
+Los siguientes parámetros han sido seleccionados como criterios de diseño para el reactor UASB:
+
+\begin{{table}}[H]
+\centering
+\caption{{Parámetros seleccionados para el diseño UASB}}
+\begin{{tabular}}{{p{{6cm}}cc}}
+\toprule
+\textbf{{Parámetro}} & \textbf{{Valor adoptado}} & \textbf{{Rango recomendado}} \\
+\midrule
+Caudal por línea ($Q$) & {u['Q_m3_h']:.2f} m³/h & - \\
+Carga orgánica volumétrica ($C_v$) & {u['Cv_kgDQO_m3_d']:.2f} kg DQO/m³·d & {u['rango_Cv']} \\
+Velocidad ascendente de diseño ($v_{{up}}$) & {cfg.uasb_v_up_m_h:.2f} m/h & {u['rango_vup']} \\
+Altura máxima del reactor ($H_{{max}}$) & {cfg.uasb_H_max_m:.1f} m & 4,0--6,0 m \\
+Factor de efectividad sedimentador & {int(cfg.uasb_factor_efectividad_sed*100):d}\% & 85--95\% \\
+Altura sedimentador ($H_{{sed}}$) & {cfg.uasb_TRH_sed_medio_min_h:.1f} m & 1,5--2,0 m \\
+Carga superficial máxima límite (SOR) & {cfg.uasb_SOR_max_limite_m_h:.1f} m/h & $<$ 1,2 m/h \\
+\bottomrule
+\end{{tabular}}
+\end{{table}}
+
+\subsubsection{{Zona de Reacción -- Dimensionamiento}}
 
 El volumen necesario del reactor se determina mediante la expresión:
 
@@ -616,7 +618,7 @@ D = \sqrt{{\frac{{4 \cdot A_s}}{{\pi}}}}
 D = \sqrt{{\frac{{4 \times {u['A_sup_m2']:.2f}}}{{\pi}}}} = {u['D_m']:.2f} \text{{ m}}
 \end{{equation}}
 
-La altura de la zona de reacción (manto de lodos) resulta {u['H_r_m']:.2f}~m, proporcionando un tiempo de retención hidráulico de {u['TRH_h']:.1f} horas, valor adecuado según Sperling \cite{{sperling2007}} para temperaturas superiores a 22°C. La altura total de construcción incluye: zona de distribución ({u.get('H_distribucion_m', 0.30):.2f}~m), separador GLS ({u.get('H_GLS_m', 1.0):.2f}~m) y bordo libre ({u.get('H_bordo_libre_m', 0.50):.2f}~m), resultando en {u.get('H_total_construccion_m', u['H_r_m'] + 1.8):.2f}~m.
+La altura de la zona de reacción (manto de lodos) resulta {u['H_r_m']:.2f}~m, proporcionando un tiempo de retención hidráulico de {u['TRH_h']:.1f} horas, valor adecuado según Sperling \cite{{sperling2007}} para la temperatura de {u['T_agua_C']:.1f}°C del agua residual.
 
 La producción de biogás se estima mediante la relación estequiométrica de {u['factor_biogas_ch4']:.2f} m³ de metano por kilogramo de DQO removida:
 
@@ -637,7 +639,7 @@ V_{{CH_4}} = (Q_d \cdot S_0 \cdot E) \times {u['factor_biogas_ch4']:.2f}
 V_{{CH_4}} = ({u['Q_m3_d']:.1f} \times {u['DQO_kg_m3']:.3f} \times {u['eta_DQO']:.2f}) \times {u['factor_biogas_ch4']:.2f} = {u['biogaz_m3_d']:.1f} \text{{ m}}^3 \text{{ CH}}_4\text{{/d}}
 \end{{equation}}
 
-\subsubsection{{Verificación para Caudal Máximo Horario}}
+\subsubsection{{Zona de Reacción -- Verificación}}
 
 Se verifica el comportamiento hidráulico para el caudal máximo horario, aplicando un factor de pico típico de {u['factor_pico']:.1f} sobre el caudal medio:
 
@@ -664,9 +666,67 @@ La velocidad calculada $v_{{up,max}} = {u['v_up_max_m_h']:.2f}$~m/h se evalúa s
 \end{{equation}}
 \captionequation{{Criterios de verificacion de arrastre del manto en UASB}}
 
-Con la velocidad calculada $v_{{up,max}} = {u['v_up_max_m_h']:.2f}$~m/h, se obtiene el estado \textbf{{{u['estado_verificacion']}}}. {u['verif_vup_max_texto']}
+Con la velocidad calculada $v_{{up,max}} = {u['v_up_max_m_h']:.2f}$~m/h, se obtiene el estado \textbf{{{u['estado_verificacion']}}}.
 
-\subsubsection{{Resultados}}
+\subsubsection{{Cámara de Sedimentación -- Dimensionamiento}}
+
+El compartimiento de sedimentación superior se dimensiona siguiendo los criterios de Chernicharo \cite{{chernicharo2007}}, quien establece que la carga superficial (SOR) es el parámetro crítico para evitar el arrastre de sólidos hacia el efluente.
+
+\textbf{{Criterios de diseño adoptados:}}
+
+\begin{{equation}}
+\text{{SOR}}_{{max}} < {cfg.uasb_SOR_max_limite_m_h:.1f} \text{{ m/h}} \quad \text{{(crítico para evitar arrastre de sólidos)}}
+\end{{equation}}
+
+\begin{{equation}}
+H_{{sed}} \geq {cfg.uasb_TRH_sed_medio_min_h:.1f} \text{{ m}} \quad \text{{(altura mínima del sedimentador)}}
+\end{{equation}}
+
+El área efectiva de sedimentación considera el factor de efectividad del 90\% del área total (Chernicharo):
+
+\begin{{equation}}
+A_{{sed}} = {cfg.uasb_factor_efectividad_sed:.2f} \times A_{{sup}} = {cfg.uasb_factor_efectividad_sed:.2f} \times {u['A_sup_m2']:.2f} = {u['A_sed_efectiva_m2']:.2f} \text{{ m}}^2
+\end{{equation}}
+
+El volumen del sedimentador se calcula con la altura adoptada de {u['H_sed_m']:.1f}~m:
+
+\begin{{equation}}
+V_{{sed}} = A_{{sed}} \times H_{{sed}} = {u['A_sed_efectiva_m2']:.2f} \times {u['H_sed_m']:.1f} = {u['V_sed_m3']:.2f} \text{{ m}}^3
+\end{{equation}}
+
+El tiempo de retención hidráulico en el sedimentador resulta:
+
+\begin{{equation}}
+t_{{sed}} = \frac{{V_{{sed}}}}{{Q}} = \frac{{{u['V_sed_m3']:.2f}}}{{{u['Q_m3_h']:.2f}}} = {u['TRH_sed_medio_h']:.2f} \text{{ h}}
+\end{{equation}}
+
+\subsubsection{{Cámara de Sedimentación -- Verificación}}
+
+Se verifican las cargas superficiales para caudal medio y máximo:
+
+\begin{{equation}}
+SOR_{{medio}} = \frac{{Q_{{medio}}}}{{A_{{sed}}}} = \frac{{{u['Q_m3_h']:.2f}}}{{{u['A_sed_efectiva_m2']:.2f}}} = {u['SOR_medio_m_h']:.2f} \text{{ m/h}}
+\end{{equation}}
+
+\begin{{equation}}
+SOR_{{max}} = \frac{{Q_{{max}}}}{{A_{{sed}}}} = \frac{{{u['Q_max_m3_h']:.2f}}}{{{u['A_sed_efectiva_m2']:.2f}}} = {u['SOR_max_m_h']:.2f} \text{{ m/h}}
+\end{{equation}}
+
+\begin{{table}}[H]
+\centering
+\caption{{Verificación de la cámara de sedimentación}}
+\begin{{tabular}}{{lccc}}
+\toprule
+\textbf{{Parámetro}} & \textbf{{Valor}} & \textbf{{Criterio}} & \textbf{{Estado}} \\
+\midrule
+SOR máximo & {u['SOR_max_m_h']:.2f} m/h & $<$ {cfg.uasb_SOR_max_limite_m_h:.1f} m/h & {'Cumple' if u.get('SOR_max_cumple', False) else 'No cumple'} \\
+SOR medio & {u['SOR_medio_m_h']:.2f} m/h & 0,6--0,8 m/h & {'Cumple' if u.get('SOR_medio_cumple', False) else 'Bajo'} \\
+TRH sedimentador & {u['TRH_sed_medio_h']:.2f} h & $\geq$ {cfg.uasb_TRH_sed_medio_min_h:.1f} h & {'Cumple' if u.get('TRH_sed_cumple', False) else 'No cumple'} \\
+\bottomrule
+\end{{tabular}}
+\end{{table}}
+
+\subsubsection{{Resultados del Reactor UASB}}
 
 \begin{{table}}[H]
 \centering
