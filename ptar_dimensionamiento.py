@@ -1776,10 +1776,10 @@ def dimensionar_filtro_percolador(Q: ConfigDiseno = CFG,
     
     if qA_min_m3_m2_h < 0.5:
         recirculacion_adicional = True
-        qA_min_texto = f"qA_min = {qA_min_m3_m2_h:.2f} m³/m²·h < 0.5 (riesgo de sequedad). Se recomienda aumentar R o control de nivel."
+        qA_min_texto = f"$q_{{A,min}} = {qA_min_m3_m2_h:.2f}$ m³/m²·h $< 0{','}5$ (riesgo de sequedad). Se recomienda aumentar $R$ o implementar control de nivel."
     else:
         recirculacion_adicional = False
-        qA_min_texto = f"qA_min = {qA_min_m3_m2_h:.2f} m³/m²·h >= 0.5 (biopelícula húmeda garantizada)."
+        qA_min_texto = f"$q_{{A,min}} = {qA_min_m3_m2_h:.2f}$ m³/m²·h $\geq 0{','}5$ (biopelícula húmeda garantizada)."
     
     # =================================================================
     # PASO 6 - DISTRIBUIDOR ROTATORIO
