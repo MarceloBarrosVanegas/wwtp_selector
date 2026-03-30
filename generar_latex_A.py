@@ -1209,7 +1209,7 @@ La dosis total de cloro se descompone en la demanda del efluente (consumida por 
 \toprule
 Parámetro & Rango recomendado & Valor adoptado & Fuente \\
 \midrule
-Demanda de cloro & 2--5 & {cl['demanda_cloro_mg_L']:.1f} mg/L & Estimado efluente UASB+FP \\
+Demanda de cloro & 2--5 & {cl['demanda_cloro_mg_L']:.1f} mg/L & Estimado efluente post-sedimentador \\
 Cloro residual & 0.5--2.0 & {cl['cloro_residual_mg_L']:.1f} mg/L & OPS/CEPIS \cite{{ops2005}} \\
 Dosis total & 3--10 & {cl['dosis_cloro_mg_L']:.1f} mg/L & Metcalf \& Eddy \cite{{metcalf2014}} \\
 Tiempo de contacto & 15--45 & {cl['TRH_min']:.0f} min & Metcalf \& Eddy \\
