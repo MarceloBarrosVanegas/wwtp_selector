@@ -944,10 +944,17 @@ def generar_esquema_filtro_percolador(resultados_fp: dict, output_dir: str = "re
     R = resultados_fp.get('R_recirculacion', 1.5)
     qA = resultados_fp.get('Q_A_real_m3_m2_h', 1.5)
     qA_min = resultados_fp.get('qA_min_m3_m2_h', 0.6)
+    qA_max = resultados_fp.get('Q_A_max_m3_m2_h', 3.8)
     Se = resultados_fp.get('DBO_salida_Germain_mg_L', 58.0)
+    cumple_Se = resultados_fp.get('se_cumple_objetivo_Germain', False)
     S0 = resultados_fp.get('DBO_entrada_mg_L', 73.0)
     num_brazos = resultados_fp.get('num_brazos', 2)
     Q_brazo = resultados_fp.get('Q_por_brazo_m3_h', 27.0)
+    Q_ap_total = resultados_fp.get('Q_ap_m3_h', Q_brazo * num_brazos)
+    Q_underdrain = resultados_fp.get('Q_underdrain_diseno_m3_h', Q_ap_total * 2)
+    Q_canal = resultados_fp.get('Q_canal_capacidad_m3_h', 0.0)
+    llenado_canal = resultados_fp.get('llenado_canal_pct', 0.0)
+    pendiente_underdrain = resultados_fp.get('pendiente_underdrain_pct', 1.0)
     area_vent = resultados_fp.get('area_ventilacion_requerida_m2', 0.3)
     num_aperturas = resultados_fp.get('num_aperturas_ventilacion', 6)
 
@@ -994,11 +1001,31 @@ def generar_esquema_filtro_percolador(resultados_fp: dict, output_dir: str = "re
     )
     ax.add_patch(underdrain)
 
+    # Rejilla de soporte del medio sobre el underdrain
+    ax.plot([x_izq + 0.1, x_der - 0.1], [y_medio, y_medio], color='#8D8D8D', linewidth=1.2)
+    for x_sup in np.linspace(x_izq + 0.35, x_der - 0.35, 10):
+        ax.add_patch(Rectangle((x_sup - 0.10, y_medio - 0.03), 0.20, 0.03,
+                               facecolor='#B0BEC5', edgecolor='#78909C', linewidth=0.4))
+
+    # Canal central colector dentro del underdrain
+    canal_ancho = ancho * 0.24
+    canal_alto = h_under * 0.42
+    canal_x = x_centro - canal_ancho / 2
+    canal_y = y_under + 0.06
+    y_canal_ref = canal_y + canal_alto * 0.68
+    y_canal_desc = canal_y + canal_alto * 0.56
+
     medio = Rectangle(
         (x_izq + 0.1, y_medio), ancho - 0.2, h_medio,
         facecolor=c_medio, edgecolor='none', alpha=0.95
     )
     ax.add_patch(medio)
+    for x_flow in np.linspace(x_izq + 1.1, x_der - 1.1, 5):
+        ax.annotate(
+            '', xy=(x_flow, y_medio + h_medio * 0.24),
+            xytext=(x_flow, y_medio + h_medio * 0.82),
+            arrowprops=dict(arrowstyle='-|>', color='#2E7D32', lw=2.4, mutation_scale=16, alpha=0.78)
+        )
 
     agua_sup = Rectangle(
         (x_izq + 0.1, y_dist), ancho - 0.2, h_dist,
@@ -1033,6 +1060,8 @@ def generar_esquema_filtro_percolador(resultados_fp: dict, output_dir: str = "re
     for side in (-1, 1):
         for frac in (0.25, 0.55, 0.85):
             x_noz = x_col + side * brazo_largo * frac
+            ax.add_patch(Circle((x_noz, y_brazo), 0.038, facecolor='#455A64', edgecolor='white', linewidth=0.5))
+            ax.plot([x_noz, x_noz], [y_brazo, y_brazo - 0.06], color='#455A64', linewidth=1.0)
             ax.annotate(
                 '', xy=(x_noz, y_brazo - 0.55), xytext=(x_noz, y_brazo - 0.06),
                 arrowprops=dict(arrowstyle='->', color=c_flow, lw=1.8)
@@ -1041,8 +1070,8 @@ def generar_esquema_filtro_percolador(resultados_fp: dict, output_dir: str = "re
     ax.plot([x_izq - 1.4, x_col], [y_top + 0.45, y_top + 0.45], color='#444444', linewidth=2)
     ax.annotate('', xy=(x_izq - 0.2, y_top + 0.45), xytext=(x_izq - 1.2, y_top + 0.45),
                 arrowprops=dict(arrowstyle='->', color=c_recir, lw=2.5))
-    ax.text(x_izq - 1.45, y_top + 0.75, f'Afluente + recirculación\nR = {R:.1f}', ha='left', va='bottom',
-            fontsize=9, color=c_recir, fontweight='bold')
+    ax.text(x_izq - 1.45, y_top + 0.66, f'Afluente + recirculación\nQap = {Q_ap_total:.1f} m³/h\nR = {R:.1f}',
+            ha='left', va='bottom', fontsize=8.6, color=c_recir, fontweight='bold')
 
     for x_air in np.linspace(x_izq + 0.55, x_der - 0.55, min(max(num_aperturas, 3), 6)):
         ax.add_patch(Rectangle((x_air - 0.16, y_under + 0.05), 0.32, 0.12,
@@ -1050,20 +1079,19 @@ def generar_esquema_filtro_percolador(resultados_fp: dict, output_dir: str = "re
         ax.annotate('', xy=(x_air, y_under + h_under + 0.55), xytext=(x_air, y_under + 0.18),
                     arrowprops=dict(arrowstyle='->', color=c_air, lw=1.8, alpha=0.9))
 
-    y_salida = y_under + h_under * 0.55
+    y_salida = canal_y + canal_alto * 0.36
     ax.plot([x_der, x_der + 1.45], [y_salida, y_salida], color='#444444', linewidth=2.2)
     ax.annotate('', xy=(x_der + 1.45, y_salida), xytext=(x_der + 0.15, y_salida),
                 arrowprops=dict(arrowstyle='->', color='#1565C0', lw=2.5))
-    ax.text(x_der + 1.78, y_salida + 0.18, 'Efluente a sedimentador', ha='left', va='bottom',
-            fontsize=8.5, color='#1565C0', fontweight='bold',
-            bbox=dict(facecolor='white', edgecolor='none', alpha=0.9, pad=0.15))
+    ax.text(x_der + 0.60, y_salida + 0.10, 'Efluente a sedimentador', ha='left', va='bottom',
+            fontsize=8.2, color='#1565C0', fontweight='bold')
 
     dash = dict(linestyle='--', color='#999999', linewidth=0.8, alpha=0.7)
     ax.axhline(y=y_medio, xmin=0.18, xmax=0.82, **dash)
     ax.axhline(y=y_dist, xmin=0.18, xmax=0.82, **dash)
     ax.axhline(y=y_dist + h_dist, xmin=0.18, xmax=0.82, **dash)
 
-    x_dim = x_izq - 1.6
+    x_dim = x_izq - 1.9
 
     def draw_dim(y1, y2, x_pos, label):
         ax.plot([x_pos, x_pos], [y1, y2], 'k-', linewidth=0.8)
@@ -1073,7 +1101,7 @@ def generar_esquema_filtro_percolador(resultados_fp: dict, output_dir: str = "re
                     arrowprops=dict(arrowstyle='->', color='black', lw=0.8))
         ax.annotate('', xy=(x_pos, y1 + 0.05), xytext=(x_pos, y1 + 0.24),
                     arrowprops=dict(arrowstyle='->', color='black', lw=0.8))
-        ax.text(x_pos - 0.16, (y1 + y2) / 2, label, ha='right', va='center', fontsize=8)
+        ax.text(x_pos - 0.28, (y1 + y2) / 2, label, ha='right', va='center', fontsize=8)
 
     draw_dim(y_under, y_medio, x_dim, f'{H_underdrain:.2f} m')
     draw_dim(y_medio, y_dist, x_dim, f'{H_medio:.2f} m')
@@ -1091,30 +1119,24 @@ def generar_esquema_filtro_percolador(resultados_fp: dict, output_dir: str = "re
                 arrowprops=dict(arrowstyle='->', color='black', lw=0.8))
     ax.text(x_centro, y_dim - 0.16, f'Ø {D:.1f} m', ha='center', va='top', fontsize=8)
 
-    x_dim_total = x_izq - 2.45
+    x_dim_total = x_izq - 2.75
     ax.plot([x_dim_total, x_dim_total], [y_base, y_top], 'k-', linewidth=0.8)
     ax.plot([x_dim_total - 0.1, x_dim_total + 0.1], [y_base, y_base], 'k-', linewidth=0.8)
     ax.plot([x_dim_total - 0.1, x_dim_total + 0.1], [y_top, y_top], 'k-', linewidth=0.8)
-    ax.text(x_dim_total - 0.15, (y_base + y_top) / 2, f'H = {H_total:.2f} m',
+    ax.text(x_dim_total - 0.28, (y_base + y_top) / 2, f'H = {H_total:.2f} m',
             ha='right', va='center', fontsize=8, fontweight='bold')
 
     offset_x = x_der + 0.55
-    offset_x_out = x_der + 0.62
     ax.text(offset_x, y_dist + h_dist + h_bordo / 2 + 0.02, 'Bordo libre y cámara\ndel distribuidor', ha='left', va='center', fontsize=8)
     ax.text(offset_x, y_dist + h_dist * 0.45, f'Distribuidor rotatorio\n{num_brazos:.0f} brazos | {Q_brazo:.1f} m³/h por brazo',
             ha='left', va='center', fontsize=8, fontweight='bold')
     ax.text(offset_x, y_medio + h_medio * 0.55, f'Medio plástico\nqA = {qA:.2f} m³/m²·h\nS₀ = {S0:.1f} mg/L',
             ha='left', va='center', fontsize=8, fontweight='bold')
-    ax.text(offset_x_out, y_medio + 0.62, f'Efluente estimado\nSₑ = {Se:.1f} mg/L\nqA,min = {qA_min:.2f} m³/m²·h',
-            ha='left', va='bottom', fontsize=7.8, color='#1565C0')
-    ax.text(offset_x + 0.08, y_under + h_under * 0.02, f'Underdrain y ventilación\nAvent = {area_vent:.2f} m²\n{num_aperturas:.0f} aperturas',
-            ha='left', va='bottom', fontsize=7.7,
-            bbox=dict(facecolor='white', edgecolor='none', alpha=0.9, pad=0.1))
 
-    ax.text(x_izq - 0.75, y_under + 0.15, 'Entrada de aire\nnatural', ha='center', va='bottom',
+    ax.text(x_izq - 1.02, y_under + 0.15, 'Entrada de aire\nnatural', ha='center', va='bottom',
             fontsize=8, color=c_air, fontweight='bold')
 
-    ax.set_xlim(x_izq - 3.0, x_der + 3.8)
+    ax.set_xlim(x_izq - 3.0, x_der + 3.15)
     ax.set_ylim(y_base - 1.1, y_top + 1.2)
     ax.set_aspect('equal')
     ax.axis('off')

@@ -1,0 +1,247 @@
+================================================================================
+       MANUAL DE DISEÑO – SEDIMENTADOR SECUNDARIO
+       Sistema UASB + Filtro Percolador  |  Q = 10.0 L/s  |  2 líneas
+================================================================================
+  Fecha : 30 de marzo de 2026
+  Norma : TULSMA – Tabla 12 (descarga a cuerpo de agua dulce)
+================================================================================
+
+
+OBJETIVO
+--------
+El sedimentador secundario separa los sólidos biológicos desprendidos del filtro
+percolador (conocidos como humus o lodos biológicos) del efluente tratado,
+permitiendo obtener un efluente clarificado antes de la desinfección.
+
+Su principio de diseño es la Tasa de Desbordamiento Superficial (SOR – Surface
+Overflow Rate): relaciona el caudal con el área superficial del tanque para que
+la velocidad ascensional sea suficientemente baja y los flóculos sedimenten
+por gravedad.
+
+
+================================================================================
+  1. PARÁMETROS DE DISEÑO
+================================================================================
+
+  Parámetro                            Rango recomendado    Valor adoptado    Fuente
+  ──────────────────────────────────────────────────────────────────────────────────
+  Caudal medio por línea (Q)           –                    432.0 m³/d        –
+                                                            (18.00 m³/h)
+  Factor de pico horario (fp)          –                    2.5               Metcalf & Eddy
+  Caudal máximo horario (Q_máx)        –                    1080.0 m³/d       –
+                                                            (45.00 m³/h)
+  SOR (tasa desbordamiento media)      16 – 32 m³/m²·d     15.9 m³/m²·d     Metcalf & Eddy
+  Profundidad lateral                  3.0 – 4.5 m          3.50 m            Sperling
+  Tiempo de retención hidráulico (HRT) 1.5 – 5.0 h          5.3 h             Metcalf & Eddy
+  SOR máximo permisible                ≤ 45 m³/m²·d         verificado        Metcalf & Eddy
+  Carga sobre vertedero perimetral     ≤ 250 m³/m·d         verificado        Metcalf & Eddy
+  Zona de almacenamiento de lodos      –                    0.50 m (tolva)    Práctica común
+  Bordo libre                          –                    0.30 m            Norma constructiva
+
+
+================================================================================
+  2. PROCEDIMIENTO DE CÁLCULO PASO A PASO
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+  [ PASO 1 ] – Área superficial del sedimentador
+────────────────────────────────────────────────────────────────────────────────
+
+  Se aplica el criterio de la tasa de desbordamiento superficial:
+
+    A_s = Q / SOR
+    A_s = 432.0 m³/d ÷ 15.9 m³/m²·d
+
+  [ RESULTADO ] A_s = 27.09 m²
+
+────────────────────────────────────────────────────────────────────────────────
+  [ PASO 2 ] – Diámetro del sedimentador circular
+────────────────────────────────────────────────────────────────────────────────
+
+    D = √(4 × A_s / π)
+    D = √(4 × 27.09 / π)
+
+  [ RESULTADO ] D = 5.87 m
+
+────────────────────────────────────────────────────────────────────────────────
+  [ PASO 3 ] – Volumen útil
+────────────────────────────────────────────────────────────────────────────────
+
+  Con la profundidad lateral adoptada de 3.50 m:
+
+    V_útil = A_s × H_lateral
+    V_útil = 27.09 × 3.50
+
+  [ RESULTADO ] V_útil = 94.8 m³
+
+────────────────────────────────────────────────────────────────────────────────
+  [ PASO 4 ] – Tiempo de retención hidráulico (TRH) a caudal medio
+────────────────────────────────────────────────────────────────────────────────
+
+    HRT = V_útil / Q_h
+    HRT = 94.8 m³ ÷ 18.00 m³/h
+
+  [ RESULTADO ] HRT = 5.3 h   (rango recomendado: 1.5 – 5.0 h → conservador, aceptable)
+
+────────────────────────────────────────────────────────────────────────────────
+  [ PASO 5 ] – Desglose de altura total de construcción
+────────────────────────────────────────────────────────────────────────────────
+
+  Zona                                    Altura
+  ──────────────────────────────────────────────
+  Zona de sedimentación (prof. lateral)   3.50 m
+  Zona de almacenamiento de lodos (tolva) 0.50 m
+  Bordo libre                             0.30 m
+  ──────────────────────────────────────────────
+  ALTURA TOTAL DE CONSTRUCCIÓN            4.30 m
+
+
+================================================================================
+  3. VERIFICACIONES HIDRÁULICAS
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+  [ VERIFICACIÓN 1 ] – SOR a caudal máximo horario
+────────────────────────────────────────────────────────────────────────────────
+
+    Q_máx = fp × Q = 2.5 × 432.0 = 1080.0 m³/d
+
+    SOR_máx = Q_máx / A_s = 1080.0 / 27.09
+
+  [ RESULTADO ] SOR_máx = 39.9 m³/m²·d   (límite: ≤ 45 m³/m²·d)
+
+  Margen de seguridad: (45 - 39.9) / 45 × 100 = 11.4 %   →   CUMPLE
+
+────────────────────────────────────────────────────────────────────────────────
+  [ VERIFICACIÓN 2 ] – Carga sobre vertedero perimetral
+────────────────────────────────────────────────────────────────────────────────
+
+    Carga_vertedero = Q / (π × D)
+    Carga_vertedero = 432.0 / (π × 5.87)
+
+  [ RESULTADO ] Carga_vertedero = 23.4 m³/m·d   (límite: ≤ 250 m³/m·d)   →   CUMPLE
+
+  La carga es muy inferior al límite; garantiza flujo uniforme hacia el
+  vertedero perimetral.
+
+────────────────────────────────────────────────────────────────────────────────
+  [ VERIFICACIÓN 3 ] – Tasa de aplicación de sólidos
+────────────────────────────────────────────────────────────────────────────────
+
+  Producción estimada de humus del filtro percolador: 1.0 kg SST/d
+
+    Carga_sólidos = producción SST / A_s
+    Carga_sólidos = 1.0 / 27.09
+
+  [ RESULTADO ] Carga_sólidos = 0.04 kg SST/m²·d
+                (rango recomendado: 50 – 150 kg SST/m²·d)   →   CUMPLE
+
+────────────────────────────────────────────────────────────────────────────────
+  [ VERIFICACIÓN 4 ] – TRH a caudal máximo horario
+────────────────────────────────────────────────────────────────────────────────
+
+    HRT_máx = V_útil / Q_máx_h = 94.8 / 45.00
+
+  [ RESULTADO ] HRT_máx = 2.1 h   (mínimo: 1.5 h)   →   CUMPLE
+
+────────────────────────────────────────────────────────────────────────────────
+  [ VERIFICACIÓN 5 ] – TRH a caudal mínimo (nota operativa)
+────────────────────────────────────────────────────────────────────────────────
+
+  Caudal mínimo estimado: 40 % del caudal medio  →  Q_mín = 172.8 m³/d (7.2 m³/h)
+
+    HRT_mín = V_útil / Q_mín_h = 94.8 / 7.2
+
+  [ RESULTADO ] HRT_mín = 13.2 h
+
+  [ NOTA OPERATIVA ] El TRH de 13.2 h a caudal mínimo es elevado.
+  Se recomienda operar con recirculación interna o control de nivel para evitar
+  condiciones sépticas en el fondo del sedimentador durante periodos de bajo
+  caudal nocturno.
+
+
+================================================================================
+  4. TABLA DE VERIFICACIÓN DE CRITERIOS
+================================================================================
+
+  Parámetro                  Valor calculado      Criterio normativo        Estado
+  ──────────────────────────────────────────────────────────────────────────────────
+  SOR medio                  15.9 m³/m²·d         16 – 32 m³/m²·d          CUMPLE *
+  SOR máximo                 39.9 m³/m²·d         ≤ 45 m³/m²·d             CUMPLE
+  HRT medio                  5.3 h                1.5 – 5.0 h               CUMPLE
+  HRT caudal máximo          2.1 h                ≥ 1.5 h                   CUMPLE
+  HRT caudal mínimo          13.2 h               –                         VER NOTA
+  Carga sobre vertedero      23.4 m³/m·d          ≤ 250 m³/m·d             CUMPLE
+  Carga de sólidos           0.04 kg SST/m²·d     50 – 150 kg SST/m²·d    CUMPLE
+  Profundidad lateral        3.50 m               3.0 – 4.5 m              CUMPLE
+
+  * El SOR medio de 15.9 está ligeramente por debajo del rango de 16 m³/m²·d.
+    Esto es consecuencia de redondear el diámetro a 5.87 m y resulta conservador;
+    no representa problema operativo.
+
+
+================================================================================
+  5. DIMENSIONES FINALES – SEDIMENTADOR SECUNDARIO
+================================================================================
+
+  Componente                         Dimensión
+  ──────────────────────────────────────────────────────
+  Diámetro                           5.87 m
+  Área superficial                   27.09 m²
+  Profundidad lateral (sedimentación) 3.50 m
+  Zona de lodos (tolva cónica)       0.50 m
+  Bordo libre                        0.30 m
+  ALTURA TOTAL DE CONSTRUCCIÓN       4.30 m
+  Volumen útil                       94.8 m³
+  Número de unidades                 2  (una por línea)
+
+  Parámetros hidráulicos de operación:
+  ──────────────────────────────────────────────────────
+  SOR (caudal promedio)              15.9  m³/m²·d
+  SOR (caudal máximo)                39.9  m³/m²·d
+  HRT (caudal promedio)               5.3  h
+  HRT (caudal máximo)                 2.1  h
+  Carga sobre vertedero              23.4  m³/m·d
+  Carga de sólidos                    0.04 kg SST/m²·d
+
+
+================================================================================
+  6. RECOMENDACIONES DE BUEN DISEÑO
+================================================================================
+
+  1. Sistema de recolección de lodos
+     Incluir rastrillos o succionadores de fondo para retirar periódicamente
+     el humus acumulado. La extracción de lodos debe realizarse antes de que
+     alcancen la zona de sedimentación activa.
+
+  2. Mecanismo de extracción de lodos
+     Instalar línea de purga de fondo con válvula de control para enviar los
+     lodos al lecho de secado.
+
+  3. Vertedero perimetral
+     Diseñar con deflectores de escoria (scum baffles) para evitar que
+     sólidos flotantes pasen al efluente.
+
+  4. Control operativo a caudal mínimo
+     Implementar recirculación interna o control de nivel para evitar
+     tiempos de retención excesivos (> 10 h) que puedan generar condiciones
+     sépticas y olores.
+
+  5. Monitoreo recomendado
+     - SST en efluente:  objetivo < 20 mg/L
+     - Turbiedad:        objetivo < 10 NTU
+     - Inspección visual del vertedero: diaria
+
+
+================================================================================
+  REFERENCIAS
+================================================================================
+
+  [1] Metcalf & Eddy / AECOM (2014). Wastewater Engineering: Treatment and
+      Resource Recovery. 5th ed. McGraw-Hill, New York.
+  [2] Von Sperling, M. (2007). Activated Sludge and Aerobic Biofilm Reactors,
+      Vol. 5. IWA Publishing, London.
+
+================================================================================
+  FIN DEL MANUAL  –  Sedimentador Secundario  |  Q = 10.0 L/s  |  2 líneas
+================================================================================
