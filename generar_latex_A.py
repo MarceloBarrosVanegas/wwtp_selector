@@ -1133,6 +1133,32 @@ El criterio de llenado máximo establece que el canal debe operar como máximo a
 
 Respecto a la pendiente, el diseño adopta un valor del {fp['pendiente_underdrain_pct']:.1f} por ciento, que cumple con el mínimo requerido de 1.0 por ciento establecido por Metcalf \& Eddy (2014) para garantizar el auto-limpiezo del canal y prevenir la sedimentación de sólidos provenientes del filtro.
 
+\subsubsection{{Ventilación Natural -- Dimensionamiento}}
+
+La ventilación natural del filtro percolador es un componente crítico para mantener el proceso aerobio de la biopelícula. El aire circula por convección natural desde las aberturas inferiores (ubicadas en el drenaje) hacia la superficie del medio, suministrando el oxígeno necesario para la degradación aerobia de la materia orgánica. Según Metcalf \& Eddy (2014) y WEF MOP-8, el diseño debe garantizar un área de ventilación mínima equivalente al 1 por ciento del área superficial del filtro.
+
+El área de ventilación requerida se calcula como:
+
+\begin{{equation}}
+A_{{vent}} = A_{{sup}} \times \frac{{{cfg.fp_area_ventilacion_pct:.1f}}}{{100}} = {fp['A_sup_m2']:.2f} \times 0.01 = {fp['area_ventilacion_requerida_m2']:.2f} \text{{ m}}^2
+\end{{equation}}
+
+Donde $A_{{sup}}$ es el área superficial del filtro y {cfg.fp_area_ventilacion_pct:.1f} por ciento es el porcentaje mínimo requerido según criterios de diseño.
+
+Las aperturas de ventilación se dimensionan con una sección de {cfg.fp_apertura_ventilacion_ancho_m:.2f} m de ancho por {cfg.fp_apertura_ventilacion_alto_m:.2f} m de alto, resultando en un área por apertura de {cfg.fp_apertura_ventilacion_ancho_m * cfg.fp_apertura_ventilacion_alto_m:.2f} m². El número mínimo de aperturas necesarias se determina dividiendo el área de ventilación requerida entre el área de una apertura:
+
+\begin{{equation}}
+N_{{aperturas}} = \lceil\frac{{A_{{vent}}}}{{A_{{apertura}}}}\rceil = \lceil\frac{{{fp['area_ventilacion_requerida_m2']:.2f}}}{{{cfg.fp_apertura_ventilacion_ancho_m * cfg.fp_apertura_ventilacion_alto_m:.2f}}}\rceil = {fp['num_aperturas_ventilacion']:.0f}
+\end{{equation}}
+
+Las aperturas se distribuyen uniformemente alrededor del perímetro del filtro, resultando en un espaciado entre centros de:
+
+\begin{{equation}}
+espaciado = \frac{{\pi \times D_{{filtro}}}}{{N_{{aperturas}}}} = \frac{{\pi \times {fp['D_filtro_m']:.2f}}}{{{fp['num_aperturas_ventilacion']:.0f}}} = {fp['espaciado_aperturas_m']:.2f} \text{{ m}}
+\end{{equation}}
+
+El caudal de aire necesario para mantener las condiciones aerobias se estima mediante factores de relación con el caudal de agua. Según criterios de diseño, el caudal mínimo de aire debe ser {cfg.fp_Q_aire_min_factor:.1f} veces el caudal de agua, resultando en {fp['Q_aire_min_m3_h']:.1f} m³/h, mientras que el valor óptimo recomendado es {cfg.fp_Q_aire_factor:.1f} veces el caudal de agua, equivalente a {fp['Q_aire_opt_m3_h']:.1f} m³/h. Esta ventilación natural, impulsada por la diferencia de temperatura entre el aire ambiente y el interior del filtro, es suficiente para mantener la biopelícula aerobia sin requerir ventilación forzada.
+
 \subsubsection{{Resultados}}
 
 \begin{{table}}[H]
