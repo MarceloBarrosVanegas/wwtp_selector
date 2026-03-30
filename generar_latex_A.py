@@ -936,17 +936,6 @@ Con una profundidad de medio de {fp['D_medio_m']:.2f} m, el área superficial re
 
 El sistema incorpora recirculación con relación $R = {fp['R_recirculacion']:.1f}$, lo cual mejora la distribución hidráulica y mantiene la biopelícula húmeda. La tasa hidráulica aplicada resulta {fp['Q_A_real_m3_m2_h']:.3f} m³/m²·h.
 
-{rf"""
-\begin{{figure}}[H]
-\centering
-\includegraphics[width=0.88\textwidth]{{{esquema_fp_filename}}}
-\caption{{Esquema del filtro percolador: distribuidor rotatorio superior, medio plástico, sistema underdrain y ventilación natural. DBO afluente: {fp['DBO_entrada_mg_L']:.1f} mg/L, DBO estimada de salida: {fp['DBO_salida_Germain_mg_L']:.1f} mg/L, recirculación adoptada: R = {fp['R_recirculacion']:.1f}.}}
-\label{{fig:esquema_fp}}
-\end{{figure}}
-
-El esquema ilustra el ingreso del afluente y del caudal recirculado hacia el distribuidor rotatorio, la percolación descendente a través del medio plástico, la ventilación natural ascendente desde el underdrain y la recolección lateral del efluente hacia el sedimentador secundario.
-""" if esquema_fp_filename else ""}
-
 \subsubsection{{Carga Orgánica -- Verificación}}
 
 Se verifica el comportamiento hidráulico para el caudal máximo horario, aplicando un factor de pico típico de {fp['factor_pico']:.1f} sobre el caudal medio:
@@ -1046,15 +1035,7 @@ Según Metcalf \& Eddy (2014, p. 843), valores de $q_{{A,min}}$ inferiores a {cf
 
 El distribuidor rotatorio es el componente encargado de aplicar el agua residual uniformemente sobre la superficie del medio filtrante. Consiste en una columna central hueca (pivot) por donde ingresa el caudal, con brazos radiales que giran por acción de la fuerza de reacción del agua al salir por las boquillas.
 
-\textbf{{Número de brazos:}} Según Metcalf \& Eddy (2014) y criterios constructivos:
-
-\begin{{itemize}}[noitemsep,leftmargin=2em]
-    \item Diámetro $<$ 6 m: 2 brazos
-    \item Diámetro 6--15 m: 2 o 4 brazos
-    \item Diámetro $>$ 15 m: 4 brazos
-\end{{itemize}}
-
-Para este diseño con diámetro de {fp['D_filtro_m']:.2f} m, se adoptan \textbf{{{fp['num_brazos']:.0f} brazos}}.
+\textbf{{Número de brazos:}} Según Metcalf \& Eddy (2014) y criterios constructivos, el número de brazos del distribuidor rotatorio se selecciona en función del diámetro del filtro de la siguiente manera: para diámetros menores a 6 m se utilizan 2 brazos; para diámetros entre 6 m y 15 m se pueden utilizar 2 o 4 brazos; y para diámetros mayores a 15 m se requieren 4 brazos. Para este diseño con diámetro de {fp['D_filtro_m']:.2f} m, se adoptan \textbf{{{fp['num_brazos']:.0f} brazos}}.
 
 \textbf{{Longitud de cada brazo:}}
 
@@ -1106,15 +1087,6 @@ Respecto a la velocidad de rotación, la literatura técnica establece que la ve
 
 Finalmente, se verifica que la velocidad de salida en las boquillas se encuentre dentro del rango recomendado de 1.5 a 3.0 m/s, necesario para generar suficiente par de reacción. La velocidad calculada de {fp['v_boquilla_m_s']:.2f} m/s {'cumple con el rango establecido, garantizando el funcionamiento hidráulico adecuado del sistema de distribución' if 1.5 <= fp['v_boquilla_m_s'] <= 3.0 else 'se encuentra fuera del rango recomendado, por lo que se sugiere revisar el diámetro de las boquillas'}.
 
-La Figura \ref{{fig:filtro_percolador}} presenta el esquema del filtro percolador con el sistema de distribución rotatorio, mostrando la disposición de los brazos, boquillas y el medio filtrante.
-
-\begin{{figure}}[H]
-\centering
-\includegraphics[width=\textwidth]{{Esquema_Filtro_Percolador.png}}
-\caption{{Esquema del filtro percolador: sistema de distribución rotatorio con {fp['num_brazos']:.0f} brazos, medio filtrante de {fp['D_medio_m']:.2f} m de profundidad, y underdrain para recolección de efluente y aireación.}}
-\label{{fig:filtro_percolador}}
-\end{{figure}}
-
 \subsubsection{{Resultados}}
 
 \begin{{table}}[H]
@@ -1133,6 +1105,15 @@ Recirculación & R = {fp['R_recirculacion']:.1f} \\
 \bottomrule
 \end{{tabular}}
 \end{{table}}
+
+La Figura \ref{{fig:filtro_percolador}} presenta el esquema del filtro percolador con el sistema de distribución rotatorio, mostrando la disposición de los brazos, boquillas, medio filtrante y sistema de underdrain.
+
+\begin{{figure}}[H]
+\centering
+\includegraphics[width=\textwidth]{{Esquema_Filtro_Percolador.png}}
+\caption{{Esquema del filtro percolador: sistema de distribución rotatorio con {fp['num_brazos']:.0f} brazos, medio filtrante de {fp['D_medio_m']:.2f} m de profundidad, y underdrain para recolección de efluente y aireación.}}
+\label{{fig:filtro_percolador}}
+\end{{figure}}
 
 \subsection{{Sedimentador Secundario}}
 
