@@ -228,7 +228,11 @@ def generar_contenido_alternativa_A(cfg, resultados, layout_filename="Layout_A_2
         "se recomienda monitorear periodicamente.")
     
     fp = resultados.get('filtro_percolador', dimensionar_filtro_percolador(cfg))
-    s = resultados.get('sedimentador', dimensionar_sedimentador_sec(cfg))
+    # Usar sedimentador_sec (encadenado con FP) si existe, fallback a recálculo solo en emergencia
+    s = resultados.get('sedimentador_sec') or resultados.get('sedimentador')
+    if not s:
+        # Fallback de emergencia - recalcula sin encadenamiento real (advertencia)
+        s = dimensionar_sedimentador_sec(cfg)
     l = resultados.get('lecho_secado', dimensionar_lecho_secado(cfg))
     cl = resultados.get('cloro', dimensionar_desinfeccion_cloro(cfg))
     
