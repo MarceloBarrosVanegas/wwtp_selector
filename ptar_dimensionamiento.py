@@ -227,6 +227,29 @@ class ConfigDiseno:
     fp_D_medio_m: float = 3.50              # Profundidad medio filtrante (m)
     fp_R_recirculacion: float = 1.0         # Tasa recirculación
     fp_H_total_m: float = 4.30              # Altura total (medio + 0.80m)
+    
+    # PASO 4 - Geometría del filtro (desglose de alturas)
+    fp_H_distribucion_m: float = 0.20       # Espacio distribuidor-medio (0.15-0.23 m) [EPA, 2000]
+    fp_H_underdrain_m: float = 0.50         # Altura underdrain (0.45-0.60 m) [Metcalf & Eddy, 2014]
+    fp_H_bordo_libre_fp_m: float = 0.30     # Bordo libre filtro (0.30-0.50 m)
+    
+    # PASO 6 - Distribuidor rotatorio
+    fp_num_brazos: int = 2                  # Número de brazos (2 para D < 6m, 4 para D > 15m)
+    fp_velocidad_boquilla_m_s: float = 2.0  # Velocidad salida boquilla (1.5-3.0 m/s)
+    fp_num_boquillas_por_brazo: int = 8     # Número de boquillas por brazo (5-15)
+    
+    # PASO 7 - Underdrain
+    fp_pendiente_underdrain_pct: float = 1.0  # Pendiente mínima piso underdrain (>= 1%)
+    fp_ancho_canal_central_m: float = 0.30    # Ancho canal central underdrain (0.30-0.60 m)
+    
+    # PASO 8 - Ventilación
+    fp_area_ventilacion_pct: float = 1.0    # Área ventilación / Área superficial (>= 1%)
+    fp_Q_aire_factor: float = 0.3           # Caudal aire / caudal agua (0.1-0.5 m³/m³)
+    
+    # PASO 10 - Especificaciones medio plástico
+    fp_sup_especifica_m2_m3: float = 100.0  # Superficie específica (90-150 m²/m³)
+    fp_vacios_pct: float = 94.0             # Índice de vacíos (>= 94%)
+    fp_densidad_media_kg_m3: float = 60.0   # Densidad aparente (30-100 kg/m³)
     fp_Cv_kgDBO_m3_d: float = 0.5           # Carga orgánica volumétrica (kg DBO/m³·d)
     fp_Q_A_limite_m3_m2_h: float = 4.0      # Límite tasa hidráulica (m³/m²·h)
     fp_Cv_minima_kgDBO_m3_d: float = 0.30   # Carga orgánica mínima recomendada (kg DBO/m³·d)
@@ -1734,6 +1757,116 @@ def dimensionar_filtro_percolador(Q: ConfigDiseno = CFG,
     Se_calculado_mg_L = DBO_entrada_mg_L * relacion_Se_S0
     DBO_removida_kg_d = Q_m3_d * DBO_kg_m3 * (1 - relacion_Se_S0)
     
+    # =================================================================
+    # PASO 4 - GEOMETRÍA COMPLETA DEL FILTRO (Desglose de alturas)
+    # =================================================================
+    H_distribucion = Q.fp_H_distribucion_m    # Espacio distribuidor-medio
+    H_underdrain = Q.fp_H_underdrain_m        # Sistema drenaje inferior
+    H_bordo_fp = Q.fp_H_bordo_libre_fp_m      # Bordo libre
+    
+    # Altura total verificada
+    H_total_calculada = H_distribucion + D_m + H_underdrain + H_bordo_fp
+    
+    # =================================================================
+    # PASO 5 - SISTEMA DE RECIRCULACIÓN (ya calculado arriba)
+    # Verificación de qA a caudal mínimo (factor 0.4)
+    # =================================================================
+    Q_min_m3_h = Q_m3_h * 0.4  # Caudal mínimo nocturno
+    qA_min_m3_m2_h = Q_min_m3_h * (1 + R) / A_sup_m2
+    
+    if qA_min_m3_m2_h < 0.5:
+        recirculacion_adicional = True
+        qA_min_texto = f"qA_min = {qA_min_m3_m2_h:.2f} m³/m²·h < 0.5 (riesgo de sequedad). Se recomienda aumentar R o control de nivel."
+    else:
+        recirculacion_adicional = False
+        qA_min_texto = f"qA_min = {qA_min_m3_m2_h:.2f} m³/m²·h >= 0.5 (biopelícula húmeda garantizada)."
+    
+    # =================================================================
+    # PASO 6 - DISTRIBUIDOR ROTATORIO
+    # =================================================================
+    # Número de brazos según diámetro (o usar configuración)
+    if Q.fp_num_brazos is not None and Q.fp_num_brazos > 0:
+        num_brazos = Q.fp_num_brazos
+    elif D_filtro_m < 6.0:
+        num_brazos = 2
+    elif D_filtro_m <= 15.0:
+        num_brazos = 2  # o 4 según preferencia
+    else:
+        num_brazos = 4
+    
+    # Longitud de cada brazo
+    L_brazo_m = D_filtro_m / 2
+    
+    # Caudal por brazo
+    Q_por_brazo_m3_h = Q_ap_m3_h / num_brazos
+    
+    # Verificación rotación hidráulica (necesita > 10 m³/h por brazo)
+    rotacion_hidraulica = Q_por_brazo_m3_h >= 10.0
+    
+    # Boquillas
+    num_boquillas_por_brazo = Q.fp_num_boquillas_por_brazo
+    Q_por_boquilla_L_s = (Q_por_brazo_m3_h / num_boquillas_por_brazo) * 1000 / 3600
+    v_boquilla_m_s = Q.fp_velocidad_boquilla_m_s
+    
+    # Diámetro de orificio calculado
+    A_orificio_m2 = (Q_por_brazo_m3_h / 3600) / (num_boquillas_por_brazo * v_boquilla_m_s)
+    diam_orificio_mm = math.sqrt(4 * A_orificio_m2 / math.pi) * 1000
+    
+    # =================================================================
+    # PASO 7 - UNDERDRAIN (Sistema drenaje inferior)
+    # =================================================================
+    # Caudal de diseño (regla del 50%: diseñar para el doble)
+    Q_underdrain_diseno_m3_h = Q_ap_m3_h / 0.50
+    
+    # Canal central - verificación con Manning
+    ancho_canal = Q.fp_ancho_canal_central_m
+    altura_canal = 0.30  # m (tipico)
+    pendiente_canal = Q.fp_pendiente_underdrain_pct / 100  # 1% mínima
+    n_manning = 0.013  # Concreto
+    
+    A_canal = ancho_canal * altura_canal
+    P_canal = ancho_canal + 2 * altura_canal
+    R_hidraulico = A_canal / P_canal
+    
+    Q_canal_m3_s = (1/n_manning) * A_canal * (R_hidraulico**(2/3)) * (pendiente_canal**0.5)
+    Q_canal_m3_h = Q_canal_m3_s * 3600
+    
+    # Verificación: canal debe fluir < 50% de su capacidad
+    llenado_canal = Q_ap_m3_h / Q_canal_m3_h
+    canal_ok = llenado_canal <= 0.50
+    
+    # =================================================================
+    # PASO 8 - VENTILACIÓN NATURAL
+    # =================================================================
+    # Área de ventilación requerida (>= 1% del área superficial)
+    area_ventilacion_requerida_m2 = A_sup_m2 * (Q.fp_area_ventilacion_pct / 100)
+    
+    # Caudal de aire necesario
+    Q_aire_min_m3_h = Q_m3_h * 0.1  # Mínimo 0.1 m³ aire/m³ agua
+    Q_aire_opt_m3_h = Q_m3_h * Q.fp_Q_aire_factor  # Óptimo 0.3 m³/m³
+    
+    # Número de aperturas (0.20 x 0.30 m = 0.06 m² cada una)
+    area_apertura_m2 = 0.20 * 0.30
+    num_aperturas_min = math.ceil(area_ventilacion_requerida_m2 / area_apertura_m2)
+    
+    # Perímetro para distribución
+    perimetro_m = math.pi * D_filtro_m
+    espaciado_aperturas_m = perimetro_m / num_aperturas_min
+    
+    # =================================================================
+    # PASO 10 - ESPECIFICACIONES DEL MEDIO PLÁSTICO
+    # =================================================================
+    # Carga sobre el medio
+    carga_peso_medio_kg_m2 = (Q.fp_densidad_media_kg_m3 + 40 + 15) * D_m  # + agua + biopelícula
+    
+    # Verificación resistencia a compresión
+    if D_m <= 3.5:
+        resistencia_minima_requerida = 600  # kg/m²
+    else:
+        resistencia_minima_requerida = 1000  # kg/m²
+    
+    resistencia_ok = carga_peso_medio_kg_m2 <= resistencia_minima_requerida
+    
     # Verificaciones finales (después de todos los ajustes)
     assert Cv_minima <= Cv_kgDBO_m3_d <= 3.0, (
         f"Carga orgánica Cv = {Cv_kgDBO_m3_d:.3f} kg DBO/m^3*d fuera de rango {Cv_minima}-3.0 "
@@ -1783,7 +1916,45 @@ def dimensionar_filtro_percolador(Q: ConfigDiseno = CFG,
         "A_sup_m2": round(A_sup_m2, 2),
         "V_medio_m3": round(V_medio_m3, 1),
         "D_filtro_m": round(D_filtro_m, 2),
-        "H_total_m": round(H_total, 2),
+        "H_total_m": round(H_total_calculada, 2),
+        # PASO 4 - Geometría
+        "H_distribucion_m": H_distribucion,
+        "H_medio_m": D_m,
+        "H_underdrain_m": H_underdrain,
+        "H_bordo_libre_m": H_bordo_fp,
+        # PASO 5 - Recirculación
+        "qA_min_m3_m2_h": round(qA_min_m3_m2_h, 2),
+        "recirculacion_adicional_recomendada": recirculacion_adicional,
+        "qA_min_texto": qA_min_texto,
+        # PASO 6 - Distribuidor
+        "num_brazos": num_brazos,
+        "L_brazo_m": round(L_brazo_m, 2),
+        "Q_por_brazo_m3_h": round(Q_por_brazo_m3_h, 1),
+        "rotacion_hidraulica": rotacion_hidraulica,
+        "num_boquillas_por_brazo": num_boquillas_por_brazo,
+        "Q_por_boquilla_L_s": round(Q_por_boquilla_L_s, 2),
+        "v_boquilla_m_s": v_boquilla_m_s,
+        "diam_orificio_mm": round(diam_orificio_mm, 1),
+        # PASO 7 - Underdrain
+        "Q_underdrain_diseno_m3_h": round(Q_underdrain_diseno_m3_h, 1),
+        "ancho_canal_central_m": ancho_canal,
+        "Q_canal_capacidad_m3_h": round(Q_canal_m3_h, 1),
+        "llenado_canal_pct": round(llenado_canal * 100, 1),
+        "canal_underdrain_ok": canal_ok,
+        "pendiente_underdrain_pct": Q.fp_pendiente_underdrain_pct,
+        # PASO 8 - Ventilación
+        "area_ventilacion_requerida_m2": round(area_ventilacion_requerida_m2, 2),
+        "num_aperturas_ventilacion": num_aperturas_min,
+        "espaciado_aperturas_m": round(espaciado_aperturas_m, 2),
+        "Q_aire_min_m3_h": round(Q_aire_min_m3_h, 1),
+        "Q_aire_opt_m3_h": round(Q_aire_opt_m3_h, 1),
+        "Q_aire_factor": Q.fp_Q_aire_factor,
+        # PASO 10 - Especificaciones medio
+        "sup_especifica_medio_m2_m3": Q.fp_sup_especifica_m2_m3,
+        "vacios_medio_pct": Q.fp_vacios_pct,
+        "densidad_media_kg_m3": Q.fp_densidad_media_kg_m3,
+        "carga_sobre_medio_kg_m2": round(carga_peso_medio_kg_m2, 1),
+        "resistencia_compresion_ok": resistencia_ok,
         "DBO_removida_kg_d": round(DBO_removida_kg_d, 2),
         # Para layout
         "diametro_layout_m": round(D_filtro_m + 0.30, 1),

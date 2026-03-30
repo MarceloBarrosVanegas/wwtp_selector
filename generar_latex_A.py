@@ -888,6 +888,27 @@ El esquema ilustra el flujo ascendente del afluente a través del lecho de lodo 
 
 El filtro percolador constituye la unidad de tratamiento secundario aerobio, diseñada para remover la carga orgánica restante después del tratamiento anaerobio en el UASB. El diseño se fundamenta en el modelo cinético de Germain (1966), que describe la remoción de DBO mediante la expresión exponencial, y en criterios de carga orgánica volumétrica según WEF (2010) y Metcalf \& Eddy (2014).
 
+\textbf{{Parámetros de diseño}}
+
+\begin{{table}}[H]
+\centering
+\caption{{Parámetros de diseño para filtro percolador}}
+\begin{{tabular}}{{lccc}}
+\toprule
+\textbf{{Parámetro}} & \textbf{{Rango}} & \textbf{{Valor adoptado}} & \textbf{{Fuente}} \\
+\midrule
+Carga orgánica (kg DBO/m³·d) & 0.3--3.0 & {fp['Cv_kgDBO_m3_d']:.2f} & WEF MOP-8 \\
+Profundidad medio (m) & 3.0--8.0 & {fp['D_medio_m']:.2f} & Metcalf \& Eddy \\
+Espacio distribuidor--medio (m) & 0.15--0.23 & {fp['H_distribucion_m']:.2f} & EPA (2000) \\
+Altura underdrain (m) & 0.45--0.60 & {fp['H_underdrain_m']:.2f} & Metcalf \& Eddy \\
+Bordo libre (m) & 0.30--0.50 & {fp['H_bordo_libre_m']:.2f} & Norma constructiva \\
+Recirculación R (-) & 0.5--2.0 & {fp['R_recirculacion']:.1f} & Metcalf \& Eddy \\
+\bottomrule
+\end{{tabular}}
+\end{{table}}
+
+\subsubsection{{Carga Orgánica -- Dimensionamiento}}
+
 Según las recomendaciones para medio plástico aleatorio, las cargas óptimas oscilan entre 0,3 y 3,0 kg DBO/m³·d. Se adopta un valor conservador de {fp['Cv_kgDBO_m3_d']:.2f} kg DBO/m³·d, apropiado para la condición de pretratamiento previo con UASB.
 
 El volumen de medio filtrante requerido se calcula mediante:
@@ -912,6 +933,22 @@ V = \frac{{{fp['Q_m3_d']:.1f} \times {fp['DBO_entrada_mg_L']:.0f} \times 10^{{-3
 Con una profundidad de medio de {fp['D_medio_m']:.2f} m, el área superficial resulta {fp['A_sup_m2']:.2f} m², correspondiendo a un diámetro de {fp['D_filtro_m']:.2f} m para configuración circular. La altura total incluye zonas de distribución (0,30 m), recolección (0,50 m) y bordo libre (0,30 m), resultando en {fp['H_total_m']:.2f} m.
 
 El sistema incorpora recirculación con relación $R = {fp['R_recirculacion']:.1f}$, lo cual mejora la distribución hidráulica y mantiene la biopelícula húmeda. La tasa hidráulica aplicada resulta {fp['Q_A_real_m3_m2_h']:.3f} m³/m²·h.
+
+\subsubsection{{Carga Orgánica -- Verificación}}
+
+Se verifica el comportamiento hidráulico para el caudal máximo horario, aplicando un factor de pico típico de {fp['factor_pico']:.1f} sobre el caudal medio:
+
+\begin{{equation}}
+Q_{{max}} = {fp['factor_pico']:.1f} \times Q_{{medio}} = {fp['factor_pico']:.1f} \times {fp['Q_m3_d']:.1f} = {fp['Q_max_m3_d']:.1f} \text{{ m}}^3\text{{/d}}
+\end{{equation}}
+
+A caudal máximo, la tasa hidráulica resulta:
+
+\begin{{equation}}
+q_{{A,max}} = \frac{{Q_{{max}} \cdot (1 + R)}}{{A_s \cdot 24}} = \frac{{{fp['Q_max_m3_d']:.1f} \times {1+fp['R_recirculacion']:.1f}}}{{{fp['A_sup_m2']:.2f} \times 24}} = {fp['Q_A_max_m3_m2_h']:.2f} \text{{ m}}^3\text{{/m}}^2\text{{·h}}
+\end{{equation}}
+
+El valor obtenido se compara con el límite máximo recomendado de {fp['Q_A_limite_m3_m2_h']:.1f} m³/m²·h. {fp['verif_qmax_texto']}.
 
 \textbf{{Verificación de eficiencia mediante modelo de Germain:}}
 
@@ -957,22 +994,6 @@ Sustituyendo valores:
 \end{{equation}}
 
 Por tanto, la DBO efluente estimada es $S_e = {fp['DBO_entrada_mg_L']:.0f} \times {fp['relacion_Se_S0_Germain']:.3f} = {fp['DBO_salida_Germain_mg_L']:.0f}$ mg/L.
-
-\subsubsection{{Verificación para Caudal Máximo Horario}}
-
-Se verifica el comportamiento hidráulico para el caudal máximo horario, aplicando un factor de pico típico de {fp['factor_pico']:.1f} sobre el caudal medio:
-
-\begin{{equation}}
-Q_{{max}} = {fp['factor_pico']:.1f} \times Q_{{medio}} = {fp['factor_pico']:.1f} \times {fp['Q_m3_d']:.1f} = {fp['Q_max_m3_d']:.1f} \text{{ m}}^3\text{{/d}}
-\end{{equation}}
-
-A caudal máximo, la tasa hidráulica resulta:
-
-\begin{{equation}}
-q_{{A,max}} = \frac{{Q_{{max}} \cdot (1 + R)}}{{A_s \cdot 24}} = \frac{{{fp['Q_max_m3_d']:.1f} \times {1+fp['R_recirculacion']:.1f}}}{{{fp['A_sup_m2']:.2f} \times 24}} = {fp['Q_A_max_m3_m2_h']:.2f} \text{{ m}}^3\text{{/m}}^2\text{{·h}}
-\end{{equation}}
-
-El valor obtenido se compara con el límite máximo recomendado de {fp['Q_A_limite_m3_m2_h']:.1f} m³/m²·h. {fp['verif_qmax_texto']}.
 
 \subsubsection{{Resultados}}
 
