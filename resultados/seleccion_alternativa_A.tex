@@ -984,33 +984,30 @@ d_{orificio} = \sqrt{\frac{4 \times q_{boquilla}}{\pi \times v_{boquilla}}} = 22
 
 \subsubsection{Distribuidor Rotatorio -- Verificación}
 
-\textbf{Rotación hidráulica automática:} Para que el distribuidor gire por fuerza hidráulica sin necesidad de motor, el caudal por brazo debe ser suficiente para generar el par de reacción necesario.
+La verificación del distribuidor rotatorio se centra en garantizar que el sistema pueda operar sin intervención mecánica externa durante las condiciones normales de funcionamiento. Para que el distribuidor gire por fuerza hidráulica sin necesidad de motor eléctrico auxiliar, el caudal por brazo debe ser suficiente para generar el par de reacción necesario mediante la fuerza de salida del agua por las boquillas.
 
-Regla práctica según Metcalf \& Eddy (2014):
-\begin{itemize}[noitemsep,leftmargin=2em]
-    \item Si $Q_{brazo} \geq 10$ m³/h: rotación hidráulica automática (suficiente)
-    \item Si $Q_{brazo} < 10$ m³/h: requiere motor eléctrico auxiliar
-\end{itemize}
+Según Metcalf \& Eddy (2014), se establece como regla práctica que si el caudal por brazo es mayor o igual a 10 m³/h, la rotación hidráulica automática está garantizada. Por el contrario, si el caudal por brazo es inferior a este umbral, se requiere instalar un motor eléctrico auxiliar para asegurar la rotación continua del distribuidor.
 
-En este diseño:
+En este diseño, el caudal por brazo calculado es:
 
 \begin{equation}
 Q_{brazo} = 22.5 \text{ m}^3\text{/h}
 \end{equation}
 
-Comparación con el umbral mínimo: $Q_{brazo} = 22.5$ m³/h $\geq$ 10 m³/h (Rotación hidráulica garantizada)
+Dado que el caudal por brazo supera el umbral mínimo de 10 m³/h, la rotación hidráulica está garantizada sin necesidad de motor auxiliar. La fuerza de reacción generada por el agua al salir por las boquillas proporciona suficiente par de giro para mantener la rotación continua del distribuidor durante la operación normal.
 
-La rotación hidráulica está garantizada sin necesidad de motor auxiliar.
+Respecto a la velocidad de rotación, la literatura técnica establece que la velocidad típica debe encontrarse entre 0.5 y 2.0 rpm (revoluciones por minuto), lo que corresponde a una velocidad periférica en el extremo del brazo de 0.5 a 4.0 m/min. Esta velocidad garantiza una distribución uniforme del agua sobre toda la superficie del medio sin generar salpicaduras excesivas o zonas sin riego.
 
-\textbf{Velocidad de rotación:} La velocidad típica de rotación debe estar entre 0.5--2.0 rpm (revoluciones por minuto), con velocidad periférica en el extremo del brazo de 0.5--4.0 m/min.
+Finalmente, se verifica que la velocidad de salida en las boquillas se encuentre dentro del rango recomendado de 1.5 a 3.0 m/s, necesario para generar suficiente par de reacción. La velocidad calculada de 2.00 m/s cumple con el rango establecido, garantizando el funcionamiento hidráulico adecuado del sistema de distribución.
 
-\textbf{Verificación de velocidad en boquillas:} La velocidad de salida debe estar en el rango de 1.5--3.0 m/s para generar suficiente par de reacción:
+La Figura \ref{fig:filtro_percolador} presenta el esquema del filtro percolador con el sistema de distribución rotatorio, mostrando la disposición de los brazos, boquillas y el medio filtrante.
 
-\begin{itemize}[noitemsep,leftmargin=2em]
-    \item Velocidad calculada: $v = 2.00$ m/s
-    \item Rango aceptable: 1.5--3.0 m/s
-    \item Estado: Cumple
-\end{itemize}
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{Esquema_Filtro_Percolador.png}
+\caption{Esquema del filtro percolador: sistema de distribución rotatorio con 2 brazos, medio filtrante de 3.50 m de profundidad, y underdrain para recolección de efluente y aireación.}
+\label{fig:filtro_percolador}
+\end{figure}
 
 \subsubsection{Resultados}
 
