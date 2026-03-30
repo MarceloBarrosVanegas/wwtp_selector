@@ -2730,8 +2730,23 @@ def calcular_tren_A(Q: ConfigDiseno = None) -> Dict[str, Any]:
     # Dimensionar sedimentador con parámetros reales del FP
     DBO_fp_salida = fp.get("DBO_salida_Germain_mg_L", fp.get("DBO_salida_mg_L", 55.0))
     sed_sec    = dimensionar_sedimentador_sec(Q, DBO_entrada_mg_L=DBO_fp_salida, DBO_removida_fp_kg_d=fp.get("DBO_removida_kg_d", 0.0))
-    cloro      = dimensionar_desinfeccion_cloro(Q)
-    lecho      = dimensionar_lecho_secado(Q)
+    
+    # Calcular CF de entrada (post-sedimentador) basado en eficiencias configuradas (encadenado)
+    cf_afluente = 1e7  # NMP/100mL (típico aguas residuales sin tratar)
+    cf_tras_uasb = cf_afluente * (1 - Q.balance_eta_CF_uasb)
+    cf_tras_fp = cf_tras_uasb * (1 - Q.balance_eta_CF_fp)
+    cf_tras_sed = cf_tras_fp * (1 - Q.balance_eta_CF_sed)
+    cloro      = dimensionar_desinfeccion_cloro(Q, CF_entrada_NMP=cf_tras_sed)
+    
+    # Calcular producción de lodos REAL para toda la planta
+    # UASB: lodos anaerobios (factor de producción desde config)
+    DBO_removida_uasb_kg_d_por_linea = Q.Q_linea_m3_d * (Q.DBO5_mg_L / 1000) * uasb['eta_DBO']
+    lodos_uasb_kg_d_por_linea = Q.lecho_factor_produccion_lodos * DBO_removida_uasb_kg_d_por_linea
+    # Filtro Percolador: humus (ya calculado en el dimensionamiento del FP - por línea)
+    lodos_fp_kg_d_por_linea = fp.get('DBO_removida_kg_d', 0.0)
+    # Producción total de lodos (todas las líneas)
+    lodos_total_kg_d_total = (lodos_uasb_kg_d_por_linea + lodos_fp_kg_d_por_linea) * Q.num_lineas
+    lecho      = dimensionar_lecho_secado(Q, lodos_kg_SST_d=lodos_total_kg_d_total)
 
     # Balance de calidad (progresivo) - usando resultados reales del dimensionamiento
     DBO_in     = Q.DBO5_mg_L
