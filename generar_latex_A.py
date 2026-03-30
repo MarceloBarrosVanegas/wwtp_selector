@@ -1240,12 +1240,12 @@ CT = {cl['cloro_residual_mg_L']:.1f} \times {cl['TRH_min']:.0f} = {cl['CT_mg_min
 La reducción de coliformes se estima mediante:
 
 \begin{{equation}}
-\text{{Log reducción}} \approx 0.22 \times CT
+\text{{Log reducción}} \approx {cfg.desinfeccion_coef_log_red:.2f} \times CT
 \end{{equation}}
 \captionequation{{Log reduccion de coliformes}}
 
 \begin{{equation}}
-\text{{Log reducción}} \approx 0.22 \times {cl['CT_mg_min_L']:.0f} = {cl['log_reduccion']:.1f} \text{{ log}}
+\text{{Log reducción}} \approx {cfg.desinfeccion_coef_log_red:.2f} \times {cl['CT_mg_min_L']:.0f} = {cl['log_reduccion']:.1f} \text{{ log}}
 \end{{equation}}
 
 Los coliformes finales se calculan como:
