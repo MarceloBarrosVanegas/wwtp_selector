@@ -756,7 +756,7 @@ TRH sedimentador & {u['TRH_sed_medio_h']:.2f} h & $\geq$ {cfg.uasb_TRH_sed_medio
 \end{{tabular}}
 \end{{table}}
 
-La verificación demuestra que el compartimiento de sedimentación diseñado cumple satisfactoriamente con todos los criterios técnicos establecidos en la literatura especializada para reactores UASB.
+{'La verificación demuestra que el compartimiento de sedimentación diseñado cumple satisfactoriamente con todos los criterios técnicos establecidos en la literatura especializada para reactores UASB.' if u.get('SOR_max_cumple', False) and u.get('SOR_medio_cumple', False) and u.get('TRH_sed_cumple', False) else ('La verificación muestra que el SOR medio está por debajo del rango óptimo pero dentro de valores aceptables conservadores; el diseño cumple con SOR máximo y TRH.' if u.get('SOR_max_cumple', False) and not u.get('SOR_medio_cumple', False) and u.get('TRH_sed_cumple', False) else 'La verificación indica que el compartimiento de sedimentación requiere revisión: ' + ('SOR máximo excede el límite. ' if not u.get('SOR_max_cumple', False) else '') + ('SOR medio fuera de rango. ' if not u.get('SOR_medio_cumple', False) else '') + ('TRH sedimentador insuficiente. ' if not u.get('TRH_sed_cumple', False) else '') + 'Se recomienda ajustar las dimensiones del diseño.')}
 
 \subsubsection{{Aberturas GLS -- Dimensionamiento}}
 
