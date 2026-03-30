@@ -1050,11 +1050,13 @@ def generar_esquema_filtro_percolador(resultados_fp: dict, output_dir: str = "re
         ax.annotate('', xy=(x_air, y_under + h_under + 0.55), xytext=(x_air, y_under + 0.18),
                     arrowprops=dict(arrowstyle='->', color=c_air, lw=1.8, alpha=0.9))
 
-    ax.plot([x_der, x_der + 1.2], [y_under + h_under * 0.55, y_under + h_under * 0.55], color='#444444', linewidth=2.2)
-    ax.annotate('', xy=(x_der + 1.2, y_under + h_under * 0.55), xytext=(x_der + 0.15, y_under + h_under * 0.55),
+    y_salida = y_under + h_under * 0.55
+    ax.plot([x_der, x_der + 1.45], [y_salida, y_salida], color='#444444', linewidth=2.2)
+    ax.annotate('', xy=(x_der + 1.45, y_salida), xytext=(x_der + 0.15, y_salida),
                 arrowprops=dict(arrowstyle='->', color='#1565C0', lw=2.5))
-    ax.text(x_der + 1.22, y_under + h_under * 0.55 + 0.15, 'Efluente a sedimentador', ha='left', va='bottom',
-            fontsize=9, color='#1565C0', fontweight='bold')
+    ax.text(x_der + 1.78, y_salida + 0.18, 'Efluente a sedimentador', ha='left', va='bottom',
+            fontsize=8.5, color='#1565C0', fontweight='bold',
+            bbox=dict(facecolor='white', edgecolor='none', alpha=0.9, pad=0.15))
 
     dash = dict(linestyle='--', color='#999999', linewidth=0.8, alpha=0.7)
     ax.axhline(y=y_medio, xmin=0.18, xmax=0.82, **dash)
@@ -1097,20 +1099,22 @@ def generar_esquema_filtro_percolador(resultados_fp: dict, output_dir: str = "re
             ha='right', va='center', fontsize=8, fontweight='bold')
 
     offset_x = x_der + 0.55
-    ax.text(offset_x, y_dist + h_dist + h_bordo / 2, 'Bordo libre y cámara\ndel distribuidor', ha='left', va='center', fontsize=8)
+    offset_x_out = x_der + 0.62
+    ax.text(offset_x, y_dist + h_dist + h_bordo / 2 + 0.02, 'Bordo libre y cámara\ndel distribuidor', ha='left', va='center', fontsize=8)
     ax.text(offset_x, y_dist + h_dist * 0.45, f'Distribuidor rotatorio\n{num_brazos:.0f} brazos | {Q_brazo:.1f} m³/h por brazo',
             ha='left', va='center', fontsize=8, fontweight='bold')
     ax.text(offset_x, y_medio + h_medio * 0.55, f'Medio plástico\nqA = {qA:.2f} m³/m²·h\nS₀ = {S0:.1f} mg/L',
             ha='left', va='center', fontsize=8, fontweight='bold')
-    ax.text(offset_x, y_under + h_under * 0.55, f'Underdrain y ventilación\nAvent = {area_vent:.2f} m²\n{num_aperturas:.0f} aperturas',
-            ha='left', va='center', fontsize=8)
-    ax.text(offset_x, y_medio + 0.25, f'Efluente estimado\nSₑ = {Se:.1f} mg/L\nqA,min = {qA_min:.2f} m³/m²·h',
-            ha='left', va='bottom', fontsize=8, color='#1565C0')
+    ax.text(offset_x_out, y_medio + 0.62, f'Efluente estimado\nSₑ = {Se:.1f} mg/L\nqA,min = {qA_min:.2f} m³/m²·h',
+            ha='left', va='bottom', fontsize=7.8, color='#1565C0')
+    ax.text(offset_x + 0.08, y_under + h_under * 0.02, f'Underdrain y ventilación\nAvent = {area_vent:.2f} m²\n{num_aperturas:.0f} aperturas',
+            ha='left', va='bottom', fontsize=7.7,
+            bbox=dict(facecolor='white', edgecolor='none', alpha=0.9, pad=0.1))
 
     ax.text(x_izq - 0.75, y_under + 0.15, 'Entrada de aire\nnatural', ha='center', va='bottom',
             fontsize=8, color=c_air, fontweight='bold')
 
-    ax.set_xlim(x_izq - 3.0, x_der + 3.1)
+    ax.set_xlim(x_izq - 3.0, x_der + 3.8)
     ax.set_ylim(y_base - 1.1, y_top + 1.2)
     ax.set_aspect('equal')
     ax.axis('off')

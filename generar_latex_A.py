@@ -1042,6 +1042,82 @@ q_{{A,min}} = \frac{{Q_{{min}} \times (1 + R)}}{{A_s}} = \frac{{{fp['Q_m3_d']:.1
 
 Según Metcalf \& Eddy (2014, p. 843), valores de $q_{{A,min}}$ inferiores a {cfg.fp_qA_min_humectacion_m3_m2_h:.1f} m³/m²·h requieren considerar aumentar la recirculación o implementar sistemas de control de nivel para mantener la biopelícula activa.
 
+\subsubsection{{Distribuidor Rotatorio -- Dimensionamiento}}
+
+El distribuidor rotatorio es el componente encargado de aplicar el agua residual uniformemente sobre la superficie del medio filtrante. Consiste en una columna central hueca (pivot) por donde ingresa el caudal, con brazos radiales que giran por acción de la fuerza de reacción del agua al salir por las boquillas.
+
+\textbf{{Número de brazos:}} Según Metcalf \& Eddy (2014) y criterios constructivos:
+
+\begin{{itemize}}[noitemsep,leftmargin=2em]
+    \item Diámetro $<$ 6 m: 2 brazos
+    \item Diámetro 6--15 m: 2 o 4 brazos
+    \item Diámetro $>$ 15 m: 4 brazos
+\end{{itemize}}
+
+Para este diseño con diámetro de {fp['D_filtro_m']:.2f} m, se adoptan \textbf{{{fp['num_brazos']:.0f} brazos}}.
+
+\textbf{{Longitud de cada brazo:}}
+
+\begin{{equation}}
+L_{{brazo}} = \frac{{D_{{filtro}}}}{{2}} = \frac{{{fp['D_filtro_m']:.2f}}}{{2}} = {fp['L_brazo_m']:.2f} \text{{ m}}
+\end{{equation}}
+
+\textbf{{Caudal por brazo:}}
+
+\begin{{equation}}
+Q_{{brazo}} = \frac{{Q_{{total}}}}{{N_{{brazos}}}} = \frac{{{fp['Q_ap_m3_h']:.1f}}}{{{fp['num_brazos']:.0f}}} = {fp['Q_por_brazo_m3_h']:.1f} \text{{ m}}^3\text{{/h}}
+\end{{equation}}
+
+\textbf{{Sistema de boquillas:}} El número de boquillas por brazo se selecciona para garantizar distribución uniforme. Se adoptan {fp['num_boquillas_por_brazo']:.0f} boquillas por brazo.
+
+Caudal por boquilla:
+\begin{{equation}}
+q_{{boquilla}} = \frac{{Q_{{brazo}}}}{{N_{{boquillas}}}} = \frac{{{fp['Q_por_brazo_m3_h']:.1f}}}{{{fp['num_boquillas_por_brazo']:.0f}}} = {fp['Q_por_boquilla_L_s']:.2f} \text{{ L/s}} = {fp['Q_por_boquilla_L_s']*3.6:.2f} \text{{ L/h}}
+\end{{equation}}
+
+Velocidad de salida en boquillas (rango recomendado 1.5--3.0 m/s según Metcalf \& Eddy):
+
+\begin{{equation}}
+v_{{boquilla}} = \frac{{q_{{boquilla}}}}{{A_{{orificio}}}} = {fp['v_boquilla_m_s']:.2f} \text{{ m/s}}
+\end{{equation}}
+
+Diámetro de orificio calculado:
+\begin{{equation}}
+d_{{orificio}} = \sqrt{{\frac{{4 \times q_{{boquilla}}}}{{\pi \times v_{{boquilla}}}}}} = {fp['diam_orificio_mm']:.1f} \text{{ mm}}
+\end{{equation}}
+
+\textbf{{Altura sobre el medio:}} La altura libre entre el fondo del brazo y la superficie del medio debe ser de 0.15--0.23 m (6--9 pulgadas) según EPA (2000), para permitir que el agua se distribuya en forma de abanico antes de caer sobre el medio.
+
+\subsubsection{{Distribuidor Rotatorio -- Verificación}}
+
+\textbf{{Rotación hidráulica automática:}} Para que el distribuidor gire por fuerza hidráulica sin necesidad de motor, el caudal por brazo debe ser suficiente para generar el par de reacción necesario.
+
+Regla práctica según Metcalf \& Eddy (2014):
+\begin{{itemize}}[noitemsep,leftmargin=2em]
+    \item Si $Q_{{brazo}} \geq 10$ m³/h: rotación hidráulica automática (suficiente)
+    \item Si $Q_{{brazo}} < 10$ m³/h: requiere motor eléctrico auxiliar
+\end{{itemize}}
+
+En este diseño:
+
+\begin{{equation}}
+Q_{{brazo}} = {fp['Q_por_brazo_m3_h']:.1f} \text{{ m}}^3\text{{/h}}
+\end{{equation}}
+
+Comparación con el umbral mínimo: $Q_{{brazo}} = {fp['Q_por_brazo_m3_h']:.1f}$ m³/h {'$\\geq$ 10 m³/h (Rotación hidráulica garantizada)' if fp['rotacion_hidraulica'] else '$<$ 10 m³/h (Se requiere motor auxiliar)'}
+
+{'La rotación hidráulica está garantizada sin necesidad de motor auxiliar.' if fp['rotacion_hidraulica'] else 'Se recomienda instalar motor eléctrico auxiliar de 0.5--1.0 kW para garantizar la rotación durante periodos de bajo caudal.'}
+
+\textbf{{Velocidad de rotación:}} La velocidad típica de rotación debe estar entre 0.5--2.0 rpm (revoluciones por minuto), con velocidad periférica en el extremo del brazo de 0.5--4.0 m/min.
+
+\textbf{{Verificación de velocidad en boquillas:}} La velocidad de salida debe estar en el rango de 1.5--3.0 m/s para generar suficiente par de reacción:
+
+\begin{{itemize}}[noitemsep,leftmargin=2em]
+    \item Velocidad calculada: $v = {fp['v_boquilla_m_s']:.2f}$ m/s
+    \item Rango aceptable: 1.5--3.0 m/s
+    \item Estado: {'Cumple' if 1.5 <= fp['v_boquilla_m_s'] <= 3.0 else 'Revisar'}
+\end{{itemize}}
+
 \subsubsection{{Resultados}}
 
 \begin{{table}}[H]
