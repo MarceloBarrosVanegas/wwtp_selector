@@ -2919,8 +2919,8 @@ def calcular_balance_calidad_agua(Q: ConfigDiseno = None,
             }
         
         # Tras Sedimentador Secundario
-        if ("sedimentador_sec" in resultados or "sedimentador" in resultados) and "tras_fp" in calidad:
-            sed = resultados.get("sedimentador_sec") or resultados.get("sedimentador")
+        if "sedimentador_sec" in resultados and "tras_fp" in calidad:
+            sed = resultados["sedimentador_sec"]
             DBO_entrada_sed = calidad["tras_fp"]["DBO5_mg_L"]
             eta_DBO_sed = sed.get("eta_DBO_sed", 0.30)
             # SST removido por separación de humus desde configuración

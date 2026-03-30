@@ -187,8 +187,7 @@ def convertir_resultados_a_dimensiones(resultados: dict) -> dict:
         'desarenador': 'Desarenador',
         'uasb': 'UASB',
         'filtro_percolador': 'Filtro_Percolador',
-        'sedimentador': 'Sedimentador',  # Clave interna del layout
-        'sedimentador_sec': 'Sedimentador',  # Mapea resultado real a clave layout
+        'sedimentador_sec': 'Sedimentador',  # Clave única para sedimentador secundario
         'uv': 'UV',
         'cloro': 'Desinfeccion',
         'desinfeccion': 'Desinfeccion',
@@ -229,7 +228,7 @@ def convertir_resultados_a_dimensiones(resultados: dict) -> dict:
                 'diametro': diam,
                 'geom': 'circ'
             }
-        elif key_res in ['sedimentador', 'sedimentador_sec']:
+        elif key_res == 'sedimentador_sec':
             diam = res.get('D_m', res.get('diametro_m', 5.0))
             dim[key_layout] = {
                 'tipo': 'tratamiento_secundario',
