@@ -1053,7 +1053,7 @@ Q_{{brazo}} = \frac{{Q_{{total}}}}{{N_{{brazos}}}} = \frac{{{fp['Q_ap_m3_h']:.1f
 
 Caudal por boquilla:
 \begin{{equation}}
-q_{{boquilla}} = \frac{{Q_{{brazo}}}}{{N_{{boquillas}}}} = \frac{{{fp['Q_por_brazo_m3_h']:.1f}}}{{{fp['num_boquillas_por_brazo']:.0f}}} = {fp['Q_por_boquilla_L_s']:.2f} \text{{ L/s}} = {fp['Q_por_boquilla_L_s']*3.6:.2f} \text{{ L/h}}
+q_{{boquilla}} = \frac{{Q_{{brazo}}}}{{N_{{boquillas}}}} = \frac{{{fp['Q_por_brazo_m3_h']:.1f}}}{{{fp['num_boquillas_por_brazo']:.0f}}} = {fp['Q_por_boquilla_L_s']:.2f} \text{{ L/s}} = {fp['Q_por_boquilla_L_s']*3.6:.2f} \text{{ m}}^3\text{{/h}}
 \end{{equation}}
 
 Velocidad de salida en boquillas (rango recomendado 1.5--3.0 m/s según Metcalf \& Eddy):
@@ -1073,7 +1073,7 @@ d_{{orificio}} = \sqrt{{\frac{{4 \times q_{{boquilla}}}}{{\pi \times v_{{boquill
 
 La verificación del distribuidor rotatorio se centra en garantizar que el sistema pueda operar sin intervención mecánica externa durante las condiciones normales de funcionamiento. Para que el distribuidor gire por fuerza hidráulica sin necesidad de motor eléctrico auxiliar, el caudal por brazo debe ser suficiente para generar el par de reacción necesario mediante la fuerza de salida del agua por las boquillas.
 
-Según Metcalf \& Eddy (2014), se establece como regla práctica que si el caudal por brazo es mayor o igual a 10 m³/h, la rotación hidráulica automática está garantizada. Por el contrario, si el caudal por brazo es inferior a este umbral, se requiere instalar un motor eléctrico auxiliar para asegurar la rotación continua del distribuidor.
+Según Metcalf \& Eddy (2014), se establece como regla práctica que si el caudal por brazo es mayor o igual a {cfg.fp_Q_por_brazo_min_rotacion_m3_h:.1f} m³/h, la rotación hidráulica automática está garantizada. Por el contrario, si el caudal por brazo es inferior a este umbral, se requiere instalar un motor eléctrico auxiliar para asegurar la rotación continua del distribuidor.
 
 En este diseño, el caudal por brazo calculado es:
 
@@ -1081,11 +1081,57 @@ En este diseño, el caudal por brazo calculado es:
 Q_{{brazo}} = {fp['Q_por_brazo_m3_h']:.1f} \text{{ m}}^3\text{{/h}}
 \end{{equation}}
 
-{'Dado que el caudal por brazo supera el umbral mínimo de 10 m³/h, la rotación hidráulica está garantizada sin necesidad de motor auxiliar. La fuerza de reacción generada por el agua al salir por las boquillas proporciona suficiente par de giro para mantener la rotación continua del distribuidor durante la operación normal.' if fp['rotacion_hidraulica'] else 'Dado que el caudal por brazo es inferior al umbral mínimo de 10 m³/h, se recomienda instalar un motor eléctrico auxiliar de 0.5--1.0 kW para garantizar la rotación del distribuidor durante periodos de bajo caudal, evitando así la distribución no uniforme del agua sobre el medio filtrante.'}
+{'Dado que el caudal por brazo supera el umbral mínimo de ' + str(cfg.fp_Q_por_brazo_min_rotacion_m3_h) + ' m³/h, la rotación hidráulica está garantizada sin necesidad de motor auxiliar. La fuerza de reacción generada por el agua al salir por las boquillas proporciona suficiente par de giro para mantener la rotación continua del distribuidor durante la operación normal.' if fp['rotacion_hidraulica'] else 'Dado que el caudal por brazo es inferior al umbral mínimo de ' + str(cfg.fp_Q_por_brazo_min_rotacion_m3_h) + ' m³/h, se recomienda instalar un motor eléctrico auxiliar de 0.5--1.0 kW para garantizar la rotación del distribuidor durante periodos de bajo caudal, evitando así la distribución no uniforme del agua sobre el medio filtrante.'}
 
 Respecto a la velocidad de rotación, la literatura técnica establece que la velocidad típica debe encontrarse entre 0.5 y 2.0 rpm (revoluciones por minuto), lo que corresponde a una velocidad periférica en el extremo del brazo de 0.5 a 4.0 m/min. Esta velocidad garantiza una distribución uniforme del agua sobre toda la superficie del medio sin generar salpicaduras excesivas o zonas sin riego.
 
 Finalmente, se verifica que la velocidad de salida en las boquillas se encuentre dentro del rango recomendado de 1.5 a 3.0 m/s, necesario para generar suficiente par de reacción. La velocidad calculada de {fp['v_boquilla_m_s']:.2f} m/s {'cumple con el rango establecido, garantizando el funcionamiento hidráulico adecuado del sistema de distribución' if 1.5 <= fp['v_boquilla_m_s'] <= 3.0 else 'se encuentra fuera del rango recomendado, por lo que se sugiere revisar el diámetro de las boquillas'}.
+
+\subsubsection{{Drenaje Inferior -- Dimensionamiento}}
+
+El sistema de drenaje inferior tiene la función dual de recolectar el efluente tratado que percola a través del medio filtrante y de servir como conducto para el aire de ventilación natural. El diseño se basa en la configuración de canal central colector con pendiente hacia el punto de descarga.
+
+Según Metcalf \& Eddy (2014), la altura del sistema de drenaje debe oscilar entre 0.45 m y 0.60 m para garantizar el almacenamiento temporal de efluente y permitir la entrada de aire. Para este diseño se adopta una altura de {fp['H_underdrain_m']:.2f} m.
+
+El caudal de diseño del canal central se determina aplicando un factor de capacidad de seguridad, dimensionando el canal para conducir el doble del caudal aplicado al filtro. Esto garantiza que incluso en condiciones de pico o con acumulación parcial de sólidos, el sistema evacue el agua sin riesgo de inundación del medio filtrante. El caudal de diseño resulta:
+
+\begin{{equation}}
+Q_{{\text{{diseno}}}} = \frac{{Q_{{aplicado}}}}{{{cfg.fp_factor_capacidad_underdrain:.2f}}} = \frac{{{fp['Q_ap_m3_h']:.1f}}}{{{cfg.fp_factor_capacidad_underdrain:.2f}}} = {fp['Q_underdrain_diseno_m3_h']:.1f} \text{{ m}}^3\text{{/h}}
+\end{{equation}}
+
+El canal central se dimensiona con una sección rectangular de {fp['ancho_canal_central_m']:.2f} m de ancho por {fp['altura_canal_central_m']:.2f} m de alto, con una pendiente mínima del {fp['pendiente_underdrain_pct']:.1f} hacia la descarga. La capacidad hidráulica se verifica mediante la ecuación de Manning para flujo a superficie libre:
+
+\begin{{equation}}
+Q = \frac{{1}}{{n}} \cdot A \cdot R^{{2/3}} \cdot S^{{1/2}}
+\end{{equation}}
+
+Donde $n = {cfg.fp_n_manning_underdrain:.3f}$ es el coeficiente de rugosidad de Manning para concreto, $A$ es el área transversal del canal, $R$ es el radio hidráulico y $S$ es la pendiente. Sustituyendo valores:
+
+\begin{{equation}}
+Q_{{canal}} = {fp['Q_canal_capacidad_m3_h']:.1f} \text{{ m}}^3\text{{/h}}
+\end{{equation}}
+
+La relación entre el caudal aplicado y la capacidad del canal determina el porcentaje de llenado:
+
+\begin{{equation}}
+\text{{Llenado}} = \frac{{Q_{{aplicado}}}}{{Q_{{canal}}}} \times 100 = {fp['llenado_canal_pct']:.1f}\\%
+\end{{equation}}
+
+{'El llenado calculado es inferior al máximo permitido del ' + str(cfg.fp_llenado_max_underdrain*100) + ' por ciento, garantizando que el canal operará con superficie libre y permitiendo el paso simultáneo de aire para la ventilación natural del sistema.' if fp['canal_underdrain_ok'] else 'El llenado calculado excede el máximo recomendado del ' + str(cfg.fp_llenado_max_underdrain*100) + ' por ciento, lo que podría comprometer la ventilación natural. Se recomienda aumentar la pendiente o el tamaño del canal.'}
+
+\subsubsection{{Drenaje Inferior -- Verificación}}
+
+La verificación del sistema de drenaje inferior se centra en garantizar que el canal central operará con flujo a superficie libre bajo todas las condiciones de operación, permitiendo simultáneamente el paso del efluente y el aire de ventilación natural. Según Metcalf \& Eddy (2014) y WEF MOP-8, el diseño debe cumplir con dos criterios fundamentales: el llenado máximo del canal no debe exceder el 50 por ciento de su capacidad, y la pendiente debe ser suficiente para mantener velocidades de auto-limpieza que eviten la sedimentación de sólidos.
+
+El criterio de llenado máximo establece que el canal debe operar como máximo a la mitad de su capacidad hidráulica. Esta condición garantiza que la sección superior del canal permanezca disponible para el flujo de aire ascendente desde las aberturas de ventilación hacia el medio filtrante, proceso esencial para mantener el suministro de oxígeno a la biopelícula aerobia. La verificación compara el caudal aplicado contra la capacidad del canal:
+
+\begin{{equation}}
+\text{{Llenado}}_{{max}} = \frac{{Q_{{aplicado}}}}{{Q_{{canal}}}} \times 100 = {fp['llenado_canal_pct']:.1f} \\% \\leq {cfg.fp_llenado_max_underdrain*100:.0f} \\%
+\end{{equation}}
+
+{'El llenado calculado cumple satisfactoriamente con el criterio establecido, operando el canal a menos de la mitad de su capacidad. Esta condición asegura que durante la operación normal y condiciones de pico, el sistema mantendrá superficie libre para el flujo de aire, garantizando la ventilación natural del filtro percolador.' if fp['canal_underdrain_ok'] else 'El llenado calculado excede el límite recomendado, indicando que el canal operará con sección llena o cercana a la capacidad máxima. Esta condición compromete la ventilación natural y puede causar acumulación de agua en el fondo del filtro. Se recomienda incrementar la pendiente del canal o aumentar sus dimensiones.'}
+
+Respecto a la pendiente, el diseño adopta un valor del {fp['pendiente_underdrain_pct']:.1f} por ciento, que cumple con el mínimo requerido de 1.0 por ciento establecido por Metcalf \& Eddy (2014) para garantizar el auto-limpiezo del canal y prevenir la sedimentación de sólidos provenientes del filtro.
 
 \subsubsection{{Resultados}}
 

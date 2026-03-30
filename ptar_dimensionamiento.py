@@ -267,6 +267,18 @@ class ConfigDiseno:
     fp_Cv_minima_kgDBO_m3_d: float = 0.30       # Carga orgánica mínima recomendada (kg DBO/m³·d)
     fp_qA_min_humectacion_m3_m2_h: float = 0.5  # Tasa mínima humectación biopelícula (m³/m²·h)
     
+    # CRITERIOS DE AUTOAJUSTE Y OPERACIÓN
+    fp_qA_real_min_m3_m2_h: float = 1.0         # Tasa hidráulica mínima operativa (m³/m²·h)
+    fp_incremento_recirculacion: float = 0.5    # Incremento gradual de R en ajustes (adimensional)
+    fp_R_min: float = 1.0                       # Recirculación mínima operativa (adimensional)
+    fp_R_max: float = 2.0                       # Recirculación máxima permitida (adimensional)
+    fp_Q_por_brazo_min_rotacion_m3_h: float = 10.0  # Caudal mínimo por brazo para rotación hidráulica (m³/h)
+    
+    # CRITERIOS DE RESISTENCIA MECÁNICA DEL MEDIO
+    fp_resistencia_umbral_profundidad_m: float = 3.5   # Profundidad umbral cambio resistencia (m)
+    fp_resistencia_min_baja_kg_m2: float = 600         # Resistencia mínima D <= 3.5m (kg/m²)
+    fp_resistencia_min_alta_kg_m2: float = 1000        # Resistencia mínima D > 3.5m (kg/m²)
+    
     # =============================================================================
     # PARÁMETROS DE DISEÑO - DESINFECCIÓN CON CLORO
     # =============================================================================
@@ -1717,10 +1729,12 @@ def dimensionar_filtro_percolador(Q: ConfigDiseno = CFG,
         Q_ap_m3_h = Q_m3_h * (1 + R)
         Q_A_real = Q_ap_m3_h / A_sup_m2
         
-        # VERIFICACIÓN 1: qA_real >= 1.0 m³/m²·h (mojado mínimo del medio)
-        if Q_A_real < 1.0:
-            R_nuevo = math.ceil(A_sup_m2 / Q_m3_h)
-            R = max(R_nuevo, R + 0.5, 1.0)
+        # VERIFICACIÓN 1: qA_real >= fp_qA_real_min_m3_m2_h (mojado mínimo del medio)
+        if Q_A_real < Q.fp_qA_real_min_m3_m2_h:
+            # Despeje de Q_A_real = Q_m3_h * (1 + R) / A_sup_m2
+            # R >= A_sup_m2 / Q_m3_h - 1
+            R_nuevo = math.ceil((A_sup_m2 / Q_m3_h) - 1.0)
+            R = max(R_nuevo, R + Q.fp_incremento_recirculacion, Q.fp_R_min)
             ajuste_realizado = True
             continue
         
@@ -1757,7 +1771,7 @@ def dimensionar_filtro_percolador(Q: ConfigDiseno = CFG,
         Q_min_m3_h = Q_m3_h * Q.fp_factor_caudal_min_nocturno
         qA_min_m3_m2_h = Q_min_m3_h * (1 + R) / A_sup_m2
         if qA_min_m3_m2_h < Q.fp_qA_min_humectacion_m3_m2_h:
-            R = min(R + 0.5, 2.0)
+            R = min(R + Q.fp_incremento_recirculacion, Q.fp_R_max)
             ajuste_realizado = True
             continue
         
@@ -1830,8 +1844,8 @@ def dimensionar_filtro_percolador(Q: ConfigDiseno = CFG,
     # Caudal por brazo
     Q_por_brazo_m3_h = Q_ap_m3_h / num_brazos
     
-    # Verificación rotación hidráulica (necesita > 10 m³/h por brazo)
-    rotacion_hidraulica = Q_por_brazo_m3_h >= 10.0
+    # Verificación rotación hidráulica (necesita caudal mínimo por brazo para rotar)
+    rotacion_hidraulica = Q_por_brazo_m3_h >= Q.fp_Q_por_brazo_min_rotacion_m3_h
     
     # Boquillas
     num_boquillas_por_brazo = Q.fp_num_boquillas_por_brazo
@@ -1890,10 +1904,10 @@ def dimensionar_filtro_percolador(Q: ConfigDiseno = CFG,
     carga_peso_medio_kg_m2 = (Q.fp_densidad_media_kg_m3 + Q.fp_carga_agua_sobre_medio_kg_m3 + Q.fp_carga_biopelicula_sobre_medio_kg_m3) * D_m
     
     # Verificación resistencia a compresión
-    if D_m <= 3.5:
-        resistencia_minima_requerida = 600  # kg/m²
+    if D_m <= Q.fp_resistencia_umbral_profundidad_m:
+        resistencia_minima_requerida = Q.fp_resistencia_min_baja_kg_m2
     else:
-        resistencia_minima_requerida = 1000  # kg/m²
+        resistencia_minima_requerida = Q.fp_resistencia_min_alta_kg_m2
     
     resistencia_ok = carga_peso_medio_kg_m2 <= resistencia_minima_requerida
     
@@ -1902,9 +1916,9 @@ def dimensionar_filtro_percolador(Q: ConfigDiseno = CFG,
         f"Carga orgánica Cv = {Cv_kgDBO_m3_d:.3f} kg DBO/m^3*d fuera de rango {Cv_minima}-3.0 "
         f"({ref_wef}, Cap. 9)"
     )
-    assert 1.0 <= Q_A_real <= 18.0, (
-        f"Tasa hidráulica Q_A = {Q_A_real:.2f} m^3/m^2*h fuera de rango 1-18 "
-        f"({ref_me}, p. 843)"
+    assert Q.fp_qA_real_min_m3_m2_h <= Q_A_real <= 18.0, (
+        f"Tasa hidráulica Q_A = {Q_A_real:.2f} m^3/m^2*h fuera de rango "
+        f"{Q.fp_qA_real_min_m3_m2_h}-18 ({ref_me}, p. 843)"
     )
     # Texto de verificación narrativo
     if Q_A_max_m3_m2_h < Q_A_limite_m3_m2_h:
@@ -1966,6 +1980,7 @@ def dimensionar_filtro_percolador(Q: ConfigDiseno = CFG,
         # PASO 7 - Underdrain
         "Q_underdrain_diseno_m3_h": round(Q_underdrain_diseno_m3_h, 1),
         "ancho_canal_central_m": ancho_canal,
+        "altura_canal_central_m": altura_canal,
         "Q_canal_capacidad_m3_h": round(Q_canal_m3_h, 1),
         "llenado_canal_pct": round(llenado_canal * 100, 1),
         "canal_underdrain_ok": canal_ok,
