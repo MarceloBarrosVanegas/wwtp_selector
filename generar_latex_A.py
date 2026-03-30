@@ -997,13 +997,7 @@ Por tanto, la DBO efluente estimada es $S_e = {fp['DBO_entrada_mg_L']:.0f} \time
 
 \subsubsection{{Recirculación -- Dimensionamiento}}
 
-La recirculación en filtros percoladores cumple funciones fundamentales según Metcalf \& Eddy \cite{{metcalf2014}} y WEF MOP-8 \cite{{wef_mop8_2010}}:
-
-\begin{{itemize}}[noitemsep,leftmargin=2em]
-    \item \textbf{{Mantenimiento de humedad:}} Garantiza que la biopelícula permanezca húmeda durante periodos de bajo caudal, evitando su deterioro por desecación.
-    \item \textbf{{Mejora de distribución:}} Aumenta la tasa hidráulica superficial, promoviendo una distribución más uniforme del afluente sobre el medio filtrante.
-    \item \textbf{{Dilución:}} Reduce la concentración de DBO del afluente, disminuyendo el riesgo de sobrecarga orgánica y olores.
-\end{{itemize}}
+La recirculación en filtros percoladores cumple funciones fundamentales según Metcalf \& Eddy \cite{{metcalf2014}}. En primer lugar, garantiza que la biopelícula permanezca húmeda durante periodos de bajo caudal, evitando su deterioro por desecación. Adicionalmente, aumenta la tasa hidráulica superficial, promoviendo una distribución más uniforme del afluente sobre el medio filtrante. Finalmente, reduce la concentración de DBO del afluente por efecto de dilución, disminuyendo el riesgo de sobrecarga orgánica y la generación de olores.
 
 Según Metcalf \& Eddy (2014), las relaciones de recirculación típicas para filtros percoladores con medio plástico varían entre $R = 0.5$ y $R = 2.0$, dependiendo de la variabilidad del caudal y la calidad del agua residual. Para este diseño se adopta $R = {fp['R_recirculacion']:.1f}$.
 
@@ -1013,7 +1007,7 @@ El caudal total que llega al filtro incluye el afluente más el recirculado:
 Q_{{total}} = Q_{{medio}} \times (1 + R) = {fp['Q_m3_d']:.1f} \times {1+fp['R_recirculacion']:.1f} = {fp['Q_ap_m3_h']*24:.1f} \text{{ m}}^3\text{{/d}}
 \end{{equation}}
 
-Este caudal se distribuye uniformemente mediante el sistema de distribución rotatorio. Según EPA (2000), el número de brazos del distribuidor se selecciona en función del diámetro del filtro. Para este diseño se utilizan {fp['num_brazos']:.0f} brazos, resultando un caudal por brazo de:
+Este caudal se distribuye uniformemente mediante el sistema de distribución rotatorio. El número de brazos del distribuidor se selecciona en función del diámetro del filtro, adoptándose {fp['num_brazos']:.0f} brazos para esta configuración, lo que resulta en un caudal por brazo de:
 
 \begin{{equation}}
 Q_{{brazo}} = \frac{{Q_{{total}}}}{{N_{{brazos}}}} = \frac{{{fp['Q_ap_m3_h']:.1f}}}{{{fp['num_brazos']:.0f}}} = {fp['Q_por_brazo_m3_h']:.1f} \text{{ m}}^3\text{{/h}}
@@ -1021,7 +1015,7 @@ Q_{{brazo}} = \frac{{Q_{{total}}}}{{N_{{brazos}}}} = \frac{{{fp['Q_ap_m3_h']:.1f
 
 \subsubsection{{Recirculación -- Verificación}}
 
-La verificación de la recirculación se centra en garantizar el caudal mínimo necesario para mantener la biopelícula húmeda durante condiciones de bajo flujo. Según WEF MOP-8 (2010) y EPA (2000), la tasa hidráulica superficial mínima recomendada es de $q_{{A,min}} \geq 0.5$ m³/m²·h para evitar la desecación del medio.
+La verificación de la recirculación se centra en garantizar el caudal mínimo necesario para mantener la biopelícula húmeda durante condiciones de bajo flujo. Según Metcalf \& Eddy \cite{{metcalf2014}}, la tasa hidráulica superficial mínima recomendada es de $q_{{A,min}} \geq 0.5$ m³/m²·h para evitar la desecación del medio y garantizar el riego adecuado sobre la biopelícula.
 
 Se evalúa la condición de caudal mínimo, correspondiente típicamente al 40\% del caudal medio (operación nocturna):
 
