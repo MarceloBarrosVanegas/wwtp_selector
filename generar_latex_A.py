@@ -1159,21 +1159,62 @@ espaciado = \frac{{\pi \times D_{{filtro}}}}{{N_{{aperturas}}}} = \frac{{\pi \ti
 
 El caudal de aire necesario para mantener las condiciones aerobias se estima mediante factores de relación con el caudal de agua. Según criterios de diseño, el caudal mínimo de aire debe ser {cfg.fp_Q_aire_min_factor:.1f} veces el caudal de agua, resultando en {fp['Q_aire_min_m3_h']:.1f} m³/h, mientras que el valor óptimo recomendado es {cfg.fp_Q_aire_factor:.1f} veces el caudal de agua, equivalente a {fp['Q_aire_opt_m3_h']:.1f} m³/h. Esta ventilación natural, impulsada por la diferencia de temperatura entre el aire ambiente y el interior del filtro, es suficiente para mantener la biopelícula aerobia sin requerir ventilación forzada.
 
+\subsubsection{{Especificación del Medio -- Verificación}}
+
+La verificación mecánica del medio filtrante plástico asegura que el material seleccionado puede soportar las cargas aplicadas durante la operación del filtro percolador sin sufrir deformaciones permanentes o colapso estructural. Según las especificaciones técnicas de fabricantes y los criterios de WEF MOP-8, el medio plástico aleatorio debe resistir una carga compresiva que incluye el peso propio del medio saturado de agua, el peso de la biopelícula que se desarrolla sobre su superficie, y el peso del agua que circula temporalmente durante la operación.
+
+La carga total sobre el medio se calcula considerando la densidad aparente del medio plástico ({fp['densidad_media_kg_m3']:.0f} kg/m³), la carga de agua sobre el medio ({cfg.fp_carga_agua_sobre_medio_kg_m3:.0f} kg/m³), y la carga de biopelícula ({cfg.fp_carga_biopelicula_sobre_medio_kg_m3:.0f} kg/m³), multiplicadas por la profundidad del medio filtrante:
+
+\begin{{equation}}
+C_{{total}} = (\rho_{{medio}} + C_{{agua}} + C_{{biopelicula}}) \times D = {fp['carga_sobre_medio_kg_m2']:.1f} \text{{ kg/m}}^2
+\end{{equation}}
+
+El criterio de resistencia a compresión establece límites diferentes según la profundidad del medio. Para profundidades hasta {cfg.fp_resistencia_umbral_profundidad_m:.1f} m, la resistencia mínima requerida es de {cfg.fp_resistencia_min_baja_kg_m2:.0f} kg/m², mientras que para profundidades mayores la resistencia debe ser al menos de {cfg.fp_resistencia_min_alta_kg_m2:.0f} kg/m². Esta diferenciación considera que a mayor profundidad, el peso del medio sobre las capas inferiores incrementa la carga compresiva.
+
+{'La carga calculada de ' + str(fp['carga_sobre_medio_kg_m2']) + ' kg/m² es inferior a la resistencia mínima requerida de ' + str(cfg.fp_resistencia_min_baja_kg_m2 if fp['D_medio_m'] <= cfg.fp_resistencia_umbral_profundidad_m else cfg.fp_resistencia_min_alta_kg_m2) + ' kg/m² para la profundidad de ' + str(fp['D_medio_m']) + ' m adoptada. El medio plástico seleccionado cumple satisfactoriamente con el requisito de resistencia a compresión, garantizando la integridad estructural durante toda la vida útil del filtro.' if fp['resistencia_compresion_ok'] else 'La carga calculada excede la resistencia mínima requerida para la profundidad adoptada. Se recomienda reducir la profundidad del medio o seleccionar un medio con mayor resistencia estructural.'}
+
+Adicionalmente, el medio debe cumplir con las siguientes especificaciones técnicas: superficie específica de {fp['sup_especifica_medio_m2_m3']:.0f} m²/m³ que proporciona área suficiente para el crecimiento de la biopelícula, índice de vacíos del {fp['vacios_medio_pct']:.0f} por ciento que garantiza la permeabilidad del medio para el flujo de agua y aire, y densidad aparente de {fp['densidad_media_kg_m3']:.0f} kg/m³ que asegura la flotabilidad negativa necesaria para mantener el medio en posición durante la operación.
+
 \subsubsection{{Resultados}}
 
 \begin{{table}}[H]
 \centering
-\caption{{Dimensiones del filtro percolador}}
+\caption{{Resumen de resultados del filtro percolador}}
 \begin{{tabular}}{{ll}}
 \toprule
-Parámetro & Valor \\
+\textbf{{Parámetro}} & \textbf{{Valor}} \\
 \midrule
+\multicolumn{{2}}{{l}}{{\textit{{Geometría principal}}}} \\
 Diámetro & {fp['D_filtro_m']:.2f} m \\
 Altura total & {fp['H_total_m']:.2f} m \\
 Profundidad medio & {fp['D_medio_m']:.2f} m \\
 Volumen de medio & {fp['V_medio_m3']:.1f} m³ \\
+\midrule
+\multicolumn{{2}}{{l}}{{\textit{{Cargas y recirculación}}}} \\
 Carga orgánica & {fp['Cv_kgDBO_m3_d']:.2f} kg DBO/m³·d \\
 Recirculación & R = {fp['R_recirculacion']:.1f} \\
+Tasa hidráulica aplicada & {fp['Q_A_real_m3_m2_h']:.2f} m³/m²·h \\
+\midrule
+\multicolumn{{2}}{{l}}{{\textit{{Distribuidor rotatorio}}}} \\
+Número de brazos & {fp['num_brazos']:.0f} \\
+Caudal por brazo & {fp['Q_por_brazo_m3_h']:.1f} m³/h \\
+Diámetro de orificio & {fp['diam_orificio_mm']:.1f} mm \\
+\midrule
+\multicolumn{{2}}{{l}}{{\textit{{Drenaje inferior (underdrain)}}}} \\
+Caudal de diseño & {fp['Q_underdrain_diseno_m3_h']:.1f} m³/h \\
+Capacidad del canal & {fp['Q_canal_capacidad_m3_h']:.1f} m³/h \\
+Llenado del canal & {fp['llenado_canal_pct']:.1f} \\% \\
+\midrule
+\multicolumn{{2}}{{l}}{{\textit{{Ventilación natural}}}} \\
+Área de ventilación requerida & {fp['area_ventilacion_requerida_m2']:.2f} m² \\
+Número de aperturas & {fp['num_aperturas_ventilacion']:.0f} \\
+Espaciado entre aperturas & {fp['espaciado_aperturas_m']:.2f} m \\
+Caudal de aire (mínimo) & {fp['Q_aire_min_m3_h']:.1f} m³/h \\
+Caudal de aire (óptimo) & {fp['Q_aire_opt_m3_h']:.1f} m³/h \\
+\midrule
+\multicolumn{{2}}{{l}}{{\textit{{Verificación mecánica del medio}}}} \\
+Carga sobre el medio & {fp['carga_sobre_medio_kg_m2']:.1f} kg/m² \\
+Resistencia a compresión & {'Cumple' if fp['resistencia_compresion_ok'] else 'No cumple'} \\
 \bottomrule
 \end{{tabular}}
 \end{{table}}
