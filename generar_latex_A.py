@@ -173,7 +173,9 @@ def _generar_tikz_rejillas(r, angulo_rej):
     )
 
 
-def generar_contenido_alternativa_A(cfg, resultados, layout_filename="Layout_A_2lineas.png", area_m2=None, balance_calidad=None):
+def generar_contenido_alternativa_A(cfg, resultados, layout_filename="Layout_A_2lineas.png",
+                                    area_m2=None, balance_calidad=None,
+                                    esquema_fp_filename=None):
     """Genera contenido LaTeX con estilo narrativo fluido"""
     
     # Valores por defecto si no se proporciona balance de calidad
@@ -934,6 +936,17 @@ Con una profundidad de medio de {fp['D_medio_m']:.2f} m, el área superficial re
 
 El sistema incorpora recirculación con relación $R = {fp['R_recirculacion']:.1f}$, lo cual mejora la distribución hidráulica y mantiene la biopelícula húmeda. La tasa hidráulica aplicada resulta {fp['Q_A_real_m3_m2_h']:.3f} m³/m²·h.
 
+{rf"""
+\begin{{figure}}[H]
+\centering
+\includegraphics[width=0.88\textwidth]{{{esquema_fp_filename}}}
+\caption{{Esquema del filtro percolador: distribuidor rotatorio superior, medio plástico, sistema underdrain y ventilación natural. DBO afluente: {fp['DBO_entrada_mg_L']:.1f} mg/L, DBO estimada de salida: {fp['DBO_salida_Germain_mg_L']:.1f} mg/L, recirculación adoptada: R = {fp['R_recirculacion']:.1f}.}}
+\label{{fig:esquema_fp}}
+\end{{figure}}
+
+El esquema ilustra el ingreso del afluente y del caudal recirculado hacia el distribuidor rotatorio, la percolación descendente a través del medio plástico, la ventilación natural ascendente desde el underdrain y la recolección lateral del efluente hacia el sedimentador secundario.
+""" if esquema_fp_filename else ""}
+
 \subsubsection{{Carga Orgánica -- Verificación}}
 
 Se verifica el comportamiento hidráulico para el caudal máximo horario, aplicando un factor de pico típico de {fp['factor_pico']:.1f} sobre el caudal medio:
@@ -1017,7 +1030,7 @@ Q_{{brazo}} = \frac{{Q_{{total}}}}{{N_{{brazos}}}} = \frac{{{fp['Q_ap_m3_h']:.1f
 
 \subsubsection{{Recirculación -- Verificación}}
 
-La verificación de la recirculación se centra en garantizar el caudal mínimo necesario para mantener la biopelícula húmeda durante condiciones de bajo flujo. Según Metcalf \& Eddy \cite{{metcalf2014}}, la tasa hidráulica superficial mínima recomendada es de $q_{{A,min}} \geq 0.5$ m³/m²·h para evitar la desecación del medio y garantizar el riego adecuado sobre la biopelícula.
+La verificación de la recirculación se centra en garantizar el caudal mínimo necesario para mantener la biopelícula húmeda durante condiciones de bajo flujo. Según Metcalf \& Eddy \cite{{metcalf2014}}, la tasa hidráulica superficial mínima recomendada es de $q_{{A,min}} \geq {cfg.fp_qA_min_humectacion_m3_m2_h:.1f}$ m³/m²·h para evitar la desecación del medio y garantizar el riego adecuado sobre la biopelícula.
 
 Se evalúa la condición de caudal mínimo, correspondiente típicamente al {int(cfg.fp_factor_caudal_min_nocturno*100)}\% del caudal medio (operación nocturna):
 
@@ -1027,7 +1040,7 @@ q_{{A,min}} = \frac{{Q_{{min}} \times (1 + R)}}{{A_s}} = \frac{{{fp['Q_m3_d']:.1
 
 {fp['qA_min_texto']}
 
-Según Metcalf \& Eddy (2014, p. 843), valores de $q_{{A,min}}$ inferiores a 0.5 m³/m²·h requieren considerar aumentar la recirculación o implementar sistemas de control de nivel para mantener la biopelícula activa.
+Según Metcalf \& Eddy (2014, p. 843), valores de $q_{{A,min}}$ inferiores a {cfg.fp_qA_min_humectacion_m3_m2_h:.1f} m³/m²·h requieren considerar aumentar la recirculación o implementar sistemas de control de nivel para mantener la biopelícula activa.
 
 \subsubsection{{Resultados}}
 
@@ -1799,7 +1812,11 @@ def generar_latex_alternativa_A(cfg, resultados, output_path, area_m2=None, bala
     """Genera archivo LaTeX completo (incluye layout automático)"""
     
     # Importar y generar layout automáticamente
-    from ptar_layout_graficador import generar_layout_con_resultados, generar_esquema_uasb
+    from ptar_layout_graficador import (
+        generar_layout_con_resultados,
+        generar_esquema_uasb,
+        generar_esquema_filtro_percolador,
+    )
     import os
     
     output_dir = os.path.dirname(output_path) or '.'
@@ -1832,6 +1849,20 @@ def generar_latex_alternativa_A(cfg, resultados, output_path, area_m2=None, bala
     except Exception as e:
         print(f"  [ADVERTENCIA] No se pudo generar esquema UASB: {e}")
         esquema_filename = None
+
+    # Generar esquema del filtro percolador
+    print("Generando esquema del filtro percolador...")
+    try:
+        fp_resultados = resultados.get('filtro_percolador', {})
+        if fp_resultados:
+            esquema_fp_path = generar_esquema_filtro_percolador(fp_resultados, output_dir)
+            esquema_fp_filename = "Esquema_Filtro_Percolador.png"
+            print(f"  Esquema Filtro Percolador generado: {esquema_fp_filename}")
+        else:
+            esquema_fp_filename = None
+    except Exception as e:
+        print(f"  [ADVERTENCIA] No se pudo generar esquema del filtro percolador: {e}")
+        esquema_fp_filename = None
     
     # Generar archivo de bibliografía
     print("Generando archivo de bibliografía...")
@@ -1841,7 +1872,14 @@ def generar_latex_alternativa_A(cfg, resultados, output_path, area_m2=None, bala
     except Exception as e:
         print(f"  [ADVERTENCIA] No se pudo generar bibliografía: {e}")
     
-    contenido = generar_contenido_alternativa_A(cfg, resultados, layout_filename=layout_filename, area_m2=area_m2, balance_calidad=balance_calidad)
+    contenido = generar_contenido_alternativa_A(
+        cfg,
+        resultados,
+        layout_filename=layout_filename,
+        area_m2=area_m2,
+        balance_calidad=balance_calidad,
+        esquema_fp_filename=esquema_fp_filename,
+    )
     resumen = generar_resumen_resultados(cfg, resultados, balance_calidad=balance_calidad, area_m2=area_m2)
     
     latex = rf"""\documentclass[12pt,a4paper]{{article}}

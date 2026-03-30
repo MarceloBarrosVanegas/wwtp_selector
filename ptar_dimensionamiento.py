@@ -265,6 +265,7 @@ class ConfigDiseno:
     fp_Cv_kgDBO_m3_d: float = 0.5               # Carga orgánica volumétrica (kg DBO/m³·d)
     fp_Q_A_limite_m3_m2_h: float = 4.0          # Límite tasa hidráulica (m³/m²·h)
     fp_Cv_minima_kgDBO_m3_d: float = 0.30       # Carga orgánica mínima recomendada (kg DBO/m³·d)
+    fp_qA_min_humectacion_m3_m2_h: float = 0.5  # Tasa mínima humectación biopelícula (m³/m²·h)
     
     # =============================================================================
     # PARÁMETROS DE DISEÑO - DESINFECCIÓN CON CLORO
@@ -1752,10 +1753,10 @@ def dimensionar_filtro_percolador(Q: ConfigDiseno = CFG,
                 V_medio_m3 = A_sup_m2 * D_m
                 break
         
-        # VERIFICACIÓN 4: qA_min >= 0.5 m³/m²·h (biopelícula húmeda)
+        # VERIFICACIÓN 4: qA_min >= umbral humectación biopelícula
         Q_min_m3_h = Q_m3_h * Q.fp_factor_caudal_min_nocturno
         qA_min_m3_m2_h = Q_min_m3_h * (1 + R) / A_sup_m2
-        if qA_min_m3_m2_h < 0.5:
+        if qA_min_m3_m2_h < Q.fp_qA_min_humectacion_m3_m2_h:
             R = min(R + 0.5, 2.0)
             ajuste_realizado = True
             continue
@@ -1802,12 +1803,13 @@ def dimensionar_filtro_percolador(Q: ConfigDiseno = CFG,
     # =================================================================
     # Q_min_m3_h y qA_min_m3_m2_h ya calculados en loop de auto-ajuste
     
-    if qA_min_m3_m2_h < 0.5:
+    qA_min_umbral = Q.fp_qA_min_humectacion_m3_m2_h
+    if qA_min_m3_m2_h < qA_min_umbral:
         recirculacion_adicional = True
-        qA_min_texto = f"$q_{{A,min}} = {qA_min_m3_m2_h:.2f}$ m³/m²·h $< 0{','}5$ (riesgo de sequedad). Se recomienda aumentar $R$ o implementar control de nivel."
+        qA_min_texto = f"$q_{{A,min}} = {qA_min_m3_m2_h:.2f}$ m³/m²·h $< {qA_min_umbral:.1f}$ (riesgo de sequedad). Se recomienda aumentar $R$ o implementar control de nivel."
     else:
         recirculacion_adicional = False
-        qA_min_texto = f"$q_{{A,min}} = {qA_min_m3_m2_h:.2f}$ m³/m²·h $\geq 0{','}5$ (biopelícula húmeda garantizada)."
+        qA_min_texto = f"$q_{{A,min}} = {qA_min_m3_m2_h:.2f}$ m³/m²·h $\geq {qA_min_umbral:.1f}$ (biopelícula húmeda garantizada)."
     
     # =================================================================
     # PASO 6 - DISTRIBUIDOR ROTATORIO
@@ -1905,10 +1907,12 @@ def dimensionar_filtro_percolador(Q: ConfigDiseno = CFG,
         f"({ref_me}, p. 843)"
     )
     # Texto de verificación narrativo
-    if Q_A_max_m3_m2_h <= Q_A_limite_m3_m2_h:
-        verif_qmax_texto = f"el valor obtenido ({Q_A_max_m3_m2_h:.2f} m³/m²·h) es menor que el límite máximo recomendado de 4,0 m³/m²·h establecido por Metcalf y Eddy para evitar el arrastre de biopelícula, por lo que el diseño es adecuado"
+    if Q_A_max_m3_m2_h < Q_A_limite_m3_m2_h:
+        verif_qmax_texto = f"el valor obtenido ({Q_A_max_m3_m2_h:.2f} m³/m²·h) es menor que el límite máximo recomendado de {Q_A_limite_m3_m2_h:.1f} m³/m²·h establecido por Metcalf y Eddy para evitar el arrastre de biopelícula, por lo que el diseño es adecuado"
+    elif Q_A_max_m3_m2_h == Q_A_limite_m3_m2_h:
+        verif_qmax_texto = f"el valor obtenido ({Q_A_max_m3_m2_h:.2f} m³/m²·h) es igual al límite máximo recomendado de {Q_A_limite_m3_m2_h:.1f} m³/m²·h establecido por Metcalf y Eddy para evitar el arrastre de biopelícula, por lo que el diseño es adecuado"
     else:
-        verif_qmax_texto = f"el valor obtenido ({Q_A_max_m3_m2_h:.2f} m³/m²·h) excede el límite máximo recomendado de 4,0 m³/m²·h establecido por Metcalf y Eddy para evitar el arrastre de biopelícula, por lo que el diseño requiere revisión"
+        verif_qmax_texto = f"el valor obtenido ({Q_A_max_m3_m2_h:.2f} m³/m²·h) excede el límite máximo recomendado de {Q_A_limite_m3_m2_h:.1f} m³/m²·h establecido por Metcalf y Eddy para evitar el arrastre de biopelícula, por lo que el diseño requiere revisión"
 
     return {
         "unidad": "Filtro Percolador",

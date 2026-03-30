@@ -923,3 +923,200 @@ def generar_esquema_uasb(resultados_uasb: dict, output_dir: str = "resultados") 
     plt.close()
     
     return fig_path
+
+
+def generar_esquema_filtro_percolador(resultados_fp: dict, output_dir: str = "resultados") -> str:
+    """
+    Genera un esquema técnico del filtro percolador en sección vertical.
+    Muestra distribuidor superior, medio filtrante, underdrain, ventilación
+    y sentido general de flujo de agua/aire.
+    """
+    import matplotlib.pyplot as plt
+    from matplotlib.patches import FancyBboxPatch, Rectangle, Circle
+    import numpy as np
+
+    D = resultados_fp.get('D_filtro_m', 6.2)
+    H_total = resultados_fp.get('H_total_m', 4.5)
+    H_medio = resultados_fp.get('D_medio_m', 3.5)
+    H_distribucion = resultados_fp.get('H_distribucion_m', 0.2)
+    H_underdrain = resultados_fp.get('H_underdrain_m', 0.5)
+    H_bordo = resultados_fp.get('H_bordo_libre_m', 0.3)
+    R = resultados_fp.get('R_recirculacion', 1.5)
+    qA = resultados_fp.get('Q_A_real_m3_m2_h', 1.5)
+    qA_min = resultados_fp.get('qA_min_m3_m2_h', 0.6)
+    Se = resultados_fp.get('DBO_salida_Germain_mg_L', 58.0)
+    S0 = resultados_fp.get('DBO_entrada_mg_L', 73.0)
+    num_brazos = resultados_fp.get('num_brazos', 2)
+    Q_brazo = resultados_fp.get('Q_por_brazo_m3_h', 27.0)
+    area_vent = resultados_fp.get('area_ventilacion_requerida_m2', 0.3)
+    num_aperturas = resultados_fp.get('num_aperturas_ventilacion', 6)
+
+    ancho = 6.0
+    altura_total = 8.5
+    escala = altura_total / max(H_total, 0.1)
+
+    x_centro = 6.0
+    y_base = 1.0
+    x_izq = x_centro - ancho / 2
+    x_der = x_centro + ancho / 2
+
+    h_bordo = H_bordo * escala
+    h_dist = H_distribucion * escala
+    h_medio = H_medio * escala
+    h_under = H_underdrain * escala
+
+    y_under = y_base
+    y_medio = y_under + h_under
+    y_dist = y_medio + h_medio
+    y_top = y_dist + h_dist + h_bordo
+
+    fig, ax = plt.subplots(figsize=(10, 11))
+
+    c_medio = '#C9B28C'
+    c_agua = '#DCEEF8'
+    c_under = '#D5D5D5'
+    c_tanque = '#FFFFFF'
+    c_header = '#EAF4E2'
+    c_air = '#7FB3D5'
+    c_flow = '#2E7D32'
+    c_recir = '#9C27B0'
+
+    tanque = FancyBboxPatch(
+        (x_izq, y_base), ancho, y_top - y_base,
+        boxstyle="round,pad=0.12",
+        facecolor=c_tanque, edgecolor='#555555', linewidth=2
+    )
+    ax.add_patch(tanque)
+
+    underdrain = Rectangle(
+        (x_izq + 0.1, y_under), ancho - 0.2, h_under,
+        facecolor=c_under, edgecolor='#777777', linewidth=1.2
+    )
+    ax.add_patch(underdrain)
+
+    medio = Rectangle(
+        (x_izq + 0.1, y_medio), ancho - 0.2, h_medio,
+        facecolor=c_medio, edgecolor='none', alpha=0.95
+    )
+    ax.add_patch(medio)
+
+    agua_sup = Rectangle(
+        (x_izq + 0.1, y_dist), ancho - 0.2, h_dist,
+        facecolor=c_agua, edgecolor='none', alpha=0.85
+    )
+    ax.add_patch(agua_sup)
+
+    camara_superior = Rectangle(
+        (x_izq + 0.1, y_dist + h_dist), ancho - 0.2, h_bordo,
+        facecolor=c_header, edgecolor='none', alpha=0.9
+    )
+    ax.add_patch(camara_superior)
+
+    np.random.seed(24)
+    for _ in range(80):
+        cx = x_centro + np.random.uniform(-ancho / 2 + 0.35, ancho / 2 - 0.35)
+        cy = y_medio + np.random.uniform(0.08, max(h_medio - 0.08, 0.1))
+        r = np.random.uniform(0.05, 0.11)
+        color = '#B8946F' if np.random.rand() > 0.25 else '#D8C3A5'
+        ax.add_patch(Circle((cx, cy), r, facecolor=color, edgecolor='#8D6E63', alpha=0.85))
+
+    x_col = x_centro
+    y_brazo = y_dist + h_dist * 0.72
+    ax.plot([x_col, x_col], [y_top + 0.45, y_brazo - 0.15], color='#444444', linewidth=2.2)
+    ax.add_patch(Circle((x_col, y_brazo), 0.16, facecolor='#B0BEC5', edgecolor='#455A64', linewidth=1.2))
+
+    brazo_largo = ancho * 0.36
+    ax.plot([x_col - brazo_largo, x_col + brazo_largo], [y_brazo, y_brazo], color='#616161', linewidth=3)
+    if num_brazos >= 4:
+        ax.plot([x_col, x_col], [y_brazo - brazo_largo * 0.55, y_brazo + brazo_largo * 0.55], color='#616161', linewidth=2.2)
+
+    for side in (-1, 1):
+        for frac in (0.25, 0.55, 0.85):
+            x_noz = x_col + side * brazo_largo * frac
+            ax.annotate(
+                '', xy=(x_noz, y_brazo - 0.55), xytext=(x_noz, y_brazo - 0.06),
+                arrowprops=dict(arrowstyle='->', color=c_flow, lw=1.8)
+            )
+
+    ax.plot([x_izq - 1.4, x_col], [y_top + 0.45, y_top + 0.45], color='#444444', linewidth=2)
+    ax.annotate('', xy=(x_izq - 0.2, y_top + 0.45), xytext=(x_izq - 1.2, y_top + 0.45),
+                arrowprops=dict(arrowstyle='->', color=c_recir, lw=2.5))
+    ax.text(x_izq - 1.45, y_top + 0.75, f'Afluente + recirculación\nR = {R:.1f}', ha='left', va='bottom',
+            fontsize=9, color=c_recir, fontweight='bold')
+
+    for x_air in np.linspace(x_izq + 0.55, x_der - 0.55, min(max(num_aperturas, 3), 6)):
+        ax.add_patch(Rectangle((x_air - 0.16, y_under + 0.05), 0.32, 0.12,
+                               facecolor='#90CAF9', edgecolor='#1565C0', linewidth=0.8))
+        ax.annotate('', xy=(x_air, y_under + h_under + 0.55), xytext=(x_air, y_under + 0.18),
+                    arrowprops=dict(arrowstyle='->', color=c_air, lw=1.8, alpha=0.9))
+
+    ax.plot([x_der, x_der + 1.2], [y_under + h_under * 0.55, y_under + h_under * 0.55], color='#444444', linewidth=2.2)
+    ax.annotate('', xy=(x_der + 1.2, y_under + h_under * 0.55), xytext=(x_der + 0.15, y_under + h_under * 0.55),
+                arrowprops=dict(arrowstyle='->', color='#1565C0', lw=2.5))
+    ax.text(x_der + 1.22, y_under + h_under * 0.55 + 0.15, 'Efluente a sedimentador', ha='left', va='bottom',
+            fontsize=9, color='#1565C0', fontweight='bold')
+
+    dash = dict(linestyle='--', color='#999999', linewidth=0.8, alpha=0.7)
+    ax.axhline(y=y_medio, xmin=0.18, xmax=0.82, **dash)
+    ax.axhline(y=y_dist, xmin=0.18, xmax=0.82, **dash)
+    ax.axhline(y=y_dist + h_dist, xmin=0.18, xmax=0.82, **dash)
+
+    x_dim = x_izq - 1.6
+
+    def draw_dim(y1, y2, x_pos, label):
+        ax.plot([x_pos, x_pos], [y1, y2], 'k-', linewidth=0.8)
+        ax.plot([x_pos - 0.1, x_pos + 0.1], [y1, y1], 'k-', linewidth=0.8)
+        ax.plot([x_pos - 0.1, x_pos + 0.1], [y2, y2], 'k-', linewidth=0.8)
+        ax.annotate('', xy=(x_pos, y2 - 0.05), xytext=(x_pos, y2 - 0.24),
+                    arrowprops=dict(arrowstyle='->', color='black', lw=0.8))
+        ax.annotate('', xy=(x_pos, y1 + 0.05), xytext=(x_pos, y1 + 0.24),
+                    arrowprops=dict(arrowstyle='->', color='black', lw=0.8))
+        ax.text(x_pos - 0.16, (y1 + y2) / 2, label, ha='right', va='center', fontsize=8)
+
+    draw_dim(y_under, y_medio, x_dim, f'{H_underdrain:.2f} m')
+    draw_dim(y_medio, y_dist, x_dim, f'{H_medio:.2f} m')
+    draw_dim(y_dist, y_dist + h_dist, x_dim, f'{H_distribucion:.2f} m')
+    if h_bordo > 0.15:
+        draw_dim(y_dist + h_dist, y_top, x_dim, f'{H_bordo:.2f} m')
+
+    y_dim = y_base - 0.75
+    ax.plot([x_izq, x_der], [y_dim, y_dim], 'k-', linewidth=0.8)
+    ax.plot([x_izq, x_izq], [y_dim - 0.1, y_dim + 0.1], 'k-', linewidth=0.8)
+    ax.plot([x_der, x_der], [y_dim - 0.1, y_dim + 0.1], 'k-', linewidth=0.8)
+    ax.annotate('', xy=(x_izq + 0.25, y_dim), xytext=(x_izq + 0.05, y_dim),
+                arrowprops=dict(arrowstyle='->', color='black', lw=0.8))
+    ax.annotate('', xy=(x_der - 0.25, y_dim), xytext=(x_der - 0.05, y_dim),
+                arrowprops=dict(arrowstyle='->', color='black', lw=0.8))
+    ax.text(x_centro, y_dim - 0.16, f'Ø {D:.1f} m', ha='center', va='top', fontsize=8)
+
+    x_dim_total = x_izq - 2.45
+    ax.plot([x_dim_total, x_dim_total], [y_base, y_top], 'k-', linewidth=0.8)
+    ax.plot([x_dim_total - 0.1, x_dim_total + 0.1], [y_base, y_base], 'k-', linewidth=0.8)
+    ax.plot([x_dim_total - 0.1, x_dim_total + 0.1], [y_top, y_top], 'k-', linewidth=0.8)
+    ax.text(x_dim_total - 0.15, (y_base + y_top) / 2, f'H = {H_total:.2f} m',
+            ha='right', va='center', fontsize=8, fontweight='bold')
+
+    offset_x = x_der + 0.55
+    ax.text(offset_x, y_dist + h_dist + h_bordo / 2, 'Bordo libre y cámara\ndel distribuidor', ha='left', va='center', fontsize=8)
+    ax.text(offset_x, y_dist + h_dist * 0.45, f'Distribuidor rotatorio\n{num_brazos:.0f} brazos | {Q_brazo:.1f} m³/h por brazo',
+            ha='left', va='center', fontsize=8, fontweight='bold')
+    ax.text(offset_x, y_medio + h_medio * 0.55, f'Medio plástico\nqA = {qA:.2f} m³/m²·h\nS₀ = {S0:.1f} mg/L',
+            ha='left', va='center', fontsize=8, fontweight='bold')
+    ax.text(offset_x, y_under + h_under * 0.55, f'Underdrain y ventilación\nAvent = {area_vent:.2f} m²\n{num_aperturas:.0f} aperturas',
+            ha='left', va='center', fontsize=8)
+    ax.text(offset_x, y_medio + 0.25, f'Efluente estimado\nSₑ = {Se:.1f} mg/L\nqA,min = {qA_min:.2f} m³/m²·h',
+            ha='left', va='bottom', fontsize=8, color='#1565C0')
+
+    ax.text(x_izq - 0.75, y_under + 0.15, 'Entrada de aire\nnatural', ha='center', va='bottom',
+            fontsize=8, color=c_air, fontweight='bold')
+
+    ax.set_xlim(x_izq - 3.0, x_der + 3.1)
+    ax.set_ylim(y_base - 1.1, y_top + 1.2)
+    ax.set_aspect('equal')
+    ax.axis('off')
+
+    fig_path = os.path.join(output_dir, 'Esquema_Filtro_Percolador.png')
+    fig.savefig(fig_path, dpi=200, bbox_inches='tight', facecolor='white', pad_inches=0.2)
+    plt.close()
+
+    return fig_path
