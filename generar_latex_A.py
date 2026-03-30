@@ -739,7 +739,7 @@ El análisis de cumplimiento de criterios evalúa los valores calculados según 
     
     \item \textbf{{SOR medio}}: El valor de {u['SOR_medio_m_h']:.2f} m/h se evalúa respecto al rango óptimo de {cfg.uasb_SOR_medio_min_m_h:.1f}--{cfg.uasb_SOR_medio_max_m_h:.1f} m/h. Según Chernicharo, este rango garantiza una eficiente separación sólido-líquido sin requerir áreas excesivas. Valores inferiores (como en este caso) son aceptables y proporcionan un margen de seguridad adicional.
     
-    \item \textbf{{TRH en sedimentador}}: El tiempo de retención de {u['TRH_sed_medio_h']:.2f} h cumple ampliamente con el mínimo de {cfg.uasb_TRH_sed_medio_min_h:.1f} h recomendado por Chernicharo para permitir la adecuada separación gas-líquido-sólido y la sedimentación de partículas finas.
+    \item \textbf{{TRH en sedimentador}}: {'El tiempo de retención de ' + str(round(u['TRH_sed_medio_h'], 2)) + ' h cumple con el mínimo de ' + str(cfg.uasb_TRH_sed_medio_min_h) + ' h recomendado por Chernicharo para permitir la adecuada separación gas-líquido-sólido.' if u.get('TRH_sed_cumple', False) else 'El tiempo de retención de ' + str(round(u['TRH_sed_medio_h'], 2)) + ' h no cumple con el mínimo de ' + str(cfg.uasb_TRH_sed_medio_min_h) + ' h recomendado por Chernicharo y requiere ajuste de las dimensiones del sedimentador.'}
 \end{{itemize}}
 
 \begin{{table}}[H]
@@ -930,7 +930,7 @@ V = \frac{{Q \cdot S_0}}{{C_v}}
 V = \frac{{{fp['Q_m3_d']:.1f} \times {fp['DBO_entrada_mg_L']:.0f} \times 10^{{-3}}}}{{{fp['Cv_kgDBO_m3_d']:.2f}}} = {fp['V_medio_m3']:.1f} \text{{ m}}^3
 \end{{equation}}
 
-Con una profundidad de medio de {fp['D_medio_m']:.2f} m, el área superficial resulta {fp['A_sup_m2']:.2f} m², correspondiendo a un diámetro de {fp['D_filtro_m']:.2f} m para configuración circular. La altura total incluye zonas de distribución (0,30 m), recolección (0,50 m) y bordo libre (0,30 m), resultando en {fp['H_total_m']:.2f} m.
+Con una profundidad de medio de {fp['D_medio_m']:.2f} m, el área superficial resulta {fp['A_sup_m2']:.2f} m², correspondiendo a un diámetro de {fp['D_filtro_m']:.2f} m para configuración circular. La altura total incluye zonas de distribución ({fp['H_distribucion_m']:.2f} m), recolección ({fp['H_underdrain_m']:.2f} m) y bordo libre ({fp['H_bordo_libre_m']:.2f} m), resultando en {fp['H_total_m']:.2f} m.
 
 El sistema incorpora recirculación con relación $R = {fp['R_recirculacion']:.1f}$, lo cual mejora la distribución hidráulica y mantiene la biopelícula húmeda. La tasa hidráulica aplicada resulta {fp['Q_A_real_m3_m2_h']:.3f} m³/m²·h.
 
@@ -995,6 +995,8 @@ Sustituyendo valores:
 
 Por tanto, la DBO efluente estimada es $S_e = {fp['DBO_entrada_mg_L']:.0f} \times {fp['relacion_Se_S0_Germain']:.3f} = {fp['DBO_salida_Germain_mg_L']:.0f}$ mg/L.
 
+\textbf{{Verificación de cumplimiento del objetivo:}} El valor calculado de $S_e = {fp['DBO_salida_Germain_mg_L']:.1f}$ mg/L {'cumple con el objetivo de' if fp.get('se_cumple_objetivo_Germain', fp['DBO_salida_Germain_mg_L'] <= fp['DBO_salida_objetivo_mg_L']) else 'no cumple con el objetivo de'} ${fp['DBO_salida_objetivo_mg_L']:.0f}$ mg/L {'establecido' if fp.get('se_cumple_objetivo_Germain', fp['DBO_salida_Germain_mg_L'] <= fp['DBO_salida_objetivo_mg_L']) else 'y requiere ajuste de diseño o aceptación explícita del criterio adoptado'}.
+
 \subsubsection{{Recirculación -- Dimensionamiento}}
 
 La recirculación en filtros percoladores cumple funciones fundamentales según Metcalf \& Eddy \cite{{metcalf2014}}. En primer lugar, garantiza que la biopelícula permanezca húmeda durante periodos de bajo caudal, evitando su deterioro por desecación. Adicionalmente, aumenta la tasa hidráulica superficial, promoviendo una distribución más uniforme del afluente sobre el medio filtrante. Finalmente, reduce la concentración de DBO del afluente por efecto de dilución, disminuyendo el riesgo de sobrecarga orgánica y la generación de olores.
@@ -1017,10 +1019,10 @@ Q_{{brazo}} = \frac{{Q_{{total}}}}{{N_{{brazos}}}} = \frac{{{fp['Q_ap_m3_h']:.1f
 
 La verificación de la recirculación se centra en garantizar el caudal mínimo necesario para mantener la biopelícula húmeda durante condiciones de bajo flujo. Según Metcalf \& Eddy \cite{{metcalf2014}}, la tasa hidráulica superficial mínima recomendada es de $q_{{A,min}} \geq 0.5$ m³/m²·h para evitar la desecación del medio y garantizar el riego adecuado sobre la biopelícula.
 
-Se evalúa la condición de caudal mínimo, correspondiente típicamente al 40\% del caudal medio (operación nocturna):
+Se evalúa la condición de caudal mínimo, correspondiente típicamente al {int(cfg.fp_factor_caudal_min_nocturno*100)}\% del caudal medio (operación nocturna):
 
 \begin{{equation}}
-q_{{A,min}} = \frac{{Q_{{min}} \times (1 + R)}}{{A_s}} = \frac{{{fp['Q_m3_d']:.1f} \times 0.4 \times {1+fp['R_recirculacion']:.1f}}}{{{fp['A_sup_m2']:.2f} \times 24}} = {fp['qA_min_m3_m2_h']:.2f} \text{{ m}}^3\text{{/m}}^2\text{{·h}}
+q_{{A,min}} = \frac{{Q_{{min}} \times (1 + R)}}{{A_s}} = \frac{{{fp['Q_m3_d']:.1f} \times {cfg.fp_factor_caudal_min_nocturno:.2f} \times {1+fp['R_recirculacion']:.1f}}}{{{fp['A_sup_m2']:.2f} \times 24}} = {fp['qA_min_m3_m2_h']:.2f} \text{{ m}}^3\text{{/m}}^2\text{{·h}}
 \end{{equation}}
 
 {fp['qA_min_texto']}
@@ -1802,7 +1804,7 @@ def generar_latex_alternativa_A(cfg, resultados, output_path, area_m2=None, bala
     
     output_dir = os.path.dirname(output_path) or '.'
     unidades = ["Rejillas", "Desarenador", "UASB", "Filtro_Percolador", 
-                "Sedimentador", "Cloro"]
+                "Sedimentador", "Desinfeccion"]
     
     print("Generando layout automáticamente...")
     try:

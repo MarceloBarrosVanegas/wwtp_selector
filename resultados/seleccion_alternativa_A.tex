@@ -635,7 +635,7 @@ El análisis de cumplimiento de criterios evalúa los valores calculados según 
     
     \item \textbf{SOR medio}: El valor de 0.48 m/h se evalúa respecto al rango óptimo de 0.6--0.8 m/h. Según Chernicharo, este rango garantiza una eficiente separación sólido-líquido sin requerir áreas excesivas. Valores inferiores (como en este caso) son aceptables y proporcionan un margen de seguridad adicional.
     
-    \item \textbf{TRH en sedimentador}: El tiempo de retención de 3.35 h cumple ampliamente con el mínimo de 1.5 h recomendado por Chernicharo para permitir la adecuada separación gas-líquido-sólido y la sedimentación de partículas finas.
+    \item \textbf{TRH en sedimentador}: El tiempo de retención de 3.35 h cumple con el mínimo de 1.5 h recomendado por Chernicharo para permitir la adecuada separación gas-líquido-sólido.
 \end{itemize}
 
 \begin{table}[H]
@@ -652,7 +652,7 @@ TRH sedimentador & 3.35 h & $\geq$ 1.5 h & Cumple \\
 \end{tabular}
 \end{table}
 
-La verificación demuestra que el compartimiento de sedimentación diseñado cumple satisfactoriamente con todos los criterios técnicos establecidos en la literatura especializada para reactores UASB.
+La verificación muestra que el SOR medio está por debajo del rango óptimo pero dentro de valores aceptables conservadores; el diseño cumple con SOR máximo y TRH.
 
 \subsubsection{Aberturas GLS -- Dimensionamiento}
 
@@ -784,6 +784,27 @@ El esquema ilustra el flujo ascendente del afluente a través del lecho de lodo 
 
 El filtro percolador constituye la unidad de tratamiento secundario aerobio, diseñada para remover la carga orgánica restante después del tratamiento anaerobio en el UASB. El diseño se fundamenta en el modelo cinético de Germain (1966), que describe la remoción de DBO mediante la expresión exponencial, y en criterios de carga orgánica volumétrica según WEF (2010) y Metcalf \& Eddy (2014).
 
+\textbf{Parámetros de diseño}
+
+\begin{table}[H]
+\centering
+\caption{Parámetros de diseño para filtro percolador}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Parámetro} & \textbf{Rango} & \textbf{Valor adoptado} & \textbf{Fuente} \\
+\midrule
+Carga orgánica (kg DBO/m³·d) & 0.3--3.0 & 0.30 & WEF MOP-8 \\
+Profundidad medio (m) & 3.0--8.0 & 3.50 & Metcalf \& Eddy \\
+Espacio distribuidor--medio (m) & 0.15--0.23 & 0.20 & EPA (2000) \\
+Altura underdrain (m) & 0.45--0.60 & 0.50 & Metcalf \& Eddy \\
+Bordo libre (m) & 0.30--0.50 & 0.30 & Norma constructiva \\
+Recirculación R (-) & 0.5--2.0 & 1.5 & Metcalf \& Eddy \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Carga Orgánica -- Dimensionamiento}
+
 Según las recomendaciones para medio plástico aleatorio, las cargas óptimas oscilan entre 0,3 y 3,0 kg DBO/m³·d. Se adopta un valor conservador de 0.30 kg DBO/m³·d, apropiado para la condición de pretratamiento previo con UASB.
 
 El volumen de medio filtrante requerido se calcula mediante:
@@ -805,9 +826,25 @@ V = \frac{Q \cdot S_0}{C_v}
 V = \frac{432.0 \times 73 \times 10^{-3}}{0.30} = 105.0 \text{ m}^3
 \end{equation}
 
-Con una profundidad de medio de 3.50 m, el área superficial resulta 33.75 m², correspondiendo a un diámetro de 6.56 m para configuración circular. La altura total incluye zonas de distribución (0,30 m), recolección (0,50 m) y bordo libre (0,30 m), resultando en 4.30 m.
+Con una profundidad de medio de 3.50 m, el área superficial resulta 30.01 m², correspondiendo a un diámetro de 6.18 m para configuración circular. La altura total incluye zonas de distribución (0.20 m), recolección (0.50 m) y bordo libre (0.30 m), resultando en 4.50 m.
 
-El sistema incorpora recirculación con relación $R = 2.0$, lo cual mejora la distribución hidráulica y mantiene la biopelícula húmeda. La tasa hidráulica aplicada resulta 1.600 m³/m²·h.
+El sistema incorpora recirculación con relación $R = 1.5$, lo cual mejora la distribución hidráulica y mantiene la biopelícula húmeda. La tasa hidráulica aplicada resulta 1.500 m³/m²·h.
+
+\subsubsection{Carga Orgánica -- Verificación}
+
+Se verifica el comportamiento hidráulico para el caudal máximo horario, aplicando un factor de pico típico de 2.5 sobre el caudal medio:
+
+\begin{equation}
+Q_{max} = 2.5 \times Q_{medio} = 2.5 \times 432.0 = 1080.0 \text{ m}^3\text{/d}
+\end{equation}
+
+A caudal máximo, la tasa hidráulica resulta:
+
+\begin{equation}
+q_{A,max} = \frac{Q_{max} \cdot (1 + R)}{A_s \cdot 24} = \frac{1080.0 \times 2.5}{30.01 \times 24} = 3.75 \text{ m}^3\text{/m}^2\text{·h}
+\end{equation}
+
+El valor obtenido se compara con el límite máximo recomendado de 4.0 m³/m²·h. el valor obtenido (3.75 m³/m²·h) es menor que el límite máximo recomendado de 4,0 m³/m²·h establecido por Metcalf y Eddy para evitar el arrastre de biopelícula, por lo que el diseño es adecuado.
 
 \textbf{Verificación de eficiencia mediante modelo de Germain:}
 
@@ -842,33 +879,51 @@ Aplicando el modelo de Germain:
     \item[$S_0$] = DBO afluente (73 mg/L)
     \item[$k_T$] = Constante cinética corregida (0.0824 m/h)
     \item[$D$] = Profundidad del medio (3.50 m)
-    \item[$q_A$] = Tasa hidráulica (1.600 m³/m²·h)
+    \item[$q_A$] = Tasa hidráulica (1.500 m³/m²·h)
     \item[$n$] = Coeficiente empírico (0.50)
 \end{itemize}
 
 Sustituyendo valores:
 
 \begin{equation}
-\frac{S_e}{73} = \exp\left(-\frac{0.0824 \times 3.50}{(1.600)^{0.50}}\right) = 0.796
+\frac{S_e}{73} = \exp\left(-\frac{0.0824 \times 3.50}{(1.500)^{0.50}}\right) = 0.790
 \end{equation}
 
-Por tanto, la DBO efluente estimada es $S_e = 73 \times 0.796 = 58$ mg/L.
+Por tanto, la DBO efluente estimada es $S_e = 73 \times 0.790 = 58$ mg/L.
 
-\subsubsection{Verificación para Caudal Máximo Horario}
+\textbf{Verificación de cumplimiento del objetivo:} El valor calculado de $S_e = 57.6$ mg/L no cumple con el objetivo de $55$ mg/L y requiere ajuste de diseño o aceptación explícita del criterio adoptado.
 
-Se verifica el comportamiento hidráulico para el caudal máximo horario, aplicando un factor de pico típico de 2.5 sobre el caudal medio:
+\subsubsection{Recirculación -- Dimensionamiento}
+
+La recirculación en filtros percoladores cumple funciones fundamentales según Metcalf \& Eddy \cite{metcalf2014}. En primer lugar, garantiza que la biopelícula permanezca húmeda durante periodos de bajo caudal, evitando su deterioro por desecación. Adicionalmente, aumenta la tasa hidráulica superficial, promoviendo una distribución más uniforme del afluente sobre el medio filtrante. Finalmente, reduce la concentración de DBO del afluente por efecto de dilución, disminuyendo el riesgo de sobrecarga orgánica y la generación de olores.
+
+Según Metcalf \& Eddy (2014), las relaciones de recirculación típicas para filtros percoladores con medio plástico varían entre $R = 0.5$ y $R = 2.0$, dependiendo de la variabilidad del caudal y la calidad del agua residual. Para este diseño se adopta $R = 1.5$.
+
+El caudal total que llega al filtro incluye el afluente más el recirculado:
 
 \begin{equation}
-Q_{max} = 2.5 \times Q_{medio} = 2.5 \times 432.0 = 1080.0 \text{ m}^3\text{/d}
+Q_{total} = Q_{medio} \times (1 + R) = 432.0 \times 2.5 = 1080.0 \text{ m}^3\text{/d}
 \end{equation}
 
-A caudal máximo, la tasa hidráulica resulta:
+Este caudal se distribuye uniformemente mediante el sistema de distribución rotatorio. El número de brazos del distribuidor se selecciona en función del diámetro del filtro, adoptándose 2 brazos para esta configuración, lo que resulta en un caudal por brazo de:
 
 \begin{equation}
-q_{A,max} = \frac{Q_{max} \cdot (1 + R)}{A_s \cdot 24} = \frac{1080.0 \times 3.0}{33.75 \times 24} = 4.00 \text{ m}^3\text{/m}^2\text{·h}
+Q_{brazo} = \frac{Q_{total}}{N_{brazos}} = \frac{45.0}{2} = 22.5 \text{ m}^3\text{/h}
 \end{equation}
 
-El valor obtenido se compara con el límite máximo recomendado de 4.0 m³/m²·h. el valor obtenido (4.00 m³/m²·h) es menor que el límite máximo recomendado de 4,0 m³/m²·h establecido por Metcalf y Eddy para evitar el arrastre de biopelícula, por lo que el diseño es adecuado.
+\subsubsection{Recirculación -- Verificación}
+
+La verificación de la recirculación se centra en garantizar el caudal mínimo necesario para mantener la biopelícula húmeda durante condiciones de bajo flujo. Según Metcalf \& Eddy \cite{metcalf2014}, la tasa hidráulica superficial mínima recomendada es de $q_{A,min} \geq 0.5$ m³/m²·h para evitar la desecación del medio y garantizar el riego adecuado sobre la biopelícula.
+
+Se evalúa la condición de caudal mínimo, correspondiente típicamente al 40\% del caudal medio (operación nocturna):
+
+\begin{equation}
+q_{A,min} = \frac{Q_{min} \times (1 + R)}{A_s} = \frac{432.0 \times 0.40 \times 2.5}{30.01 \times 24} = 0.60 \text{ m}^3\text{/m}^2\text{·h}
+\end{equation}
+
+$q_{A,min} = 0.60$ m³/m²·h $\geq 0,5$ (biopelícula húmeda garantizada).
+
+Según Metcalf \& Eddy (2014, p. 843), valores de $q_{A,min}$ inferiores a 0.5 m³/m²·h requieren considerar aumentar la recirculación o implementar sistemas de control de nivel para mantener la biopelícula activa.
 
 \subsubsection{Resultados}
 
@@ -879,12 +934,12 @@ El valor obtenido se compara con el límite máximo recomendado de 4.0 m³/m²·
 \toprule
 Parámetro & Valor \\
 \midrule
-Diámetro & 6.56 m \\
-Altura total & 4.30 m \\
+Diámetro & 6.18 m \\
+Altura total & 4.50 m \\
 Profundidad medio & 3.50 m \\
 Volumen de medio & 105.0 m³ \\
 Carga orgánica & 0.30 kg DBO/m³·d \\
-Recirculación & R = 2.0 \\
+Recirculación & R = 1.5 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -982,10 +1037,10 @@ La carga calculada (23.4 m³/m·d) es significativamente menor que el límite de
 
 \textbf{3. Tasa de aplicación de sólidos}
 
-Considerando la producción estimada de humus del filtro percolador (4.7 kg SST/d):
+Considerando la producción estimada de humus del filtro percolador (1.0 kg SST/d):
 
 \begin{equation}
-\text{Carga de sólidos} = \frac{4.7 \text{ kg SST/d}}{27.09 \text{ m}^2} = 0.17 \text{ kg SST/m}^2\text{·d}
+\text{Carga de sólidos} = \frac{1.0 \text{ kg SST/d}}{27.09 \text{ m}^2} = 0.04 \text{ kg SST/m}^2\text{·d}
 \end{equation}
 
 El valor está dentro del rango recomendado de 50--150 kg SST/m²·d para sedimentadores tras filtros percoladores.
@@ -1022,7 +1077,7 @@ SOR (caudal máximo) & 39.9 m³/m²·d \\
 HRT (promedio) & 5.3 h \\
 HRT (caudal máximo) & 2.1 h \\
 Carga sobre vertedero & 23.4 m³/m·d \\
-Carga de sólidos & 0.17 kg/m²·d \\
+Carga de sólidos & 0.04 kg/m²·d \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1052,7 +1107,7 @@ La dosis total de cloro se descompone en la demanda del efluente (consumida por 
 \toprule
 Parámetro & Rango recomendado & Valor adoptado & Fuente \\
 \midrule
-Demanda de cloro & 2--5 & 3.5 mg/L & Estimado efluente UASB+FP \\
+Demanda de cloro & 2--5 & 3.5 mg/L & Estimado efluente post-sedimentador \\
 Cloro residual & 0.5--2.0 & 0.5 mg/L & OPS/CEPIS \cite{ops2005} \\
 Dosis total & 3--10 & 4.0 mg/L & Metcalf \& Eddy \cite{metcalf2014} \\
 Tiempo de contacto & 15--45 & 30 min & Metcalf \& Eddy \\
@@ -1094,7 +1149,7 @@ La reducción de coliformes se estima mediante:
 Los coliformes finales se calculan como:
 
 \begin{equation}
-CF_{final} = \frac{CF_{inicial}}{10^{\text{Log reducción}}} = \frac{5000000}{10^{3.3}} = 2506 \text{ NMP/100mL}
+CF_{final} = \frac{CF_{inicial}}{10^{\text{Log reducción}}} = \frac{5040000}{10^{3.3}} = 2526 \text{ NMP/100mL}
 \end{equation}
 
 \textbf{Dimensionamiento del tanque de contacto}
@@ -1119,7 +1174,7 @@ V = 0.300 \times 30 = 9.0 \text{ m}^3
 
 Con una profundidad de 2.0 m y relación largo/ancho de 4:1, las dimensiones resultantes son 4.2 m de largo por 1.1 m de ancho.
 
-El efluente final presenta una concentración de coliformes fecales de 2506 NMP/100mL.
+El efluente final presenta una concentración de coliformes fecales de 2526 NMP/100mL.
 
 \textbf{Consumo de cloro y requerimientos de producto comercial}
 
@@ -1169,7 +1224,7 @@ Cloro residual & 0.5 mg/L \\
 Dosis total & 4.0 mg/L \\
 CT & 15 mg.min/L \\
 Log reducción & 3.3 log \\
-CF final & 2506 NMP/100mL \\
+CF final & 2526 NMP/100mL \\
 \midrule
 \multicolumn{2}{l}{\textit{Consumo de productos}} \\
 \midrule
@@ -1225,9 +1280,9 @@ La producción de lodos se estima considerando:
 \textbf{Origen} & \textbf{Por línea (kg SST/d)} & \textbf{Total planta (2 líneas) (kg SST/d)} \\
 \midrule
 Lodos UASB (anaerobios) & 7.35 & 14.70 \\
-Humus FP + Sedimentador & 6.43 & 12.86 \\
+Humus FP + Sedimentador & 6.61 & 13.22 \\
 \midrule
-\textbf{Total} & \textbf{13.78} & \textbf{27.56} \\
+\textbf{Total} & \textbf{13.96} & \textbf{27.92} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1244,12 +1299,12 @@ V_{lodo} = \frac{M_{SST}}{C_{SST}}
 \textit{Donde:}
 \begin{itemize}[noitemsep,leftmargin=2em]
     \item[$V_{lodo}$] = Volumen diario de lodo (m³/d)
-    \item[$M_{SST}$] = Masa de sólidos producidos TOTAL (27.56 kg SST/d)
+    \item[$M_{SST}$] = Masa de sólidos producidos TOTAL (27.92 kg SST/d)
     \item[$C_{SST}$] = Concentración de sólidos (20 kg/m³)
 \end{itemize}
 
 \begin{equation}
-V_{lodo} = \frac{27.56}{20} = 1.378 \text{ m}^3\text{/d}
+V_{lodo} = \frac{27.92}{20} = 1.396 \text{ m}^3\text{/d}
 \end{equation}
 
 \textbf{Dimensionamiento del área}
@@ -1270,7 +1325,7 @@ A_{total} = \frac{V_{lodo} \cdot t_s}{h_{lodo}}
 \end{itemize}
 
 \begin{equation}
-A_{total} = \frac{1.378 \times 15}{0.30} = 68.9 \text{ m}^2
+A_{total} = \frac{1.396 \times 15}{0.30} = 69.8 \text{ m}^2
 \end{equation}
 
 \textbf{Distribución por tren de tratamiento}
@@ -1278,7 +1333,7 @@ A_{total} = \frac{1.378 \times 15}{0.30} = 68.9 \text{ m}^2
 El área total se distribuye en bloques independientes, uno al final de cada tren de tratamiento:
 
 \begin{equation}
-A_{bloque} = \frac{A_{total}}{n_{lineas}} = \frac{68.9}{2} = 34.5 \text{ m}^2 \text{ por bloque}
+A_{bloque} = \frac{A_{total}}{n_{lineas}} = \frac{69.8}{2} = 34.9 \text{ m}^2 \text{ por bloque}
 \end{equation}
 
 \textbf{Subdivisión interna en celdas}
@@ -1286,7 +1341,7 @@ A_{bloque} = \frac{A_{total}}{n_{lineas}} = \frac{68.9}{2} = 34.5 \text{ m}^2 \t
 Cada bloque se subdivide internamente en celdas para operación por rotación:
 
 \begin{equation}
-A_{celda} = \frac{A_{total}}{n_{celdas}} = \frac{68.9}{2} = 34.5 \text{ m}^2 \text{ por celda}
+A_{celda} = \frac{A_{total}}{n_{celdas}} = \frac{69.8}{2} = 34.9 \text{ m}^2 \text{ por celda}
 \end{equation}
 
 Con una relación largo/ancho de 3:1, las dimensiones de cada bloque son 10.2 m de largo por 3.4 m de ancho.
@@ -1296,7 +1351,7 @@ Con una relación largo/ancho de 3:1, las dimensiones de cada bloque son 10.2 m 
 La carga superficial de sólidos se verifica mediante:
 
 \begin{equation}
-\rho_S = \frac{M_{SST} \times 365}{A_{total}} = \frac{27.56 \times 365}{68.9} = 146.0 \text{ kg SST/m}^2\text{·año}
+\rho_S = \frac{M_{SST} \times 365}{A_{total}} = \frac{27.92 \times 365}{69.8} = 146.0 \text{ kg SST/m}^2\text{·año}
 \end{equation}
 
 El valor obtenido está dentro del rango recomendado de 60--220 kg SST/m²·año para lechos de secado de lodos anaerobios según Metcalf \& Eddy \cite{metcalf2014}.
@@ -1310,9 +1365,9 @@ El valor obtenido está dentro del rango recomendado de 60--220 kg SST/m²·año
 \toprule
 Parámetro & Valor \\
 \midrule
-Área total requerida & 68.9 m² \\
+Área total requerida & 69.8 m² \\
 Número de bloques (uno por tren) & 2 \\
-Área por bloque & 34.5 m² \\
+Área por bloque & 34.9 m² \\
 Dimensiones de cada bloque (L×A) & 10.2 m × 3.4 m \\
 Número total de celdas & 2 \\
 Tiempo de secado & 15 días \\
@@ -1332,8 +1387,8 @@ El tren de tratamiento propuesto alcanza eficiencias de remocion significativas.
 \toprule
 Parametro & Afluente & Post-UASB & Post-FP & Post-Sed & Efluente Final \\
 \midrule
-DBO$_5$ (mg/L) & 243.1 & 72.9 & 58.0 & 49.3 & 49.3 \\
-DQO (mg/L) & 498.0 & 174.3 & 142.3 & 121.0 & 121.0 \\
+DBO$_5$ (mg/L) & 243.1 & 72.9 & 57.6 & 49.0 & 49.0 \\
+DQO (mg/L) & 498.0 & 174.3 & 141.4 & 120.2 & 120.2 \\
 SST (mg/L) & 156.0 & 46.8 & 18.7 & 3.7 & 3.7 \\
 CF (NMP/100mL) & 10000000 & 7000000 & 5600000 & 5040000 & 2526 \\
 \bottomrule
@@ -1351,11 +1406,11 @@ La figura \ref{fig:layout_a} presenta la disposicion espacial de las unidades de
 \label{fig:layout_a}
 \end{figure}
 
-El área de tratamiento calculada (unidades mas margenes minimos) es de aproximadamente 1093 m². Sin embargo, para una operacion adecuada se requieren areas complementarias adicionales.
+El área de tratamiento calculada (unidades mas margenes minimos) es de aproximadamente 1123 m². Sin embargo, para una operacion adecuada se requieren areas complementarias adicionales.
 
 \textbf{Areas complementarias requeridas}
 
-El area calculada de 1093 m$^2$ corresponde unicamente a las unidades de tratamiento con sus margenes minimos de acceso. Sin embargo, para garantizar una operacion segura y eficiente de la planta durante toda su vida util, es necesario prever espacios adicionales para acceso vehicular y peatonal de operarios y visitantes, almacenamiento seguro de productos quimicos y herramientas, realizacion de analisis de control de calidad in-situ, estacionamiento para personal y visitantes, circulacion interna de vehiculos de mantenimiento y retiro de lodos, separacion de limites con zonas verdes para control de olores, y espacios administrativos para control operativo. La siguiente tabla resume las areas complementarias necesarias:
+El area calculada de 1123 m$^2$ corresponde unicamente a las unidades de tratamiento con sus margenes minimos de acceso. Sin embargo, para garantizar una operacion segura y eficiente de la planta durante toda su vida util, es necesario prever espacios adicionales para acceso vehicular y peatonal de operarios y visitantes, almacenamiento seguro de productos quimicos y herramientas, realizacion de analisis de control de calidad in-situ, estacionamiento para personal y visitantes, circulacion interna de vehiculos de mantenimiento y retiro de lodos, separacion de limites con zonas verdes para control de olores, y espacios administrativos para control operativo. La siguiente tabla resume las areas complementarias necesarias:
 
 \begin{table}[H]
 \centering
@@ -1365,36 +1420,36 @@ El area calculada de 1093 m$^2$ corresponde unicamente a las unidades de tratami
 \toprule
 Area & Descripcion & Dimension aprox. \\
 \midrule
-Zona de amortiguacion & Perimetral alrededor de unidades (2-3 m) para acceso y seguridad & 219 m$^2$ (20\%) \\
+Zona de amortiguacion & Perimetral alrededor de unidades (2-3 m) para acceso y seguridad & 225 m$^2$ (20\%) \\
 \addlinespace
 Bodega de quimicos & Almacenamiento de hipoclorito y productos quimicos & 13 m$^2$ \\
 \addlinespace
 Laboratorio/control & Analisis de calidad del agua (DBO, SST, CF, pH) & 20 m$^2$ \\
 \addlinespace
-Caseta de operacion & Control, panel, escritorio, bano & 16 m$^2$ \\
+Caseta de operacion & Control, panel, escritorio, bano & 17 m$^2$ \\
 \addlinespace
 Area de lavado & Limpieza de equipos y herramientas & 11 m$^2$ \\
 \addlinespace
-Estacionamiento & Vehiculos del personal y visitantes (2-3 vehiculos) & 60 m$^2$ \\
+Estacionamiento & Vehiculos del personal y visitantes (2-3 vehiculos) & 62 m$^2$ \\
 \addlinespace
-Zona de camiones & Acceso de camiones cisterna/retiro de lodo & 71 m$^2$ \\
+Zona de camiones & Acceso de camiones cisterna/retiro de lodo & 73 m$^2$ \\
 \addlinespace
-Caminos internas & Circulacion vehicular y peatonal (ancho 3--4 m) & 109 m$^2$ (10\% area) \\
+Caminos internas & Circulacion vehicular y peatonal (ancho 3--4 m) & 112 m$^2$ (10\% area) \\
 \addlinespace
-Acceso principal & Entrada, porton y caseta de guardia & 27 m$^2$ \\
+Acceso principal & Entrada, porton y caseta de guardia & 28 m$^2$ \\
 \addlinespace
 Bodega general & Herramientas, repuestos, EPP & 20 m$^2$ \\
 \addlinespace
-Zona carga de lodos & Carga/descarga de lodo deshidratado & 27 m$^2$ \\
+Zona carga de lodos & Carga/descarga de lodo deshidratado & 28 m$^2$ \\
 \addlinespace
-Area verde/buffer & Separacion de limites, revegetacion & 280 m$^2$ (15\% total) \\
+Area verde/buffer & Separacion de limites, revegetacion & 287 m$^2$ (15\% total) \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \textbf{Area total estimada del predio}
 
-Considerando el area de tratamiento (1093 m$^2$), amortiguacion (20\%), complementarias operativas y zona verde (15\% del total):
+Considerando el area de tratamiento (1123 m$^2$), amortiguacion (20\%), complementarias operativas y zona verde (15\% del total):
 
 \begin{equation}
 A_{total} = \frac{A_{tratamiento} + A_{amortiguacion} + A_{complementarias}}{1 - 0.15}
@@ -1402,16 +1457,16 @@ A_{total} = \frac{A_{tratamiento} + A_{amortiguacion} + A_{complementarias}}{1 -
 \captionequation{Formula del area total del predio}
 
 \begin{itemize}[noitemsep,leftmargin=2em]
-    \item[$A_{tratamiento}$] = 1093 m$^2$
-    \item[$A_{amortiguacion}$] = 219 m$^2$ (20\%)
-    \item[$A_{complementarias}$] = 273 m$^2$ (25\% operativas estimado)
+    \item[$A_{tratamiento}$] = 1123 m$^2$
+    \item[$A_{amortiguacion}$] = 225 m$^2$ (20\%)
+    \item[$A_{complementarias}$] = 281 m$^2$ (25\% operativas estimado)
 \end{itemize}
 
 \begin{equation}
-A_{total} = \frac{1093 + 219 + 273}{0.85} \approx \mathbf{1865 \text{ m}^2} \approx \mathbf{0.19 \text{ ha}}
+A_{total} = \frac{1123 + 225 + 281}{0.85} \approx \mathbf{1916 \text{ m}^2} \approx \mathbf{0.19 \text{ ha}}
 \end{equation}
 
-\textbf{Nota:} El area total del predio debe ser de aproximadamente 1865 m$^2$ (0.19 ha) para operacion adecuada con circulacion interna, estacionamiento y zonas verdes.
+\textbf{Nota:} El area total del predio debe ser de aproximadamente 1916 m$^2$ (0.19 ha) para operacion adecuada con circulacion interna, estacionamiento y zonas verdes.
 
 
 
@@ -1453,10 +1508,10 @@ Temperatura & 25.6 °C \\
 Rejillas & 0.60 $\times$ 0.40 & 2 & Velocidad: 0.50 m/s \\
 Desarenador & 0.60 $\times$ 3.0 $\times$ 0.7 & 2 & TRH: 144~s (referencia: 30--60~s) \\
 Reactor UASB & D = 7.30, H = 6.4 & 2 & v$_{up}$ = 0.43 m/h \\
-Filtro Percolador & D = 6.56, H = 4.3 & 2 & Q$_A$ = 1.600 m$^3$/m$^2$·h (máx: 4.00) \\
+Filtro Percolador & D = 6.18, H = 4.5 & 2 & Q$_A$ = 1.500 m$^3$/m$^2$·h (máx: 3.75) \\
 Sedimentador Secundario & D = 5.87, H = 3.5 & 2 & SOR = 15.9 m$^3$/m$^2\cdot$d \\
 Desinfeccion (Cloro) & 4.2 $\times$ 1.1 $\times$ 2.3 & 2 & CT = 15 mg$\cdot$min/L \\
-Lecho de Secado & 10.2 $\times$ 3.4 & 2 & Área: 34.5 m$^2$ \\
+Lecho de Secado & 10.2 $\times$ 3.4 & 2 & Área: 34.9 m$^2$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1470,19 +1525,19 @@ Lecho de Secado & 10.2 $\times$ 3.4 & 2 & Área: 34.5 m$^2$ \\
 \toprule
 \textbf{Parametro} & \textbf{Afluente} & \textbf{Post-UASB} & \textbf{Post-FP} & \textbf{Post-Sed} & \textbf{Efluente} \\
 \midrule
-DBO$_5$ (mg/L) & 243.1 & 72.9 & 58.0 & 49.3 & 49.3 \\
-DQO (mg/L) & 498.0 & 174.3 & 142.3 & 121.0 & 121.0 \\
+DBO$_5$ (mg/L) & 243.1 & 72.9 & 57.6 & 49.0 & 49.0 \\
+DQO (mg/L) & 498.0 & 174.3 & 141.4 & 120.2 & 120.2 \\
 SST (mg/L) & 156.0 & 46.8 & 18.7 & 3.7 & 3.7 \\
 CF (NMP/100mL) & 10000000 & 7000000 & 5600000 & 5040000 & 2526 \\
 \midrule
-\textbf{Remocion etapa} & -- & \textbf{70\%} & \textbf{20\%} & \textbf{15\%} & \textbf{79.7\%} \\
+\textbf{Remocion etapa} & -- & \textbf{70\%} & \textbf{21\%} & \textbf{15\%} & \textbf{79.8\%} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \subsection{Verificacion de Cumplimiento TULSMA}
 
-\textbf{Efluente calculado:} DBO$_5$ = 49.3 mg/L | DQO = 121.0 mg/L | SST = 3.7 mg/L | CF = 2526 NMP/100mL
+\textbf{Efluente calculado:} DBO$_5$ = 49.0 mg/L | DQO = 120.2 mg/L | SST = 3.7 mg/L | CF = 2526 NMP/100mL
 
 \vspace{0.5em}
 \begin{table}[H]
@@ -1516,12 +1571,12 @@ Consumo humano trat. conv. -- Tabla 1 & $\leq$2.0 & --- & --- & $\leq$600 & NO C
 \toprule
 \textbf{Concepto} & \textbf{Area} \\
 \midrule
-Area de tratamiento & 1093 m$^2$ \\
-Area de amortiguacion (20\%) & 219 m$^2$ \\
-Area complementaria operativa & 273 m$^2$ (25\% estimado) \\
-Zona verde (15\% del total) & 280 m$^2$ \\
+Area de tratamiento & 1123 m$^2$ \\
+Area de amortiguacion (20\%) & 225 m$^2$ \\
+Area complementaria operativa & 281 m$^2$ (25\% estimado) \\
+Zona verde (15\% del total) & 287 m$^2$ \\
 \midrule
-\textbf{Area total requerida} & \textbf{1865 m$^2$ (0.19 ha)} \\
+\textbf{Area total requerida} & \textbf{1916 m$^2$ (0.19 ha)} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1537,10 +1592,10 @@ Zona verde (15\% del total) & 280 m$^2$ \\
 \textbf{Concepto} & \textbf{Por línea} & \textbf{Total planta} \\
 \midrule
 Produccion lodos UASB & 7.35 kg SST/d & 14.70 kg SST/d \\
-Produccion humus FP + Sed & 6.43 kg SST/d & 12.86 kg SST/d \\
+Produccion humus FP + Sed & 6.61 kg SST/d & 13.22 kg SST/d \\
 \midrule
-\textbf{Total lodos} & \textbf{13.78 kg SST/d} & \textbf{27.56 kg SST/d} \\
-Area de lechos de secado & --- & 68.9 m$^2$ (2 bloques) \\
+\textbf{Total lodos} & \textbf{13.96 kg SST/d} & \textbf{27.92 kg SST/d} \\
+Area de lechos de secado & --- & 69.8 m$^2$ (2 bloques) \\
 Frecuencia de aplicacion & --- & 1 vez cada 3--4 meses \\
 \bottomrule
 \end{tabular}

@@ -222,14 +222,14 @@ def convertir_resultados_a_dimensiones(resultados: dict) -> dict:
                 'geom': 'circ'
             }
         elif key_res == 'filtro_percolador':
-            diam = res.get('D_filtro_m', res.get('diametro_m', 5.0))
+            diam = res.get('diametro_layout_m', res.get('D_filtro_m', res.get('diametro_m', 5.0)))
             dim[key_layout] = {
                 'tipo': 'tratamiento_secundario',
                 'diametro': diam,
                 'geom': 'circ'
             }
         elif key_res == 'sedimentador_sec':
-            diam = res.get('D_m', res.get('diametro_m', 5.0))
+            diam = res.get('diametro_layout_m', res.get('D_m', res.get('diametro_m', 5.0)))
             dim[key_layout] = {
                 'tipo': 'tratamiento_secundario',
                 'diametro': diam,

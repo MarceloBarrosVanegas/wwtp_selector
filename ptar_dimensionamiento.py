@@ -239,20 +239,32 @@ class ConfigDiseno:
     fp_num_boquillas_por_brazo: int = 8     # Número de boquillas por brazo (5-15)
     
     # PASO 7 - Underdrain
-    fp_pendiente_underdrain_pct: float = 1.0  # Pendiente mínima piso underdrain (>= 1%)
-    fp_ancho_canal_central_m: float = 0.30    # Ancho canal central underdrain (0.30-0.60 m)
+    fp_pendiente_underdrain_pct: float = 1.0    # Pendiente mínima piso underdrain (>= 1%)
+    fp_ancho_canal_central_m: float = 0.30      # Ancho canal central underdrain (0.30-0.60 m)
+    fp_altura_canal_central_m: float = 0.30     # Altura canal central underdrain (m)
+    fp_n_manning_underdrain: float = 0.013      # Coef. rugosidad Manning underdrain (concreto)
+    fp_factor_capacidad_underdrain: float = 0.50  # Factor capacidad underdrain (diseño = Q_ap / factor)
+    fp_llenado_max_underdrain: float = 0.50       # Llenado máximo permitido en canal underdrain
+    
+    # PASO 5 - Recirculación y caudal mínimo
+    fp_factor_caudal_min_nocturno: float = 0.40   # Factor caudal mínimo nocturno (fracción de Q_medio)
     
     # PASO 8 - Ventilación
-    fp_area_ventilacion_pct: float = 1.0    # Área ventilación / Área superficial (>= 1%)
-    fp_Q_aire_factor: float = 0.3           # Caudal aire / caudal agua (0.1-0.5 m³/m³)
+    fp_area_ventilacion_pct: float = 1.0        # Área ventilación / Área superficial (>= 1%)
+    fp_Q_aire_factor: float = 0.3               # Caudal aire / caudal agua óptimo (m³/m³)
+    fp_Q_aire_min_factor: float = 0.1           # Caudal aire / caudal agua mínimo (m³/m³)
+    fp_apertura_ventilacion_ancho_m: float = 0.20   # Ancho apertura ventilación (m)
+    fp_apertura_ventilacion_alto_m: float = 0.30    # Alto apertura ventilación (m)
     
     # PASO 10 - Especificaciones medio plástico
-    fp_sup_especifica_m2_m3: float = 100.0  # Superficie específica (90-150 m²/m³)
-    fp_vacios_pct: float = 94.0             # Índice de vacíos (>= 94%)
-    fp_densidad_media_kg_m3: float = 60.0   # Densidad aparente (30-100 kg/m³)
-    fp_Cv_kgDBO_m3_d: float = 0.5           # Carga orgánica volumétrica (kg DBO/m³·d)
-    fp_Q_A_limite_m3_m2_h: float = 4.0      # Límite tasa hidráulica (m³/m²·h)
-    fp_Cv_minima_kgDBO_m3_d: float = 0.30   # Carga orgánica mínima recomendada (kg DBO/m³·d)
+    fp_sup_especifica_m2_m3: float = 100.0      # Superficie específica (90-150 m²/m³)
+    fp_vacios_pct: float = 94.0                 # Índice de vacíos (>= 94%)
+    fp_densidad_media_kg_m3: float = 60.0       # Densidad aparente (30-100 kg/m³)
+    fp_carga_agua_sobre_medio_kg_m3: float = 40.0       # Carga agua sobre medio (kg/m³)
+    fp_carga_biopelicula_sobre_medio_kg_m3: float = 15.0 # Carga biopelícula sobre medio (kg/m³)
+    fp_Cv_kgDBO_m3_d: float = 0.5               # Carga orgánica volumétrica (kg DBO/m³·d)
+    fp_Q_A_limite_m3_m2_h: float = 4.0          # Límite tasa hidráulica (m³/m²·h)
+    fp_Cv_minima_kgDBO_m3_d: float = 0.30       # Carga orgánica mínima recomendada (kg DBO/m³·d)
     
     # =============================================================================
     # PARÁMETROS DE DISEÑO - DESINFECCIÓN CON CLORO
@@ -1680,82 +1692,99 @@ def dimensionar_filtro_percolador(Q: ConfigDiseno = CFG,
     DBO_kg_m3 = DBO_entrada_mg_L * 1e-3    # kg/m^3
     V_medio_m3 = Q_m3_d * DBO_kg_m3 / Cv_kgDBO_m3_d    # m^3
 
-    # Área superficial
-    A_sup_m2 = V_medio_m3 / D_m             # m^2
-
-    # Tasa hidráulica con recirculación
-    Q_ap_m3_h = Q_m3_h * (1 + R)
-    Q_A_real  = Q_ap_m3_h / A_sup_m2       # m^3/m^2*h
-
-    # Si Q_A_real < 1 m^3/m^2*h (mínimo de mojado del medio), aumentar R
-    if Q_A_real < 1.0:
-        R = math.ceil(A_sup_m2 / Q_m3_h) - 1
-        R = max(R, 1.0)
-        Q_ap_m3_h = Q_m3_h * (1 + R)
-        Q_A_real  = Q_ap_m3_h / A_sup_m2
-
-    # Diámetro del filtro circular
-    D_filtro_m = math.sqrt(4 * A_sup_m2 / math.pi)
-
-    # === VERIFICACIÓN DE EFICIENCIA (modelo Germain) ===
-    # Se/S0 = exp(-k_T * D / Q_A^n)                      [Ec. 5a]
-    relacion_Se_S0 = math.exp(-k_T_m_h * D_m / (Q_A_real ** n))
-    Se_calculado_mg_L = DBO_entrada_mg_L * relacion_Se_S0
-
-    DBO_removida_kg_d = Q_m3_d * DBO_kg_m3 * (1 - relacion_Se_S0)
-
-    # Cálculos para verificación Qmax (factor 2.5 igual que otras unidades)
-    factor_pico = Q.factor_pico_Qmax  # Factor desde configuración
+    # ========================================================================
+    # LOOP INTEGRAL DE AUTO-AJUSTE DEL FILTRO PERCOLADOR
+    # Verifica y ajusta automáticamente todos los criterios de diseño
+    # ========================================================================
+    
+    factor_pico = Q.factor_pico_Qmax
     Q_max_m3_d = Q_m3_d * factor_pico
     Q_max_m3_h = Q_max_m3_d / 24
-    
-    # Límite de tasa hidráulica para filtros percoladores con medio plástico
-    # Según Metcalf & Eddy: máximo 4.0 m³/m²·h para evitar arrastre de biopelícula
     Q_A_limite_m3_m2_h = Q.fp_Q_A_limite_m3_m2_h
+    Cv_minima = Q.fp_Cv_minima_kgDBO_m3_d
     
-    # Ajuste automático si excede el límite: aumentamos recirculación primero, luego área
-    # con protección de iteraciones máximas y límite mínimo de Cv
     iteracion = 0
     max_iteraciones = 100
-    Cv_minima = Q.fp_Cv_minima_kgDBO_m3_d  # kg DBO/m³·d - límite inferior de diseño
+    ajuste_realizado = True
     
-    while iteracion < max_iteraciones:
-        Q_ap_m3_h = Q_m3_h * (1 + R)  # Recalcular con R actual
-        Q_A_max_m3_m2_h = Q_max_m3_h * (1 + R) / A_sup_m2
-        
-        # Si está por debajo del límite, aceptamos
-        if Q_A_max_m3_m2_h <= Q_A_limite_m3_m2_h:
-            break
-        
-        # Estrategia de ajuste
-        if R < 2.0:
-            R = min(R + 0.5, 2.0)  # Aumentamos recirculación hasta máximo 2.0
-        elif Cv_kgDBO_m3_d > Cv_minima * 1.05:  # Dejar margen del 5% sobre el mínimo
-            Cv_kgDBO_m3_d = max(Cv_kgDBO_m3_d * 0.95, Cv_minima)
-            V_medio_m3 = Q_m3_d * DBO_kg_m3 / Cv_kgDBO_m3_d
-            A_sup_m2 = V_medio_m3 / D_m
-        else:
-            # No se puede ajustar más sin violar límites
-            break
-        
+    while iteracion < max_iteraciones and ajuste_realizado:
         iteracion += 1
+        ajuste_realizado = False
+        
+        # Recalcular parámetros base
+        A_sup_m2 = V_medio_m3 / D_m
+        Q_ap_m3_h = Q_m3_h * (1 + R)
+        Q_A_real = Q_ap_m3_h / A_sup_m2
+        
+        # VERIFICACIÓN 1: qA_real >= 1.0 m³/m²·h (mojado mínimo del medio)
+        if Q_A_real < 1.0:
+            R_nuevo = math.ceil(A_sup_m2 / Q_m3_h)
+            R = max(R_nuevo, R + 0.5, 1.0)
+            ajuste_realizado = True
+            continue
+        
+        # VERIFICACIÓN 2: Se_Germain <= objetivo (eficiencia requerida)
+        relacion_Se_S0 = math.exp(-k_T_m_h * D_m / (Q_A_real ** n))
+        Se_calculado_mg_L = DBO_entrada_mg_L * relacion_Se_S0
+        
+        if Se_calculado_mg_L > DBO_salida_mg_L:
+            # Estrategia: reducir Cv para aumentar volumen y mejorar eficiencia
+            # (mayor V = mayor área = menor Q_A = mejor eficiencia)
+            if Cv_kgDBO_m3_d > Cv_minima * 1.05:
+                Cv_kgDBO_m3_d = max(Cv_kgDBO_m3_d * 0.95, Cv_minima)
+                V_medio_m3 = Q_m3_d * DBO_kg_m3 / Cv_kgDBO_m3_d
+                ajuste_realizado = True
+                continue
+            # Si no se puede mejorar más, salir del loop (se reportará al final)
+        
+        # VERIFICACIÓN 3: qA_max <= limite (evitar arrastre)
+        Q_A_max_m3_m2_h = Q_max_m3_h * (1 + R) / A_sup_m2
+        if Q_A_max_m3_m2_h > Q_A_limite_m3_m2_h:
+            # Estrategia: aumentar área reduciendo Cv
+            if Cv_kgDBO_m3_d > Cv_minima * 1.05:
+                Cv_kgDBO_m3_d = max(Cv_kgDBO_m3_d * 0.95, Cv_minima)
+                V_medio_m3 = Q_m3_d * DBO_kg_m3 / Cv_kgDBO_m3_d
+                ajuste_realizado = True
+                continue
+            else:
+                # Forzar área mínima necesaria
+                A_sup_m2 = (Q_max_m3_h * (1 + R)) / Q_A_limite_m3_m2_h
+                V_medio_m3 = A_sup_m2 * D_m
+                break
+        
+        # VERIFICACIÓN 4: qA_min >= 0.5 m³/m²·h (biopelícula húmeda)
+        Q_min_m3_h = Q_m3_h * Q.fp_factor_caudal_min_nocturno
+        qA_min_m3_m2_h = Q_min_m3_h * (1 + R) / A_sup_m2
+        if qA_min_m3_m2_h < 0.5:
+            R = min(R + 0.5, 2.0)
+            ajuste_realizado = True
+            continue
+        
+        # Si llegamos aquí, todas las verificaciones pasaron
+        break
     
-    # Si aún excede el límite, aumentar área superficial directamente
-    Q_A_max_m3_m2_h = Q_max_m3_h * (1 + R) / A_sup_m2
-    if Q_A_max_m3_m2_h > Q_A_limite_m3_m2_h:
-        # Calcular área mínima necesaria para cumplir el límite
-        A_sup_m2 = (Q_max_m3_h * (1 + R)) / Q_A_limite_m3_m2_h
-    
-    # Recalcular dimensiones finales y parámetros dependientes
-    D_filtro_m = math.sqrt(4 * A_sup_m2 / math.pi)
+    # Recálculo final con valores ajustados
+    A_sup_m2 = V_medio_m3 / D_m
+    Q_ap_m3_h = Q_m3_h * (1 + R)
     Q_A_real = Q_ap_m3_h / A_sup_m2
-    Q_A_max_m3_m2_h = Q_max_m3_h * (1 + R) / A_sup_m2
-    Q_A_max_m3_m2_d = Q_A_max_m3_m2_h * 24  # Para reporte
+    D_filtro_m = math.sqrt(4 * A_sup_m2 / math.pi)
     
-    # Recalcular eficiencia Germain con tasa hidráulica final
+    # Eficiencia Germain final
     relacion_Se_S0 = math.exp(-k_T_m_h * D_m / (Q_A_real ** n))
     Se_calculado_mg_L = DBO_entrada_mg_L * relacion_Se_S0
     DBO_removida_kg_d = Q_m3_d * DBO_kg_m3 * (1 - relacion_Se_S0)
+    
+    # Verificaciones finales
+    Q_A_max_m3_m2_h = Q_max_m3_h * (1 + R) / A_sup_m2
+    Q_min_m3_h = Q_m3_h * Q.fp_factor_caudal_min_nocturno
+    qA_min_m3_m2_h = Q_min_m3_h * (1 + R) / A_sup_m2
+    
+    # Reportar estado de cumplimiento (una sola vez al final)
+    se_cumple_objetivo = Se_calculado_mg_L <= DBO_salida_mg_L
+    if not se_cumple_objetivo:
+        print(f"[ADVERTENCIA] Filtro Percolador: Se_Germain = {Se_calculado_mg_L:.1f} mg/L "
+              f"excede el objetivo de {DBO_salida_mg_L:.1f} mg/L. "
+              f"Diseño no cumple eficiencia requerida.")
     
     # =================================================================
     # PASO 4 - GEOMETRÍA COMPLETA DEL FILTRO (Desglose de alturas)
@@ -1768,11 +1797,10 @@ def dimensionar_filtro_percolador(Q: ConfigDiseno = CFG,
     H_total_calculada = H_distribucion + D_m + H_underdrain + H_bordo_fp
     
     # =================================================================
-    # PASO 5 - SISTEMA DE RECIRCULACIÓN (ya calculado arriba)
-    # Verificación de qA a caudal mínimo (factor 0.4)
+    # PASO 5 - SISTEMA DE RECIRCULACIÓN (valores finales post-ajuste)
+    # Verificación de qA a caudal mínimo (factor desde configuración)
     # =================================================================
-    Q_min_m3_h = Q_m3_h * 0.4  # Caudal mínimo nocturno
-    qA_min_m3_m2_h = Q_min_m3_h * (1 + R) / A_sup_m2
+    # Q_min_m3_h y qA_min_m3_m2_h ya calculados en loop de auto-ajuste
     
     if qA_min_m3_m2_h < 0.5:
         recirculacion_adicional = True
@@ -1815,14 +1843,14 @@ def dimensionar_filtro_percolador(Q: ConfigDiseno = CFG,
     # =================================================================
     # PASO 7 - UNDERDRAIN (Sistema drenaje inferior)
     # =================================================================
-    # Caudal de diseño (regla del 50%: diseñar para el doble)
-    Q_underdrain_diseno_m3_h = Q_ap_m3_h / 0.50
+    # Caudal de diseño (regla del factor de capacidad: diseñar para 1/factor)
+    Q_underdrain_diseno_m3_h = Q_ap_m3_h / Q.fp_factor_capacidad_underdrain
     
     # Canal central - verificación con Manning
     ancho_canal = Q.fp_ancho_canal_central_m
-    altura_canal = 0.30  # m (tipico)
-    pendiente_canal = Q.fp_pendiente_underdrain_pct / 100  # 1% mínima
-    n_manning = 0.013  # Concreto
+    altura_canal = Q.fp_altura_canal_central_m
+    pendiente_canal = Q.fp_pendiente_underdrain_pct / 100
+    n_manning = Q.fp_n_manning_underdrain
     
     A_canal = ancho_canal * altura_canal
     P_canal = ancho_canal + 2 * altura_canal
@@ -1831,9 +1859,9 @@ def dimensionar_filtro_percolador(Q: ConfigDiseno = CFG,
     Q_canal_m3_s = (1/n_manning) * A_canal * (R_hidraulico**(2/3)) * (pendiente_canal**0.5)
     Q_canal_m3_h = Q_canal_m3_s * 3600
     
-    # Verificación: canal debe fluir < 50% de su capacidad
+    # Verificación: canal debe fluir < llenado máximo de su capacidad
     llenado_canal = Q_ap_m3_h / Q_canal_m3_h
-    canal_ok = llenado_canal <= 0.50
+    canal_ok = llenado_canal <= Q.fp_llenado_max_underdrain
     
     # =================================================================
     # PASO 8 - VENTILACIÓN NATURAL
@@ -1842,11 +1870,11 @@ def dimensionar_filtro_percolador(Q: ConfigDiseno = CFG,
     area_ventilacion_requerida_m2 = A_sup_m2 * (Q.fp_area_ventilacion_pct / 100)
     
     # Caudal de aire necesario
-    Q_aire_min_m3_h = Q_m3_h * 0.1  # Mínimo 0.1 m³ aire/m³ agua
+    Q_aire_min_m3_h = Q_m3_h * Q.fp_Q_aire_min_factor
     Q_aire_opt_m3_h = Q_m3_h * Q.fp_Q_aire_factor  # Óptimo 0.3 m³/m³
     
-    # Número de aperturas (0.20 x 0.30 m = 0.06 m² cada una)
-    area_apertura_m2 = 0.20 * 0.30
+    # Número de aperturas (dimensiones desde configuración)
+    area_apertura_m2 = Q.fp_apertura_ventilacion_ancho_m * Q.fp_apertura_ventilacion_alto_m
     num_aperturas_min = math.ceil(area_ventilacion_requerida_m2 / area_apertura_m2)
     
     # Perímetro para distribución
@@ -1857,7 +1885,7 @@ def dimensionar_filtro_percolador(Q: ConfigDiseno = CFG,
     # PASO 10 - ESPECIFICACIONES DEL MEDIO PLÁSTICO
     # =================================================================
     # Carga sobre el medio
-    carga_peso_medio_kg_m2 = (Q.fp_densidad_media_kg_m3 + 40 + 15) * D_m  # + agua + biopelícula
+    carga_peso_medio_kg_m2 = (Q.fp_densidad_media_kg_m3 + Q.fp_carga_agua_sobre_medio_kg_m3 + Q.fp_carga_biopelicula_sobre_medio_kg_m3) * D_m
     
     # Verificación resistencia a compresión
     if D_m <= 3.5:
@@ -1876,11 +1904,6 @@ def dimensionar_filtro_percolador(Q: ConfigDiseno = CFG,
         f"Tasa hidráulica Q_A = {Q_A_real:.2f} m^3/m^2*h fuera de rango 1-18 "
         f"({ref_me}, p. 843)"
     )
-    assert Se_calculado_mg_L <= DBO_salida_mg_L * 1.20, (
-        f"Eficiencia insuficiente: Se_Germain = {Se_calculado_mg_L:.1f} mg/L "
-        f"> objetivo {DBO_salida_mg_L * 1.20:.1f} mg/L"
-    )
-    
     # Texto de verificación narrativo
     if Q_A_max_m3_m2_h <= Q_A_limite_m3_m2_h:
         verif_qmax_texto = f"el valor obtenido ({Q_A_max_m3_m2_h:.2f} m³/m²·h) es menor que el límite máximo recomendado de 4,0 m³/m²·h establecido por Metcalf y Eddy para evitar el arrastre de biopelícula, por lo que el diseño es adecuado"
@@ -1893,6 +1916,7 @@ def dimensionar_filtro_percolador(Q: ConfigDiseno = CFG,
         "DBO_entrada_mg_L": round(DBO_entrada_mg_L, 1),
         "DBO_salida_objetivo_mg_L": DBO_salida_mg_L,
         "DBO_salida_Germain_mg_L": round(Se_calculado_mg_L, 1),
+        "se_cumple_objetivo_Germain": se_cumple_objetivo,  # True si Se <= objetivo
         "Q_m3_d": round(Q_m3_d, 1),
         "Q_ap_m3_h": round(Q_ap_m3_h, 2),
         # Parámetros del modelo Germain (verificación)
@@ -1966,7 +1990,8 @@ def dimensionar_filtro_percolador(Q: ConfigDiseno = CFG,
         "notas": (
             f"Dimensionado por carga orgánica Cv = {Cv_kgDBO_m3_d} kg DBO/m^3*d "
             f"({ref_wef}). Verificado con Germain: Se = {Se_calculado_mg_L:.1f} mg/L "
-            f"< objetivo {DBO_salida_mg_L} mg/L. "
+            f"{'<=' if se_cumple_objetivo else '>'} objetivo {DBO_salida_mg_L} mg/L"
+            f"{' (cumple eficiencia requerida)' if se_cumple_objetivo else ' (NO CUMPLE eficiencia requerida)'}. "
             f"k_T = {k_T_m_h:.4f} m/h a T={Q.T_agua_C} grados C (θ={theta})."
         ),
     }
@@ -2793,7 +2818,7 @@ def calcular_tren_A(Q: ConfigDiseno = None) -> Dict[str, Any]:
         "uasb": uasb,
         "filtro_percolador": fp,
         "sedimentador_sec": sed_sec,
-        "cloro": cloro,
+        "desinfeccion": cloro,
         "lecho_secado": lecho,
         "balance": {
             "DBO_in_mg_L": DBO_in,
