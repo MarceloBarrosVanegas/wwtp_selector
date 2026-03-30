@@ -2727,17 +2727,17 @@ def calcular_tren_A(Q: ConfigDiseno = None) -> Dict[str, Any]:
     uasb       = dimensionar_uasb(Q)
     # Usar eta_DBO calculado por UASB (ajustado por temperatura) para el FP
     fp         = dimensionar_filtro_percolador(Q, DBO_entrada_mg_L=Q.DBO5_mg_L * (1 - uasb['eta_DBO']))
-    sed_sec    = dimensionar_sedimentador_sec(Q)
+    # Dimensionar sedimentador con parámetros reales del FP
+    DBO_fp_salida = fp.get("DBO_salida_Germain_mg_L", fp.get("DBO_salida_mg_L", 55.0))
+    sed_sec    = dimensionar_sedimentador_sec(Q, DBO_entrada_mg_L=DBO_fp_salida, DBO_removida_fp_kg_d=fp.get("DBO_removida_kg_d", 0.0))
     cloro      = dimensionar_desinfeccion_cloro(Q)
     lecho      = dimensionar_lecho_secado(Q)
 
     # Balance de calidad (progresivo) - usando resultados reales del dimensionamiento
     DBO_in     = Q.DBO5_mg_L
     DBO_uasb   = DBO_in  * (1 - uasb["eta_DBO"])       # tras UASB
-    # Usar DBO calculada por el modelo de Germain (no valor hardcodeado)
-    DBO_fp_salida = fp.get("DBO_salida_Germain_mg_L", fp.get("DBO_salida_mg_L", 55.0))
-    # El sedimentador remueve ~30% de la DBO restante (sólidos biológicos)
-    DBO_efluente = DBO_fp_salida * (1 - 0.30)          # tras sedimentación (30% SST)
+    # Usar DBO de salida del sedimentador calculada realmente
+    DBO_efluente = sed_sec.get("DBO_salida_mg_L", DBO_fp_salida * (1 - Q.sed_eta_DBO))  # tras sedimentación
 
     print("=" * 70)
     print("TREN A - UASB + FILTRO PERCOLADOR + CLORO")
