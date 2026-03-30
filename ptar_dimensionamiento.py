@@ -2478,9 +2478,9 @@ def dimensionar_desinfeccion_cloro(Q: ConfigDiseno = CFG,
         "volumen_NaOCl_L_d": round(volumen_NaOCl_L_d, 1),  # L/d
         "volumen_NaOCl_L_mes": round(volumen_NaOCl_L_mes, 0),  # L/mes
         "volumen_almacenamiento_L": round(volumen_almacenamiento_L, 0),  # L
-        # Layout
-        "largo_layout_m": round(largo_m + 0.30, 1),
-        "ancho_layout_m": round(ancho_m + 0.30, 1),
+        # Layout (dimensiones reales calculadas, sin márgenes adicionales)
+        "largo_layout_m": round(largo_m, 1),
+        "ancho_layout_m": round(ancho_m, 1),
         "fuente": f"{ref_me} (pp. 1200-1220); {ref_epa}; {ref_ops}",
     }
 
