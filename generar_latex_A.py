@@ -227,14 +227,10 @@ def generar_contenido_alternativa_A(cfg, resultados, layout_filename="Layout_A_2
         "Para mantener el rendimiento óptimo del reactor en caso de descenso de temperatura, "
         "se recomienda monitorear periodicamente.")
     
-    fp = resultados.get('filtro_percolador', dimensionar_filtro_percolador(cfg))
-    # Usar sedimentador_sec (encadenado con FP) si existe, fallback a recálculo solo en emergencia
-    s = resultados.get('sedimentador_sec') or resultados.get('sedimentador')
-    if not s:
-        # Fallback de emergencia - recalcula sin encadenamiento real (advertencia)
-        s = dimensionar_sedimentador_sec(cfg)
-    l = resultados.get('lecho_secado', dimensionar_lecho_secado(cfg))
-    cl = resultados.get('cloro', dimensionar_desinfeccion_cloro(cfg))
+    fp = resultados['filtro_percolador']  # Debe existir, encadenado con UASB
+    s = resultados['sedimentador_sec']    # Debe existir, encadenado con FP
+    l = resultados['lecho_secado']        # Debe existir, con lodos reales
+    cl = resultados['desinfeccion']  # Debe existir, encadenado con sedimentador
     
     # Extraer parámetros de configuración
     v_canal = cfg.rejillas_v_canal_m_s
@@ -362,10 +358,10 @@ Con la velocidad calculada $v_{{max}} = {r['v_max_m_s']:.3f}$~m/s, {r['verif_vel
 \toprule
 Parámetro & Valor calculado & Criterio & Estado \\
 \midrule
-Velocidad de diseño & {r['v_canal_adoptada_m_s']:.2f} m/s & 0,40 -- 0,60 m/s & Cumple \\
+Velocidad de diseño & {r['v_canal_adoptada_m_s']:.2f} m/s & 0,40 -- 0,60 m/s & {'Cumple' if cfg.rejillas_v_canal_min_m_s <= r['v_canal_adoptada_m_s'] <= cfg.rejillas_v_canal_max_m_s else 'No cumple'} \\
 Velocidad real & {r['v_canal_real_m_s']:.3f} m/s & Ancho mínimo constructivo$^a$ & Aplicado \\
-Pérdida de carga (Qmax) & {r['hL_max_m']*100:.4f} cm & $<$ 15 cm & Cumple \\
-Ancho constructivo & {r['ancho_layout_m']:.2f} m & $\geq$ 0,30 m & Cumple \\
+Pérdida de carga (Qmax) & {r['hL_max_m']*100:.4f} cm & $<$ 15 cm & {'Cumple' if r['hL_max_m']*100 < 15 else 'No cumple'} \\
+Ancho constructivo & {r['ancho_layout_m']:.2f} m & $\geq$ 0,30 m & {'Cumple' if r['ancho_layout_m'] >= 0.30 else 'No cumple'} \\
 \bottomrule
 \end{{tabular}}
 \small
