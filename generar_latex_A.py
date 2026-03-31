@@ -1234,26 +1234,35 @@ El sedimentador secundario tiene la función de separar los sólidos biológicos
 
 El diseño sigue los criterios recomendados por Metcalf \& Eddy \cite{{metcalf2014}} y Sperling \cite{{sperling2007}} para sedimentadores secundarios ubicados después de filtros percoladores.
 
-\textbf{{Criterios de diseño}}
+\textbf{{Parámetros de diseño}}
 
 \begin{{table}}[H]
 \centering
-\caption{{Rangos de diseño para sedimentador secundario después de filtro percolador}}
+\caption{{Parámetros de diseño del sedimentador secundario}}
 \small
-\begin{{tabular}}{{lccc}}
+\begin{{tabular}}{{p{{6.5cm}}lcc}}
 \toprule
-Parámetro & Rango recomendado & Valor adoptado & Fuente \\
+\textbf{{Parámetro}} & \textbf{{Valor adoptado}} & \textbf{{Rango/Unidad}} & \textbf{{Fuente}} \\
 \midrule
-Tasa de desbordamiento superficial (SOR) & 16 -- 32 m³/m²·d & {s['SOR_m3_m2_d']:.1f} m³/m²·d & Metcalf \& Eddy \cite{{metcalf2014}} \\
-Profundidad lateral & 3,0 -- 4,5 m & {s['h_sed_m']:.2f} m & Sperling \cite{{sperling2007}} \\
-Tiempo de retención hidráulico (HRT) & 1,5 -- 5,0 h$^a$ & {s['TRH_h']:.1f} h & Metcalf \& Eddy \\
-Tasa de desbordamiento máxima & $\leq$ 45 m³/m²·d & verificado & Metcalf \& Eddy \\
-Carga sobre vertedero & $\leq$ {s['weir_loading_max']:.0f} m³/m·d & {s['weir_loading_m3_m_d']:.1f} m³/m·d & Metcalf \& Eddy \\
+Caudal medio por línea\\(Q) & {s['Q_m3_d']:.1f} m³/d & – & – \\
+Factor de pico horario ($f_p$) & {s['factor_pico']:.1f} & – & Metcalf \& Eddy \\
+Caudal máximo horario\\($Q_{{max}}$) & {s['Q_max_m3_d']:.1f} m³/d & – & – \\
+Tasa de desbordamiento superficial\\(SOR) & {s['SOR_m3_m2_d']:.1f} m³/m²·d & 16 -- 32 m³/m²·d & Metcalf \& Eddy \\
+Profundidad lateral & {s['h_sed_m']:.2f} m & 3,0 -- 4,5 m & Sperling \\
+Tiempo de retención hidráulico\\(HRT) & {s['TRH_h']:.1f} h & 1,5 -- 5,0 h & Metcalf \& Eddy \\
+SOR máximo permisible & verificado & $\leq$ 45 m³/m²·d & Metcalf \& Eddy \\
+Carga sobre vertedero perimetral & {s['weir_loading_m3_m_d']:.1f} m³/m·d & $\leq$ {s['weir_loading_max']:.0f} m³/m·d & Metcalf \& Eddy \\
+Zona de almacenamiento\\de lodos & 0,50 m (tolva) & – & Práctica común \\
+Bordo libre & 0,30 m & – & Norma constructiva \\
 \bottomrule
 \end{{tabular}}
-\small
-$^a$ Rango extendido para diseños conservadores en climas tropicales. Valores mayores a 4 h favorecen la clarificación sin penalizar el desempeño.
 \end{{table}}
+
+\textbf{{Criterios de diseño}}
+
+El diseño del sedimentador secundario se fundamenta en la tasa de desbordamiento superficial (SOR), que relaciona el caudal con el área superficial del tanque. Para sedimentadores secundarios ubicados después de filtros percoladores, Metcalf \& Eddy (2014) recomiendan valores de SOR entre 16 y 32 m³/m²·d para operación normal, con un límite máximo de 45 m³/m²·d para condiciones de pico horario.
+
+El tiempo de retención hidráulico (TRH) resultante del volumen del tanque debe ser al menos 1,5 horas para garantizar la sedimentación efectiva de los sólidos biológicos. Valores mayores a 4 horas son aceptables y favorecen la clarificación sin penalizar el desempeño, especialmente en climas tropicales.
 
 El área superficial necesaria se calcula mediante:
 
