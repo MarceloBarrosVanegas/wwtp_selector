@@ -310,6 +310,7 @@ class ConfigDiseno:
     sed_h_sed_m: float = 3.50               # Profundidad lateral (m)
     sed_factor_produccion_humus: float = 0.15  # Factor producción humus (kg SST/kg DBO removida FP)
     sed_eta_DBO: float = 0.15               # Eficiencia remoción DBO en sedimentador (fracción) - Valor conservador según Metcalf & Eddy (2014) para sedimentador secundario tras filtro percolador (10-15%)
+    sed_factor_min_Q: float = 0.40          # Factor caudal mínimo (Qmin/Qmedio) para verificación TRH mínimo
     
     # =============================================================================
     # PARÁMETROS DE BALANCE DE CALIDAD DEL AGUA
@@ -2191,8 +2192,8 @@ def dimensionar_sedimentador_sec(Q: ConfigDiseno = CFG,
     ------------------
     Tasa de desbordamiento superficial (SOR):
         SOR = Q / A_sup                                     [Ec. 7a]
-        Rango para FP: 16-32 m^3/m^2*d                       [Metcalf & Eddy, 2014, Tabla 9-35]
-        Adoptado: SOR = 24 m^3/m^2*d
+        Rango operativo: 16-32 m^3/m^2*d                     [Metcalf & Eddy, 2014, Tabla 9-35]
+        SOR de diseño se toma desde configuración (default: 18 m³/m²·d)
 
     Área superficial:
         A_sup = Q / SOR                                     [Ec. 7b]
@@ -2204,6 +2205,13 @@ def dimensionar_sedimentador_sec(Q: ConfigDiseno = CFG,
         TRH = V / Q = A_sup * h_sed / Q                    [Ec. 7d]
         Mínimo 1.5 h para sedimentadores secundarios de FP.
 
+    Autoajuste iterativo:
+        Si SOR_max (a caudal pico) excede el límite de 45 m³/m²·d,
+        se reduce SOR en pasos del 2% (aumentando área) intentando
+        alcanzar un margen de seguridad del 10%. El ajuste está 
+        acotado inferiormente por 16.0 m³/m²·d (mínimo operativo), 
+        por lo que el margen del 10% no siempre es alcanzable.
+
     Referencias
     -----------
     Metcalf & Eddy (2014), pp. 870-880
@@ -2214,12 +2222,11 @@ def dimensionar_sedimentador_sec(Q: ConfigDiseno = CFG,
     ref_sp = citar("sperling_2007")
 
     # Parámetros de diseño adoptados desde configuración
-    # SOR configurado a 18 m³/m²·d para tener margen respecto al límite de 45 m³/m²·d
-    # (con factor 2.5: SOR_max = 18 × 2.5 = 45, margen de seguridad del 10%)
     SOR_m3_m2_d = Q.sed_SOR_m3_m2_d  # desde configuración (default: 18.0 m³/m²·d)
+    # Rango operativo: 16-32 m³/m²·d. El autoajuste no permite bajar de 16.0
     h_sed_m = Q.sed_h_sed_m
     factor_pico = Q.factor_pico_Qmax  # Factor desde configuración
-    factor_min = 0.4  # Caudal mínimo = 40% del medio
+    factor_min = Q.sed_factor_min_Q  # Caudal mínimo desde configuración
 
     Q_m3_d = Q.Q_linea_m3_d
     Q_max_m3_d = Q_m3_d * factor_pico
@@ -2261,8 +2268,8 @@ def dimensionar_sedimentador_sec(Q: ConfigDiseno = CFG,
         if SOR_max_m3_m2_d <= SOR_max_limite * 0.90:
             break
         
-        # Reducimos SOR (aumentamos área) en 2%, pero no bajamos de 15.0
-        SOR_m3_m2_d = max(SOR_m3_m2_d * 0.98, 15.0)
+        # Reducimos SOR (aumentamos área) en 2%, pero no bajamos de 16.0 (límite inferior del rango operativo)
+        SOR_m3_m2_d = max(SOR_m3_m2_d * 0.98, 16.0)
         A_sup_m2 = Q_m3_d / SOR_m3_m2_d
         D_m = math.sqrt(4 * A_sup_m2 / math.pi)
         perimetro_m = math.pi * D_m
@@ -2286,33 +2293,25 @@ def dimensionar_sedimentador_sec(Q: ConfigDiseno = CFG,
     # Producción típica: ~0.15 kg SST/kg DBO removida en el FP
     factor_produccion_humus = Q.sed_factor_produccion_humus  # kg SST/kg DBO removida
     
-    if DBO_removida_fp_kg_d is not None:
-        # Usar valor calculado del Filtro Percolador (encadenado)
-        produccion_humus_kg_d = factor_produccion_humus * DBO_removida_fp_kg_d
-    else:
-        # Fallback: estimar si no se proporciona (no recomendado)
-        if DBO_entrada_mg_L is not None:
-            DBO_remocion_estimada = DBO_entrada_mg_L * 0.5  # Asumir 50% remoción
-        else:
-            DBO_remocion_estimada = Q.DBO5_mg_L * 0.3  # Fallback conservador
-        produccion_humus_kg_d = factor_produccion_humus * (DBO_remocion_estimada * Q_m3_d / 1000)
+    # Producción de humus - requiere DBO removida del Filtro Percolador (encadenado)
+    if DBO_removida_fp_kg_d is None:
+        raise ValueError("DBO_removida_fp_kg_d es requerida para dimensionar el sedimentador (cálculo encadenado)")
+    produccion_humus_kg_d = factor_produccion_humus * DBO_removida_fp_kg_d
     
     solids_loading_kg_m2_d = produccion_humus_kg_d / A_sup_m2
     
     # Cálculo de DBO de salida (para balance de calidad en LaTeX)
     # El sedimentador remueve SST biológicos (humus) que representan ~30% de la DBO restante
     eta_DBO_sed = Q.sed_eta_DBO  # fracción remoción DBO por separación de humus
-    if DBO_entrada_mg_L is not None:
-        DBO_salida_mg_L = DBO_entrada_mg_L * (1 - eta_DBO_sed)
-    else:
-        DBO_salida_mg_L = Q.DBO5_mg_L * 0.7 * (1 - eta_DBO_sed)  # Fallback
+    if DBO_entrada_mg_L is None:
+        raise ValueError("DBO_entrada_mg_L es requerida para calcular la DBO de salida del sedimentador")
+    DBO_salida_mg_L = DBO_entrada_mg_L * (1 - eta_DBO_sed)
     solids_loading_limite = 100.0  # kg/m²·d (conservador para FP)
     
     # Verificaciones finales
-    # SOR puede haber sido ajustada ligeramente por debajo de 16.0 en el while loop
-    # Se acepta un margen de 15.0 como mínimo práctico
-    assert 15.0 <= SOR_m3_m2_d <= 40.0, (
-        f"SOR = {SOR_m3_m2_d} m^3/m^2*d fuera de rango 15-40 ({ref_me}, Tabla 9-35)"
+    # Verificación final: SOR debe estar dentro del rango operativo documentado 16-32 m³/m²·d
+    assert 16.0 <= SOR_m3_m2_d <= 32.0, (
+        f"SOR = {SOR_m3_m2_d} m^3/m^2*d fuera de rango 16-32 ({ref_me}, Tabla 9-35)"
     )
     assert TRH_h >= 1.5, (
         f"TRH = {TRH_h:.1f} h < 1.5 h mínimo ({ref_me}, p. 872)"
@@ -2357,7 +2356,7 @@ def dimensionar_sedimentador_sec(Q: ConfigDiseno = CFG,
         "eta_DBO_sed": eta_DBO_sed,
         "ajuste_realizado": ajuste_realizado,
         "verif_sor_max_texto": verif_sor_max_texto,
-        "diametro_layout_m": round(D_m + 0.30, 1),
+        "diametro_layout_m": round(D_m, 2),
         "fuente": f"{ref_me} (pp. 870-880); {ref_wef} (pp. 9-60); {ref_sp}",
     }
 
@@ -2441,9 +2440,9 @@ def dimensionar_desinfeccion_cloro(Q: ConfigDiseno = CFG,
     Q_m3_h = Q.Q_linea_m3_h
     Q_m3_min = Q_m3_h / 60.0        # m³/min
     
-    # Coliformes de entrada (si no se proporciona, usar valor típico post-sedimentador)
+    # Coliformes de entrada - requerido para cálculo encadenado
     if CF_entrada_NMP is None:
-        CF_entrada_NMP = 5e6        # NMP/100mL (típico post-sedimentador, para obtener ~2500 NMP/100mL final)
+        raise ValueError("CF_entrada_NMP es requerida para dimensionar la desinfección (cálculo encadenado)")
     
     # [Ec. 7i] Volumen del tanque de contacto
     V_contacto_m3 = Q_m3_min * TRH_min  # m³
@@ -2673,13 +2672,9 @@ def dimensionar_lecho_secado(Q: ConfigDiseno = CFG,
     ref_me = citar("metcalf_2014")
     ref_ops = citar("ops_cepis_2005")
 
-    # Producción de lodos (si no se provee externamente, usar valor típico)
-    # Calcula lodos de TODAS las líneas del sistema
+    # Producción de lodos - requerida para dimensionar (cálculo encadenado desde UASB + FP)
     if lodos_kg_SST_d is None:
-        # Producción típica de lodos UASB desde configuración
-        # Usar caudal TOTAL (todas las líneas) para calcular lodos del sistema completo
-        DBO_removida_kg_d_total = Q.Q_total_m3_d * (Q.DBO5_mg_L / 1000) * Q.uasb_eta_DBO
-        lodos_kg_SST_d = Q.lecho_factor_produccion_lodos * DBO_removida_kg_d_total
+        raise ValueError("lodos_kg_SST_d es requerido para dimensionar el lecho de secado (cálculo encadenado)")
 
     # Parámetros de diseño adoptados desde configuración
     C_SST_kg_m3 = Q.lecho_C_SST_kg_m3
@@ -2772,8 +2767,12 @@ def calcular_tren_A(Q: ConfigDiseno = None) -> Dict[str, Any]:
     # Usar eta_DBO calculado por UASB (ajustado por temperatura) para el FP
     fp         = dimensionar_filtro_percolador(Q, DBO_entrada_mg_L=Q.DBO5_mg_L * (1 - uasb['eta_DBO']))
     # Dimensionar sedimentador con parámetros reales del FP
-    DBO_fp_salida = fp.get("DBO_salida_Germain_mg_L", fp.get("DBO_salida_mg_L", 55.0))
-    sed_sec    = dimensionar_sedimentador_sec(Q, DBO_entrada_mg_L=DBO_fp_salida, DBO_removida_fp_kg_d=fp.get("DBO_removida_kg_d", 0.0))
+    if "DBO_salida_Germain_mg_L" not in fp:
+        raise KeyError("Falta 'DBO_salida_Germain_mg_L' en resultados del Filtro Percolador")
+    DBO_fp_salida = fp["DBO_salida_Germain_mg_L"]
+    if "DBO_removida_kg_d" not in fp:
+        raise KeyError("Falta 'DBO_removida_kg_d' en resultados del Filtro Percolador")
+    sed_sec = dimensionar_sedimentador_sec(Q, DBO_entrada_mg_L=DBO_fp_salida, DBO_removida_fp_kg_d=fp["DBO_removida_kg_d"])
     
     # Calcular CF de entrada (post-sedimentador) basado en eficiencias configuradas (encadenado)
     cf_afluente = 1e7  # NMP/100mL (típico aguas residuales sin tratar)
@@ -2787,7 +2786,9 @@ def calcular_tren_A(Q: ConfigDiseno = None) -> Dict[str, Any]:
     DBO_removida_uasb_kg_d_por_linea = Q.Q_linea_m3_d * (Q.DBO5_mg_L / 1000) * uasb['eta_DBO']
     lodos_uasb_kg_d_por_linea = Q.lecho_factor_produccion_lodos * DBO_removida_uasb_kg_d_por_linea
     # Filtro Percolador: humus (ya calculado en el dimensionamiento del FP - por línea)
-    lodos_fp_kg_d_por_linea = fp.get('DBO_removida_kg_d', 0.0)
+    if "DBO_removida_kg_d" not in fp:
+        raise KeyError("Falta 'DBO_removida_kg_d' en resultados del Filtro Percolador")
+    lodos_fp_kg_d_por_linea = fp["DBO_removida_kg_d"]
     # Producción total de lodos (todas las líneas)
     lodos_total_kg_d_total = (lodos_uasb_kg_d_por_linea + lodos_fp_kg_d_por_linea) * Q.num_lineas
     lecho      = dimensionar_lecho_secado(Q, lodos_kg_SST_d=lodos_total_kg_d_total)
@@ -2796,7 +2797,9 @@ def calcular_tren_A(Q: ConfigDiseno = None) -> Dict[str, Any]:
     DBO_in     = Q.DBO5_mg_L
     DBO_uasb   = DBO_in  * (1 - uasb["eta_DBO"])       # tras UASB
     # Usar DBO de salida del sedimentador calculada realmente
-    DBO_efluente = sed_sec.get("DBO_salida_mg_L", DBO_fp_salida * (1 - Q.sed_eta_DBO))  # tras sedimentación
+    if "DBO_salida_mg_L" not in sed_sec:
+        raise KeyError("Falta 'DBO_salida_mg_L' en resultados del Sedimentador Secundario")
+    DBO_efluente = sed_sec["DBO_salida_mg_L"]  # tras sedimentación
 
     print("=" * 70)
     print("TREN A - UASB + FILTRO PERCOLADOR + CLORO")

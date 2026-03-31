@@ -1146,3 +1146,189 @@ def generar_esquema_filtro_percolador(resultados_fp: dict, output_dir: str = "re
     plt.close()
 
     return fig_path
+
+
+def generar_esquema_sedimentador_secundario(resultados_sed: dict, output_dir: str = "resultados") -> str:
+    """
+    Genera un esquema técnico del sedimentador secundario en sección vertical.
+    Muestra zona líquida, fondo en tolva, vertedero perimetral, entrada central
+    y salida de efluente clarificado.
+    """
+    import matplotlib.pyplot as plt
+    from matplotlib.patches import FancyBboxPatch, Rectangle, Polygon, Circle
+
+    D = resultados_sed.get('D_m', 5.9)
+    H_lateral = resultados_sed.get('h_sed_m', 3.5)
+    H_tolva = 0.50
+    H_bordo = 0.30
+    H_total = H_lateral + H_tolva + H_bordo
+    Q = resultados_sed.get('Q_m3_d', 432.0)
+    Qmax = resultados_sed.get('Q_max_m3_d', 1080.0)
+    SOR = resultados_sed.get('SOR_m3_m2_d', 16.0)
+    SORmax = resultados_sed.get('SOR_max_m3_m2_d', 40.0)
+    TRH = resultados_sed.get('TRH_h', 5.2)
+    weir = resultados_sed.get('weir_loading_m3_m_d', 23.5)
+
+    ancho = 5.8
+    altura_total = 8.0
+    escala = altura_total / max(H_total, 0.1)
+
+    x_centro = 5.8
+    y_base = 1.0
+    x_izq = x_centro - ancho / 2
+    x_der = x_centro + ancho / 2
+
+    h_tolva = H_tolva * escala
+    h_lateral = H_lateral * escala
+    h_bordo = H_bordo * escala
+
+    y_tolva_top = y_base + h_tolva
+    y_liq_top = y_tolva_top + h_lateral
+    y_top = y_liq_top + h_bordo
+
+    fig, ax = plt.subplots(figsize=(9, 10))
+
+    c_tanque = '#FFFFFF'
+    c_agua = '#DCEEF8'
+    c_lodos = '#D5B48C'
+    c_tolva = '#CFCFCF'
+    c_vertedero = '#B0BEC5'
+    c_flow = '#1565C0'
+    c_influente = '#2E7D32'
+    c_lodos_flow = '#8D6E63'
+
+    tanque = FancyBboxPatch(
+        (x_izq, y_base), ancho, y_top - y_base,
+        boxstyle="round,pad=0.12",
+        facecolor=c_tanque, edgecolor='#555555', linewidth=2
+    )
+    ax.add_patch(tanque)
+
+    agua = Rectangle(
+        (x_izq + 0.1, y_tolva_top), ancho - 0.2, h_lateral,
+        facecolor=c_agua, edgecolor='none', alpha=0.9
+    )
+    ax.add_patch(agua)
+
+    tolva = Polygon(
+        [
+            (x_izq + 0.15, y_tolva_top),
+            (x_der - 0.15, y_tolva_top),
+            (x_centro + 0.45, y_base + 0.12),
+            (x_centro - 0.45, y_base + 0.12),
+        ],
+        closed=True, facecolor=c_tolva, edgecolor='#777777', linewidth=1.2
+    )
+    ax.add_patch(tolva)
+
+    # Lodo acumulado en la tolva
+    lodos = Polygon(
+        [
+            (x_izq + 0.6, y_tolva_top),
+            (x_der - 0.6, y_tolva_top),
+            (x_centro + 0.30, y_base + 0.22),
+            (x_centro - 0.30, y_base + 0.22),
+        ],
+        closed=True, facecolor=c_lodos, edgecolor='none', alpha=0.95
+    )
+    ax.add_patch(lodos)
+
+    # Sólidos suspendidos suaves
+    import numpy as np
+    np.random.seed(31)
+    for _ in range(35):
+        cx = np.random.uniform(x_izq + 0.45, x_der - 0.45)
+        cy = np.random.uniform(y_tolva_top + 0.15, y_liq_top - 0.2)
+        r = np.random.uniform(0.03, 0.08)
+        ax.add_patch(Circle((cx, cy), r, facecolor='#C7A17A', edgecolor='#9C7B5C', alpha=0.55))
+
+    # Pozo y tubería de entrada central
+    x_feed = x_centro
+    y_feed = y_liq_top - h_lateral * 0.12
+    ax.plot([x_feed, x_feed], [y_top + 0.45, y_feed], color='#444444', linewidth=2.3)
+    ax.add_patch(Circle((x_feed, y_feed), 0.16, facecolor='#B0BEC5', edgecolor='#455A64', linewidth=1.1))
+    ax.plot([x_izq - 1.3, x_feed], [y_top + 0.45, y_top + 0.45], color='#444444', linewidth=2.1)
+    ax.annotate('', xy=(x_izq - 0.15, y_top + 0.45), xytext=(x_izq - 1.05, y_top + 0.45),
+                arrowprops=dict(arrowstyle='->', color=c_influente, lw=2.5))
+    ax.text(x_izq - 1.35, y_top + 0.62, f'Efluente FP\nQ = {Q/24:.2f} m³/h',
+            ha='left', va='bottom', fontsize=8.4, color=c_influente, fontweight='bold')
+
+    # Flechas de sedimentación
+    for x_s in np.linspace(x_izq + 1.0, x_der - 1.0, 4):
+        ax.annotate('', xy=(x_s, y_tolva_top + h_lateral * 0.18), xytext=(x_s, y_liq_top - 0.55),
+                    arrowprops=dict(arrowstyle='-|>', color=c_lodos_flow, lw=2.0, alpha=0.8))
+
+    # Flecha de extracción de lodos
+    ax.annotate('', xy=(x_centro, y_base - 0.25), xytext=(x_centro, y_base + 0.35),
+                arrowprops=dict(arrowstyle='->', color='#6D4C41', lw=2.4))
+    ax.text(x_centro + 0.28, y_base - 0.02, 'Purga de lodos', ha='left', va='center',
+            fontsize=8.0, color='#6D4C41', fontweight='bold')
+
+    # Vertedero y salida
+    y_salida = y_liq_top - h_lateral * 0.18
+    ax.add_patch(Rectangle((x_der - 0.22, y_salida - 0.20), 0.22, 0.40,
+                           facecolor=c_vertedero, edgecolor='#607D8B', linewidth=1.0))
+    ax.plot([x_der, x_der + 1.35], [y_salida, y_salida], color='#444444', linewidth=2.0)
+    ax.annotate('', xy=(x_der + 1.35, y_salida), xytext=(x_der + 0.15, y_salida),
+                arrowprops=dict(arrowstyle='->', color=c_flow, lw=2.5))
+    ax.text(x_der + 1.00, y_salida + 0.05, 'Efluente clarificado',
+            ha='left', va='bottom', fontsize=8.3, color=c_flow, fontweight='bold',
+            bbox=dict(facecolor='white', edgecolor='none', alpha=0.9, pad=0.08))
+
+    dash = dict(linestyle='--', color='#999999', linewidth=0.8, alpha=0.65)
+    ax.axhline(y=y_tolva_top, xmin=0.18, xmax=0.82, **dash)
+    ax.axhline(y=y_liq_top, xmin=0.18, xmax=0.82, **dash)
+
+    x_dim = x_izq - 1.95
+
+    def draw_dim(y1, y2, x_pos, label):
+        ax.plot([x_pos, x_pos], [y1, y2], 'k-', linewidth=0.8)
+        ax.plot([x_pos - 0.1, x_pos + 0.1], [y1, y1], 'k-', linewidth=0.8)
+        ax.plot([x_pos - 0.1, x_pos + 0.1], [y2, y2], 'k-', linewidth=0.8)
+        ax.annotate('', xy=(x_pos, y2 - 0.05), xytext=(x_pos, y2 - 0.24),
+                    arrowprops=dict(arrowstyle='->', color='black', lw=0.8))
+        ax.annotate('', xy=(x_pos, y1 + 0.05), xytext=(x_pos, y1 + 0.24),
+                    arrowprops=dict(arrowstyle='->', color='black', lw=0.8))
+        ax.text(x_pos - 0.32, (y1 + y2) / 2, label, ha='right', va='center', fontsize=8)
+
+    draw_dim(y_base, y_tolva_top, x_dim, f'{H_tolva:.2f} m')
+    draw_dim(y_tolva_top, y_liq_top, x_dim, f'{H_lateral:.2f} m')
+    draw_dim(y_liq_top, y_top, x_dim, f'{H_bordo:.2f} m')
+
+    x_dim_total = x_izq - 3.05
+    ax.plot([x_dim_total, x_dim_total], [y_base, y_top], 'k-', linewidth=0.8)
+    ax.plot([x_dim_total - 0.1, x_dim_total + 0.1], [y_base, y_base], 'k-', linewidth=0.8)
+    ax.plot([x_dim_total - 0.1, x_dim_total + 0.1], [y_top, y_top], 'k-', linewidth=0.8)
+    ax.text(x_dim_total - 0.45, (y_base + y_top) / 2, f'H = {H_total:.2f} m',
+            ha='right', va='center', fontsize=8, fontweight='bold')
+
+    y_dim = y_base - 0.72
+    ax.plot([x_izq, x_der], [y_dim, y_dim], 'k-', linewidth=0.8)
+    ax.plot([x_izq, x_izq], [y_dim - 0.1, y_dim + 0.1], 'k-', linewidth=0.8)
+    ax.plot([x_der, x_der], [y_dim - 0.1, y_dim + 0.1], 'k-', linewidth=0.8)
+    ax.annotate('', xy=(x_izq + 0.25, y_dim), xytext=(x_izq + 0.05, y_dim),
+                arrowprops=dict(arrowstyle='->', color='black', lw=0.8))
+    ax.annotate('', xy=(x_der - 0.25, y_dim), xytext=(x_der - 0.05, y_dim),
+                arrowprops=dict(arrowstyle='->', color='black', lw=0.8))
+    ax.text(x_centro, y_dim - 0.16, f'Ø {D:.1f} m', ha='center', va='top', fontsize=8)
+
+    offset_x = x_der + 0.58
+    ax.text(offset_x, y_liq_top - h_lateral * 0.04, 'Vertedero perimetral\ny salida de efluente',
+            ha='left', va='center', fontsize=8)
+    ax.text(offset_x, y_tolva_top + h_lateral * 0.56,
+            f'Zona de clarificación\nSOR = {SOR:.1f} m³/m²·d\nTRH = {TRH:.1f} h',
+            ha='left', va='center', fontsize=8, fontweight='bold')
+    ax.text(offset_x, y_base + h_tolva * 0.55,
+            f'Tolva de lodos\nSOR máx = {SORmax:.1f} m³/m²·d\nq vert. = {weir:.1f} m³/m·d',
+            ha='left', va='center', fontsize=8)
+
+    ax.set_xlim(x_izq - 3.60, x_der + 3.8)
+    ax.set_ylim(y_base - 1.0, y_top + 1.25)
+    ax.set_aspect('equal')
+    ax.axis('off')
+
+    fig_path = os.path.join(output_dir, 'Esquema_Sedimentador_Secundario.png')
+    fig.savefig(fig_path, dpi=200, bbox_inches='tight', facecolor='white', pad_inches=0.2)
+    plt.close()
+
+    return fig_path

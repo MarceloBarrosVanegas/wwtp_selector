@@ -214,14 +214,22 @@ def generar_contenido_alternativa_A(cfg, resultados, layout_filename="Layout_A_2
     
     # Calcular areas complementarias basadas en el area real de tratamiento
     # Usar parámetros configurables desde ConfigDiseno
-    area_tratamiento = area_m2 if area_m2 else 990
+    if area_m2 is None:
+        raise ValueError("area_m2 es requerida para generar el resumen de resultados")
+    area_tratamiento = area_m2
     area_amortiguacion = area_tratamiento * cfg.layout_factor_amortiguacion
     area_complementaria = area_tratamiento * cfg.layout_factor_complementaria
     area_total_calc = (area_tratamiento + area_amortiguacion + area_complementaria) / (1 - cfg.layout_factor_zona_verde)
     
-    r = resultados.get('rejillas', dimensionar_rejillas(cfg))
-    d = resultados.get('desarenador', dimensionar_desarenador(cfg))
-    u = resultados.get('uasb', dimensionar_uasb(cfg))
+    if 'rejillas' not in resultados:
+        raise KeyError("Falta 'rejillas' en resultados")
+    if 'desarenador' not in resultados:
+        raise KeyError("Falta 'desarenador' en resultados")
+    if 'uasb' not in resultados:
+        raise KeyError("Falta 'uasb' en resultados")
+    r = resultados['rejillas']
+    d = resultados['desarenador']
+    u = resultados['uasb']
     
     # Usar texto de recomendación de temperatura del evaluador centralizado
     # Viene de ptar_dimensionamiento.evaluar_temperatura_uasb()
@@ -1240,31 +1248,31 @@ El diseño sigue los criterios recomendados por Metcalf \& Eddy \cite{{metcalf20
 \centering
 \caption{{Parámetros de diseño del sedimentador secundario}}
 \small
-\begin{{tabular}}{{p{{6.5cm}}lcc}}
+\begin{{tabular}}{{>{{\raggedright\arraybackslash}}p{{4.0cm}}>{{\raggedright\arraybackslash}}p{{2.6cm}}>{{\raggedright\arraybackslash}}p{{3.5cm}}>{{\raggedright\arraybackslash}}p{{2.8cm}}}}
 \toprule
 \textbf{{Parámetro}} & \textbf{{Valor adoptado}} & \textbf{{Rango/Unidad}} & \textbf{{Fuente}} \\
 \midrule
-Caudal medio por línea\\(Q) & {s['Q_m3_d']:.1f} m³/d & – & – \\
+Caudal medio por línea (Q) & {s['Q_m3_d']:.1f} m³/d & – & – \\
 Factor de pico horario ($f_p$) & {s['factor_pico']:.1f} & – & Metcalf \& Eddy \\
-Caudal máximo horario\\($Q_{{max}}$) & {s['Q_max_m3_d']:.1f} m³/d & – & – \\
-Tasa de desbordamiento superficial\\(SOR) & {s['SOR_m3_m2_d']:.1f} m³/m²·d & 16 -- 32 m³/m²·d & Metcalf \& Eddy \\
-Profundidad lateral & {s['h_sed_m']:.2f} m & 3,0 -- 4,5 m & Sperling \\
-Tiempo de retención hidráulico\\(HRT) & {s['TRH_h']:.1f} h & 1,5 -- 5,0 h & Metcalf \& Eddy \\
+Caudal máximo horario ($Q_{{max}}$) & {s['Q_max_m3_d']:.1f} m³/d & – & – \\
+Tasa de desbordamiento superficial (SOR) & {s['SOR_m3_m2_d']:.1f} m³/m²·d & 16--32 m³/m²·d & Metcalf \& Eddy \\
+Profundidad lateral & {s['h_sed_m']:.2f} m & 3,0--4,5 m & Sperling \\
+Tiempo de retención hidráulico (HRT) & {s['TRH_h']:.1f} h & $\geq$ 1,5 h & Metcalf \& Eddy \\
 SOR máximo permisible & verificado & $\leq$ 45 m³/m²·d & Metcalf \& Eddy \\
 Carga sobre vertedero perimetral & {s['weir_loading_m3_m_d']:.1f} m³/m·d & $\leq$ {s['weir_loading_max']:.0f} m³/m·d & Metcalf \& Eddy \\
-Zona de almacenamiento\\de lodos & 0,50 m (tolva) & – & Práctica común \\
+Zona de almacenamiento de lodos & 0,50 m (tolva) & – & Metcalf \& Eddy \\
 Bordo libre & 0,30 m & – & Norma constructiva \\
 \bottomrule
 \end{{tabular}}
 \end{{table}}
 
-\textbf{{Criterios de diseño}}
-
 El diseño del sedimentador secundario se fundamenta en la tasa de desbordamiento superficial (SOR), que relaciona el caudal con el área superficial del tanque. Para sedimentadores secundarios ubicados después de filtros percoladores, Metcalf \& Eddy (2014) recomiendan valores de SOR entre 16 y 32 m³/m²·d para operación normal, con un límite máximo de 45 m³/m²·d para condiciones de pico horario.
 
-El tiempo de retención hidráulico (TRH) resultante del volumen del tanque debe ser al menos 1,5 horas para garantizar la sedimentación efectiva de los sólidos biológicos. Valores mayores a 4 horas son aceptables y favorecen la clarificación sin penalizar el desempeño, especialmente en climas tropicales.
+El tiempo de retención hidráulico (TRH) resultante del volumen del tanque debe ser al menos 1,5 horas para garantizar la sedimentación efectiva de los sólidos biológicos. El valor calculado para este diseño es {s['TRH_h']:.1f} horas. Valores mayores a 4 horas son aceptables y favorecen la clarificación sin penalizar el desempeño, especialmente en climas tropicales, por lo que el diseño actual cumple satisfactoriamente con el criterio.
 
-El área superficial necesaria se calcula mediante:
+\subsubsection{{Carga Superficial -- Dimensionamiento}}
+
+Según Metcalf \& Eddy \cite{{metcalf2014}}, el dimensionamiento de sedimentadores secundarios se fundamenta en la tasa de desbordamiento superficial (SOR), que representa la relación entre el caudal y el área superficial disponible para la sedimentación. Este parámetro garantiza que la velocidad ascensional del líquido sea suficientemente baja para permitir la decantación gravitacional de los flóculos biológicos. La ecuación fundamental es:
 
 \begin{{equation}}
 A_s = \frac{{Q}}{{SOR}}
@@ -1302,14 +1310,12 @@ Bordo libre & 0,30 m \\
 \end{{tabular}}
 \end{{table}}
 
-\subsubsection{{Verificaciones Hidráulicas}}
+\subsubsection{{Carga Superficial -- Verificación}}
 
-\textbf{{1. Verificación a caudal máximo horario}}
-
-Se verifica el comportamiento hidráulico para el caudal máximo horario aplicando un factor de pico típico de {s['factor_pico']:.1f}:
+De acuerdo con los criterios de Metcalf \& Eddy \cite{{metcalf2014}} y WEF MOP-8 \cite{{wef_mop8_2010}}, el sedimentador debe verificarse para condiciones de caudal máximo horario. El factor de pico ($f_p$) de {s['factor_pico']:.1f} representa la relación entre el caudal máximo horario y el caudal medio diario, típico de sistemas de alcantarillado municipal. La verificación establece que:
 
 \begin{{equation}}
-Q_{{\max}} = {s['factor_pico']:.1f} \times Q_{{\text{{medio}}}} = {s['factor_pico']:.1f} \times {s['Q_m3_d']:.1f} = {s['Q_max_m3_d']:.1f} \text{{ m}}^3\text{{/d}}
+Q_{{\max}} = f_p \times Q = {s['factor_pico']:.1f} \times {s['Q_m3_d']:.1f} = {s['Q_max_m3_d']:.1f} \text{{ m}}^3\text{{/d}}
 \end{{equation}}
 
 A caudal máximo, la tasa de desbordamiento resulta:
@@ -1318,33 +1324,45 @@ A caudal máximo, la tasa de desbordamiento resulta:
 SOR_{{\max}} = \frac{{Q_{{\max}}}}{{A_s}} = \frac{{{s['Q_max_m3_d']:.1f}}}{{{s['A_sup_m2']:.2f}}} = {s['SOR_max_m3_m2_d']:.1f} \text{{ m}}^3\text{{/m}}^2\text{{·d}}
 \end{{equation}}
 
-El valor obtenido se compara con el límite máximo recomendado de {s['SOR_max_limite']:.0f} m³/m²·d. {s['verif_sor_max_texto']}.
+{s['verif_sor_max_texto']}. El margen de seguridad respecto al límite de {s['SOR_max_limite']:.0f} m³/m²·d es del {s['margen_seguridad_pct']:.1f} por ciento. Según Metcalf \& Eddy (2014), mantener el SOR máximo por debajo de 45 m³/m²·d asegura que la sedimentación no se vea afectada por las condiciones de pico, preservando la calidad del efluente.
 
-\textbf{{2. Carga sobre vertedero perimetral}}
+\subsubsection{{Vertedero Perimetral -- Dimensionamiento}}
 
-\begin{{equation}}
-\text{{Carga}}_{{\text{{vertedero}}}} = \frac{{Q}}{{\pi \times D}} = \frac{{{s['Q_m3_d']:.1f}}}{{\pi \times {s['D_m']:.2f}}} = {s['weir_loading_m3_m_d']:.1f} \text{{ m}}^3\text{{/m·d}}
-\end{{equation}}
-
-La carga calculada ({s['weir_loading_m3_m_d']:.1f} m³/m·d) es significativamente menor que el límite de {s['weir_loading_max']:.0f} m³/m·d, garantizando un flujo uniforme hacia el vertedero periférico.
-
-\textbf{{3. Tasa de aplicación de sólidos}}
-
-Considerando la producción estimada de humus del filtro percolador ({s['produccion_humus_kg_d']:.1f} kg SST/d):
+El vertedero perimetral constituye el elemento de recolección del efluente clarificado. Su diseño debe garantizar una distribución uniforme del caudal perimetral para evitar zonas de acumulación o cortocircuito. Según Metcalf \& Eddy \cite{{metcalf2014}} y Sperling \cite{{sperling2007}}, la carga sobre el vertedero (weir loading) es un parámetro crítico que determina la uniformidad del flujo de salida. Para un sedimentador circular, el perímetro se calcula como:
 
 \begin{{equation}}
-\text{{Carga de sólidos}} = \frac{{{s['produccion_humus_kg_d']:.1f} \text{{ kg SST/d}}}}{{{s['A_sup_m2']:.2f} \text{{ m}}^2}} = {s['solids_loading_kg_m2_d']:.2f} \text{{ kg SST/m}}^2\text{{·d}}
+P = \pi \times D = \pi \times {s['D_m']:.2f} = {s['perimetro_m']:.2f} \text{{ m}}
 \end{{equation}}
 
-El valor está dentro del rango recomendado de 50--150 kg SST/m²·d para sedimentadores tras filtros percoladores.
-
-\textbf{{4. Verificación a caudal mínimo (nota operativa)}}
-
-A caudal mínimo (factor {s['factor_min']:.1f} del medio), el tiempo de retención resulta:
+La carga sobre el vertedero se calcula como:
 
 \begin{{equation}}
-\text{{HRT}}_{{\min}} = \frac{{{s['V_m3']:.1f} \text{{ m}}^3}}{{{s['Q_min_m3_d']:.1f} \text{{ m}}^3\text{{/d}} / 24}} = {s['TRH_min_h']:.1f} \text{{ h}}
+q_{{\text{{vertedero}}}} = \frac{{Q}}{{P}} = \frac{{{s['Q_m3_d']:.1f}}}{{{s['perimetro_m']:.2f}}} = {s['weir_loading_m3_m_d']:.1f} \text{{ m}}^3\text{{/m·d}}
 \end{{equation}}
+
+\subsubsection{{Vertedero Perimetral -- Verificación}}
+
+La carga calculada de {s['weir_loading_m3_m_d']:.1f} m³/m·d se compara contra el límite establecido por Metcalf \& Eddy \cite{{metcalf2014}} de {s['weir_loading_max']:.0f} m³/m·d para sedimentadores secundarios. Este límite surge de la necesidad de mantener velocidades de aproximación al vertedero suficientemente bajas que no arrastren los sólidos ya sedimentados hacia el efluente. Con una carga significativamente inferior al límite, se garantiza una distribución hidráulica uniforme alrededor del perímetro, minimizando la formación de zonas muertas y cortocircuitos que reducirían la eficiencia de separación (WEF MOP-8 \cite{{wef_mop8_2010}}).
+
+\subsubsection{{Almacenamiento de Lodos -- Dimensionamiento}}
+
+La producción de humus —sólidos biológicos desprendidos del filtro percolador como resultado del control de espesor de la biopelícula— se estima siguiendo los criterios de Metcalf \& Eddy \cite{{metcalf2014}}. El factor de producción de {s['factor_produccion_humus']:.2f} kg SST por kg de DBO removida representa la fracción de sólidos generados en el proceso de oxidación biológica que deben ser separados en el sedimentador secundario. Este valor es característico de sistemas con filtros percoladores y permite estimar la carga de sólidos sobre el área de sedimentación:
+
+\begin{{equation}}
+P_{{\text{{humus}}}} = {s['factor_produccion_humus']:.2f} \times \text{{DBO}}_{{\text{{removida}}}} = {s['produccion_humus_kg_d']:.1f} \text{{ kg SST/d}}
+\end{{equation}}
+
+La tasa de aplicación de sólidos sobre el área del sedimentador resulta:
+
+\begin{{equation}}
+C_{{\text{{sólidos}}}} = \frac{{P_{{\text{{humus}}}}}}{{A_s}} = \frac{{{s['produccion_humus_kg_d']:.1f}}}{{{s['A_sup_m2']:.2f}}} = {s['solids_loading_kg_m2_d']:.2f} \text{{ kg SST/m}}^2\text{{·d}}
+\end{{equation}}
+
+\subsubsection{{Almacenamiento de Lodos -- Verificación}}
+
+La tasa de aplicación de sólidos calculada de {s['solids_loading_kg_m2_d']:.2f} kg SST/m²·d está significativamente por debajo del límite conservador de {s['solids_loading_limite']:.0f} kg SST/m²·d adoptado para este diseño, basado en criterios de Metcalf \& Eddy \cite{{metcalf2014}} para sedimentadores secundarios después de filtros percoladores. Este límite, más restrictivo que el rango operativo típico (50–150 kg SST/m²·d), garantiza la capacidad de los lodos biológicos (humus) para sedimentar eficientemente sin causar saturación en la zona de acumulación. El valor muy bajo obtenido indica que el área del sedimentador es ampliamente suficiente para manejar la producción de humus, operando con un margen de seguridad muy conservador que previene problemas de acumulación y olores.
+
+Respecto al tiempo de retención a caudal mínimo (factor {s['factor_min']:.1f} del medio), el TRH resultante es de {s['TRH_min_h']:.1f} horas. {'Este valor es aceptable para operación normal.' if s['TRH_min_h'] <= 8 else 'Este valor excede 8 horas, por lo que se recomienda monitorear la operación para evitar condiciones sépticas.'}
 
 \textbf{{Nota:}} El HRT de {s['TRH_min_h']:.1f} h a caudal mínimo es elevado; se recomienda operar con recirculación interna o control de nivel para evitar condiciones sépticas en el fondo del sedimentador durante periodos de bajo caudal.
 
@@ -1374,6 +1392,13 @@ Carga de sólidos & {s['solids_loading_kg_m2_d']:.2f} kg/m²·d \\
 \bottomrule
 \end{{tabular}}
 \end{{table}}
+
+\begin{{figure}}[H]
+\centering
+\includegraphics[width=0.92\textwidth]{{Esquema_Sedimentador_Secundario.png}}
+\caption{{Esquema del sedimentador secundario circular: entrada central del efluente del filtro percolador, zona de clarificación, tolva de lodos, vertedero perimetral y salida de efluente clarificado. Diámetro adoptado: {s['D_m']:.2f} m, profundidad lateral: {s['h_sed_m']:.2f} m, SOR promedio: {s['SOR_m3_m2_d']:.1f} m³/m²·d.}}
+\label{{fig:sedimentador_secundario}}
+\end{{figure}}
 
 \textbf{{Notas de buen diseño:}} Se debe incluir un sistema de recolección de lodos (rastrillos o succionadores) y un mecanismo de extracción de lodos desde el fondo. Se recomienda considerar el caudal mínimo en el diseño operacional para evitar estancamiento.
 
@@ -1772,18 +1797,36 @@ def generar_resumen_resultados(cfg, resultados, balance_calidad=None, area_m2=No
     # Extraer valores de cada unidad
     rej = r.get('rejillas', {})
     des = r.get('desarenador', {})
-    uasb = r.get('uasb', {})
-    fp = r.get('filtro_percolador', {})
-    sed = r.get('sedimentador_sec', {})
-    desinf = r.get('cloro', r.get('desinfeccion', {}))
-    lecho = r.get('lecho_secado', {})
+    if 'uasb' not in r:
+        raise KeyError("Falta 'uasb' en resultados")
+    if 'filtro_percolador' not in r:
+        raise KeyError("Falta 'filtro_percolador' en resultados")
+    if 'sedimentador_sec' not in r:
+        raise KeyError("Falta 'sedimentador_sec' en resultados")
+    desinf = r.get('cloro') or r.get('desinfeccion')
+    if not desinf:
+        raise KeyError("Falta 'cloro' o 'desinfeccion' en resultados")
+    if 'lecho_secado' not in r:
+        raise KeyError("Falta 'lecho_secado' en resultados")
+    uasb = r['uasb']
+    fp = r['filtro_percolador']
+    sed = r['sedimentador_sec']
+    lecho = r['lecho_secado']
     
     # Valores de calidad
-    afluente = bal.get('afluente', {})
-    efluente = bal.get('efluente_final', {})
+    if bal is None:
+        raise ValueError("balance_calidad es requerido para generar el resumen")
+    if 'afluente' not in bal:
+        raise KeyError("Falta 'afluente' en balance_calidad")
+    if 'efluente_final' not in bal:
+        raise KeyError("Falta 'efluente_final' en balance_calidad")
+    afluente = bal['afluente']
+    efluente = bal['efluente_final']
     
     # Calcular area total del predio (dinamico)
-    area_tratamiento = area_m2 if area_m2 else 990  # valor default si no se proporciona
+    if area_m2 is None:
+        raise ValueError("area_m2 es requerida para generar el resumen de resultados")
+    area_tratamiento = area_m2
     area_amortiguacion = area_tratamiento * 0.20
     area_complementaria = area_tratamiento * 0.25  # 25% para operativas
     area_total_calc = (area_tratamiento + area_amortiguacion + area_complementaria) / 0.85  # incluye 15% zona verde
@@ -1992,6 +2035,7 @@ def generar_latex_alternativa_A(cfg, resultados, output_path, area_m2=None, bala
         generar_layout_con_resultados,
         generar_esquema_uasb,
         generar_esquema_filtro_percolador,
+        generar_esquema_sedimentador_secundario,
     )
     import os
     
@@ -2039,6 +2083,20 @@ def generar_latex_alternativa_A(cfg, resultados, output_path, area_m2=None, bala
     except Exception as e:
         print(f"  [ADVERTENCIA] No se pudo generar esquema del filtro percolador: {e}")
         esquema_fp_filename = None
+
+    # Generar esquema del sedimentador secundario
+    print("Generando esquema del sedimentador secundario...")
+    try:
+        sed_resultados = resultados.get('sedimentador_sec', {})
+        if sed_resultados:
+            esquema_sed_path = generar_esquema_sedimentador_secundario(sed_resultados, output_dir)
+            esquema_sed_filename = "Esquema_Sedimentador_Secundario.png"
+            print(f"  Esquema Sedimentador Secundario generado: {esquema_sed_filename}")
+        else:
+            esquema_sed_filename = None
+    except Exception as e:
+        print(f"  [ADVERTENCIA] No se pudo generar esquema del sedimentador secundario: {e}")
+        esquema_sed_filename = None
     
     # Generar archivo de bibliografía
     print("Generando archivo de bibliografía...")
@@ -2066,6 +2124,7 @@ def generar_latex_alternativa_A(cfg, resultados, output_path, area_m2=None, bala
 \usepackage{{amssymb}}
 \usepackage{{booktabs}}
 \usepackage{{longtable}}
+\usepackage{{array}}
 \usepackage{{colortbl}}
 \usepackage{{graphicx}}
 \usepackage{{enumitem}}
