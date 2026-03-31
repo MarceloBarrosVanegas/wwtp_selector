@@ -37,7 +37,7 @@ CONFIG_REPORTE = {
         "A": ConfigAlternativa(
             incluir=True,
             caudal_lps=5.0,
-            nombre="UASB + Filtro Percolador + UV",
+            nombre="Alternativa UASB + Filtro Percolador + Cloro",
             descripcion="Tratamiento primario anaerobio UASB + tratamiento secundario con filtro percolador de piedra graduada"
         ),
         

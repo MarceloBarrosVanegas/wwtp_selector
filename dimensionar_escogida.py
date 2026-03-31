@@ -38,8 +38,8 @@ def crear_configuracion_real():
     )
 
 
-def dimensionar_alternativa_A(cfg):
-    """Dimensiona Alternativa A: UASB + Filtro Percolador + UV"""
+def dimensionar_UASB_FiltroPercolador_Cloro(cfg):
+    """Dimensiona Alternativa UASB + Filtro Percolador + Cloro"""
     from ptar_dimensionamiento import (
         dimensionar_rejillas, dimensionar_desarenador, dimensionar_uasb,
         dimensionar_filtro_percolador, dimensionar_lecho_secado
@@ -103,8 +103,8 @@ def dimensionar_alternativa_A(cfg):
     # UASB: lodos anaerobios (factor de producción desde config)
     DBO_removida_uasb_kg_d_por_linea = cfg.Q_linea_m3_d * (cfg.DBO5_mg_L / 1000) * resultados['uasb']['eta_DBO']
     lodos_uasb_kg_d_por_linea = cfg.lecho_factor_produccion_lodos * DBO_removida_uasb_kg_d_por_linea
-    # Filtro Percolador: humus (ya calculado en el dimensionamiento del FP - por línea)
-    lodos_fp_kg_d_por_linea = resultados['filtro_percolador']['DBO_removida_kg_d']
+    # Filtro Percolador: humus (calculado por el sedimentador secundario)
+    lodos_fp_kg_d_por_linea = resultados['sedimentador_sec']['produccion_humus_kg_d']
     # Producción total de lodos (ambas líneas)
     lodos_total_kg_d_por_linea = lodos_uasb_kg_d_por_linea + lodos_fp_kg_d_por_linea
     lodos_uasb_kg_d_total = lodos_uasb_kg_d_por_linea * cfg.num_lineas
@@ -213,11 +213,11 @@ def main():
     
     # Dimensionar segun la alternativa
     if alt_id == 'A':
-        resultados = dimensionar_alternativa_A(cfg)
+        resultados = dimensionar_UASB_FiltroPercolador_Cloro(cfg)
     else:
         print(f"\n[ADVERTENCIA] Alternativa {alt_id} aun no implementada.")
-        print("Usando Alternativa A como ejemplo...")
-        resultados = dimensionar_alternativa_A(cfg)
+        print("Usando Alternativa UASB + Filtro Percolador + Cloro como ejemplo...")
+        resultados = dimensionar_UASB_FiltroPercolador_Cloro(cfg)
     
     # Crear directorios de salida
     output_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'resultados')
@@ -264,7 +264,7 @@ def main():
         print(f"   [INFO] No se pudo compilar: {e}")
     
     print("\n" + "=" * 70)
-    print(f"PROCESO COMPLETADO - Alternativa {alt_id}")
+    print("PROCESO COMPLETADO - Alternativa: UASB + Filtro Percolador + Cloro")
     print("=" * 70)
 
 

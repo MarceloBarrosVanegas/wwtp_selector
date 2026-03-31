@@ -84,7 +84,7 @@ CRITERIOS = [
 ]
 
 TECNOLOGIAS = [
-    {"codigo": "A", "nombre": "UASB + Filtro Percolador + UV",
+    {"codigo": "A", "nombre": "Alternativa UASB + Filtro Percolador + Cloro",
      "valores": {"Disponibilidad de Area": 7, "Consumo Energetico": 9, "Complejidad Operativa": 8,
                 "Robustez Hidraulica": 8, "Impacto Ambiental": 8, "Dependencia Importaciones": 7,
                 "Generacion Lodos": 8, "Costo Total 20 anos": 8}, "area": 1834, "energia": 0.021},

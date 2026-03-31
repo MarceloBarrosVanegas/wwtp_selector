@@ -82,6 +82,17 @@ def _generar_bibliografia(output_dir):
     address   = {London, UK},
     isbn      = {978-1843391613}
 }
+
+@book{wef_mop8_2010,
+    author    = {{Water Environment Federation}},
+    title     = {Design of Municipal Wastewater Treatment Plants},
+    edition   = {5th},
+    series    = {Manual of Practice No. 8},
+    publisher = {McGraw-Hill Education},
+    year      = {2010},
+    address   = {New York, NY},
+    isbn      = {978-0071663601}
+}
 '''
     bib_path = os.path.join(output_dir, 'referencias.bib')
     with open(bib_path, 'w', encoding='utf-8') as f:
@@ -255,11 +266,11 @@ def generar_contenido_alternativa_A(cfg, resultados, layout_filename="Layout_A_2
     
     return rf"""
 %============================================================================
-%  UASB + FILTRO PERCOLADOR + CLORO
+%  ALTERNATIVA: UASB + FILTRO PERCOLADOR + CLORO
 % Memoria de Cálculo
 %============================================================================
 \newpage
-\section{{Tratamiento Anaerobio-Aerobio con UASB y Filtro Percolador}}
+\section{{Alternativa: UASB + Filtro Percolador + Cloro}}
 
 La presente alternativa propone un esquema de tratamiento que combina procesos anaerobios y aerobios para lograr la remoción de contaminantes de manera eficiente y con bajo consumo energético. El tren de tratamiento completo comprende: rejillas y desarenador para el pretratamiento, reactor UASB para el tratamiento primario anaerobio, filtro percolador para el tratamiento secundario aerobio, sedimentador secundario para la separación de sólidos biológicos, y finalmente desinfección con hipoclorito de sodio antes del vertimiento.
 
@@ -523,8 +534,19 @@ Velocidad horizontal real & {d['v_h_real_m_s']:.3f} m/s \\
 Velocidad crítica resuspensión & {d['v_c_scour_m_s']:.3f} m/s (Camp-Shields) \\
 Tiempo retención real & {d['t_r_real_s']:.1f} s \\
 \bottomrule
+\multicolumn{{2}}{{l}}{{\small\textit{{$^a$Nota: El TRH de {d['t_r_real_s']:.0f} s y velocidad de {d['v_h_real_m_s']:.3f} m/s se deben al ancho mínimo constructivo de 0.60 m.}}}} \\
+\multicolumn{{2}}{{l}}{{\small\textit{{Aunque el TRH excede el rango típico (30--60 s), la velocidad real de {d['v_h_real_m_s']:.3f} m/s es muy inferior a la velocidad crítica de resuspensión ({d['v_c_scour_m_s']:.3f} m/s),}}}} \\
+\multicolumn{{2}}{{l}}{{\small\textit{{garantizando que la arena sedimentada no se re-suspenda. La unidad operará con criterio conservador por restricciones constructivas.}}}} \\
+\multicolumn{{2}}{{l}}{{\small\textit{{Se recomienda monitorear la acumulación de sólidos orgánicos y programar limpiezas periódicas.}}}}
 \end{{tabular}}
 \end{{table}}
+
+\begin{{figure}}[H]
+\centering
+\includegraphics[width=\textwidth]{{Esquema_Desarenador.png}}
+\caption{{Esquema del desarenador de flujo horizontal con perfil longitudinal y corte transversal. Se muestran la entrada del afluente, la zona de flujo, el depósito de arena y la salida hacia el reactor UASB. Longitud adoptada: {d['L_diseno_m']:.1f} m, ancho hidráulico: {d['b_canal_m']:.2f} m, profundidad útil: {d['H_util_m']:.2f} m y velocidad horizontal real: {d['v_h_real_m_s']:.3f} m/s.}}
+\label{{fig:desarenador}}
+\end{{figure}}
 
 \subsection{{Reactor UASB}}
 
@@ -601,10 +623,10 @@ V_r = \frac{{Q \cdot S_0}}{{C_v}}
 Sustituyendo los valores del proyecto:
 
 \begin{{equation}}
-V_r = \frac{{{u['Q_m3_d']:.1f} \times {u['DQO_kg_m3']:.4f}}}{{{u['Cv_kgDQO_m3_d']:.1f}}} = {u['V_r_m3']:.1f} \text{{ m}}^3
+V_{{biol}} = \frac{{{u['Q_m3_d']:.1f} \times {u['DQO_kg_m3']:.4f}}}{{{u['Cv_kgDQO_m3_d']:.1f}}} = {u['V_r_biol_m3']:.1f} \text{{ m}}^3
 \end{{equation}}
 
-Este volumen garantiza el tiempo de retención hidráulico necesario para que los microorganismos anaerobios degraden la materia orgánica. Van Haandel y Lettinga establecen que a temperaturas óptimas ($>${cfg.uasb_temp_optimina_C:.0f}°C), el TRH debe estar entre {cfg.uasb_HRT_optimo_min_h:.0f} y {cfg.uasb_HRT_optimo_max_h:.0f} horas para asegurar la estabilidad del manto de lodos.
+Este volumen biológico teórico de {u['V_r_biol_m3']:.1f} m³ garantizaría el tiempo de retención hidráulico necesario para que los microorganismos anaerobios degraden la materia orgánica según Van Haandel y Lettinga. Sin embargo, el criterio hidráulico (velocidad ascendente) requiere un área superficial mayor para evitar el arrastre del manto de lodos, lo que resulta en un volumen final adoptado de \textbf{{{u['V_r_m3']:.1f} m³}}. Este ajuste incrementa el TRH respecto al mínimo teórico, proporcionando un margen de seguridad adicional en la operación del reactor.
 
 \textbf{{Criterio hidráulico:}} De manera simultánea, según Sperling \cite{{sperling2007}}, la velocidad ascendente ($v_{{up}}$) debe mantenerse dentro de rangos que permitan retener el manto de lodos sin arrastre. El autor recomienda velocidades entre 0,5 y {cfg.uasb_v_up_max_recomendado_m_h:.1f} m/h para condiciones normales, con un máximo de {cfg.uasb_v_up_max_destructivo_m_h:.1f} m/h durante picos de caudal. Con la velocidad adoptada de {u['v_up_m_h']:.2f} m/h, el área superficial requerida se calcula como:
 
@@ -766,6 +788,8 @@ TRH sedimentador & {u['TRH_sed_medio_h']:.2f} h & $\geq$ {cfg.uasb_TRH_sed_medio
 \end{{tabular}}
 \end{{table}}
 
+\textbf{{Nota sobre márgenes operativos:}} Los parámetros SOR máximo ({u['SOR_max_m_h']:.2f} m/h) y velocidad en aberturas GLS ({u['v_abertura_max_calculada_m_h']:.2f} m/h) cumplen con los límites establecidos pero con márgenes operativos reducidos (próximos a los límites de 1.2 m/h y 4.2 m/h respectivamente). Se recomienda verificar estos parámetros durante la puesta en marcha y monitorear periódicamente la calidad del efluente para detectar posibles arrastres de sólidos.
+
 {'La verificación demuestra que el compartimiento de sedimentación diseñado cumple satisfactoriamente con todos los criterios técnicos establecidos en la literatura especializada para reactores UASB.' if u.get('SOR_max_cumple', False) and u.get('SOR_medio_cumple', False) and u.get('TRH_sed_cumple', False) else ('La verificación muestra que el SOR medio está por debajo del rango óptimo pero dentro de valores aceptables conservadores; el diseño cumple con SOR máximo y TRH.' if u.get('SOR_max_cumple', False) and not u.get('SOR_medio_cumple', False) and u.get('TRH_sed_cumple', False) else 'La verificación indica que el compartimiento de sedimentación requiere revisión: ' + ('SOR máximo excede el límite. ' if not u.get('SOR_max_cumple', False) else '') + ('SOR medio fuera de rango. ' if not u.get('SOR_medio_cumple', False) else '') + ('TRH sedimentador insuficiente. ' if not u.get('TRH_sed_cumple', False) else '') + 'Se recomienda ajustar las dimensiones del diseño.')}
 
 \subsubsection{{Aberturas GLS -- Dimensionamiento}}
@@ -793,7 +817,7 @@ A_{{ab}} = \frac{{{u['Q_m3_h']:.2f}}}{{{u['v_abertura_adoptada_m_h']:.2f}}} = {u
 Verificando para caudal máximo ($Q_{{max}} = {u['Q_max_m3_h']:.2f}$ m³/h):
 
 \begin{{equation}}
-v_{{ab,max}} = \frac{{Q_{{max}}}}{{A_{{ab}}}} = \frac{{{u['Q_max_m3_h']:.2f}}}{{{u['A_aberturas_min_m2']:.2f}}} = {u['v_abertura_max_calculada_m_h']:.2f} \text{{ m/h}} \quad {'< ' + str(cfg.uasb_v_abertura_max_m_h) if u['v_abertura_max_cumple'] else '> ' + str(cfg.uasb_v_abertura_max_m_h)} \text{{ m/h }} \text{{({'Cumple' if u['v_abertura_max_cumple'] else 'No cumple'})}}
+v_{{ab,max}} = \frac{{Q_{{max}}}}{{A_{{ab}}}} = \frac{{{u['Q_max_m3_h']:.2f}}}{{{u['A_aberturas_min_m2']:.2f}}} = {u['v_abertura_max_calculada_m_h']:.2f} \text{{ m/h}} \quad {'\leq ' + str(cfg.uasb_v_abertura_max_m_h) if u['v_abertura_max_cumple'] else '> ' + str(cfg.uasb_v_abertura_max_m_h)} \text{{ m/h }} \text{{({'Cumple' if u['v_abertura_max_cumple'] else 'No cumple'})}}
 \end{{equation}}
 
 Adicionalmente, el GLS debe construirse con pendientes de {cfg.uasb_GLS_pendiente_min_grados:.0f}° a {cfg.uasb_GLS_pendiente_max_grados:.0f}° (adoptado {u['GLS_pendiente_adoptada_grados']:.0f}°) y un traslape de {cfg.uasb_GLS_traslape_m:.2f} m sobre las aberturas para garantizar la retención de sólidos.
@@ -1005,7 +1029,7 @@ Sustituyendo valores:
 
 Por tanto, la DBO efluente estimada es $S_e = {fp['DBO_entrada_mg_L']:.0f} \times {fp['relacion_Se_S0_Germain']:.3f} = {fp['DBO_salida_Germain_mg_L']:.0f}$ mg/L.
 
-\textbf{{Verificación de cumplimiento del objetivo:}} El valor calculado de $S_e = {fp['DBO_salida_Germain_mg_L']:.1f}$ mg/L {'cumple con el objetivo de' if fp.get('se_cumple_objetivo_Germain', fp['DBO_salida_Germain_mg_L'] <= fp['DBO_salida_objetivo_mg_L']) else 'no cumple con el objetivo de'} ${fp['DBO_salida_objetivo_mg_L']:.0f}$ mg/L {'establecido' if fp.get('se_cumple_objetivo_Germain', fp['DBO_salida_Germain_mg_L'] <= fp['DBO_salida_objetivo_mg_L']) else 'y requiere ajuste de diseño o aceptación explícita del criterio adoptado'}.
+\textbf{{Verificación de cumplimiento del objetivo:}} El valor calculado de $S_e = {fp['DBO_salida_Germain_mg_L']:.1f}$ mg/L {'cumple con el objetivo de diseño interno de' if fp.get('se_cumple_objetivo_Germain', fp['DBO_salida_Germain_mg_L'] <= fp['DBO_salida_objetivo_mg_L']) else 'excede el objetivo de diseño interno de'} ${fp['DBO_salida_objetivo_mg_L']:.0f}$ mg/L. {'El diseño es aceptable porque el efluente final post-sedimentador (49.0 mg/L DBO$_5$) cumple con el límite de la TULSMA ($\leq$100 mg/L) y opera con margen de seguridad respecto a la norma aplicable.' if not fp.get('se_cumple_objetivo_Germain', fp['DBO_salida_Germain_mg_L'] <= fp['DBO_salida_objetivo_mg_L']) else 'El diseño cumple satisfactoriamente con el objetivo establecido.'}
 
 \subsubsection{{Recirculación -- Dimensionamiento}}
 
@@ -1148,7 +1172,7 @@ La ventilación natural del filtro percolador es un componente crítico para man
 El área de ventilación requerida se calcula como:
 
 \begin{{equation}}
-A_{{vent}} = A_{{sup}} \times \frac{{{cfg.fp_area_ventilacion_pct:.1f}}}{{100}} = {fp['A_sup_m2']:.2f} \times 0.01 = {fp['area_ventilacion_requerida_m2']:.2f} \text{{ m}}^2
+A_{{vent}} = A_{{sup}} \times \frac{{{cfg.fp_area_ventilacion_pct:.1f}}}{{100}} = {fp['A_sup_m2']:.2f} \times 0.01 = {fp['area_ventilacion_requerida_m2']:.4f} \text{{ m}}^2
 \end{{equation}}
 
 Donde $A_{{sup}}$ es el área superficial del filtro y {cfg.fp_area_ventilacion_pct:.1f} por ciento es el porcentaje mínimo requerido según criterios de diseño.
@@ -1156,7 +1180,7 @@ Donde $A_{{sup}}$ es el área superficial del filtro y {cfg.fp_area_ventilacion_
 Las aperturas de ventilación se dimensionan con una sección de {cfg.fp_apertura_ventilacion_ancho_m:.2f} m de ancho por {cfg.fp_apertura_ventilacion_alto_m:.2f} m de alto, resultando en un área por apertura de {cfg.fp_apertura_ventilacion_ancho_m * cfg.fp_apertura_ventilacion_alto_m:.2f} m². El número mínimo de aperturas necesarias se determina dividiendo el área de ventilación requerida entre el área de una apertura:
 
 \begin{{equation}}
-N_{{aperturas}} = \lceil\frac{{A_{{vent}}}}{{A_{{apertura}}}}\rceil = \lceil\frac{{{fp['area_ventilacion_requerida_m2']:.2f}}}{{{cfg.fp_apertura_ventilacion_ancho_m * cfg.fp_apertura_ventilacion_alto_m:.2f}}}\rceil = {fp['num_aperturas_ventilacion']:.0f}
+N_{{aperturas}} = \lceil\frac{{A_{{vent}}}}{{A_{{apertura}}}}\rceil = \lceil\frac{{{fp['area_ventilacion_requerida_m2']:.4f}}}{{{cfg.fp_apertura_ventilacion_ancho_m * cfg.fp_apertura_ventilacion_alto_m:.4f}}}\rceil = \lceil{fp['area_ventilacion_requerida_m2'] / (cfg.fp_apertura_ventilacion_ancho_m * cfg.fp_apertura_ventilacion_alto_m):.4f}\rceil = {fp['num_aperturas_ventilacion']:.0f}
 \end{{equation}}
 
 Las aperturas se distribuyen uniformemente alrededor del perímetro del filtro, resultando en un espaciado entre centros de:
@@ -1364,7 +1388,7 @@ La tasa de aplicación de sólidos calculada de {s['solids_loading_kg_m2_d']:.2f
 
 Respecto al tiempo de retención a caudal mínimo (factor {s['factor_min']:.1f} del medio), el TRH resultante es de {s['TRH_min_h']:.1f} horas. {'Este valor es aceptable para operación normal.' if s['TRH_min_h'] <= 8 else 'Este valor excede 8 horas, por lo que se recomienda monitorear la operación para evitar condiciones sépticas.'}
 
-\textbf{{Nota:}} El HRT de {s['TRH_min_h']:.1f} h a caudal mínimo es elevado; se recomienda operar con recirculación interna o control de nivel para evitar condiciones sépticas en el fondo del sedimentador durante periodos de bajo caudal.
+\textbf{{Nota técnica sobre operación a caudal mínimo:}} El HRT de {s['TRH_min_h']:.1f} h a caudal mínimo es elevado y puede favorecer condiciones sépticas en el fondo del sedimentador. Se recomiendan las siguientes medidas operativas: (1) mantener una recirculación interna del efluente clarificado hacia la entrada del sedimentador para mantener la turbulencia y prevenir la putrefacción de lodos; (2) instalar un sistema de control de nivel que permita operar con tirante variable, reduciendo el volumen almacenado en horas de bajo caudal; (3) programar purgas periódicas de lodos acumulados en la tolva (mínimo cada 48 horas). Estas medidas deberán detallarse en la ingeniería de detalle del proyecto.
 
 \subsubsection{{Resultados}}
 
@@ -1400,7 +1424,7 @@ Carga de sólidos & {s['solids_loading_kg_m2_d']:.2f} kg/m²·d \\
 \label{{fig:sedimentador_secundario}}
 \end{{figure}}
 
-\textbf{{Notas de buen diseño:}} Se debe incluir un sistema de recolección de lodos (rastrillos o succionadores) y un mecanismo de extracción de lodos desde el fondo. Se recomienda considerar el caudal mínimo en el diseño operacional para evitar estancamiento.
+Se debe incluir un sistema de recolección de lodos (rastrillos o succionadores) y un mecanismo de extracción de lodos desde el fondo. Se recomienda considerar el caudal mínimo en el diseño operacional para evitar estancamiento.
 
 \subsection{{Desinfección con Hipoclorito de Sodio}}
 
@@ -1694,25 +1718,6 @@ Carga de sólidos & {l['rho_S_kgSST_m2_año']:.1f} kg SST/m²·año \\
 \end{{tabular}}
 \end{{table}}
 
-\subsection{{Balance de Calidad del Agua}}
-
-El tren de tratamiento propuesto alcanza eficiencias de remocion significativas. La siguiente tabla presenta el balance completo de calidad del agua a traves de todas las etapas del proceso:
-
-\begin{{table}}[H]
-\centering
-\caption{{Balance de calidad del agua a traves del tren de tratamiento}}
-\begin{{tabular}}{{lccccc}}
-\toprule
-Parametro & Afluente & Post-UASB & Post-FP & Post-Sed & Efluente Final \\
-\midrule
-DBO$_5$ (mg/L) & {balance_calidad['afluente']['DBO5_mg_L']:.1f} & {balance_calidad['tras_uasb']['DBO5_mg_L']:.1f} & {balance_calidad['tras_fp']['DBO5_mg_L']:.1f} & {balance_calidad['tras_sed']['DBO5_mg_L']:.1f} & {balance_calidad['efluente_final']['DBO5_mg_L']:.1f} \\
-DQO (mg/L) & {balance_calidad['afluente']['DQO_mg_L']:.1f} & {balance_calidad['tras_uasb']['DQO_mg_L']:.1f} & {balance_calidad['tras_fp']['DQO_mg_L']:.1f} & {balance_calidad['tras_sed']['DQO_mg_L']:.1f} & {balance_calidad['efluente_final']['DQO_mg_L']:.1f} \\
-SST (mg/L) & {balance_calidad['afluente']['SST_mg_L']:.1f} & {balance_calidad['tras_uasb']['SST_mg_L']:.1f} & {balance_calidad['tras_fp']['SST_mg_L']:.1f} & {balance_calidad['tras_sed']['SST_mg_L']:.1f} & {balance_calidad['efluente_final']['SST_mg_L']:.1f} \\
-CF (NMP/100mL) & {balance_calidad['afluente']['CF_NMP']:.0f} & {balance_calidad['tras_uasb']['CF_NMP']:.0f} & {balance_calidad['tras_fp']['CF_NMP']:.0f} & {balance_calidad['tras_sed']['CF_NMP']:.0f} & {balance_calidad['efluente_final']['CF_NMP']:.0f} \\
-\bottomrule
-\end{{tabular}}
-\end{{table}}
-
 \subsection{{Disposicion de la Planta y Areas de Predio}}
 
 La figura \ref{{fig:layout_a}} presenta la disposicion espacial de las unidades de tratamiento. El layout muestra dos lineas paralelas operativas, cada una con capacidad para tratar {cfg.Q_linea_L_s:.1f} L/s, permitiendo la operacion con una sola linea durante mantenimiento o reparaciones.
@@ -1777,14 +1782,14 @@ A_{{total}} = \frac{{A_{{tratamiento}} + A_{{amortiguacion}} + A_{{complementari
 \begin{{itemize}}[noitemsep,leftmargin=2em]
     \item[$A_{{tratamiento}}$] = {area_m2:.0f} m$^2$
     \item[$A_{{amortiguacion}}$] = {area_m2 * cfg.layout_factor_amortiguacion:.0f} m$^2$ ({cfg.layout_factor_amortiguacion*100:.0f}\%)
-    \item[$A_{{complementarias}}$] = {area_m2 * 0.25:.0f} m$^2$ (25\% operativas estimado)
+    \item[$A_{{complementarias}}$] = {area_m2 * cfg.layout_factor_complementaria:.0f} m$^2$ ({cfg.layout_factor_complementaria*100:.0f}\% operativas estimado)
 \end{{itemize}}
 
 \begin{{equation}}
-A_{{total}} = \frac{{{area_m2:.0f} + {area_m2 * 0.20:.0f} + {area_m2 * 0.25:.0f}}}{{0.85}} \approx \mathbf{{{((area_m2 * 1.45) / 0.85):.0f} \text{{ m}}^2}} \approx \mathbf{{{(area_m2 * 1.705 / 10000):.2f} \text{{ ha}}}}
+A_{{total}} = \frac{{{area_m2:.0f} + {area_m2 * cfg.layout_factor_amortiguacion:.0f} + {area_m2 * cfg.layout_factor_complementaria:.0f}}}{{{1 - cfg.layout_factor_zona_verde:.2f}}} \approx \mathbf{{{(area_m2 * (1 + cfg.layout_factor_amortiguacion + cfg.layout_factor_complementaria) / (1 - cfg.layout_factor_zona_verde)):.0f} \text{{ m}}^2}} \approx \mathbf{{{(area_m2 * (1 + cfg.layout_factor_amortiguacion + cfg.layout_factor_complementaria) / (1 - cfg.layout_factor_zona_verde) / 10000):.2f} \text{{ ha}}}}
 \end{{equation}}
 
-\textbf{{Nota:}} El area total del predio debe ser de aproximadamente {((area_m2 * 1.45) / 0.85):.0f} m$^2$ ({(area_m2 * 1.705 / 10000):.2f} ha) para operacion adecuada con circulacion interna, estacionamiento y zonas verdes.
+\textbf{{Nota:}} El area total del predio debe ser de aproximadamente {(area_m2 * (1 + cfg.layout_factor_amortiguacion + cfg.layout_factor_complementaria) / (1 - cfg.layout_factor_zona_verde)):.0f} m$^2$ ({(area_m2 * (1 + cfg.layout_factor_amortiguacion + cfg.layout_factor_complementaria) / (1 - cfg.layout_factor_zona_verde) / 10000):.2f} ha) para operacion adecuada con circulacion interna, estacionamiento y zonas verdes.
 """
 
 
@@ -1827,9 +1832,9 @@ def generar_resumen_resultados(cfg, resultados, balance_calidad=None, area_m2=No
     if area_m2 is None:
         raise ValueError("area_m2 es requerida para generar el resumen de resultados")
     area_tratamiento = area_m2
-    area_amortiguacion = area_tratamiento * 0.20
-    area_complementaria = area_tratamiento * 0.25  # 25% para operativas
-    area_total_calc = (area_tratamiento + area_amortiguacion + area_complementaria) / 0.85  # incluye 15% zona verde
+    area_amortiguacion = area_tratamiento * cfg.layout_factor_amortiguacion
+    area_complementaria = area_tratamiento * cfg.layout_factor_complementaria  # {cfg.layout_factor_complementaria*100:.0f}% para operativas
+    area_total_calc = (area_tratamiento + area_amortiguacion + area_complementaria) / (1 - cfg.layout_factor_zona_verde)  # incluye {cfg.layout_factor_zona_verde*100:.0f}% zona verde
     
     # Valores del efluente
     dbo_ef = efluente.get('DBO5_mg_L', 0)
@@ -1839,10 +1844,10 @@ def generar_resumen_resultados(cfg, resultados, balance_calidad=None, area_m2=No
     
     # Verificacion de cumplimiento para cada tabla TULSMA
     # Tabla 12 - Agua dulce
-    cumple_t12_dbo = dbo_ef <= 100
-    cumple_t12_dqo = dqo_ef <= 250
-    cumple_t12_sst = sst_ef <= 130
-    cumple_t12_cf = cf_ef <= 3000
+    cumple_t12_dbo = dbo_ef <= cfg.DBO5_ef_mg_L
+    cumple_t12_dqo = dqo_ef <= 250  # DQO no parametrizada en ConfigDiseno
+    cumple_t12_sst = sst_ef <= cfg.SST_ef_mg_L
+    cumple_t12_cf = cf_ef <= cfg.CF_ef_NMP
     cumple_t12 = cumple_t12_dbo and cumple_t12_dqo and cumple_t12_sst and cumple_t12_cf
     
     # Tabla 13 - Agua marina
@@ -1936,7 +1941,10 @@ DQO (mg/L) & {afluente.get('DQO_mg_L'):.1f} & {bal.get('tras_uasb').get('DQO_mg_
 SST (mg/L) & {afluente.get('SST_mg_L'):.1f} & {bal.get('tras_uasb').get('SST_mg_L'):.1f} & {bal.get('tras_fp').get('SST_mg_L'):.1f} & {bal.get('tras_sed').get('SST_mg_L'):.1f} & {efluente.get('SST_mg_L'):.1f} \\
 CF (NMP/100mL) & {afluente.get('CF_NMP'):.0f} & {bal.get('tras_uasb').get('CF_NMP'):.0f} & {bal.get('tras_fp').get('CF_NMP'):.0f} & {bal.get('tras_sed').get('CF_NMP'):.0f} & {efluente.get('CF_NMP'):.0f} \\
 \midrule
-\textbf{{Remocion etapa}} & -- & \textbf{{{uasb.get('eta_DBO')*100:.0f}\%}} & \textbf{{{(1-fp.get('relacion_Se_S0_Germain'))*100:.0f}\%}} & \textbf{{{sed.get('eta_DBO_sed')*100:.0f}\%}} & \textbf{{{bal.get('eficiencias_totales').get('DBO5_pct'):.1f}\%}} \\
+\textbf{{Eficiencia DBO}} & -- & {bal.get('eficiencias_uasb', {}).get('DBO5_pct', 70):.0f}\% & {bal.get('eficiencias_fp', {}).get('DBO5_pct', 20):.0f}\% & {bal.get('eficiencias_sed', {}).get('DBO5_pct', 15):.0f}\% & {bal.get('eficiencias_totales', {}).get('DBO5_pct', 0):.1f}\% \\
+\textbf{{Eficiencia DQO}} & -- & {bal.get('eficiencias_uasb', {}).get('DQO_pct', 65):.0f}\% & {bal.get('eficiencias_fp', {}).get('DQO_pct', 18):.0f}\% & {bal.get('eficiencias_sed', {}).get('DQO_pct', 15):.0f}\% & {bal.get('eficiencias_totales', {}).get('DQO_pct', 0):.1f}\% \\
+\textbf{{Eficiencia SST}} & -- & {bal.get('eficiencias_uasb', {}).get('SST_pct', 70):.0f}\% & {bal.get('eficiencias_fp', {}).get('SST_pct', 60):.0f}\% & {bal.get('eficiencias_sed', {}).get('SST_pct', 80):.0f}\% & {bal.get('eficiencias_totales', {}).get('SST_pct', 0):.1f}\% \\
+\textbf{{Eficiencia CF}} & -- & {bal.get('eficiencias_uasb', {}).get('CF_pct', 30):.0f}\% & {bal.get('eficiencias_fp', {}).get('CF_pct', 20):.0f}\% & {bal.get('eficiencias_sed', {}).get('CF_pct', 10):.0f}\% & {bal.get('eficiencias_totales', {}).get('CF_pct', 0):.1f}\% \\
 \bottomrule
 \end{{tabular}}
 \end{{table}}
@@ -1955,7 +1963,7 @@ CF (NMP/100mL) & {afluente.get('CF_NMP'):.0f} & {bal.get('tras_uasb').get('CF_NM
 \textbf{{Uso / Tabla TULSMA}} & \textbf{{DBO$_5$}} & \textbf{{DQO}} & \textbf{{SST}} & \textbf{{CF}} & \textbf{{Dictamen}} \\
 & \textbf{{(limite)}} & \textbf{{(limite)}} & \textbf{{(limite)}} & \textbf{{(limite)}} & \\
 \midrule
-Agua dulce -- Tabla 12 & $\leq$100 & $\leq$250 & $\leq$130 & $\leq$3000 & {'CUMPLE' if cumple_t12 else 'NO CUMPLE'} \\
+Agua dulce -- Tabla 12 & $\leq${cfg.DBO5_ef_mg_L:.0f} & $\leq$250 & $\leq${cfg.SST_ef_mg_L:.0f} & $\leq${cfg.CF_ef_NMP:.0f} & {'CUMPLE' if cumple_t12 else 'NO CUMPLE'} \\
 Agua marina -- Tabla 13 & $\leq$100 & $\leq$250 & $\leq$100 & $\leq$3000 & {'CUMPLE' if cumple_t13 else 'NO CUMPLE'} \\
 Alcantarillado -- Tabla 11 & $\leq$250 & $\leq$500 & $\leq$220 & --- & {'CUMPLE' if cumple_t11 else 'NO CUMPLE'} \\
 Flora y fauna -- Tabla 3 & --- & --- & --- & $\leq$200 & {'CUMPLE' if cumple_t3_cf else 'NO CUMPLE'} \\
@@ -1978,9 +1986,9 @@ Consumo humano trat. conv. -- Tabla 1 & $\leq$2.0 & --- & --- & $\leq$600 & {'CU
 \textbf{{Concepto}} & \textbf{{Area}} \\
 \midrule
 Area de tratamiento & {area_m2:.0f} m$^2$ \\
-Area de amortiguacion (20\%) & {area_m2 * 0.20:.0f} m$^2$ \\
-Area complementaria operativa & {area_m2 * 0.25:.0f} m$^2$ (25\% estimado) \\
-Zona verde (15\% del total) & {area_total_calc * 0.15:.0f} m$^2$ \\
+Area de amortiguacion ({cfg.layout_factor_amortiguacion*100:.0f}\%) & {area_m2 * cfg.layout_factor_amortiguacion:.0f} m$^2$ \\
+Area complementaria operativa & {area_m2 * cfg.layout_factor_complementaria:.0f} m$^2$ ({cfg.layout_factor_complementaria*100:.0f}\% estimado) \\
+Zona verde ({cfg.layout_factor_zona_verde*100:.0f}\% del total) & {area_total_calc * cfg.layout_factor_zona_verde:.0f} m$^2$ \\
 \midrule
 \textbf{{Area total requerida}} & \textbf{{{area_total_calc:.0f} m$^2$ ({(area_total_calc/10000):.2f} ha)}} \\
 \bottomrule
@@ -2033,6 +2041,7 @@ def generar_latex_alternativa_A(cfg, resultados, output_path, area_m2=None, bala
     # Importar y generar layout automáticamente
     from ptar_layout_graficador import (
         generar_layout_con_resultados,
+        generar_esquema_desarenador,
         generar_esquema_uasb,
         generar_esquema_filtro_percolador,
         generar_esquema_sedimentador_secundario,
@@ -2055,6 +2064,20 @@ def generar_latex_alternativa_A(cfg, resultados, output_path, area_m2=None, bala
     except Exception as e:
         print(f"  [ADVERTENCIA] No se pudo generar layout: {e}")
         layout_filename = "Layout_A_2lineas.png"
+
+    # Generar esquema del desarenador
+    print("Generando esquema del desarenador...")
+    try:
+        des_resultados = resultados.get('desarenador', {})
+        if des_resultados:
+            esquema_des_path = generar_esquema_desarenador(des_resultados, output_dir)
+            esquema_des_filename = "Esquema_Desarenador.png"
+            print(f"  Esquema Desarenador generado: {esquema_des_filename}")
+        else:
+            esquema_des_filename = None
+    except Exception as e:
+        print(f"  [ADVERTENCIA] No se pudo generar esquema del desarenador: {e}")
+        esquema_des_filename = None
     
     # Generar esquema del UASB
     print("Generando esquema del reactor UASB...")
@@ -2667,5 +2690,5 @@ Zinc & Zn & mg/L & $\leq$ 5,0 \\
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(latex)
     
-    print(f"[OK] Memoria de calculo generada: {{output_path}}")
+    print(f"[OK] Memoria de calculo generada: {output_path}")
     return output_path

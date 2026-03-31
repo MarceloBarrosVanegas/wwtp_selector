@@ -1184,8 +1184,9 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
     # Carga orgánica afluente
     DQO_kg_m3 = Q.DQO_mg_L * 1e-3  # kg/m³
 
-    # [Ec. 4b] Volumen del reactor
-    V_r_m3 = Q_m3_d * DQO_kg_m3 / Cv_kgDQO_m3_d   # m^3
+    # [Ec. 4b] Volumen del reactor - CRITERIO BIOLÓGICO (carga orgánica volumétrica)
+    V_r_biol_m3 = Q_m3_d * DQO_kg_m3 / Cv_kgDQO_m3_d   # m^3 (volumen teórico biológico)
+    V_r_m3 = V_r_biol_m3  # Inicialmente el volumen adoptado es el biológico
 
     # [Ec. 4c] TRH
     TRH_h = (V_r_m3 / Q_m3_h)
@@ -1544,7 +1545,8 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
         "eta_DBO": eta_DBO,
         "eta_DQO": eta_DQO,
         # Resultados del dimensionamiento
-        "V_r_m3": round(V_r_m3, 1),
+        "V_r_biol_m3": round(V_r_biol_m3, 1),  # Volumen por criterio biológico (carga orgánica)
+        "V_r_m3": round(V_r_m3, 1),  # Volumen final adoptado (puede ajustarse por criterio hidráulico)
         "TRH_h": round(TRH_h, 1),
         "A_sup_m2": round(A_sup_m2, 2),
         "H_r_m": round(H_r_m, 2),
@@ -1987,7 +1989,7 @@ def dimensionar_filtro_percolador(Q: ConfigDiseno = CFG,
         "canal_underdrain_ok": canal_ok,
         "pendiente_underdrain_pct": Q.fp_pendiente_underdrain_pct,
         # PASO 8 - Ventilación
-        "area_ventilacion_requerida_m2": round(area_ventilacion_requerida_m2, 2),
+        "area_ventilacion_requerida_m2": round(area_ventilacion_requerida_m2, 4),
         "num_aperturas_ventilacion": num_aperturas_min,
         "espaciado_aperturas_m": round(espaciado_aperturas_m, 2),
         "Q_aire_min_m3_h": round(Q_aire_min_m3_h, 1),
@@ -2785,13 +2787,22 @@ def calcular_tren_A(Q: ConfigDiseno = None) -> Dict[str, Any]:
     # UASB: lodos anaerobios (factor de producción desde config)
     DBO_removida_uasb_kg_d_por_linea = Q.Q_linea_m3_d * (Q.DBO5_mg_L / 1000) * uasb['eta_DBO']
     lodos_uasb_kg_d_por_linea = Q.lecho_factor_produccion_lodos * DBO_removida_uasb_kg_d_por_linea
-    # Filtro Percolador: humus (ya calculado en el dimensionamiento del FP - por línea)
+    # Filtro Percolador: humus (sólidos biológicos desprendidos del control de espesor)
+    # El factor de producción de humus debe aplicarse consistentemente (igual que en sedimentador)
     if "DBO_removida_kg_d" not in fp:
         raise KeyError("Falta 'DBO_removida_kg_d' en resultados del Filtro Percolador")
-    lodos_fp_kg_d_por_linea = fp["DBO_removida_kg_d"]
+    # Producción de humus = factor × DBO removida (factor típico: 0.15 kg SST/kg DBO)
+    lodos_fp_kg_d_por_linea = fp["DBO_removida_kg_d"] * Q.sed_factor_produccion_humus
     # Producción total de lodos (todas las líneas)
     lodos_total_kg_d_total = (lodos_uasb_kg_d_por_linea + lodos_fp_kg_d_por_linea) * Q.num_lineas
     lecho      = dimensionar_lecho_secado(Q, lodos_kg_SST_d=lodos_total_kg_d_total)
+    
+    # Agregar desglose de lodos al resultado del lecho para consistencia en documentación
+    lecho["lodos_uasb_kg_d_por_linea"] = round(lodos_uasb_kg_d_por_linea, 2)
+    lecho["lodos_fp_kg_d_por_linea"] = round(lodos_fp_kg_d_por_linea, 2)
+    lecho["lodos_uasb_kg_d"] = round(lodos_uasb_kg_d_por_linea * Q.num_lineas, 2)
+    lecho["lodos_fp_kg_d"] = round(lodos_fp_kg_d_por_linea * Q.num_lineas, 2)
+    lecho["lodos_total_kg_d"] = round(lodos_total_kg_d_total, 2)
 
     # Balance de calidad (progresivo) - usando resultados reales del dimensionamiento
     DBO_in     = Q.DBO5_mg_L
@@ -2958,6 +2969,13 @@ def calcular_balance_calidad_agua(Q: ConfigDiseno = None,
                 "SST_mg_L": round(Q.SST_mg_L * (1 - eta_SST_uasb), 1),
                 "CF_NMP": round(Q.CF_NMP * (1 - eta_CF_uasb), 0),
             }
+            # Guardar eficiencias por parámetro
+            calidad["eficiencias_uasb"] = {
+                "DBO5_pct": round(eta_DBO_uasb * 100, 1),
+                "DQO_pct": round(eta_DQO_uasb * 100, 1),
+                "SST_pct": round(eta_SST_uasb * 100, 1),
+                "CF_pct": round(eta_CF_uasb * 100, 1),
+            }
         
         # Tras Filtro Percolador
         if "filtro_percolador" in resultados and "tras_uasb" in calidad:
@@ -2979,12 +2997,21 @@ def calcular_balance_calidad_agua(Q: ConfigDiseno = None,
                 "SST_mg_L": round(calidad["tras_uasb"]["SST_mg_L"] * (1 - eta_SST_fp), 1),
                 "CF_NMP": round(calidad["tras_uasb"]["CF_NMP"] * (1 - eta_CF_fp), 0),
             }
+            # Guardar eficiencias por parámetro
+            calidad["eficiencias_fp"] = {
+                "DBO5_pct": round(eta_DBO_fp * 100, 1),
+                "DQO_pct": round(eta_DQO_fp * 100, 1),
+                "SST_pct": round(eta_SST_fp * 100, 1),
+                "CF_pct": round(eta_CF_fp * 100, 1),
+            }
         
         # Tras Sedimentador Secundario
         if "sedimentador_sec" in resultados and "tras_fp" in calidad:
             sed = resultados["sedimentador_sec"]
             DBO_entrada_sed = calidad["tras_fp"]["DBO5_mg_L"]
-            eta_DBO_sed = sed.get("eta_DBO_sed", 0.30)
+            if "eta_DBO_sed" not in sed:
+                raise KeyError("Falta 'eta_DBO_sed' en resultados del Sedimentador Secundario")
+            eta_DBO_sed = sed["eta_DBO_sed"]
             # SST removido por separación de humus desde configuración
             eta_SST_sed = Q.balance_eta_SST_sed
             # DQO similar a DBO
@@ -2997,6 +3024,13 @@ def calcular_balance_calidad_agua(Q: ConfigDiseno = None,
                 "DQO_mg_L": round(calidad["tras_fp"]["DQO_mg_L"] * (1 - eta_DQO_sed), 1),
                 "SST_mg_L": round(calidad["tras_fp"]["SST_mg_L"] * (1 - eta_SST_sed), 1),
                 "CF_NMP": round(calidad["tras_fp"]["CF_NMP"] * (1 - eta_CF_sed), 0),
+            }
+            # Guardar eficiencias por parámetro
+            calidad["eficiencias_sed"] = {
+                "DBO5_pct": round(eta_DBO_sed * 100, 1),
+                "DQO_pct": round(eta_DQO_sed * 100, 1),
+                "SST_pct": round(eta_SST_sed * 100, 1),
+                "CF_pct": round(eta_CF_sed * 100, 1),
             }
         
         # Tras desinfección (UV o Cloro)

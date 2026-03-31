@@ -1332,3 +1332,281 @@ def generar_esquema_sedimentador_secundario(resultados_sed: dict, output_dir: st
     plt.close()
 
     return fig_path
+
+
+def generar_esquema_desarenador(resultados_des: dict, output_dir: str = "resultados") -> str:
+    """
+    Genera un esquema técnico del desarenador con dos vistas:
+    perfil longitudinal y vista en planta.
+    """
+    import matplotlib.pyplot as plt
+    from matplotlib.patches import Rectangle, Polygon
+
+    L = resultados_des.get('L_diseno_m', 3.0)
+    B = resultados_des.get('b_canal_m', 0.60)
+    H_util = resultados_des.get('H_util_m', 0.40)
+    H_arena = 0.20
+    H_bordo = 0.30
+    H_total = H_util + H_arena + H_bordo
+    Q_L_s = resultados_des.get('Q_linea_L_s', 5.0)
+    v_h = resultados_des.get('v_h_real_m_s', 0.021)
+    t_r = resultados_des.get('t_r_real_s', 144.0)
+    v_s = resultados_des.get('v_s_m_s', 0.021)
+    v_c = resultados_des.get('v_c_scour_m_s', 0.339)
+    Qmax = resultados_des.get('Q_max_L_s', 45.0)
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6), gridspec_kw={'width_ratios': [1.65, 1.15]})
+
+    c_muro = '#555555'
+    c_concreto = '#FBFBFB'
+    c_agua = '#DCEEF8'
+    c_arena = '#D5B48C'
+    c_losa = '#D0D0D0'
+    c_influente = '#2E7D32'
+    c_efluente = '#1565C0'
+    c_particula = '#8D6E63'
+    c_bafle = '#90A4AE'
+    dash = dict(linestyle='--', color='#999999', linewidth=0.8, alpha=0.7)
+
+    # === PERFIL LONGITUDINAL ===
+    x0 = 1.2
+    y0 = 1.0
+    espesor = 0.06
+    escala_x = 2.1
+    escala_y = 2.0
+    largo = L * escala_x
+    h_agua = H_util * escala_y
+    h_arena = H_arena * escala_y
+    h_bordo = H_bordo * escala_y
+    largo_in = largo * 0.18
+    largo_rampa = largo * 0.14
+    largo_camara = largo * 0.48
+    largo_salida = largo - largo_in - largo_rampa - largo_camara
+    x_in_end = x0 + largo_in
+    x_rampa_end = x_in_end + largo_rampa
+    x_camara_end = x_rampa_end + largo_camara
+    x_out_end = x0 + largo
+
+    y_base_in = y0 + h_arena * 0.85
+    y_base_camara = y0
+    y_superficie = y_base_camara + h_arena + h_agua
+    y_top = y_superficie + h_bordo
+
+    # muros y losa
+    ax1.add_patch(Rectangle((x0, y_base_in), espesor, y_top - y_base_in, facecolor=c_concreto, edgecolor=c_muro, linewidth=1.8))
+    ax1.add_patch(Rectangle((x_out_end - espesor, y_base_camara), espesor, y_top - y_base_camara, facecolor=c_concreto, edgecolor=c_muro, linewidth=1.8))
+    ax1.plot([x0, x_in_end], [y_base_in, y_base_in], color=c_muro, linewidth=2.0)
+    ax1.plot([x_in_end, x_rampa_end], [y_base_in, y_base_camara], color=c_muro, linewidth=2.0)
+    ax1.plot([x_rampa_end, x_camara_end], [y_base_camara, y_base_camara], color=c_muro, linewidth=2.0)
+    ax1.plot([x_camara_end, x_out_end], [y_base_camara, y_base_camara], color=c_muro, linewidth=2.0)
+    ax1.plot([x0, x0], [y_base_in, y_top], color=c_muro, linewidth=2.0)
+    ax1.plot([x_out_end, x_out_end], [y_base_camara, y_top], color=c_muro, linewidth=2.0)
+
+    # agua
+    agua_pts = [
+        (x0 + espesor, y_base_in + H_arena * 0.25 * escala_y),
+        (x_in_end, y_base_in + H_arena * 0.25 * escala_y),
+        (x_rampa_end, y_base_camara + h_arena),
+        (x_out_end - espesor, y_base_camara + h_arena),
+        (x_out_end - espesor, y_superficie),
+        (x0 + espesor, y_superficie),
+    ]
+    ax1.add_patch(Polygon(agua_pts, closed=True, facecolor=c_agua, edgecolor='none', alpha=0.92))
+
+    # arena / depósito
+    arena_pts = [
+        (x_in_end - 0.04, y_base_in),
+        (x_rampa_end, y_base_camara),
+        (x_camara_end, y_base_camara),
+        (x_out_end - espesor, y_base_camara),
+        (x_out_end - espesor, y_base_camara + h_arena),
+        (x_rampa_end, y_base_camara + h_arena),
+        (x_in_end, y_base_in + h_arena * 0.15),
+    ]
+    ax1.add_patch(Polygon(arena_pts, closed=True, facecolor=c_arena, edgecolor='none', alpha=0.95))
+    ax1.add_patch(Rectangle((x0 + 0.10, y_base_in + 0.02), largo - 0.20, 0.04, facecolor=c_losa, edgecolor='none'))
+
+    # flujo
+    for frac in (0.25, 0.52, 0.78):
+        y_flow = y_base_camara + h_arena + h_agua * frac
+        ax1.annotate('', xy=(x_out_end - 1.05, y_flow), xytext=(x_in_end + 0.40, y_flow),
+                     arrowprops=dict(arrowstyle='->', color=c_influente, lw=2.2))
+
+    # partículas sedimentando
+    xs = [x_rampa_end + largo_camara * 0.15, x_rampa_end + largo_camara * 0.40,
+          x_rampa_end + largo_camara * 0.65, x_rampa_end + largo_camara * 0.86]
+    for x_part in xs:
+        ax1.annotate('', xy=(x_part, y_base_camara + h_arena * 0.55), xytext=(x_part, y_base_camara + h_arena + h_agua * 0.74),
+                     arrowprops=dict(arrowstyle='-|>', color=c_particula, lw=1.8, alpha=0.8))
+
+    # estructura de salida
+    ax1.add_patch(Rectangle((x_camara_end + 0.10, y_base_camara + h_arena + h_agua * 0.40), 0.10, h_agua * 0.55,
+                            facecolor=c_bafle, edgecolor='#607D8B', linewidth=1.0))
+    ax1.add_patch(Rectangle((x_camara_end + 0.27, y_base_camara), 0.16, h_arena + h_agua * 0.95,
+                            facecolor='none', edgecolor=c_muro, linewidth=1.2))
+    y_salida = y_base_camara + h_arena + h_agua * 0.60
+    ax1.plot([x_out_end, x_out_end + 1.00], [y_salida, y_salida], color='#444444', linewidth=2.0)
+    ax1.annotate('', xy=(x_out_end + 1.00, y_salida), xytext=(x_out_end + 0.16, y_salida),
+                 arrowprops=dict(arrowstyle='->', color=c_efluente, lw=2.5))
+    ax1.text(x_out_end + 0.66, y_salida + 0.16, 'Salida',
+             ha='left', va='bottom', fontsize=8.2, color=c_efluente, fontweight='bold',
+             bbox=dict(facecolor='white', edgecolor='none', alpha=0.92, pad=0.1))
+
+    # entrada
+    y_entrada = y_base_camara + h_arena + h_agua * 0.52
+    ax1.plot([x0 - 0.95, x0], [y_entrada, y_entrada], color='#444444', linewidth=2.0)
+    ax1.annotate('', xy=(x0 - 0.02, y_entrada), xytext=(x0 - 0.78, y_entrada),
+                 arrowprops=dict(arrowstyle='->', color=c_influente, lw=2.5))
+    ax1.text(x0 + 0.62, y_superficie + 0.10, f'Afluente\nQ = {Q_L_s:.1f} L/s',
+             ha='center', va='bottom', fontsize=8.6, color=c_influente, fontweight='bold',
+             bbox=dict(facecolor='white', edgecolor='none', alpha=0.92, pad=0.1))
+
+    # cotas y niveles
+    y_agua = y_base_camara + h_arena
+    ax1.axhline(y=y_agua, xmin=0.12, xmax=0.86, **dash)
+    ax1.axhline(y=y_superficie, xmin=0.12, xmax=0.86, **dash)
+    x_dim = x0 - 1.02
+    x_dim_total = x0 - 2.08
+
+    def draw_dim(ax, y1, y2, x_pos, label):
+        ax.plot([x_pos, x_pos], [y1, y2], 'k-', linewidth=0.8)
+        ax.plot([x_pos - 0.08, x_pos + 0.08], [y1, y1], 'k-', linewidth=0.8)
+        ax.plot([x_pos - 0.08, x_pos + 0.08], [y2, y2], 'k-', linewidth=0.8)
+        ax.annotate('', xy=(x_pos, y2 - 0.03), xytext=(x_pos, y2 - 0.20),
+                    arrowprops=dict(arrowstyle='->', color='black', lw=0.8))
+        ax.annotate('', xy=(x_pos, y1 + 0.03), xytext=(x_pos, y1 + 0.20),
+                    arrowprops=dict(arrowstyle='->', color='black', lw=0.8))
+        ax.text(x_pos - 0.16, (y1 + y2) / 2, label, ha='right', va='center', fontsize=8)
+
+    draw_dim(ax1, y_base_camara, y_agua, x_dim, f'{H_arena:.2f} m')
+    draw_dim(ax1, y_agua, y_superficie, x_dim, f'{H_util:.2f} m')
+    draw_dim(ax1, y_superficie, y_top, x_dim, f'{H_bordo:.2f} m')
+    draw_dim(ax1, y_base_camara, y_top, x_dim_total, f'H = {H_total:.2f} m')
+
+    y_dim = y_base_camara - 0.24
+    ax1.plot([x_rampa_end, x_out_end], [y_dim, y_dim], 'k-', linewidth=0.8)
+    ax1.plot([x_rampa_end, x_rampa_end], [y_dim - 0.08, y_dim + 0.08], 'k-', linewidth=0.8)
+    ax1.plot([x_out_end, x_out_end], [y_dim - 0.08, y_dim + 0.08], 'k-', linewidth=0.8)
+    ax1.text((x_rampa_end + x_out_end) / 2, y_dim - 0.14, f'Lcd = {L:.1f} m', ha='center', va='top', fontsize=8)
+
+    ax1.text(x_out_end + 0.30, y_base_camara + h_arena + h_agua * 0.22,
+             'Zona de flujo',
+             ha='left', va='center', fontsize=8, fontweight='bold',
+             bbox=dict(facecolor='white', edgecolor='none', alpha=0.92, pad=0.1))
+    ax1.text(x_out_end + 0.30, y_base_camara + h_arena * 0.06,
+             'Deposito de arena',
+             ha='left', va='center', fontsize=8,
+             bbox=dict(facecolor='white', edgecolor='none', alpha=0.92, pad=0.1))
+    ax1.set_title('Perfil longitudinal', fontsize=11, fontweight='bold', pad=8)
+    ax1.set_xlim(x0 - 1.65, x_out_end + 2.45)
+    ax1.set_ylim(y_base_camara - 0.8, y_top + 0.75)
+    ax1.set_aspect('equal')
+    ax1.axis('off')
+
+    # === VISTA EN PLANTA ===
+    x0c = 1.0
+    y0c = 1.0
+    escala_px = 1.50
+    escala_py = 4.4
+    largo_p = L * escala_px
+    ancho_p = B * escala_py
+    margen = 0.07
+    largo_in_p = largo_p * 0.18
+    largo_conv_p = largo_p * 0.18
+    largo_cam_p = largo_p * 0.46
+    largo_out_p = largo_p * 0.18
+    x_in_p = x0c
+    x_conv1_p = x_in_p + largo_in_p
+    x_cam1_p = x_conv1_p + largo_conv_p
+    x_cam2_p = x_cam1_p + largo_cam_p
+    x_out_p = x0c + largo_p
+    b_in = ancho_p * 0.42
+    y_mid = y0c + ancho_p * 0.50
+    y_top_ch = y0c + ancho_p
+
+    contorno = [
+        (x_in_p, y_mid + b_in / 2),
+        (x_conv1_p, y_mid + b_in / 2),
+        (x_cam1_p, y_top_ch),
+        (x_cam2_p, y_top_ch),
+        (x_out_p - largo_out_p * 0.45, y_mid + b_in / 2),
+        (x_out_p, y_mid + b_in / 2),
+        (x_out_p, y_mid - b_in / 2),
+        (x_out_p - largo_out_p * 0.45, y_mid - b_in / 2),
+        (x_cam2_p, y0c),
+        (x_cam1_p, y0c),
+        (x_conv1_p, y_mid - b_in / 2),
+        (x_in_p, y_mid - b_in / 2),
+    ]
+    ax2.add_patch(Polygon(contorno, closed=True, facecolor=c_concreto, edgecolor=c_muro, linewidth=2.0))
+
+    agua_contorno = [
+        (x_in_p + margen, y_mid + b_in / 2 - margen),
+        (x_conv1_p, y_mid + b_in / 2 - margen),
+        (x_cam1_p + margen * 0.4, y_top_ch - margen),
+        (x_cam2_p - margen * 0.4, y_top_ch - margen),
+        (x_out_p - largo_out_p * 0.45, y_mid + b_in / 2 - margen),
+        (x_out_p - margen, y_mid + b_in / 2 - margen),
+        (x_out_p - margen, y_mid - b_in / 2 + margen),
+        (x_out_p - largo_out_p * 0.45, y_mid - b_in / 2 + margen),
+        (x_cam2_p - margen * 0.4, y0c + margen),
+        (x_cam1_p + margen * 0.4, y0c + margen),
+        (x_conv1_p, y_mid - b_in / 2 + margen),
+        (x_in_p + margen, y_mid - b_in / 2 + margen),
+    ]
+    ax2.add_patch(Polygon(agua_contorno, closed=True, facecolor=c_agua, edgecolor='none', alpha=0.92))
+
+    # líneas de flujo en planta
+    y_tracks = [y0c + ancho_p * 0.22, y0c + ancho_p * 0.50, y0c + ancho_p * 0.78]
+    for y_track in y_tracks:
+        ax2.annotate('', xy=(x_out_p - largo_out_p * 0.55, y_track), xytext=(x_cam1_p + 0.22, y_track),
+                     arrowprops=dict(arrowstyle='->', color=c_influente, lw=2.0))
+
+    # zona central / depósito
+    ax2.add_patch(Rectangle((x_cam1_p + 0.12, y0c + ancho_p * 0.16),
+                            (x_cam2_p - x_cam1_p) - 0.24, ancho_p * 0.68,
+                            facecolor='none', edgecolor='#B8946F', linewidth=1.0, linestyle='--', alpha=0.9))
+
+    # entrada y salida
+    ax2.plot([x_in_p - 0.95, x_in_p], [y_mid, y_mid], color='#444444', linewidth=2.0)
+    ax2.annotate('', xy=(x_in_p - 0.02, y_mid), xytext=(x_in_p - 0.80, y_mid),
+                 arrowprops=dict(arrowstyle='->', color=c_influente, lw=2.5))
+    ax2.text(x_in_p - 1.82, y_mid + 0.30, 'Afluente',
+             ha='left', va='bottom', fontsize=8.4, color=c_influente, fontweight='bold',
+             bbox=dict(facecolor='white', edgecolor='none', alpha=0.92, pad=0.1))
+
+    ax2.plot([x_out_p, x_out_p + 0.95], [y_mid, y_mid], color='#444444', linewidth=2.0)
+    ax2.annotate('', xy=(x_out_p + 0.95, y_mid), xytext=(x_out_p + 0.15, y_mid),
+                 arrowprops=dict(arrowstyle='->', color=c_efluente, lw=2.5))
+    ax2.text(x_out_p + 0.12, y_mid + 0.14, 'Salida',
+             ha='left', va='bottom', fontsize=8.4, color=c_efluente, fontweight='bold',
+             bbox=dict(facecolor='white', edgecolor='none', alpha=0.92, pad=0.1))
+
+    y_dim_c = y0c - 0.46
+    ax2.plot([x_cam1_p, x_cam2_p], [y_dim_c, y_dim_c], 'k-', linewidth=0.8)
+    ax2.plot([x_cam1_p, x_cam1_p], [y_dim_c - 0.08, y_dim_c + 0.08], 'k-', linewidth=0.8)
+    ax2.plot([x_cam2_p, x_cam2_p], [y_dim_c - 0.08, y_dim_c + 0.08], 'k-', linewidth=0.8)
+    ax2.text((x_cam1_p + x_cam2_p) / 2, y_dim_c - 0.14, f'Lcd = {L:.1f} m', ha='center', va='top', fontsize=8)
+
+    x_dim_c = x_out_p + 1.05
+    ax2.plot([x_dim_c, x_dim_c], [y0c, y_top_ch], 'k-', linewidth=0.8)
+    ax2.text(x_dim_c + 0.06, y_top_ch + 0.06, f'B = {B:.2f} m',
+             ha='left', va='bottom', fontsize=8,
+             bbox=dict(facecolor='white', edgecolor='none', alpha=0.92, pad=0.08))
+
+    ax2.set_title('Vista en planta', fontsize=11, fontweight='bold', pad=8)
+    ax2.text(x_cam2_p - 0.04, y0c + 0.34,
+             'Zona de deposito de arena', ha='center', va='center', fontsize=8,
+             bbox=dict(facecolor='white', edgecolor='none', alpha=0.85, pad=0.08))
+    ax2.set_xlim(x_in_p - 1.10, x_out_p + 1.90)
+    ax2.set_ylim(y0c - 0.8, y_top_ch + 0.8)
+    ax2.set_aspect('equal')
+    ax2.axis('off')
+
+    fig_path = os.path.join(output_dir, 'Esquema_Desarenador.png')
+    fig.savefig(fig_path, dpi=200, bbox_inches='tight', facecolor='white', pad_inches=0.2)
+    plt.close()
+
+    return fig_path
+
+

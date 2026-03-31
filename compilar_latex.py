@@ -134,11 +134,11 @@ def main():
         # Buscar el último reporte generado
         resultados_dir = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
-            '05_Resultados'
+            'resultados'
         )
         
         # Buscar archivos .tex recientes
-        tex_files = list(Path(resultados_dir).glob('*_reporte.tex'))
+        tex_files = list(Path(resultados_dir).glob('seleccion_alternativa_*.tex'))
         if not tex_files:
             print("[ERROR] No se encontró ningún archivo .tex")
             print("Uso: python compilar_latex.py <archivo.tex>")
