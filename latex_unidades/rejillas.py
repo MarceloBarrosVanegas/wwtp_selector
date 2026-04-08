@@ -465,7 +465,20 @@ Ancho constructivo & {r['ancho_layout_m']:.2f} m & $\geq$ {ancho_criterio_tabla_
 $^a$ Para caudales pequenos ({cfg.Q_linea_L_s:.1f} L/s) el ancho minimo constructivo ({ancho_minimo_constructivo_m:.2f} m) domina sobre el criterio de velocidad.
 \end{{table}}
 
-{figura_latex}Las dimensiones finales del canal con rejillas son: ancho {r['ancho_layout_m']:.2f} m, tirante {r['h_tirante_m']:.2f} m y longitud {r['largo_layout_m']:.1f} m. Se requieren dos unidades, una por cada linea de tratamiento."""
+{figura_latex}\textbf{{Manejo de solidos retenidos}}
+
+Las rejillas retienen solidos gruesos presentes en el agua residual que podrian danar equipos o causar obstrucciones en el sistema. El manejo adecuado de estos residuos incluye:
+
+\begin{{itemize}}[noitemsep,leftmargin=2em]
+    \item \textbf{{Tipos de solidos retenidos:}} Plasticos, ramas, papel, trapos y otros desechos flotantes de tamano superior al espaciado entre barras ({cfg.rejillas_b_barra_m*1000:.0f} mm).
+    \item \textbf{{Frecuencia de limpieza:}} Diaria o segun acumulacion observada. La perdida de carga calculada de {r['perdida_carga_real_m']*100:.4f} cm (limpio) indica que la limpieza puede ser manual dado que es inferior al umbral de {r['hL_criterio_m']*100:.0f} cm recomendado para sistemas mecanizados.
+    \item \textbf{{Metodo de limpieza:}} Manual mediante rastrillos o ganchos desde la plataforma de operacion. El angulo de inclinacion de {cfg.rejillas_angulo_grados:.0f}\textdegree\ facilita el retiro de solidos hacia la parte superior del canal.
+    \item \textbf{{Disposicion final:}} Los solidos retenidos deben depositarse en contenedores impermeables y transportarse a un relleno sanitario autorizado. \textit{{No son aptos para compostaje directo}} debido a la presencia de plasticos y materiales no biodegradables.
+\end{{itemize}}
+
+\textit{{Nota sobre cantidades:}} El presente dimensionamiento no estima la masa o volumen diario de residuos de cribado. Segun Metcalf y Eddy \cite{{metcalf2014}}, la produccion tipica de residuos de rejillas finas en aguas residuales municipales varia entre 0.005--0.02 m\textsuperscript{{3}}/1000 m\textsuperscript{{3}} de agua tratada. Para el caudal de diseno, esto representaria aproximadamente 0.02--0.09 m\textsuperscript{{3}}/d (total planta), sujeto a caracterizacion local.
+
+Las dimensiones finales del canal con rejillas son: ancho {r['ancho_layout_m']:.2f} m, tirante {r['h_tirante_m']:.2f} m y longitud {r['largo_layout_m']:.1f} m. Se requieren dos unidades, una por cada linea de tratamiento."""
 
 
 # =============================================================================

@@ -1355,7 +1355,7 @@ def generar_esquema_desarenador(resultados_des: dict, output_dir: str = "resulta
     v_c = resultados_des.get('v_c_scour_m_s', 0.339)
     Qmax = resultados_des.get('Q_max_L_s', 45.0)
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6), gridspec_kw={'width_ratios': [1.65, 1.15]})
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(14, 6))
 
     c_muro = '#555555'
     c_concreto = '#FBFBFB'

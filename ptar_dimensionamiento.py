@@ -115,8 +115,15 @@ class ConfigDiseno:
     desarenador_factor_pico: float = 2.5    # Factor caudal máximo horario / promedio (tip: 2-3)
     desarenador_d_particula_mm: float = 0.20    # Diámetro partícula objetivo (mm)
     desarenador_Ss: float = 2.65            # Gravedad específica arena
+    desarenador_h_almacenamiento_arena_min_m: float = 0.25  # Rango tipico almacenamiento arena (m)
+    desarenador_h_almacenamiento_arena_max_m: float = 0.30  # Rango tipico almacenamiento arena (m)
+    desarenador_h_almacenamiento_arena_m: float = 0.30      # Altura adoptada almacenamiento arena (m)
     # Parámetros para Camp-Shields (verificación de velocidad crítica)
+    desarenador_beta_min: float = 0.04      # Rango recomendado factor de forma
+    desarenador_beta_max: float = 0.06      # Rango recomendado factor de forma
     desarenador_beta: float = 0.05          # Factor de forma partícula (rango 0.04-0.06)
+    desarenador_f_darcy_min: float = 0.02   # Rango recomendado friccion Darcy-Weisbach
+    desarenador_f_darcy_max: float = 0.03   # Rango recomendado friccion Darcy-Weisbach
     desarenador_f_darcy: float = 0.025      # Factor de fricción Darcy-Weisbach (rango 0.02-0.03)
     # Límite de velocidad para verificación (Camp-Shields)
     # v_h_max debe ser < v_c_scour (velocidad crítica de resuspensión)
@@ -131,6 +138,17 @@ class ConfigDiseno:
     uasb_eta_DQO: float = 0.65              # Eficiencia remoción DQO (fracción) - usado solo como referencia inicial
     uasb_H_max_m: float = 5.5               # Altura máxima reactor (m)
     uasb_factor_biogas_ch4: float = 0.35    # Factor de conversión biogás (m³ CH4 / kg DQO removida)
+    
+    # =========================================================================
+    # PARÁMETROS DE CALIDAD Y ESTABILIDAD DEL PROCESO UASB
+    # =========================================================================
+    uasb_pH_optimo_min: float = 6.8         # pH mínimo óptimo para metanogénesis
+    uasb_pH_optimo_max: float = 7.2         # pH máximo óptimo para metanogénesis
+    uasb_alcalinidad_min_mg_L: float = 1000.0  # Alcalinidad mínima requerida (mg/L CaCO3)
+    uasb_biogas_CH4_pct: float = 65.0       # Porcentaje metano en biogás (%)
+    uasb_biogas_CO2_pct: float = 35.0       # Porcentaje CO2 en biogás (%)
+    uasb_biogas_H2S_max_ppm: float = 100.0  # Límite H2S en biogás (ppm)
+    uasb_lodo_estabilizado: bool = True     # El lodo UASB está estabilizado anaeróbicamente
     
     # =========================================================================
     # PARÁMETROS GEOMÉTRICOS UASB (todas las alturas en m)
@@ -169,6 +187,21 @@ class ConfigDiseno:
     uasb_rendimiento_lodos_kg_SSV_kg_DBO: float = 0.10  # Rendimiento de lodos (kg SSV/kg DBO removida)
     uasb_D_max_m: float = 10.0                          # Diámetro máximo del reactor (m) - límite while v_up
     uasb_D_sed_max_m: float = 15.0                      # Diámetro máximo para sedimentador (m) - límite while SOR
+    
+    # =========================================================================
+    # FACTORES DE CONVERSIÓN SÓLIDOS - SUBPRODUCTOS (para agregación)
+    # =========================================================================
+    # NOTA: Estos factores permiten convertir entre bases de sólidos cuando
+    # las unidades reportan en diferentes bases (SSV vs SST). Si no están
+    # definidos, el agregador reportará kg_SST_d = None y lo marcará como pendiente.
+    #
+    # Conversión SSV → SST: SST = SSV / fraccion_SSV_en_SST
+    # Ejemplo: Si SSV representa el 80% de SST (fraccion=0.80), entonces:
+    #   SST = SSV / 0.80 = 1.25 × SSV
+    fraccion_SSV_en_SST_lodo_uasb: float = None         # Fracción SSV/SST (ej: 0.80 = 80%)
+    fraccion_SSV_en_SST_lodo_fp: float = None           # Fracción SSV/SST para biomasa FP (ej: 0.85)
+    concentracion_lodo_uasb_kg_SST_m3: float = None     # Concentración lodo UASB para m3/d (ej: 40-60 kg SST/m3)
+    concentracion_lodo_fp_kg_SST_m3: float = None       # Concentración humus FP para m3/d (ej: 30-50 kg SST/m3)
     
     # =========================================================================
     # RANGOS DE DISEÑO UASB POR TEMPERATURA (Van Haandel & Lettinga 1994)
@@ -225,17 +258,33 @@ class ConfigDiseno:
     fp_theta: float = 1.035                 # Coeficiente temperatura
     fp_n_germain: float = 0.50              # Constante empírica medio aleatorio
     fp_D_medio_m: float = 3.50              # Profundidad medio filtrante (m)
+    fp_D_medio_min_m: float = 3.0           # Rango recomendado profundidad medio filtrante (m)
+    fp_D_medio_max_m: float = 8.0           # Rango recomendado profundidad medio filtrante (m)
     fp_R_recirculacion: float = 1.0         # Tasa recirculación
     fp_H_total_m: float = 4.30              # Altura total (medio + 0.80m)
     
     # PASO 4 - Geometría del filtro (desglose de alturas)
     fp_H_distribucion_m: float = 0.20       # Espacio distribuidor-medio (0.15-0.23 m) [EPA, 2000]
+    fp_H_distribucion_min_m: float = 0.15   # Rango recomendado espacio distribuidor-medio (m)
+    fp_H_distribucion_max_m: float = 0.23   # Rango recomendado espacio distribuidor-medio (m)
     fp_H_underdrain_m: float = 0.50         # Altura underdrain (0.45-0.60 m) [Metcalf & Eddy, 2014]
+    fp_H_underdrain_min_m: float = 0.45     # Rango recomendado altura underdrain (m)
+    fp_H_underdrain_max_m: float = 0.60     # Rango recomendado altura underdrain (m)
     fp_H_bordo_libre_fp_m: float = 0.30     # Bordo libre filtro (0.30-0.50 m)
+    fp_H_bordo_libre_min_m: float = 0.30    # Rango recomendado bordo libre (m)
+    fp_H_bordo_libre_max_m: float = 0.50    # Rango recomendado bordo libre (m)
     
     # PASO 6 - Distribuidor rotatorio
     fp_num_brazos: int = 2                  # Número de brazos (2 para D < 6m, 4 para D > 15m)
     fp_velocidad_boquilla_m_s: float = 2.0  # Velocidad salida boquilla (1.5-3.0 m/s)
+    fp_velocidad_boquilla_min_m_s: float = 1.5  # Rango recomendado velocidad salida boquilla (m/s)
+    fp_velocidad_boquilla_max_m_s: float = 3.0  # Rango recomendado velocidad salida boquilla (m/s)
+    fp_rotacion_rpm_min: float = 0.5        # Rango tipico velocidad rotacion distribuidor (rpm)
+    fp_rotacion_rpm_max: float = 2.0        # Rango tipico velocidad rotacion distribuidor (rpm)
+    fp_vel_periferica_min_m_min: float = 0.5 # Rango tipico velocidad periferica distribuidor (m/min)
+    fp_vel_periferica_max_m_min: float = 4.0 # Rango tipico velocidad periferica distribuidor (m/min)
+    fp_motor_aux_min_kW: float = 0.5        # Potencia minima motor auxiliar recomendado (kW)
+    fp_motor_aux_max_kW: float = 1.0        # Potencia maxima motor auxiliar recomendado (kW)
     fp_num_boquillas_por_brazo: int = 8     # Número de boquillas por brazo (5-15)
     
     # PASO 7 - Underdrain
@@ -263,6 +312,7 @@ class ConfigDiseno:
     fp_carga_agua_sobre_medio_kg_m3: float = 40.0       # Carga agua sobre medio (kg/m³)
     fp_carga_biopelicula_sobre_medio_kg_m3: float = 15.0 # Carga biopelícula sobre medio (kg/m³)
     fp_Cv_kgDBO_m3_d: float = 0.5               # Carga orgánica volumétrica (kg DBO/m³·d)
+    fp_Cv_maxima_kgDBO_m3_d: float = 3.0        # Carga orgánica máxima recomendada (kg DBO/m³·d)
     fp_Q_A_limite_m3_m2_h: float = 4.0          # Límite tasa hidráulica (m³/m²·h)
     fp_Cv_minima_kgDBO_m3_d: float = 0.30       # Carga orgánica mínima recomendada (kg DBO/m³·d)
     fp_qA_min_humectacion_m3_m2_h: float = 0.5  # Tasa mínima humectación biopelícula (m³/m²·h)
@@ -272,6 +322,8 @@ class ConfigDiseno:
     fp_incremento_recirculacion: float = 0.5    # Incremento gradual de R en ajustes (adimensional)
     fp_R_min: float = 1.0                       # Recirculación mínima operativa (adimensional)
     fp_R_max: float = 2.0                       # Recirculación máxima permitida (adimensional)
+    fp_R_recomendado_min: float = 0.5           # Rango bibliografico recomendado para recirculacion
+    fp_R_recomendado_max: float = 2.0           # Rango bibliografico recomendado para recirculacion
     fp_Q_por_brazo_min_rotacion_m3_h: float = 10.0  # Caudal mínimo por brazo para rotación hidráulica (m³/h)
     
     # CRITERIOS DE RESISTENCIA MECÁNICA DEL MEDIO
@@ -290,27 +342,107 @@ class ConfigDiseno:
     desinfeccion_coef_log_red: float = 0.22         # Coeficiente log reducción (log por CT)
     desinfeccion_concentracion_NaOCl: float = 0.10  # Concentración NaOCl comercial (fracción)
     desinfeccion_densidad_NaOCl: float = 1.10       # Densidad NaOCl 10% (kg/L)
+    desinfeccion_NaOCl_comercial_min_pct: float = 10.0  # Rango típico NaOCl comercial (%)
+    desinfeccion_NaOCl_comercial_max_pct: float = 12.5  # Rango típico NaOCl comercial (%)
+    desinfeccion_demanda_cloro_min_mg_L: float = 2.0    # Rango típico demanda de cloro (mg/L)
+    desinfeccion_demanda_cloro_max_mg_L: float = 5.0    # Rango típico demanda de cloro (mg/L)
+    desinfeccion_cloro_residual_min_mg_L: float = 0.5   # Rango recomendado residual (mg/L)
+    desinfeccion_cloro_residual_max_mg_L: float = 2.0   # Rango recomendado residual (mg/L)
+    desinfeccion_dosis_cloro_min_mg_L: float = 3.0      # Rango típico dosis total (mg/L)
+    desinfeccion_dosis_cloro_max_mg_L: float = 10.0     # Rango típico dosis total (mg/L)
+    desinfeccion_TRH_recomendado_min: float = 15.0      # Rango recomendado TRH (min)
+    desinfeccion_TRH_recomendado_max: float = 45.0      # Rango recomendado TRH (min)
+    desinfeccion_CT_min_recomendado_mg_min_L: float = 30.0  # CT mínimo conservador (mg min/L)
+    desinfeccion_limite_TULSMA_CF_NMP: float = 3000.0   # Límite CF para vertimiento (NMP/100mL)
+    desinfeccion_residual_monitoreo_min_mg_L: float = 0.5 # Rango recomendado monitoreo residual (mg/L)
+    desinfeccion_residual_monitoreo_max_mg_L: float = 1.0 # Rango recomendado monitoreo residual (mg/L)
+    desinfeccion_almacenamiento_dias: float = 30.0      # Autonomía almacenamiento NaOCl (días)
     
     # =============================================================================
-    # PARÁMETROS DE DISEÑO - HUMEDAL VERTICAL
+    # PARÁMETROS DE DISEÑO - HUMEDAL VERTICAL (HAFV)
+    # Metodología Unificada: Sistema Clásico (Ruta A) y HAFV tropical de alta carga (Ruta B)
     # =============================================================================
+    # Parámetros comunes
+    desinfeccion_borde_libre_m: float = 0.30        # Bordo libre camara de contacto (m)
+    desinfeccion_n_canales_serpentin: int = 5       # Numero de pasos del culebrin
+    desinfeccion_ancho_canal_min_m: float = 0.50    # Ancho minimo constructivo por canal (m)
+    desinfeccion_espesor_bafle_m: float = 0.15      # Espesor de muros/bafles internos (m)
+    desinfeccion_relacion_recorrido_ancho_min: float = 30.0 # Criterio L recorrido/ancho para aproximar flujo piston
+
     humedal_DBO_salida_mg_L: float = 20.0   # DBO5 objetivo (mg/L)
     humedal_C_fondo_mg_L: float = 3.5       # Concentración fondo C* (mg/L)
-    humedal_k_20_m_d: float = 0.062         # Constante a 20°C (m/d)
+    humedal_k_20_m_d: float = 0.093         # Constante a 20°C (m/d) - Kadlec & Wallace (2009), Tabla 6.6: kA,20 = 0.093 m/d para DBO5
     humedal_theta: float = 1.06             # Coeficiente temperatura
     humedal_n_porosidad: float = 0.38       # Porosidad lecho grava
     humedal_h_lecho_m: float = 0.60         # Profundidad lecho filtrante (m)
     humedal_borde_libre_m: float = 0.20     # Borde libre (m)
     humedal_factor_seguridad_area: float = 1.25  # FS para variaciones estacionales
+    humedal_eta_CF: float = 0.90            # Eficiencia remoción CF en HAFV (fracción) - Kadlec & Wallace: 1-2 log (90-99%)
+    
+    # Algoritmo de selección de sistema (Sección 3 del manual)
+    humedal_temp_limite_clasico_C: float = 15.0      # T < 15°C → Sistema Clásico obligatorio
+    humedal_temp_limite_transicion_C: float = 20.0   # 15-20°C → Zona transición; ≥20°C → Ruta B candidata
+    
+    # RUTA A - Sistema Clásico (Cooper et al., 1996; ÖNORM B 2505)
+    # Aplicable cuando: T < 20°C o criterios no favorecen Ruta B
+    humedal_clasico_COS_gDBO_m2_d: float = 40.0      # Carga orgánica superficial 1ª etapa (g DBO₅/m²·d)
+    humedal_clasico_area_por_PE_m2: float = 2.0      # Área por PE en 1ª etapa (m²/PE)
+    humedal_clasico_n_filtros_1etapa: int = 3        # Número filtros 1ª etapa
+    humedal_clasico_n_filtros_2etapa: int = 2        # Número filtros 2ª etapa
+    humedal_clasico_relacion_2da_1ra: float = 0.50   # Área 2ª etapa = 50% de 1ª etapa
+    humedal_clasico_HLR_1etapa_m_d: float = 0.06     # Carga hidráulica 1ª etapa (m/d) - valor medio del rango 0.02-0.08
+    humedal_clasico_HLR_2etapa_m_d: float = 0.035    # Carga hidráulica 2ª etapa (m/d) - valor medio del rango 0.02-0.05
+    humedal_clasico_ciclo_alim_1etapa_dias: float = 3.5  # Ciclo alimentación 1ª etapa (d)
+    humedal_clasico_ciclo_reposo_1etapa_dias: float = 7.0 # Ciclo reposo 1ª etapa (d)
+    humedal_clasico_ciclo_alim_2etapa_dias: float = 7.0   # Ciclo alimentación 2ª etapa (d)
+    humedal_clasico_ciclo_reposo_2etapa_dias: float = 7.0 # Ciclo reposo 2ª etapa (d)
+    
+    # RUTA B - HAFV tropical de alta carga (adaptación basada en Molle et al., 2015)
+    # Aplicable cuando: T ≥ 20°C y criterios favorecen Ruta B
+    humedal_frances_OLR_gDQO_m2_d: float = 300.0     # Carga orgánica superficial (g DQO/m²·d) - conservador
+    humedal_frances_HLR_m_d: float = 0.75            # Carga hidráulica superficial (m/d) - límite superior del rango 0.50-0.75
+    humedal_frances_n_filtros: int = 2               # Número de filtros en paralelo
+    humedal_frances_area_por_PE_m2_T22: float = 1.0  # Área por PE, T > 22°C (m²/PE)
+    humedal_frances_area_por_PE_m2_T20: float = 1.3  # Área por PE, T = 20-22°C (m²/PE)
+    humedal_frances_ciclo_alim_dias: float = 3.5     # Días alimentando por filtro
+    humedal_frances_ciclo_reposo_dias: float = 3.5   # Días en reposo por filtro
+    humedal_frances_relacion_L_A: float = 1.3         # Relación largo/ancho filtros Ruta B
+    humedal_clasico_relacion_L_A: float = 2.0         # Relación largo/ancho filtros clásicos
+    humedal_separacion_filtros_m: float = 1.5         # Separación entre filtros para layout (m)
+    humedal_frances_h_medio_m: float = 0.85           # Profundidad media Ruta B (m)
+    humedal_clasico_h_medio_m: float = 0.70           # Profundidad media sistema clásico (m)
+    humedal_frances_H_total_m: float = 1.50           # Altura constructiva total Ruta B (m)
+    humedal_clasico_H_total_m: float = 1.20           # Altura constructiva total sistema clásico (m)
+    humedal_capa_drenaje_m: float = 0.25              # Capa drenaje para esquema/documentación (m)
+    humedal_capa_grava_media_m: float = 0.30          # Capa grava media para esquema/documentación (m)
+    humedal_capa_grava_fina_m: float = 0.30           # Capa grava fina para esquema/documentación (m)
+    
+    # Verificación cinética k-C* (complementaria/recomendada en ambas rutas)
+    humedal_kC_verificar_obligatorio: bool = True    # Mantiene la verificación activa por trazabilidad del diseño
     
     # =============================================================================
     # PARÁMETROS DE DISEÑO - SEDIMENTADOR SECUNDARIO
     # =============================================================================
     sed_SOR_m3_m2_d: float = 18.0           # Tasa desbordamiento superficial (conservador)
+    sed_SOR_min_m3_m2_d: float = 16.0       # Rango recomendado SOR operación normal (m³/m²·d)
+    sed_SOR_max_m3_m2_d: float = 32.0       # Rango recomendado SOR operación normal (m³/m²·d)
+    sed_SOR_max_limite_m3_m2_d: float = 45.0 # Límite SOR a caudal máximo horario (m³/m²·d)
     sed_h_sed_m: float = 3.50               # Profundidad lateral (m)
-    sed_factor_produccion_humus: float = 0.15  # Factor producción humus (kg SST/kg DBO removida FP)
-    sed_eta_DBO: float = 0.15               # Eficiencia remoción DBO en sedimentador (fracción) - Valor conservador según Metcalf & Eddy (2014) para sedimentador secundario tras filtro percolador (10-15%)
+    sed_h_sed_min_m: float = 3.0            # Rango recomendado profundidad lateral (m)
+    sed_h_sed_max_m: float = 4.5            # Rango recomendado profundidad lateral (m)
+    sed_h_lodos_tolva_m: float = 0.50       # Zona de almacenamiento de lodos en tolva (m)
+    sed_bordo_libre_m: float = 0.30         # Bordo libre sedimentador secundario (m)
+    # Parámetros para sedimentador secundario (reusable para cualquier etapa biológica aerobia)
+    sed_factor_produccion_humus: float = 0.15  # Factor producción sólidos biológicos/humus (kg SST/kg DBO removida en etapa biológica aerobia)
+    sed_eta_DBO: float = 0.15               # Eficiencia remoción DBO en sedimentador (fracción) - Valor conservador según Metcalf & Eddy (2014) para sedimentador secundario tras proceso biológico aerobio (10-15%)
     sed_factor_min_Q: float = 0.40          # Factor caudal mínimo (Qmin/Qmedio) para verificación TRH mínimo
+    sed_TRH_min_h: float = 1.5              # TRH mínimo sedimentador secundario (h)
+    sed_TRH_min_operacion_alerta_h: float = 8.0 # Umbral operativo para alertar TRH excesivo a caudal mínimo (h)
+    sed_weir_loading_max_m3_m_d: float = 250.0 # Límite carga sobre vertedero (m³/m·d)
+    sed_solids_loading_limite_kg_m2_d: float = 100.0 # Límite conservador carga sólidos (kg/m²·d)
+    sed_solids_loading_tipico_min_kg_m2_d: float = 50.0 # Rango típico carga sólidos (kg/m²·d)
+    sed_solids_loading_tipico_max_kg_m2_d: float = 150.0 # Rango típico carga sólidos (kg/m²·d)
+    sed_purga_lodos_min_h: float = 48.0     # Frecuencia mínima recomendada purga lodos (h)
     
     # =============================================================================
     # PARÁMETROS DE BALANCE DE CALIDAD DEL AGUA
@@ -321,6 +453,7 @@ class ConfigDiseno:
     balance_eta_CF_fp: float = 0.20         # Eficiencia remoción CF en FP (fracción)
     balance_eta_SST_sed: float = 0.80       # Eficiencia remoción SST en Sed (fracción)
     balance_eta_CF_sed: float = 0.10        # Eficiencia remoción CF en Sed (fracción)
+    balance_eta_SST_humedal: float = 0.60   # Eficiencia remoción SST en Humedal (fracción)
     balance_log_reduccion_default: float = 4.0  # Log reducción por defecto desinfección
     
     # =============================================================================
@@ -341,7 +474,22 @@ class ConfigDiseno:
     lecho_t_secado_d: float = 15.0          # Tiempo secado (días)
     lecho_n_celdas: int = 1                 # Número celdas (1 para plantas pequeñas)
     lecho_h_lodo_m: float = 0.30            # Espesor lodo aplicado (m)
+    lecho_h_arena_m: float = 0.25           # Espesor capa de arena (m)
+    lecho_h_grava_m: float = 0.20           # Espesor capa de grava (m)
     lecho_factor_produccion_lodos: float = 0.10  # kg SST/kg DBO removida (producción UASB)
+    lecho_rho_S_min_kgSST_m2_año: float = 60.0   # Rango recomendado carga superficial sólidos
+    lecho_rho_S_max_kgSST_m2_año: float = 220.0  # Rango recomendado carga superficial sólidos
+    lecho_C_SST_min_kg_m3: float = 15.0      # Rango recomendado concentración sólidos en lodo
+    lecho_C_SST_max_kg_m3: float = 30.0      # Rango recomendado concentración sólidos en lodo
+    lecho_t_secado_min_d: float = 10.0       # Rango recomendado tiempo secado
+    lecho_t_secado_max_d: float = 30.0       # Rango recomendado tiempo secado
+    lecho_h_lodo_min_m: float = 0.20         # Rango recomendado espesor aplicación
+    lecho_h_lodo_max_m: float = 0.40         # Rango recomendado espesor aplicación
+    lecho_relacion_L_A: float = 3.0          # Relación largo/ancho adoptada
+    lecho_relacion_L_A_min: float = 2.0      # Rango recomendado relación largo/ancho
+    lecho_relacion_L_A_max: float = 4.0      # Rango recomendado relación largo/ancho
+    lecho_humedad_final_min_pct: float = 40.0 # Rango típico humedad final lodo seco
+    lecho_humedad_final_max_pct: float = 60.0 # Rango típico humedad final lodo seco
     
     # =============================================================================
     # LÍMITES TULSMA - Tabla 12: Descarga a cuerpo de agua dulce
@@ -409,11 +557,23 @@ class ConfigDiseno:
     
     # UASB - Van Haandel & Lettinga / Sperling
     uasb_temp_optimina_C: float = 22.0         # Temperatura óptima mínima (°C)
+    uasb_temp_moderada_min_C: float = 18.0     # Temperatura mínima para rango moderado (°C)
     uasb_temp_min_operativa_C: float = 15.0    # Temperatura mínima operativa (°C)
+    uasb_temp_muy_baja_min_C: float = 10.0     # Temperatura mínima para operación muy baja (°C)
     uasb_trh_min_optimo_h: float = 4.0         # TRH mínimo óptimo (h)
     uasb_trh_min_baja_temp_h: float = 6.0      # TRH mínimo baja temp (h)
     uasb_v_up_min_m_h: float = 0.5             # Velocidad ascendente mínima (m/h)
     uasb_v_up_max_m_h: float = 1.5             # Velocidad ascendente máxima (m/h)
+    uasb_margen_operativo_reducido_pct: float = 10.0  # Umbral para reportar margen operativo estrecho (%)
+    uasb_inoculo_ssv_min_kg_m3: float = 10.0   # Inóculo mínimo recomendado (kg SSV/m³)
+    uasb_inoculo_ssv_max_kg_m3: float = 15.0   # Inóculo máximo recomendado (kg SSV/m³)
+    uasb_inoculo_vol_min_pct: float = 15.0     # Volumen mínimo aproximado de inoculación (%)
+    uasb_inoculo_vol_max_pct: float = 30.0     # Volumen máximo aproximado de inoculación (%)
+    uasb_lodo_granular_diam_min_mm: float = 0.5  # Diámetro mínimo lodo granular (mm)
+    uasb_lodo_granular_diam_max_mm: float = 5.0  # Diámetro máximo lodo granular (mm)
+    uasb_lodo_granular_vsed_min_m_h: float = 50.0  # Velocidad mínima sedimentación lodo granular (m/h)
+    uasb_granulacion_natural_min_meses: float = 2.0  # Tiempo mínimo granulación natural (meses)
+    uasb_granulacion_natural_max_meses: float = 6.0  # Tiempo máximo granulación natural (meses)
     
     # =========================================================================
     # UMBRALES Y CRITERIOS DE DISEÑO
@@ -512,7 +672,7 @@ def evaluar_temperatura_uasb(T_celsius: float, cfg: ConfigDiseno = CFG) -> Dict[
         return {
             "texto_recomendacion": (
                 "Para mantener el rendimiento óptimo del reactor en caso de descenso de temperatura, "
-                "se recomienda monitorear periodicamente. Si la temperatura descendiera por debajo de 20°C, "
+                f"se recomienda monitorear periodicamente. Si la temperatura descendiera por debajo de {cfg.uasb_temp_moderada_min_C:.0f}°C, "
                 "el sistema debería ajustar automáticamente la carga orgánica y el tiempo de retención."
             ),
             "cv_kgDQO_m3_d": Cv_base,
@@ -528,7 +688,7 @@ def evaluar_temperatura_uasb(T_celsius: float, cfg: ConfigDiseno = CFG) -> Dict[
                 "eta": "60--75"
             }
         }
-    elif 18 <= T_celsius < cfg.uasb_temp_optimina_C:
+    elif cfg.uasb_temp_moderada_min_C <= T_celsius < cfg.uasb_temp_optimina_C:
         # Temperatura moderada
         return {
             "texto_recomendacion": (
@@ -540,7 +700,7 @@ def evaluar_temperatura_uasb(T_celsius: float, cfg: ConfigDiseno = CFG) -> Dict[
             "v_up_m_h": cfg.uasb_v_up_m_h * 0.75,
             "eficiencia_dbo": cfg.uasb_eta_DBO * 0.90,
             "eficiencia_dqo": cfg.uasb_eta_DQO * 0.90,
-            "factor_temp_texto": "moderada (18-22°C)",
+            "factor_temp_texto": f"moderada ({cfg.uasb_temp_moderada_min_C:.0f}-{cfg.uasb_temp_optimina_C:.0f}°C)",
             "rangos_recomendados": {
                 "cv": f"{cfg.uasb_Cv_moderado_min:.1f}--{cfg.uasb_Cv_moderado_max:.1f}".replace(".", ","),
                 "vup": "0,4--1,2",
@@ -548,7 +708,7 @@ def evaluar_temperatura_uasb(T_celsius: float, cfg: ConfigDiseno = CFG) -> Dict[
                 "eta": "50--65"
             }
         }
-    elif cfg.uasb_temp_min_operativa_C <= T_celsius < 18:
+    elif cfg.uasb_temp_min_operativa_C <= T_celsius < cfg.uasb_temp_moderada_min_C:
         # Temperatura baja
         return {
             "texto_recomendacion": (
@@ -561,7 +721,7 @@ def evaluar_temperatura_uasb(T_celsius: float, cfg: ConfigDiseno = CFG) -> Dict[
             "v_up_m_h": cfg.uasb_v_up_m_h * 0.625,
             "eficiencia_dbo": cfg.uasb_eta_DBO * 0.80,
             "eficiencia_dqo": cfg.uasb_eta_DQO * 0.80,
-            "factor_temp_texto": "baja (15-18°C)",
+            "factor_temp_texto": f"baja ({cfg.uasb_temp_min_operativa_C:.0f}-{cfg.uasb_temp_moderada_min_C:.0f}°C)",
             "rangos_recomendados": {
                 "cv": f"{cfg.uasb_Cv_bajo_min:.1f}--{cfg.uasb_Cv_bajo_max:.1f}".replace(".", ","),
                 "vup": "0,3--1,0",
@@ -569,7 +729,7 @@ def evaluar_temperatura_uasb(T_celsius: float, cfg: ConfigDiseno = CFG) -> Dict[
                 "eta": "40--55"
             }
         }
-    elif 10 <= T_celsius < cfg.uasb_temp_min_operativa_C:
+    elif cfg.uasb_temp_muy_baja_min_C <= T_celsius < cfg.uasb_temp_min_operativa_C:
         # Temperatura muy baja
         return {
             "texto_recomendacion": (
@@ -582,7 +742,7 @@ def evaluar_temperatura_uasb(T_celsius: float, cfg: ConfigDiseno = CFG) -> Dict[
             "v_up_m_h": cfg.uasb_v_up_m_h * 0.50,
             "eficiencia_dbo": cfg.uasb_eta_DBO * 0.70,
             "eficiencia_dqo": cfg.uasb_eta_DQO * 0.70,
-            "factor_temp_texto": "muy baja (10-15°C) - se recomienda aislamiento térmico",
+            "factor_temp_texto": f"muy baja ({cfg.uasb_temp_muy_baja_min_C:.0f}-{cfg.uasb_temp_min_operativa_C:.0f}°C) - se recomienda aislamiento térmico",
             "rangos_recomendados": {
                 "cv": f"{cfg.uasb_Cv_muybajo_min:.1f}--{cfg.uasb_Cv_muybajo_max:.1f}".replace(".", ","),
                 "vup": "0,3--0,8",
@@ -594,8 +754,8 @@ def evaluar_temperatura_uasb(T_celsius: float, cfg: ConfigDiseno = CFG) -> Dict[
         # Temperatura crítica
         return {
             "texto_recomendacion": (
-                "NO RECOMENDABLE: Temperatura por debajo de 10°C. El proceso anaerobio es inviable sin calentar la biomasa. "
-                "Se requiere calefacción del reactor (mantener 20-25°C) o cambio obligatorio a tecnología aerobia activada. "
+                f"NO RECOMENDABLE: Temperatura por debajo de {cfg.uasb_temp_muy_baja_min_C:.0f}°C. El proceso anaerobio es inviable sin calentar la biomasa. "
+                "Se requiere calefacción del reactor para mantenerlo en rango operativo o cambio obligatorio a tecnología aerobia activada. "
                 "Los ajustes automáticos aplicados (carga reducida a 30%, HRT aumentado 150%) NO son suficientes para garantizar tratamiento adecuado."
             ),
             "cv_kgDQO_m3_d": Cv_base * 0.30,
@@ -603,7 +763,7 @@ def evaluar_temperatura_uasb(T_celsius: float, cfg: ConfigDiseno = CFG) -> Dict[
             "v_up_m_h": cfg.uasb_v_up_m_h * 0.375,
             "eficiencia_dbo": cfg.uasb_eta_DBO * 0.60,
             "eficiencia_dqo": cfg.uasb_eta_DQO * 0.60,
-            "factor_temp_texto": "crítica (< 10°C) - requiere calefacción o cambio de tecnología",
+            "factor_temp_texto": f"crítica (< {cfg.uasb_temp_muy_baja_min_C:.0f}°C) - requiere calefacción o cambio de tecnología",
             "rangos_recomendados": {
                 "cv": "0,5--1,0",
                 "vup": "0,2--0,6",
@@ -755,7 +915,10 @@ def dimensionar_rejillas(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
     #     (evita canales excesivamente estrechos que dificultan la operación)
     #   - +0.30 m: espacio para marcos de rejilla y sellado (0.15 m cada lado)
     # Mínimo constructivo absoluto: 0.60 m según OPS/CEPIS (2005)
-    ancho_layout = round(max(b_canal * 2 + 0.30, 0.60), 2)
+    ancho_minimo_constructivo_m = 0.60
+    ancho_criterio_tabla_m = 0.30
+    hL_criterio_m = 0.15
+    ancho_layout = round(max(b_canal * 2 + 0.30, ancho_minimo_constructivo_m), 2)
     
     # Velocidad REAL con el ancho adoptado (no la teórica)
     A_real = ancho_layout * h_tirante
@@ -814,7 +977,7 @@ def dimensionar_rejillas(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
     # Verificaciones finales
     velocidad_segura = v_max_m_s <= v_max_limite_advertencia
     velocidad_no_destructiva = v_max_m_s <= v_max_limite_destructivo
-    perdida_aceptable = hL_max < 0.15
+    perdida_aceptable = hL_max < hL_criterio_m
     
     # Incremento de sección aplicado
     incremento_ancho_cm = round((ancho_layout - ancho_original) * 100)
@@ -833,6 +996,42 @@ def dimensionar_rejillas(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
         verif_hl_texto = "es menor que el umbral de 15~cm para limpieza manual aceptable"
     else:
         verif_hl_texto = "EXCEDE el umbral de 15~cm -- REQUIERE LIMPIEZA MECÁNICA"
+
+    if velocidad_segura:
+        estado_velocidad = "OPTIMO"
+        texto_velocidad_verificacion = (
+            f"es menor que el limite recomendado de {v_max_limite_advertencia:.1f}~m/s "
+            f"para operacion segura"
+        )
+    elif velocidad_no_destructiva:
+        estado_velocidad = "ACEPTABLE"
+        texto_velocidad_verificacion = (
+            f"supera el limite recomendado de {v_max_limite_advertencia:.1f}~m/s pero "
+            f"se mantiene por debajo del limite destructivo de "
+            f"{v_max_limite_destructivo:.1f}~m/s (operacion aceptable con monitoreo)"
+        )
+    else:
+        estado_velocidad = "NO ADMISIBLE"
+        texto_velocidad_verificacion = (
+            f"excede el limite destructivo de {v_max_limite_destructivo:.1f}~m/s y "
+            f"requiere mayor ancho de canal"
+        )
+
+    if ajuste_ancho_rejillas:
+        texto_velocidad_verificacion = (
+            f"se aumento el ancho del canal en {incremento_ancho_cm:.0f}~cm "
+            f"(de {ancho_original:.2f}~m a {ancho_layout:.2f}~m) "
+            f"para mantener la velocidad maxima por debajo del limite destructivo "
+            f"de {v_max_limite_destructivo:.1f}~m/s"
+        )
+
+    estado_velocidad_norma = "CUMPLE" if velocidad_no_destructiva else "NO CUMPLE"
+    estado_perdida = "CUMPLE" if perdida_aceptable else "NO CUMPLE"
+    texto_perdida_verificacion = (
+        f"es menor que el umbral de {hL_criterio_m*100:.0f}~cm para limpieza manual aceptable"
+        if perdida_aceptable
+        else f"excede el umbral de {hL_criterio_m*100:.0f}~cm y requiere limpieza mecanica"
+    )
 
     return {
         "unidad": "Canal de desbaste con rejillas",
@@ -853,7 +1052,19 @@ def dimensionar_rejillas(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
         "v_max_m_s": round(v_max_m_s, 3),
         "hL_max_m": round(hL_max, 6),
         "velocidad_segura": velocidad_segura,
+        "velocidad_no_destructiva": velocidad_no_destructiva,
         "perdida_aceptable": perdida_aceptable,
+        "ancho_minimo_constructivo_m": ancho_minimo_constructivo_m,
+        "ancho_criterio_tabla_m": ancho_criterio_tabla_m,
+        "hL_criterio_m": hL_criterio_m,
+        "estado_velocidad_diseno": "Cumple" if Q.rejillas_v_canal_min_m_s <= v_canal_m_s <= Q.rejillas_v_canal_max_m_s else "No cumple",
+        "estado_perdida_qmax": "Cumple" if perdida_aceptable else "No cumple",
+        "estado_ancho_constructivo": "Cumple" if ancho_layout >= ancho_criterio_tabla_m else "No cumple",
+        "estado_velocidad": estado_velocidad,
+        "estado_velocidad_norma": estado_velocidad_norma,
+        "estado_perdida": estado_perdida,
+        "texto_velocidad_verificacion": texto_velocidad_verificacion,
+        "texto_perdida_verificacion": texto_perdida_verificacion,
         "verif_vel_texto": verif_vel_texto,
         "verif_hl_texto": verif_hl_texto,
         "ajuste_ancho_rejillas": ajuste_ancho_rejillas,
@@ -861,6 +1072,28 @@ def dimensionar_rejillas(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
         "incremento_ancho_cm": incremento_ancho_cm,
         "largo_layout_m": largo_canal,
         "fuente": f"{ref1} (pp. 470-488); {ref2} (pp. 185-202)",
+        # Subproductos - estructura normalizada
+        "subproductos": {
+            "lodos": [],
+            "retenciones": [],
+            "transferencias": [],
+            "biogas": [],
+            "residuos_gruesos": [
+                {
+                    "origen": "Rejillas",
+                    "tipo": "solidos gruesos retenidos",
+                    "cantidad": None,
+                    "unidad": None,
+                    "kg_d": None,
+                    "m3_d": None,
+                    "destino": "disposicion_externa",
+                    "apto_lecho_directo": False,
+                    "nota": "Las rejillas retienen solidos gruesos; el dimensionamiento "
+                            "actual no estima masa o volumen diario de residuos de cribado."
+                }
+            ],
+            "arenas": []
+        },
     }
 
 
@@ -918,6 +1151,11 @@ def dimensionar_desarenador(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
     H_util = Q.desarenador_H_util_m  # 0.40 m
     b_min_m = Q.desarenador_b_min_m  # 0.60 m (constructivo)
     L_min_constructivo = Q.desarenador_L_min_norm_m  # m - desde configuración (default: 3.0)
+    h_almacenamiento_arena_min_m = Q.desarenador_h_almacenamiento_arena_min_m
+    h_almacenamiento_arena_max_m = Q.desarenador_h_almacenamiento_arena_max_m
+    h_almacenamiento_arena_m = Q.desarenador_h_almacenamiento_arena_m
+    bordo_libre_m = Q.bordo_libre_desarenador_m
+    H_total_m = H_util + h_almacenamiento_arena_m + bordo_libre_m
 
     Q_m3_s = Q.Q_linea_m3_s
     Q_L_s = Q.Q_linea_L_s
@@ -1019,14 +1257,18 @@ def dimensionar_desarenador(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
     t_r_max = L_diseno / v_h_max  # segundos
     
     # Verificación: v_h_max debe ser <= v_c_scour (para no resuspender arena)
-    scour_seguro = v_h_max <= v_c_scour
+    scour_seguro = v_h_max <= v_h_max_limite_destructivo
     incremento_ancho_des_cm = round((b_canal - b_canal_original) * 100)
     
     # Texto automático de verificación (evita errores si cambian los datos)
     if scour_seguro:
-        verif_scour_texto = f"es menor que la velocidad crítica de resuspensión ({round(v_c_scour, 3):.3f}~m/s), por lo que no se produce resuspensión de la arena depositada"
+        verif_scour_texto = f"es menor que el limite de resuspension con factor de seguridad ({v_h_max_limite_destructivo:.3f}~m/s), por lo que no se produce resuspension de la arena depositada"
     else:
-        verif_scour_texto = f"EXCEDE la velocidad crítica de resuspensión ({round(v_c_scour, 3):.3f}~m/s), por lo que SE PRODUCIRÍA resuspensión de arena -- AJUSTAR DIMENSIONES"
+        verif_scour_texto = f"EXCEDE el limite de resuspension con factor de seguridad ({v_h_max_limite_destructivo:.3f}~m/s), por lo que se produciria resuspension de arena -- AJUSTAR DIMENSIONES"
+
+    estado_resuspension = "SEGURIDAD" if scour_seguro else "RIESGO"
+    estado_resuspension_norma = "CUMPLE" if scour_seguro else "NO CUMPLE"
+    factor_seguridad_scour_pct = round(Q.desarenador_factor_seguridad_scour * 100)
     
     # Verificaciones
     assert v_h_real <= 0.40, (
@@ -1046,7 +1288,13 @@ def dimensionar_desarenador(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
         "v_s_m_s": v_s_m_s,                   # Velocidad sedimentación Stokes
         # Dimensiones
         "H_util_m": H_util,
+        "h_almacenamiento_arena_min_m": h_almacenamiento_arena_min_m,
+        "h_almacenamiento_arena_max_m": h_almacenamiento_arena_max_m,
+        "h_almacenamiento_arena_m": h_almacenamiento_arena_m,
+        "bordo_libre_m": bordo_libre_m,
+        "H_total_m": round(H_total_m, 2),
         "b_teorico_m": round(b_teorico, 3),
+        "b_min_constructivo_m": b_min_m,
         "b_canal_m": round(b_canal, 3),
         "L_teorica_stokes_m": round(L_teorica_stokes, 1),  # Basado en vs calculada
         "L_teorica_Metcalf_m": round(L_teorica_metcatlf, 1),  # Criterio normativo
@@ -1065,24 +1313,56 @@ def dimensionar_desarenador(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
         "Re_stokes": round(Re, 3),            # Número de Reynolds
         # Parámetros Camp-Shields (para LaTeX)
         "beta": beta,                         # Factor de forma
+        "beta_min": Q.desarenador_beta_min,
+        "beta_max": Q.desarenador_beta_max,
         "f_darcy": f_darcy,                   # Factor de fricción Darcy-Weisbach
+        "f_darcy_min": Q.desarenador_f_darcy_min,
+        "f_darcy_max": Q.desarenador_f_darcy_max,
         "v_c_scour_m_s": round(v_c_scour, 3), # Velocidad crítica resuspensión
+        "factor_seguridad_scour": Q.desarenador_factor_seguridad_scour,
+        "factor_seguridad_scour_pct": factor_seguridad_scour_pct,
+        "v_h_max_limite_scour_m_s": round(v_h_max_limite_destructivo, 3),
         # Verificación caudal máximo horario
         "factor_pico": factor_pico,           # 2.5 (Qmax/Qmedio)
         "Q_max_L_s": Q_max_L_s,               # Caudal máximo horario (L/s)
         "v_h_max_m_s": round(v_h_max, 3),     # Velocidad a Qmax
         "t_r_max_s": round(t_r_max, 1),       # Tiempo retención a Qmax
         "scour_seguro": scour_seguro,         # v_h_max < v_c_scour?
+        "estado_resuspension": estado_resuspension,
+        "estado_resuspension_norma": estado_resuspension_norma,
         "verif_scour_texto": verif_scour_texto,  # Texto automático de verificación
         "ajuste_ancho_desarenador": ajuste_ancho_desarenador,
         "b_canal_original_m": round(b_canal_original, 3),
         "incremento_ancho_cm": incremento_ancho_des_cm,
         # Layout
         "largo_layout_m": round(L_diseno, 1),
-        "ancho_layout_m": round(b_canal + 0.30, 2),
+        "ancho_layout_m": round(b_canal + bordo_libre_m, 2),
         # Nota explicativa
         "nota_diseño": f"Para Q={Q_L_s:.1f} L/s, la longitud se reduce de {L_teorica_metcatlf:.1f} m (teórica) a {L_diseno:.1f} m por criterio práctico latinoamericano",
         "fuente": (f"{ref1} (pp. 488-510, Tabla 9-6); {ref2} (pp. 202-218); {ref3}; {ref4}"),
+        # Subproductos - estructura normalizada
+        "subproductos": {
+            "lodos": [],
+            "retenciones": [],
+            "transferencias": [],
+            "biogas": [],
+            "residuos_gruesos": [],
+            "arenas": [
+                {
+                    "origen": "Desarenador",
+                    "tipo": "arena sedimentada / material inerte",
+                    "cantidad": None,
+                    "unidad": None,
+                    "kg_d": None,
+                    "m3_d": None,
+                    "destino": "disposicion_externa",
+                    "apto_lecho_directo": False,
+                    "nota": "El desarenador retiene arenas y material inerte; el "
+                            "dimensionamiento actual no estima masa o volumen diario "
+                            "de arenas removidas."
+                }
+            ]
+        },
     }
 
 
@@ -1279,6 +1559,13 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
         estado_verificacion = "ACEPTABLE CON MONITOREO"
     else:
         estado_verificacion = "NO ADMISIBLE - REQUIERE REDIMENSIONAMIENTO"
+
+    if v_up_max_m_h <= v_up_max_limite_recomendado:
+        estado_verificacion_texto = "garantiza la estabilidad del manto de lodos bajo todas las condiciones operativas esperadas."
+    elif v_up_max_m_h <= v_up_max_limite_destructivo:
+        estado_verificacion_texto = "requiere monitoreo durante eventos de pico de caudal."
+    else:
+        estado_verificacion_texto = "no es admisible y debe redimensionarse."
     
     # Texto automático de verificación
     if ajuste_realizado:
@@ -1394,6 +1681,46 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
     SOR_max_cumple = SOR_max_m_h < Q.uasb_SOR_max_limite_m_h
     # TRH_sed puede ser > 2.0 h, eso es conservador, no malo
     TRH_sed_cumple = TRH_sed_medio_h >= Q.uasb_TRH_sed_medio_min_h
+
+    if TRH_sed_cumple:
+        TRH_sed_texto = (
+            f"El tiempo de retencion de {TRH_sed_medio_h:.2f} h cumple con el minimo "
+            f"de {Q.uasb_TRH_sed_medio_min_h:.1f} h recomendado por Chernicharo "
+            "para permitir la adecuada separacion gas-liquido-solido."
+        )
+    else:
+        TRH_sed_texto = (
+            f"El tiempo de retencion de {TRH_sed_medio_h:.2f} h no cumple con el minimo "
+            f"de {Q.uasb_TRH_sed_medio_min_h:.1f} h recomendado por Chernicharo y "
+            "requiere ajuste de las dimensiones del sedimentador."
+        )
+
+    estado_SOR_max = "Cumple" if SOR_max_cumple else "No cumple"
+    if SOR_medio_cumple:
+        estado_SOR_medio = "Cumple (conservador)"
+    elif SOR_medio_m_h < Q.uasb_SOR_medio_min_m_h:
+        estado_SOR_medio = "Bajo (aceptable)"
+    else:
+        estado_SOR_medio = "No cumple"
+    estado_TRH_sed = "Cumple" if TRH_sed_cumple else "No cumple"
+
+    if SOR_max_cumple and SOR_medio_cumple and TRH_sed_cumple:
+        verif_sed_final = "La verificacion demuestra que el compartimiento de sedimentacion disenado cumple satisfactoriamente con todos los criterios tecnicos establecidos en la literatura especializada para reactores UASB."
+    elif SOR_max_cumple and not SOR_medio_cumple and TRH_sed_cumple:
+        verif_sed_final = "La verificacion muestra que el SOR medio esta por debajo del rango optimo pero dentro de valores aceptables conservadores; el diseno cumple con SOR maximo y TRH."
+    else:
+        partes = []
+        if not SOR_max_cumple:
+            partes.append("SOR maximo excede el limite.")
+        if not SOR_medio_cumple:
+            partes.append("SOR medio fuera de rango.")
+        if not TRH_sed_cumple:
+            partes.append("TRH sedimentador insuficiente.")
+        verif_sed_final = (
+            "La verificacion indica que el compartimiento de sedimentacion requiere revision: "
+            + " ".join(partes)
+            + " Se recomienda ajustar las dimensiones del diseno."
+        )
     
     # Textos de verificación
     SOR_min_val = Q.uasb_SOR_medio_min_m_h
@@ -1439,6 +1766,59 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
         v_abertura_adoptada_m_h = Q_m3_h / A_aberturas_min_m2
         
     v_abertura_max_cumple = v_abertura_max_calculada_m_h <= Q.uasb_v_abertura_max_m_h
+    simbolo_abertura_max = r"\leq" if v_abertura_max_cumple else ">"
+    estado_aberturas = "Cumple" if v_abertura_max_cumple else "No cumple"
+    if v_abertura_max_cumple:
+        verif_aberturas_gls_texto = (
+            f"La velocidad máxima calculada en las aberturas GLS es {v_abertura_max_calculada_m_h:.2f} m/h, "
+            f"menor o igual al límite de {Q.uasb_v_abertura_max_m_h:.1f} m/h recomendado para caudal máximo. "
+            "Esta condición indica que el área libre adoptada permite el paso del líquido clarificado hacia "
+            "la cámara de sedimentación sin imponer velocidades que favorezcan el arrastre de sólidos del manto "
+            "de lodos. En términos operativos, las aberturas funcionan como zona de transición hidráulica entre "
+            "la digestión y la sedimentación; por ello se recomienda mantener limpias las ranuras del GLS y "
+            "verificar su condición durante inspecciones de rutina."
+        )
+    else:
+        verif_aberturas_gls_texto = (
+            f"La velocidad máxima calculada en las aberturas GLS es {v_abertura_max_calculada_m_h:.2f} m/h, "
+            f"mayor que el límite de {Q.uasb_v_abertura_max_m_h:.1f} m/h recomendado para caudal máximo. "
+            "Esta condición puede inducir arrastre de sólidos hacia la cámara de sedimentación, por lo que "
+            "se recomienda aumentar el área libre de aberturas o revisar la geometría del separador GLS."
+        )
+    margen_SOR_max_pct = ((Q.uasb_SOR_max_limite_m_h - SOR_max_m_h) / Q.uasb_SOR_max_limite_m_h) * 100
+    margen_abertura_pct = ((Q.uasb_v_abertura_max_m_h - v_abertura_max_calculada_m_h) / Q.uasb_v_abertura_max_m_h) * 100
+    margen_minimo_operativo_pct = min(margen_SOR_max_pct, margen_abertura_pct)
+    margen_operativo_estado = (
+        "reducido"
+        if margen_minimo_operativo_pct <= Q.uasb_margen_operativo_reducido_pct
+        else "holgado"
+    )
+    if SOR_max_cumple and v_abertura_max_cumple:
+        nota_margenes_operativos = (
+            f"Los parámetros críticos de control hidráulico del reactor se mantienen dentro de los límites "
+            f"recomendados por Chernicharo \\cite{{chernicharo2007}}. El SOR máximo es "
+            f"{SOR_max_m_h:.2f} m/h frente al límite de {Q.uasb_SOR_max_limite_m_h:.1f} m/h, con "
+            f"un margen de {margen_SOR_max_pct:.1f}%; este criterio controla el riesgo de arrastre de "
+            f"sólidos en la cámara de sedimentación durante caudales pico. La velocidad máxima en aberturas "
+            f"GLS es {v_abertura_max_calculada_m_h:.2f} m/h frente al límite de "
+            f"{Q.uasb_v_abertura_max_m_h:.1f} m/h, con un margen de {margen_abertura_pct:.1f}%; este "
+            f"criterio controla el paso del líquido clarificado hacia el compartimiento de sedimentación sin "
+            f"inducir arrastre de lodos. En conjunto, el margen operativo se clasifica como "
+            f"{margen_operativo_estado}. Por ello, aunque la unidad cumple, se recomienda verificar SOR y "
+            f"velocidad en aberturas durante la puesta en marcha y monitorear periódicamente SST/turbidez del "
+            f"efluente como indicador de posible arrastre."
+        )
+    else:
+        partes_margenes = []
+        if not SOR_max_cumple:
+            partes_margenes.append("SOR máximo excede el límite establecido")
+        if not v_abertura_max_cumple:
+            partes_margenes.append("velocidad en aberturas GLS excede el límite establecido")
+        nota_margenes_operativos = (
+            "La revisión de márgenes operativos indica que "
+            + " y ".join(partes_margenes)
+            + "; se recomienda revisar el dimensionamiento antes de aprobar la unidad."
+        )
     
     # Características geométricas del GLS
     GLS_pendiente_adoptada_grados = (Q.uasb_GLS_pendiente_min_grados + Q.uasb_GLS_pendiente_max_grados) / 2  # 55°
@@ -1507,6 +1887,13 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
         print(f"[ADVERTENCIA] Tubería madre de distribución rápida excede velocidad límite: "
               f"v={velocidad_tubo_m_s:.2f} m/s > {Q.uasb_v_tubo_max_m_s:.2f} m/s")
 
+    estado_tubo = "Adecuado" if velocidad_tubo_m_s <= Q.uasb_v_tubo_max_m_s else "Revisar"
+    estado_boca = "Cumple" if v_boca_cumple else "No cumple"
+    if v_boca_cumple:
+        texto_boca = "cumple con el rango recomendado por Lettinga y Hulshoff Pol para inyeccion adecuada en el lecho de lodo."
+    else:
+        texto_boca = "esta fuera del rango recomendado. Se recomienda revisar el diametro de las bocas de salida."
+
     # =========================================================================
     # RECALCULO FINAL DE ALTURAS DEPENDIENTES
     # (Se realiza aquí para asegurar que usan el H_r_m final tras todos los bucles)
@@ -1570,14 +1957,23 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
         "SOR_max_cumple": SOR_max_cumple,
         "SOR_medio_texto": SOR_medio_texto,
         "SOR_max_texto": SOR_max_texto,
+        "estado_SOR_max": estado_SOR_max,
+        "estado_SOR_medio": estado_SOR_medio,
         "TRH_sed_medio_h": round(TRH_sed_medio_h, 2),
         "TRH_sed_max_h": round(TRH_sed_max_h, 2),
         "TRH_sed_cumple": TRH_sed_cumple,
+        "estado_TRH_sed": estado_TRH_sed,
+        "TRH_sed_texto": TRH_sed_texto,
+        "verif_sed_final": verif_sed_final,
         # Aberturas GLS (Paso 9 manual)
         "A_aberturas_min_m2": round(A_aberturas_min_m2, 2),
         "v_abertura_adoptada_m_h": round(v_abertura_adoptada_m_h, 2),
         "v_abertura_max_calculada_m_h": round(v_abertura_max_calculada_m_h, 2),
         "v_abertura_max_cumple": v_abertura_max_cumple,
+        "simbolo_abertura_max": simbolo_abertura_max,
+        "estado_aberturas": estado_aberturas,
+        "verif_aberturas_gls_texto": verif_aberturas_gls_texto,
+        "nota_margenes_operativos": nota_margenes_operativos,
         "GLS_pendiente_adoptada_grados": round(GLS_pendiente_adoptada_grados, 1),
         "GLS_traslape_m": Q.uasb_GLS_traslape_m,
         # Distribución del afluente (Paso 10 manual)
@@ -1588,16 +1984,60 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
         "diam_tubo_distribucion_mm": round(diam_tubo_distribucion_mm, 0),
         "velocidad_tubo_m_s": round(velocidad_tubo_m_s, 3),
         "v_tubo_max_m_s": Q.uasb_v_tubo_max_m_s,
+        "estado_tubo": estado_tubo,
         "diam_boca_salida_mm": round(diam_boca_salida_mm, 0),
         "velocidad_boca_m_s": round(velocidad_boca_m_s, 2),
         "v_boca_min_m_s": Q.uasb_v_boca_min_m_s,
         "v_boca_max_m_s": Q.uasb_v_boca_max_m_s,
         "v_boca_cumple": v_boca_cumple,
+        "estado_boca": estado_boca,
+        "texto_boca": texto_boca,
         # Producción de subproductos
         "factor_biogas_ch4": factor_biogas,   # Factor usado (m³ CH4 / kg DQO removida)
         "DQO_removida_kg_d": round(DQO_removida_kg_d, 2),
         "biogaz_m3_d": round(biogaz_m3_d, 1),
         "lodos_kg_SSV_d": round(lodos_kg_SSV_d, 2),
+        # Parámetros de calidad y estabilidad del proceso
+        "pH_optimo_min": Q.uasb_pH_optimo_min,
+        "pH_optimo_max": Q.uasb_pH_optimo_max,
+        "alcalinidad_min_mg_L": Q.uasb_alcalinidad_min_mg_L,
+        "biogas_CH4_pct": Q.uasb_biogas_CH4_pct,
+        "biogas_CO2_pct": Q.uasb_biogas_CO2_pct,
+        "biogas_H2S_max_ppm": Q.uasb_biogas_H2S_max_ppm,
+        "lodo_estabilizado": Q.uasb_lodo_estabilizado,
+        # Subproductos - estructura normalizada
+        "subproductos": {
+            "lodos": [
+                {
+                    "origen": "UASB",
+                    "tipo": "lodo anaerobio",
+                    "kg_d": round(lodos_kg_SSV_d, 2),
+                    "base_solidos": "SSV",
+                    "kg_SSV_d": round(lodos_kg_SSV_d, 2),
+                    "kg_SST_d": None,  # Pendiente: requiere factor de conversión aprobado
+                    "m3_d": None,  # Pendiente: requiere concentración y conversión a SST
+                    "concentracion_kg_m3": None,  # Pendiente: definir para lecho
+                    "destino": "lecho_secado",
+                    "nota": "Produccion estimada en base SSV (solidos suspendidos volatiles); "
+                            "kg_SST_d = None hasta aprobar factor de conversion SSV->SST. "
+                            "Ver config: fraccion_SSV_en_SST_lodo_uasb (ej: 0.80 = SSV es 80pct de SST)."
+                }
+            ],
+            "transferencias": [],  # UASB no transfiere carga a otra unidad
+            "biogas": [
+                {
+                    "origen": "UASB",
+                    "tipo": "metano",
+                    "m3_d": round(biogaz_m3_d, 1),
+                    "factor_usado": factor_biogas,
+                    "destino": "manejo_por_definir",  # Honesto: no hay diseño de aprovechamiento aún
+                    "nota": "Biogás producido en reactor UASB. "
+                            "Destino real depende de evaluación de viabilidad energética."
+                }
+            ],
+            "residuos_gruesos": [],
+            "arenas": []
+        },
         # Verificación caudal máximo
         "factor_pico": factor_pico_uasb,
         "Q_max_m3_d": round(Q_max_m3_d, 1),
@@ -1609,6 +2049,7 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
         "incremento_diametro_cm": incremento_diametro_cm,
         "D_m_original": round(D_m_original, 2),
         "estado_verificacion": estado_verificacion,
+        "estado_verificacion_texto": estado_verificacion_texto,
         # Para layout
         "diametro_layout_m": round(D_m + 0.30, 1),  # incluye muros (e=0.15m c/lado)
         "fuente": (
@@ -1826,7 +2267,7 @@ def dimensionar_filtro_percolador(Q: ConfigDiseno = CFG,
         qA_min_texto = f"$q_{{A,min}} = {qA_min_m3_m2_h:.2f}$ m³/m²·h $< {qA_min_umbral:.1f}$ (riesgo de sequedad). Se recomienda aumentar $R$ o implementar control de nivel."
     else:
         recirculacion_adicional = False
-        qA_min_texto = f"$q_{{A,min}} = {qA_min_m3_m2_h:.2f}$ m³/m²·h $\geq {qA_min_umbral:.1f}$ (biopelícula húmeda garantizada)."
+        qA_min_texto = f"$q_{{A,min}} = {qA_min_m3_m2_h:.2f}$ m³/m²·h $\\geq {qA_min_umbral:.1f}$ (biopelícula húmeda garantizada)."
     
     # =================================================================
     # PASO 6 - DISTRIBUIDOR ROTATORIO
@@ -1913,10 +2354,100 @@ def dimensionar_filtro_percolador(Q: ConfigDiseno = CFG,
         resistencia_minima_requerida = Q.fp_resistencia_min_alta_kg_m2
     
     resistencia_ok = carga_peso_medio_kg_m2 <= resistencia_minima_requerida
+
+    # Textos y estados de verificacion para render LaTeX.
+    # La capa documental solo debe concatenar estos campos, no decidir cumplimiento.
+    estado_germain = "Cumple" if se_cumple_objetivo else "No cumple"
+    if se_cumple_objetivo:
+        texto_germain = (
+            f"El valor calculado de $S_e = {Se_calculado_mg_L:.1f}$ mg/L cumple con el "
+            f"objetivo de diseño interno de ${DBO_salida_mg_L:.0f}$ mg/L. El diseño cumple "
+            "satisfactoriamente con el objetivo establecido para el filtro percolador."
+        )
+    else:
+        texto_germain = (
+            f"El valor calculado de $S_e = {Se_calculado_mg_L:.1f}$ mg/L excede el "
+            f"objetivo de diseño interno de ${DBO_salida_mg_L:.0f}$ mg/L. Se debe verificar "
+            "el desempeño del tren completo o ajustar el diseño del filtro antes de adoptar "
+            "el valor como cumplimiento de la etapa."
+        )
+
+    estado_rotacion = "Cumple" if rotacion_hidraulica else "Requiere motor auxiliar"
+    if rotacion_hidraulica:
+        texto_rotacion = (
+            f"Dado que el caudal por brazo ({Q_por_brazo_m3_h:.1f} m³/h) supera el umbral "
+            f"mínimo de {Q.fp_Q_por_brazo_min_rotacion_m3_h:.1f} m³/h, la rotación hidráulica "
+            "está garantizada sin necesidad de motor auxiliar. La fuerza de reacción generada "
+            "por el agua al salir por las boquillas proporciona suficiente par de giro para "
+            "mantener la rotación continua del distribuidor durante la operación normal."
+        )
+    else:
+        texto_rotacion = (
+            f"Dado que el caudal por brazo ({Q_por_brazo_m3_h:.1f} m³/h) es inferior al umbral "
+            f"mínimo de {Q.fp_Q_por_brazo_min_rotacion_m3_h:.1f} m³/h, se recomienda instalar "
+            f"un motor eléctrico auxiliar de {Q.fp_motor_aux_min_kW:.1f}--{Q.fp_motor_aux_max_kW:.1f} kW "
+            "para garantizar la rotación del distribuidor durante periodos de bajo caudal, "
+            "evitando así la distribución no uniforme del agua sobre el medio filtrante."
+        )
+
+    boquillas_ok = Q.fp_velocidad_boquilla_min_m_s <= v_boquilla_m_s <= Q.fp_velocidad_boquilla_max_m_s
+    estado_boquillas = "Cumple" if boquillas_ok else "No cumple"
+    if boquillas_ok:
+        texto_boquillas = (
+            "cumple con el rango establecido, garantizando el funcionamiento hidráulico "
+            "adecuado del sistema de distribución"
+        )
+    else:
+        texto_boquillas = (
+            "se encuentra fuera del rango recomendado, por lo que se sugiere revisar el "
+            "diámetro de las boquillas"
+        )
+
+    estado_underdrain = "Cumple" if canal_ok else "No cumple"
+    if canal_ok:
+        texto_underdrain = (
+            f"El llenado calculado ({llenado_canal * 100:.1f}%) cumple satisfactoriamente con "
+            f"el criterio establecido ({Q.fp_llenado_max_underdrain * 100:.0f}%), operando el "
+            "canal con superficie libre. Esta condición asegura que durante la operación normal "
+            "y condiciones de pico el sistema mantendrá espacio disponible para el flujo de aire, "
+            "garantizando la ventilación natural del filtro percolador."
+        )
+    else:
+        texto_underdrain = (
+            f"El llenado calculado ({llenado_canal * 100:.1f}%) excede el límite recomendado "
+            f"({Q.fp_llenado_max_underdrain * 100:.0f}%), indicando que el canal operará con "
+            "sección llena o cercana a la capacidad máxima. Esta condición compromete la "
+            "ventilación natural y puede causar acumulación de agua en el fondo del filtro. "
+            "Se recomienda incrementar la pendiente del canal o aumentar sus dimensiones."
+        )
+
+    estado_resistencia = "Cumple" if resistencia_ok else "No cumple"
+    if resistencia_ok:
+        texto_resistencia = (
+            f"La carga calculada de {carga_peso_medio_kg_m2:.1f} kg/m² es inferior a la "
+            f"resistencia mínima requerida de {resistencia_minima_requerida:.0f} kg/m² para "
+            f"la profundidad de {D_m:.2f} m adoptada. El medio plástico seleccionado cumple "
+            "satisfactoriamente con el requisito de resistencia a compresión, garantizando la "
+            "integridad estructural durante la vida útil del filtro."
+        )
+    else:
+        texto_resistencia = (
+            f"La carga calculada de {carga_peso_medio_kg_m2:.1f} kg/m² excede la resistencia "
+            f"mínima requerida de {resistencia_minima_requerida:.0f} kg/m² para la profundidad "
+            "adoptada. Se recomienda reducir la profundidad del medio o seleccionar un medio "
+            "con mayor resistencia estructural."
+        )
+    
+    # =================================================================
+    # SÓLIDOS BIOLÓGICOS DESPRENDIDOS (para transferencia al sedimentador)
+    # =================================================================
+    # La biomasa desprendida del FP se transfiere al sedimentador secundario
+    # donde se sedimenta como humus. No va directo al lecho (evita doble conteo).
+    solidos_biologicos_kg_d = DBO_removida_kg_d * Q.sed_factor_produccion_humus
     
     # Verificaciones finales (después de todos los ajustes)
-    assert Cv_minima <= Cv_kgDBO_m3_d <= 3.0, (
-        f"Carga orgánica Cv = {Cv_kgDBO_m3_d:.3f} kg DBO/m^3*d fuera de rango {Cv_minima}-3.0 "
+    assert Cv_minima <= Cv_kgDBO_m3_d <= Q.fp_Cv_maxima_kgDBO_m3_d, (
+        f"Carga orgánica Cv = {Cv_kgDBO_m3_d:.3f} kg DBO/m^3*d fuera de rango {Cv_minima}-{Q.fp_Cv_maxima_kgDBO_m3_d} "
         f"({ref_wef}, Cap. 9)"
     )
     assert Q.fp_qA_real_min_m3_m2_h <= Q_A_real <= 18.0, (
@@ -1938,6 +2469,8 @@ def dimensionar_filtro_percolador(Q: ConfigDiseno = CFG,
         "DBO_salida_objetivo_mg_L": DBO_salida_mg_L,
         "DBO_salida_Germain_mg_L": round(Se_calculado_mg_L, 1),
         "se_cumple_objetivo_Germain": se_cumple_objetivo,  # True si Se <= objetivo
+        "estado_germain": estado_germain,
+        "texto_germain": texto_germain,
         "Q_m3_d": round(Q_m3_d, 1),
         "Q_ap_m3_h": round(Q_ap_m3_h, 2),
         # Parámetros del modelo Germain (verificación)
@@ -1946,6 +2479,8 @@ def dimensionar_filtro_percolador(Q: ConfigDiseno = CFG,
         "theta": theta,
         "n_germain": n,
         "D_medio_m": D_m,
+        "D_medio_min_m": Q.fp_D_medio_min_m,
+        "D_medio_max_m": Q.fp_D_medio_max_m,
         "R_recirculacion": R,
         # Resultados (dimensionamiento por Cv)
         "Cv_kgDBO_m3_d": Cv_kgDBO_m3_d,
@@ -1964,9 +2499,15 @@ def dimensionar_filtro_percolador(Q: ConfigDiseno = CFG,
         "H_total_m": round(H_total_calculada, 2),
         # PASO 4 - Geometría
         "H_distribucion_m": H_distribucion,
+        "H_distribucion_min_m": Q.fp_H_distribucion_min_m,
+        "H_distribucion_max_m": Q.fp_H_distribucion_max_m,
         "H_medio_m": D_m,
         "H_underdrain_m": H_underdrain,
+        "H_underdrain_min_m": Q.fp_H_underdrain_min_m,
+        "H_underdrain_max_m": Q.fp_H_underdrain_max_m,
         "H_bordo_libre_m": H_bordo_fp,
+        "H_bordo_libre_min_m": Q.fp_H_bordo_libre_min_m,
+        "H_bordo_libre_max_m": Q.fp_H_bordo_libre_max_m,
         # PASO 5 - Recirculación
         "qA_min_m3_m2_h": round(qA_min_m3_m2_h, 2),
         "recirculacion_adicional_recomendada": recirculacion_adicional,
@@ -1976,9 +2517,13 @@ def dimensionar_filtro_percolador(Q: ConfigDiseno = CFG,
         "L_brazo_m": round(L_brazo_m, 2),
         "Q_por_brazo_m3_h": round(Q_por_brazo_m3_h, 1),
         "rotacion_hidraulica": rotacion_hidraulica,
+        "estado_rotacion": estado_rotacion,
+        "texto_rotacion": texto_rotacion,
         "num_boquillas_por_brazo": num_boquillas_por_brazo,
         "Q_por_boquilla_L_s": round(Q_por_boquilla_L_s, 2),
         "v_boquilla_m_s": v_boquilla_m_s,
+        "estado_boquillas": estado_boquillas,
+        "texto_boquillas": texto_boquillas,
         "diam_orificio_mm": round(diam_orificio_mm, 1),
         # PASO 7 - Underdrain
         "Q_underdrain_diseno_m3_h": round(Q_underdrain_diseno_m3_h, 1),
@@ -1987,6 +2532,8 @@ def dimensionar_filtro_percolador(Q: ConfigDiseno = CFG,
         "Q_canal_capacidad_m3_h": round(Q_canal_m3_h, 1),
         "llenado_canal_pct": round(llenado_canal * 100, 1),
         "canal_underdrain_ok": canal_ok,
+        "estado_underdrain": estado_underdrain,
+        "texto_underdrain": texto_underdrain,
         "pendiente_underdrain_pct": Q.fp_pendiente_underdrain_pct,
         # PASO 8 - Ventilación
         "area_ventilacion_requerida_m2": round(area_ventilacion_requerida_m2, 4),
@@ -2001,7 +2548,36 @@ def dimensionar_filtro_percolador(Q: ConfigDiseno = CFG,
         "densidad_media_kg_m3": Q.fp_densidad_media_kg_m3,
         "carga_sobre_medio_kg_m2": round(carga_peso_medio_kg_m2, 1),
         "resistencia_compresion_ok": resistencia_ok,
+        "resistencia_minima_requerida_kg_m2": resistencia_minima_requerida,
+        "estado_resistencia": estado_resistencia,
+        "texto_resistencia": texto_resistencia,
         "DBO_removida_kg_d": round(DBO_removida_kg_d, 2),
+        "solidos_biologicos_kg_d": round(solidos_biologicos_kg_d, 2),
+        # Subproductos - estructura normalizada
+        "subproductos": {
+            "lodos": [
+                {
+                    "origen": "Filtro Percolador",
+                    "tipo": "solidos biologicos desprendidos / humus",
+                    "kg_d": round(solidos_biologicos_kg_d, 2),
+                    "base_solidos": "SST",
+                    "kg_SST_d": round(solidos_biologicos_kg_d, 2),
+                    "kg_SSV_d": None,
+                    "m3_d": None,
+                    "concentracion_kg_m3": None,
+                    "estado_fisico": "suspendido_en_efluente",
+                    "destino": "sedimentador_secundario",
+                    "apto_lecho_directo": False,
+                    "nota": "El filtro genera biomasa desprendida; en este tren se "
+                            "transfiere al sedimentador secundario y no se suma "
+                            "directamente al lecho."
+                }
+            ],
+            "transferencias": [],
+            "biogas": [],
+            "residuos_gruesos": [],
+            "arenas": []
+        },
         # Para layout
         "diametro_layout_m": round(D_filtro_m + 0.30, 1),
         "fuente": (
@@ -2023,157 +2599,792 @@ def dimensionar_filtro_percolador(Q: ConfigDiseno = CFG,
 # 5 - HUMEDAL CONSTRUIDO DE FLUJO VERTICAL SUBSUPERFICIAL (HFCV)
 # =============================================================================
 
-def dimensionar_humedal_vertical(Q: ConfigDiseno = CFG,
-                                  DBO_entrada_mg_L: float = None) -> Dict[str, Any]:
+def seleccionar_sistema_humedal(Q: ConfigDiseno = CFG,
+                                 area_disponible_m2: float = None,
+                                 afluente_crudo: bool = False,
+                                 capacitacion_operador: bool = True,
+                                 restriccion_bioseguridad: bool = False,
+                                 objetivo_NH4_estricto: bool = False,
+                                 contexto_proyecto: str = "general") -> Dict[str, Any]:
     """
-    Dimensionamiento del humedal construido de flujo vertical subsuperficial (HFCV).
-    También conocido como Constructed Wetland - Vertical Subsurface Flow (VF-CW).
+    Algoritmo de selección entre Sistema Clásico (Ruta A) y HAFV tropical de alta carga (Ruta B).
+    
+    Basado en Sección 3 del manual: temperatura es criterio primario (Paso A1).
+    
+    Lógica de criterios A2 (transparente y trazable):
+    ------------------------------------------------------------
+    Según el manual, se evalúan 4 criterios A2.1-A2.4, pero solo algunos afectan
+    la selección del sistema hidráulico:
+    
+    Puntuación (0 o 1 por criterio AFECTIVO):
+    - A2.1 (Área): <1.5 m²/PE → 1 punto (limitada favorece Ruta B)
+                     No especificada → ASUMIDA según contexto (marcado como supuesto)
+                     ≥2.5 m²/PE → 0 puntos (suficiente para clásico)
+                     [AFECTA SELECCIÓN]
+                     
+    - A2.2 (Afluente): Si crudo → 1 punto (celda francesa canónica / Ruta B favorecida en trópico)
+                       Si post-UASB/primario → 0 puntos NEUTRAL 
+                       (manual: "ambos sistemas son aplicables")
+                       [SOLO AFECTA SI ES CRUDO]
+    
+    - A2.3 (Capacitación): Disponible → 1 punto; Limitada → 0 puntos
+                           (Ruta B requiere operación por pulsos entrenada)
+                           [AFECTA SELECCIÓN]
+    
+    - A2.4 (Bioseguridad): NEUTRAL → Siempre 0 puntos para selección hidráulica
+                           (manual: "NO afecta la selección del sistema")
+                           Solo se documenta como observación.
+    
+    Decisión: ≥2 puntos de 2 criterios afectivos → Ruta B (HAFV tropical de alta carga)
+              <2 puntos → Ruta A (Clásico)
+    
+    NOTA METODOLÓGICA IMPORTANTE:
+    ------------------------------------------------------------
+    La regla "2/2 criterios afectivos" es una SIMPLIFICACIÓN IMPLEMENTADA,
+    no una formulación literal del manual. Surge de:
+    
+    1. Tratar A2.2 como NEUTRAL (0 puntos) para post-UASB, siguiendo el 
+       manual que indica "ambos sistemas son aplicables"
+    2. Tratar A2.4 como NEUTRAL (0 puntos) siempre, siguiendo el manual 
+       que indica "NO afecta la selección del sistema"
+    
+    Esto reduce los criterios que verdaderamente discriminan entre sistemas
+    a solo A2.1 (Área) y A2.3 (Capacitación). El umbral ≥2/2 es la traducción
+    implementada del criterio conceptual del manual: la adaptación tropical de alta carga
+    es viable cuando el área es limitada Y hay capacitación disponible.
+    
+    NOTA IMPORTANTE SOBRE A2.1 SIN ESPECIFICAR:
+    Si area_disponible_m2 es None, se requiere el parámetro contexto_proyecto:
+    - "insular": Asume área limitada típica de islas (favorece Ruta B)
+    - "urbano": Asume área intermedia
+    - "rural": Asume área suficiente disponible (favorece clásico)
+    - "general": Asume área limitada por defecto (conservador)
+    El supuesto se registra explícitamente en 'supuestos_explicitos'.
+    
+    Args:
+        Q: Configuración de diseño
+        area_disponible_m2: Área disponible en el terreno (m²), None si no se conoce
+        afluente_crudo: True si afluente crudo, False si post-primario
+        capacitacion_operador: True si hay capacitación técnica disponible
+        restriccion_bioseguridad: True si hay restricciones de inoculantes
+        objetivo_NH4_estricto: True si requiere NH4 < 10 mg/L (activa sistema híbrido)
+        contexto_proyecto: "insular", "urbano", "rural", o "general" (para A2.1 sin especificar)
+    
+    Returns:
+        Dict con sistema seleccionado, justificación detallada, y trazabilidad completa
+    """
+    T = Q.T_agua_C
+    
+    # PASO A1: Criterio primario de temperatura
+    if T < Q.humedal_temp_limite_clasico_C:
+        # CONDICIÓN 1: T < 15°C → Sistema Clásico obligatorio
+        return {
+            "sistema": "CLASICO",
+            "ruta": "A",
+            "condicion": 1,
+            "justificacion": f"T = {T}C < {Q.humedal_temp_limite_clasico_C}C: Sistema Clasico obligatorio (manual Seccion 3, Paso A1)",
+            "hibrido": False,
+            "trazabilidad": {
+                "temperatura_C": T, 
+                "criterio": "T < 15C obliga Clasico",
+                "nota_metodologica": "Sistema Clasico obligatorio por temperatura < 15C. No se evaluan criterios A2."
+            }
+        }
+    
+    if objetivo_NH4_estricto and T >= Q.humedal_temp_limite_transicion_C:
+        # CONDICIÓN 4: Sistema híbrido Ruta B + HFHS
+        return {
+            "sistema": "FRANCES_HIBRIDO",
+            "ruta": "B+",
+            "condicion": 4,
+            "justificacion": f"T = {T}C >= 20C pero objetivo NH4 estricto (<10 mg/L) requiere HFHS adicional (manual Seccion 3, A2.5)",
+            "hibrido": True,
+            "trazabilidad": {
+                "NH4_estricto": True, 
+                "sistema_adicional": "HFHS",
+                "nota_metodologica": "Sistema hibrido activado por objetivo estricto de NH4."
+            }
+        }
+    
+    if T < Q.humedal_temp_limite_transicion_C:
+        # CONDICIÓN 3: Zona de transición (15-20°C) → Clásico con factor de seguridad
+        return {
+            "sistema": "CLASICO",
+            "ruta": "A",
+            "condicion": 3,
+            "justificacion": f"T = {T}C en zona transicion (15-20C): Sistema Clasico con FS 20-30% (manual Seccion 3, Paso A1)",
+            "hibrido": False,
+            "factor_seguridad_adicional": 1.25,
+            "trazabilidad": {
+                "temperatura_C": T, 
+                "zona": "transicion",
+                "nota_metodologica": "Zona de transicion 15-20C: Sistema Clasico con factor de seguridad 20-30%."
+            }
+        }
+    
+    # T >= 20°C: Evaluar criterios A2 para HAFV tropical de alta carga (Paso A2)
+    # Sistema de puntuación transparente: 4 criterios, cada uno 0 o 1 punto
+    puntuacion = {"A2.1": 0, "A2.2": 0, "A2.3": 0, "A2.4": 0}
+    detalle_criterios = {}
+    supuestos = []  # Lista de supuestos explícitos
+    
+    # A2.1: Área disponible (m²/PE)
+    if area_disponible_m2 is not None:
+        # Cálculo explícito con dato proporcionado
+        PE_estimado = Q.Q_total_m3_d / 0.15  # 150 L/hab·d según manual
+        area_por_PE = area_disponible_m2 / PE_estimado if PE_estimado > 0 else 999
+        if area_por_PE < 1.5:
+            puntuacion["A2.1"] = 1
+            detalle_criterios["A2.1_area"] = f"Limitada ({area_por_PE:.1f} m2/PE < 1.5) -> favorece Ruta B"
+        elif area_por_PE >= 2.5:
+            puntuacion["A2.1"] = 0
+            detalle_criterios["A2.1_area"] = f"Suficiente ({area_por_PE:.1f} m2/PE >= 2.5) -> favorece clasico"
+        else:
+            puntuacion["A2.1"] = 0  # Intermedia no suma punto
+            detalle_criterios["A2.1_area"] = f"Intermedia ({area_por_PE:.1f} m2/PE) -> neutral"
+    else:
+        # Área no especificada: aplicar supuesto según contexto del proyecto
+        if contexto_proyecto == "insular":
+            puntuacion["A2.1"] = 1
+            detalle_criterios["A2.1_area"] = "No especificada -> SUPUESTO: contexto insular tipicamente limitado -> favorece Ruta B"
+            supuestos.append("A2.1: Area asumida limitada por contexto insular (isla San Cristobal)")
+        elif contexto_proyecto == "rural":
+            puntuacion["A2.1"] = 0
+            detalle_criterios["A2.1_area"] = "No especificada -> SUPUESTO: contexto rural tipicamente con area suficiente"
+            supuestos.append("A2.1: Area asumida suficiente por contexto rural")
+        else:  # "general" o "urbano"
+            puntuacion["A2.1"] = 1
+            detalle_criterios["A2.1_area"] = "No especificada -> SUPUESTO: general/urbano tipicamente limitado -> favorece Ruta B"
+            supuestos.append(f"A2.1: Area asumida limitada por contexto '{contexto_proyecto}'")
+    
+    # A2.2: Tipo de afluente
+    # Manual Seccion 3: 
+    # - Crudo: French es el único viable en trópico (1 punto)
+    # - Post-UASB/primario: AMBOS sistemas aplicables → NEUTRAL (0 puntos)
+    if afluente_crudo:
+        puntuacion["A2.2"] = 1
+        detalle_criterios["A2.2_afluente"] = "Crudo pretratado -> celda francesa canónica/Ruta B favorecida en tropico"
+    else:
+        # Post-UASB: Manual dice "ambos sistemas son aplicables" → NEUTRAL
+        puntuacion["A2.2"] = 0
+        detalle_criterios["A2.2_afluente"] = "Post-primario (post-UASB) -> ambos aplicables segun manual (neutral)"
+    
+    # A2.3: Capacitación operador
+    if capacitacion_operador:
+        puntuacion["A2.3"] = 1
+        detalle_criterios["A2.3_capacitacion"] = "Disponible -> favorece Ruta B (requiere operacion por pulsos)"
+    else:
+        puntuacion["A2.3"] = 0
+        detalle_criterios["A2.3_capacitacion"] = "Limitada -> favorece clasico (sistema mas robusto operativamente)"
+    
+    # A2.4: Bioseguridad
+    # Manual Seccion 3: "Esto NO afecta la seleccion del sistema hidraulico"
+    # Por tanto es NEUTRAL para la decision (siempre 0 puntos), solo se documenta
+    puntuacion["A2.4"] = 0
+    if not restriccion_bioseguridad:
+        detalle_criterios["A2.4_bioseguridad"] = "Sin restricciones de inoculantes (neutral - no afecta seleccion)"
+    else:
+        detalle_criterios["A2.4_bioseguridad"] = "Con restricciones de inoculantes (neutral - no afecta seleccion)"
+        supuestos.append("A2.4: Proyecto en area con restricciones de bioseguridad (observacion, no afecta seleccion)")
+    
+    # PASO A3: Decisión final
+    # Solo A2.1 y A2.3 afectan la selección (A2.2 y A2.4 son neutrales para post-UASB)
+    puntos_total = sum(puntuacion.values())
+    criterios_afectivos = ["A2.1", "A2.3"]  # Los únicos que puntúan para la decisión
+    puntos_efectivos = puntuacion["A2.1"] + puntuacion["A2.3"]
+    
+    # Umbral: ≥2 de 2 criterios afectivos favorables → Ruta B
+    # (A2.2=0 y A2.4=0 para post-UASB según manual)
+    if puntos_efectivos >= 2:
+        # CONDICIÓN 2: HAFV tropical de alta carga
+        return {
+            "sistema": "FRANCES",
+            "ruta": "B",
+            "condicion": 2,
+            "justificacion": f"T = {T}C >= 20C y {puntos_efectivos}/2 criterios afectivos favorables (A2.1 y A2.3) -> Ruta B (HAFV tropical de alta carga, adaptacion basada en Molle)",
+            "hibrido": False,
+            "puntuacion_detalle": puntuacion,
+            "puntos_total": puntos_total,
+            "puntos_efectivos_decision": puntos_efectivos,
+            "criterios_afectivos": criterios_afectivos,
+            "criterios": detalle_criterios,
+            "supuestos_explicitos": supuestos if supuestos else None,
+            "trazabilidad": {
+                "temperatura_C": T,
+                "criterios_evaluados": 4,
+                "criterios_afectivos_decision": 2,
+                "puntos_efectivos": puntos_efectivos,
+                "umbral_ruta_B": 2,
+                "nota_metodologica": "Regla 2/2 es simplificacion implementada (A2.2 y A2.4 neutrales), no literal del manual",
+                "contexto_proyecto": contexto_proyecto
+            }
+        }
+    else:
+        # CONDICIÓN 3: Volver a Clásico
+        return {
+            "sistema": "CLASICO",
+            "ruta": "A",
+            "condicion": 3,
+            "justificacion": f"T = {T}C >= 20C pero solo {puntos_efectivos}/2 criterios afectivos favorables -> Ruta A (Clásico)",
+            "hibrido": False,
+            "puntuacion_detalle": puntuacion,
+            "puntos_total": puntos_total,
+            "puntos_efectivos_decision": puntos_efectivos,
+            "criterios_afectivos": criterios_afectivos,
+            "criterios": detalle_criterios,
+            "supuestos_explicitos": supuestos if supuestos else None,
+            "trazabilidad": {
+                "temperatura_C": T,
+                "criterios_evaluados": 4,
+                "criterios_afectivos_decision": 2,
+                "puntos_efectivos": puntos_efectivos,
+                "umbral_ruta_B": 2,
+                "nota_metodologica": "Regla 2/2 es simplificacion implementada (A2.2 y A2.4 neutrales), no literal del manual",
+                "contexto_proyecto": contexto_proyecto
+            }
+        }
 
-    El HFCV recibe el efluente del UASB (post tratamiento primario anaerobio).
-    El flujo es intermitente: lotes aplicados desde la superficie, drenaje por gravedad.
 
-    Fundamento teórico
-    ------------------
-    Los HFCV combinan procesos físicos (filtración), químicos (adsorción) y
-    biológicos (metabolismo microbiano en biofilm adherido a la grava) para
-    remover DBO, SST y patógenos.
-    La biodegradación aerobia predomina gracias a la aireación pasiva durante
-    la fase de drenaje entre cargas (Vymazal, 2011).
-
-    Modelo de primer orden con flujo pistón (k-C* model)
-    -------------------------------------------------------
-    Ce = (Ci - C*) * exp(-k_T * A / q) + C*               [Ec. 6a]
-        [Kadlec & Wallace, 2009, Ec. 6.4]
-
-    donde:
-        Ce  = concentración en el efluente (mg/L)
-        Ci  = concentración en el afluente (mg/L)
-        C*  = concentración de fondo (background) = 3.5 mg/L para DBO5 en
-              humedales tropicales (Kadlec & Wallace, 2009, Tabla 6.6)
-        k_T = constante de primer orden a temperatura T (m/d)
-              k_T = k_20 * θ^(T-20)                        [Ec. 6b]
-              k_20 = 0.062 m/d para HFCV, DBO5 (Kadlec & Wallace, 2009, p. 302)
-              θ    = 1.06 (Kadlec & Wallace, 2009, Tabla 6.7)
-        A   = área superficial del humedal (m^2)
-        q   = carga hidráulica superficial = Q / A (m/d)
-
-    Despejando A de Ec. 6a:
-        A = q * ln[(Ci - C*) / (Ce - C*)] / k_T            [Ec. 6c]
-        Como A y q están acoplados (q = Q/A), se resuelve iterativamente:
-        A = Q * ln[(Ci - C*) / (Ce - C*)] / k_T            [Ec. 6d]
-        (ya que Q/A * A = Q, los términos se cancelan directamente)
-
-    Verificación: tasa de carga hidráulica superficial
-        q = Q / A                                           [Ec. 6e]
-        Rango recomendado: 0.02-0.08 m/d [Kadlec & Wallace, 2009, p. 298]
-
-    Diseño del lecho filtrante
-    --------------------------
-    Material recomendado: grava limpia 6-12 mm
-    Porosidad típica: n_p = 0.35-0.40
-    Profundidad del lecho: h_lecho = 0.50-0.70 m
-    [Vymazal, 2011; Kadlec & Wallace, 2009, p. 291]
-
-    Referencias
-    -----------
-    Kadlec & Wallace (2009), Cap. 6 y 7 - referencia principal
-    Vymazal (2011), doi:10.1021/es101403q
-    Reed et al. (1995), Cap. 7
+def verificar_kc_humedal(Q: ConfigDiseno, 
+                         A_operando_m2: float,
+                         DBO_entrada_mg_L: float,
+                         DQO_entrada_mg_L: float = None,
+                         Q_verificacion_m3_d: float = None) -> Dict[str, Any]:
+    """
+    Verificación complementaria de eficiencia por modelo k-C* (Sección 11 del manual).
+    Recomendada en ambas rutas como chequeo secundario de desempeño.
+    
+    Args:
+        Q: Configuración de diseño
+        A_operando_m2: Área del filtro en operación (m²)
+        DBO_entrada_mg_L: DBO5 afluente (mg/L)
+        DQO_entrada_mg_L: DQO afluente opcional (mg/L)
+        Q_verificacion_m3_d: Caudal usado para la verificación k-C* (m³/d).
+            Si no se entrega, usa Q.Q_linea_m3_d por compatibilidad.
+    
+    Returns:
+        Dict con resultados de verificación k-C*
     """
     ref_kw = citar("kadlec_wallace_2009")
-    ref_vy = citar("vymazal_2011")
-    ref_rd = citar("reed_1995")
+    
+    Q_m3_d = Q_verificacion_m3_d if Q_verificacion_m3_d is not None else Q.Q_linea_m3_d
+    
+    # [Ec. V3] Corrección cinética por temperatura
+    k_T_m_d = correccion_temperatura(Q.humedal_k_20_m_d, Q.humedal_theta, Q.T_agua_C)
+    
+    # [Ec. V1, V2] Modelo k-C* para DBO5
+    C_star_DBO = Q.humedal_C_fondo_mg_L  # 3.5 mg/L
+    q_m_d = Q_m3_d / A_operando_m2  # Carga hidráulica superficial
+    
+    # Ce = C* + (Ci - C*) × exp(-kA,T / q)
+    exponente = -k_T_m_d / q_m_d
+    DBO_salida_calc_mg_L = C_star_DBO + (DBO_entrada_mg_L - C_star_DBO) * math.exp(exponente)
+    
+    # [Ec. V4] Eficiencia de remoción
+    eficiencia_DBO_pct = ((DBO_entrada_mg_L - DBO_salida_calc_mg_L) / DBO_entrada_mg_L) * 100
+    
+    resultado = {
+        "k_20_m_d": Q.humedal_k_20_m_d,
+        "k_T_m_d": round(k_T_m_d, 4),
+        "theta": Q.humedal_theta,
+        "T_C": Q.T_agua_C,
+        "Q_m3_d": round(Q_m3_d, 1),
+        "A_operando_m2": round(A_operando_m2, 1),
+        "q_m_d": round(q_m_d, 4),
+        "C_star_mg_L": C_star_DBO,
+        "DBO_entrada_mg_L": DBO_entrada_mg_L,
+        "DBO_salida_calc_mg_L": round(DBO_salida_calc_mg_L, 1),
+        "eficiencia_DBO_pct": round(eficiencia_DBO_pct, 1),
+        "cumple_objetivo": DBO_salida_calc_mg_L <= Q.humedal_DBO_salida_mg_L,
+        "fuente": f"{ref_kw}, Ec. V1-V4"
+    }
+    
+    # Si se proporciona DQO, verificar también
+    if DQO_entrada_mg_L is not None:
+        C_star_DQO = 17.5  # Promedio 15-20 mg/L según manual
+        k_20_DQO = 0.075  # m/d según manual
+        k_T_DQO = correccion_temperatura(k_20_DQO, Q.humedal_theta, Q.T_agua_C)
+        DQO_salida_calc = C_star_DQO + (DQO_entrada_mg_L - C_star_DQO) * math.exp(-k_T_DQO / q_m_d)
+        eficiencia_DQO_pct = ((DQO_entrada_mg_L - DQO_salida_calc) / DQO_entrada_mg_L) * 100
+        resultado["DQO_entrada_mg_L"] = DQO_entrada_mg_L
+        resultado["DQO_salida_calc_mg_L"] = round(DQO_salida_calc, 1)
+        resultado["eficiencia_DQO_pct"] = round(eficiencia_DQO_pct, 1)
+    
+    return resultado
 
-    # DBO5 entrante al humedal = DBO5 efluente del UASB
+
+def dimensionar_humedal_vertical(Q: ConfigDiseno = CFG,
+                                  DBO_entrada_mg_L: float = None,
+                                  DQO_entrada_mg_L: float = None,
+                                  area_disponible_m2: float = None,
+                                  forzar_ruta: str = None,
+                                  contexto_proyecto: str = "general") -> Dict[str, Any]:
+    """
+    Dimensionamiento del Humedal Artificial de Flujo Vertical (HAFV).
+    
+    Metodología Unificada: Sistema Clásico (Ruta A) vs HAFV tropical de alta carga (Ruta B)
+    según algoritmo de selección del manual (Sección 3).
+    
+    PARA SAN CRISTÓBAL (T = 25.6°C, post-UASB):
+    → Selecciona automáticamente RUTA B (HAFV tropical de alta carga para pulimiento post-UASB)
+    
+    Dimensionamiento RUTA B (adaptación basada en Molle et al., 2015):
+    ------------------------------------------------
+    PASO F1 - Área por Carga Orgánica Superficial (OLR):
+        A_operando,OLR = (Q × S₀,DQO) / OLR           [Ec. F1]
+        OLR = 200-350 g DQO/m²·d (típico 300)
+    
+    PASO F2 - Área por Carga Hidráulica Superficial (HLR):
+        A_operando,HLR = Q / HLR                      [Ec. F2]
+        HLR = 0.50-0.75 m/d
+    
+    PASO F3 - Selección área operando:
+        A_operando = máx(A_OLR, A_HLR)                [Ec. F3]
+    
+    PASO F4 - Área total sistema:
+        A_total = A_operando × N_filtros              [Ec. F4]
+        N_filtros = 2 (operación alterna 3.5d/3.5d)
+    
+    PASO F5/F6 - Verificación por Equivalente Habitante (PE):
+        PE_carga = (Q × S₀,DBO) / 60                  [Ec. F5b] (post-UASB)
+        A_PE = Área_por_PE × PE_carga                 [Ec. F6]
+        Si A_PE > A_total → adoptar A_PE
+
+    Jerarquía metodológica en esta adaptación post-UASB:
+        OLR y HLR son los criterios primarios de dimensionamiento.
+        PE funciona como contraste empírico de escala/carga y puede aumentar
+        el área si resulta más exigente, pero no reemplaza OLR/HLR.
+    
+    VERIFICACIÓN COMPLEMENTARIA k-C* (Sección 11):
+        Ce = C* + (Ci - C*) × exp(-kA,T / q)         [Ec. V2]
+        kA,T = kA,20 × θ^(T-20)                      [Ec. V3]
+    
+    Dimensionamiento RUTA A (Cooper et al., 1996):
+    ------------------------------------------------
+    Implementado para reusabilidad en climas fríos.
+    - 2 etapas con filtros en rotación
+    - Criterio COS (20-60 g DBO₅/m²·d)
+    
+    Referencias
+    -----------
+    - Molle et al. (2015): adaptación tropical de humedales verticales de alta carga
+    - Cooper et al. (1996), ÖNORM B 2505: Sistema Clásico
+    - Kadlec & Wallace (2009): Verificación k-C*
+    """
+    ref_molle = citar("molle_2015")
+    ref_cooper = citar("cooper_1996")
+    
+    # =========================================================================
+    # 1. DATOS DE ENTRADA
+    # =========================================================================
     if DBO_entrada_mg_L is None:
-        DBO_entrada_mg_L = Q.DBO5_mg_L * (1.0 - 0.70)   # 75 mg/L
-
-    # Parámetros de diseño adoptados desde configuración
-    DBO_salida_mg_L = Q.humedal_DBO_salida_mg_L
-    C_fondo_mg_L = Q.humedal_C_fondo_mg_L
-    k_20_m_d = Q.humedal_k_20_m_d
-    theta = Q.humedal_theta
-    n_p = Q.humedal_n_porosidad
-    h_lecho = Q.humedal_h_lecho_m
-    borde_libre = Q.humedal_borde_libre_m
-
+        DBO_entrada_mg_L = Q.DBO5_mg_L * (1.0 - 0.70)  # ~73 mg/L post-UASB
+    
+    if DQO_entrada_mg_L is None:
+        # Relación DQO/DBO típica post-UASB: 2.0-2.8
+        DQO_entrada_mg_L = DBO_entrada_mg_L * 2.4
+    
     Q_m3_d = Q.Q_linea_m3_d
-
-    # [Ec. 6b] Corrección por temperatura
-    k_T_m_d = correccion_temperatura(k_20_m_d, theta, Q.T_agua_C)
-
-    # [Ec. 6d] Área superficial del humedal
-    # Condición: Ce > C* (verificar que el objetivo sea alcanzable)
-    assert DBO_salida_mg_L > C_fondo_mg_L, (
-        f"Objetivo Ce = {DBO_salida_mg_L} mg/L <= C* = {C_fondo_mg_L} mg/L: "
-        "no alcanzable con modelo de primer orden"
+    Q_total_m3_d = Q.Q_total_m3_d
+    Q_diseno_m3_d = Q_m3_d
+    
+    # =========================================================================
+    # 2. SELECCIÓN DEL SISTEMA (Sección 3 del manual)
+    # =========================================================================
+    if forzar_ruta:
+        seleccion = {
+            "ruta": forzar_ruta,
+            "sistema": "FRANCES" if forzar_ruta == "B" else "CLASICO",
+            "justificacion": f"Ruta {forzar_ruta} forzada por parámetro",
+            "trazabilidad": {
+                "nota_metodologica": "Ruta forzada por parámetro; no se aplicó selección automática."
+            },
+        }
+    else:
+        seleccion = seleccionar_sistema_humedal(
+            Q, 
+            area_disponible_m2=area_disponible_m2,
+            afluente_crudo=False,  # Post-UASB para San Cristóbal
+            capacitacion_operador=True,
+            restriccion_bioseguridad=False,
+            objetivo_NH4_estricto=False,
+            contexto_proyecto=contexto_proyecto  # "insular" para San Cristobal
+        )
+    
+    ruta = seleccion["ruta"]
+    sistema = seleccion["sistema"]
+    
+    # =========================================================================
+    # 3. DIMENSIONAMIENTO POR RUTA
+    # =========================================================================
+    
+    if ruta == "B" and sistema == "FRANCES":
+        # =====================================================================
+        # RUTA B: HAFV TROPICAL DE ALTA CARGA (adaptación basada en Molle et al., 2015)
+        # =====================================================================
+        
+        # Parámetros de diseño
+        OLR_adoptada = Q.humedal_frances_OLR_gDQO_m2_d  # g DQO/m²·d
+        HLR_adoptada = Q.humedal_frances_HLR_m_d        # m/d
+        n_filtros = Q.humedal_frances_n_filtros
+        
+        # PASO F1: Área por OLR [Ec. F1]
+        # A_operando,OLR = (Q × S₀,DQO) / OLR
+        masa_DQO_g_d = Q_diseno_m3_d * DQO_entrada_mg_L  # mg/L = g/m³
+        A_operando_OLR = masa_DQO_g_d / OLR_adoptada    # m²
+        
+        # PASO F2: Área por HLR [Ec. F2]
+        # A_operando,HLR = Q / HLR
+        A_operando_HLR = Q_diseno_m3_d / HLR_adoptada    # m²
+        
+        # PASO F3: Seleccionar área operando [Ec. F3]
+        A_operando_m2 = max(A_operando_OLR, A_operando_HLR)
+        criterio_controla = "HLR" if A_operando_HLR > A_operando_OLR else "OLR"
+        
+        # Verificar que OLR resultante no exceda límite si controla HLR
+        OLR_real = masa_DQO_g_d / A_operando_m2
+        
+        # PASO F4: Área total [Ec. F4]
+        A_total_m2 = A_operando_m2 * n_filtros
+        
+        # PASO F5/F6: Verificación por PE [Ec. F5b, F6]
+        # PE_carga = (Q × S₀,DBO) / 60  (post-UASB usa carga real, no caudal per cápita)
+        masa_DBO_g_d = Q_diseno_m3_d * DBO_entrada_mg_L
+        PE_carga = masa_DBO_g_d / 60  # 60 g DBO₅/PE·d
+        
+        # Seleccionar área por PE según temperatura
+        if Q.T_agua_C > 22:
+            area_por_PE = Q.humedal_frances_area_por_PE_m2_T22
+        else:
+            area_por_PE = Q.humedal_frances_area_por_PE_m2_T20
+        
+        A_PE = area_por_PE * PE_carga
+        
+        # Si A_PE > A_total, adoptar A_PE
+        if A_PE > A_total_m2:
+            A_total_adoptado_m2 = A_PE
+            A_operando_adoptado_m2 = A_PE / n_filtros
+            usado_PE = True
+        else:
+            A_total_adoptado_m2 = A_total_m2
+            A_operando_adoptado_m2 = A_operando_m2
+            usado_PE = False
+        
+        # Dimensiones del filtro
+        # Relación L:B = 1:1 a 1.5:1 (adaptación compacta Ruta B)
+        relacion_L_A = Q.humedal_frances_relacion_L_A
+        ancho_filtro_m = math.sqrt(A_operando_adoptado_m2 / relacion_L_A)
+        largo_filtro_m = relacion_L_A * ancho_filtro_m
+        
+        # Dimensiones totales (considerando 2 filtros lado a lado)
+        # Layout típico: filtros adyacentes con separación de 1-2 m
+        separacion_filtros_m = Q.humedal_separacion_filtros_m
+        ancho_total_m = ancho_filtro_m * n_filtros + separacion_filtros_m * (n_filtros - 1)
+        largo_total_m = largo_filtro_m
+        
+        # Parámetros operacionales
+        ciclo_alim_d = Q.humedal_frances_ciclo_alim_dias
+        ciclo_reposo_d = Q.humedal_frances_ciclo_reposo_dias
+        
+        # TRH real [Ec. G1]
+        h_medio = Q.humedal_frances_h_medio_m
+        n_p = Q.humedal_n_porosidad
+        TRH_d = (A_operando_adoptado_m2 * h_medio * n_p) / Q_diseno_m3_d
+        
+        # Parámetros para resultado
+        resultado_base = {
+            "sistema": "HAFV tropical de alta carga",
+            "nota_metodologica_ruta": (
+                "Ruta B aplicada como adaptación tropical de alta carga para pulimiento post-UASB; "
+                "no representa por sí sola el sistema francés canónico completo de dos etapas."
+            ),
+            "ruta": "B",
+            "referencia_principal": ref_molle,
+            "criterio_controla": criterio_controla,
+            "A_op_OLR_m2": round(A_operando_OLR, 1),
+            "A_op_HLR_m2": round(A_operando_HLR, 1),
+            "A_operando_m2": round(A_operando_adoptado_m2, 1),
+            "A_total_m2": round(A_total_adoptado_m2, 1),
+            "n_filtros": n_filtros,
+            "dimensiones_por_filtro_m": (round(largo_filtro_m, 1), round(ancho_filtro_m, 1)),
+            "largo_total_m": round(largo_total_m, 1),
+            "ancho_total_m": round(ancho_total_m, 1),
+            "OLR_gDQO_m2_d": round(OLR_real, 1),
+            "HLR_m_d": round(Q_diseno_m3_d / A_operando_adoptado_m2, 3),
+            "PE_carga": round(PE_carga, 0),
+            "A_PE_m2": round(A_PE, 1),
+            "usado_criterio_PE": usado_PE,
+            "ciclo_dias": f"{ciclo_alim_d}/{ciclo_reposo_d}",
+            "ciclo_alim_dias": ciclo_alim_d,
+            "ciclo_reposo_dias": ciclo_reposo_d,
+            "relacion_L_A": relacion_L_A,
+            "separacion_filtros_m": separacion_filtros_m,
+            "h_medio_m": h_medio,
+            "TRH_dias": round(TRH_d, 2),
+        }
+        
+    else:
+        # =====================================================================
+        # RUTA A: SISTEMA CLÁSICO (Cooper et al., 1996)
+        # =====================================================================
+        # Implementación básica para reusabilidad en climas fríos
+        
+        COS_adoptada = Q.humedal_clasico_COS_gDBO_m2_d  # g DBO₅/m²·d
+        
+        # Área 1ª etapa por COS [Ec. A1]
+        masa_DBO_g_d = Q_diseno_m3_d * DBO_entrada_mg_L
+        A_1etapa_COS = masa_DBO_g_d / COS_adoptada
+        
+        # Área 1ª etapa por PE [Ec. A2]
+        PE_carga = masa_DBO_g_d / 60
+        A_1etapa_PE = PE_carga * Q.humedal_clasico_area_por_PE_m2
+        
+        # Adoptar mayor [Ec. A1 vs A2]
+        A_1etapa = max(A_1etapa_COS, A_1etapa_PE)
+        
+        # Área 2ª etapa = 50% de 1ª [Ec. A3]
+        A_2etapa = A_1etapa * Q.humedal_clasico_relacion_2da_1ra
+        
+        # Área total [Ec. A4]
+        A_total = A_1etapa + A_2etapa
+        
+        # Distribución de filtros
+        n_filtros_1e = Q.humedal_clasico_n_filtros_1etapa
+        n_filtros_2e = Q.humedal_clasico_n_filtros_2etapa
+        
+        # Geometría
+        relacion_L_A = Q.humedal_clasico_relacion_L_A
+        ancho_1e = math.sqrt(A_1etapa / n_filtros_1e / relacion_L_A)
+        largo_1e = relacion_L_A * ancho_1e
+        
+        # Dimensiones por filtro (de la primera etapa, que es la más grande)
+        dimensiones_por_filtro_m = (round(largo_1e, 1), round(ancho_1e, 1))
+        
+        # Área por criterio de PE para verificación
+        area_por_PE_clasico = Q.humedal_clasico_area_por_PE_m2
+        A_PE = 1.5 * area_por_PE_clasico * PE_carga
+        
+        resultado_base = {
+            "sistema": "Clásico",
+            "ruta": "A",
+            "referencia_principal": ref_cooper,
+            "A_1etapa_m2": round(A_1etapa, 1),
+            "A_2etapa_m2": round(A_2etapa, 1),
+            "A_total_m2": round(A_total, 1),
+            "n_filtros_1etapa": n_filtros_1e,
+            "n_filtros_2etapa": n_filtros_2e,
+            "dimensiones_por_filtro_m": dimensiones_por_filtro_m,
+            "PE_carga": round(PE_carga, 0),
+            "A_PE_m2": round(A_PE, 1),
+            "relacion_L_A": relacion_L_A,
+            "separacion_filtros_m": Q.humedal_separacion_filtros_m,
+            "h_medio_m": Q.humedal_clasico_h_medio_m,
+            "ciclo_alim_1etapa_dias": Q.humedal_clasico_ciclo_alim_1etapa_dias,
+            "ciclo_reposo_1etapa_dias": Q.humedal_clasico_ciclo_reposo_1etapa_dias,
+            "ciclo_alim_2etapa_dias": Q.humedal_clasico_ciclo_alim_2etapa_dias,
+            "ciclo_reposo_2etapa_dias": Q.humedal_clasico_ciclo_reposo_2etapa_dias,
+            "COS_gDBO_m2_d": COS_adoptada,
+        }
+        
+        # Para compatibilidad con layout
+        A_operando_adoptado_m2 = A_1etapa / n_filtros_1e
+        largo_total_m = largo_1e
+        ancho_total_m = ancho_1e * n_filtros_1e + Q.humedal_separacion_filtros_m * (n_filtros_1e - 1)
+    
+    # =========================================================================
+    # 4. VERIFICACIÓN k-C* (complementaria/recomendada en ambas rutas)
+    # =========================================================================
+    verif_kc = verificar_kc_humedal(
+        Q, 
+        A_operando_adoptado_m2 if ruta == "B" else A_1etapa,
+        DBO_entrada_mg_L,
+        DQO_entrada_mg_L,
+        Q_verificacion_m3_d=Q_diseno_m3_d
     )
-
-    A_m2 = (Q_m3_d / k_T_m_d) * math.log(
-        (DBO_entrada_mg_L - C_fondo_mg_L) /
-        (DBO_salida_mg_L  - C_fondo_mg_L)
+    
+    # =========================================================================
+    # 5. RESULTADO UNIFICADO
+    # =========================================================================
+    
+    # DBO de salida para integración: usar el calculado por verificación k-C*
+    # Este es el efluente esperado según modelo cinético (Kadlec & Wallace)
+    DBO_salida_mg_L = verif_kc["DBO_salida_calc_mg_L"]
+    
+    # Compatibilidad: también incluir objetivo de diseño si diferente
+    DBO_objetivo_mg_L = Q.humedal_DBO_salida_mg_L
+    estado_verificacion_kC = "cumple" if verif_kc["cumple_objetivo"] else "no cumple"
+    texto_cumplimiento_kC = (
+        f"La DBO5 calculada de {verif_kc['DBO_salida_calc_mg_L']:.1f} mg/L "
+        f"{estado_verificacion_kC} con el objetivo de diseño de {DBO_objetivo_mg_L:.1f} mg/L."
     )
-
-    # Con factor de seguridad para variaciones estacionales de carga
-    A_m2_diseño = A_m2 * Q.humedal_factor_seguridad_area
-
-    # [Ec. 6e] Tasa de carga hidráulica
-    q_m_d = Q_m3_d / A_m2   # m/d (antes del CS, para verificación hidráulica)
-
-    # Geometría recomendada (relación largo:ancho = 2:1 a 3:1)
-    relacion_L_A = 2.5
-    ancho_m = math.sqrt(A_m2 / relacion_L_A)
-    largo_m = relacion_L_A * ancho_m
-
-    # Volumen útil del lecho (para cálculo de TRH)
-    V_lecho_m3 = A_m2 * h_lecho * n_p     # volumen de agua en poros
-    TRH_d = V_lecho_m3 / Q_m3_d
-
-    # Verificaciones
-    assert 0.02 <= q_m_d <= 0.10, (
-        f"Tasa hidráulica q = {q_m_d:.4f} m/d "
-        f"{'por debajo' if q_m_d < 0.02 else 'por encima'} del rango 0.02-0.08 m/d "
-        f"({ref_kw}, p. 298). "
-        f"{'Considerar reducir el área.' if q_m_d < 0.02 else 'Considerar aumentar el área.'}"
+    texto_criterio_PE = (
+        "se aplicó el criterio de PE como controlante"
+        if resultado_base.get("usado_criterio_PE", False)
+        else "no se aplicó el criterio de PE como controlante"
     )
-
+    nota_metodologia_area = (
+        "En esta adaptacion post-UASB, el dimensionamiento primario se realiza por OLR y HLR. "
+        "El criterio de PE se usa como contraste empirico de escala/carga y puede aumentar el area "
+        "si resulta mas exigente, pero no reemplaza los criterios de carga organica e hidraulica."
+    )
+    capas_medio_filtrante = [
+        {"espesor_m": Q.humedal_capa_drenaje_m, "nombre": "Grava drenaje (20-60 mm)"},
+        {"espesor_m": Q.humedal_capa_grava_media_m, "nombre": "Grava media (5-15 mm)"},
+        {"espesor_m": Q.humedal_capa_grava_fina_m, "nombre": "Grava fina (2-6 mm)"},
+    ]
+    h_medio_resultado = Q.humedal_frances_h_medio_m if ruta == "B" else Q.humedal_clasico_h_medio_m
+    H_total_resultado = Q.humedal_frances_H_total_m if ruta == "B" else Q.humedal_clasico_H_total_m
+    metodologia_descriptiva = f"{resultado_base['sistema']} (Ruta {ruta})"
+    altura_sobre_lecho_m = max(H_total_resultado - h_medio_resultado, 0.0)
+    if ruta == "B":
+        nota_estratigrafia_medio = (
+            "Estratigrafía adoptada para HAFV tropical de alta carga post-UASB; "
+            "no pretende reproducir literalmente una celda francesa canónica de dos etapas "
+            "ni el caso específico Hoffmann/Chincha."
+        )
+        texto_interpretacion_criterio_resultados = (
+            "El criterio controlante es hidráulico: el tiempo de contacto entre el agua residual "
+            "y la biopelícula es el parámetro que acota el rendimiento, mientras que la carga "
+            "orgánica real sobre la celda activa permanece por debajo del límite máximo adoptado."
+            if criterio_controla == "HLR"
+            else
+            "El criterio controlante es orgánico: la capacidad de degradación de la biopelícula "
+            "es el factor que determina el área, mientras que la carga hidráulica resultante se "
+            "mantiene dentro del rango admisible para el sistema seleccionado."
+        )
+        campos_render = {
+            "criterio_resultados": criterio_controla,
+            "A_operando_resultados_m2": round(A_operando_adoptado_m2, 1),
+            "n_filtros_resultados": n_filtros,
+            "ciclo_resultados": f"{ciclo_alim_d}/{ciclo_reposo_d}",
+            "ciclo_alim_resultados_dias": ciclo_alim_d,
+            "ciclo_reposo_resultados_dias": ciclo_reposo_d,
+            "carga_organica_resultados_etiqueta": "OLR real",
+            "carga_organica_resultados_valor": round(OLR_real, 1),
+            "carga_organica_resultados_unidad": "g DQO/m²·d",
+            "HLR_resultados_m_d": round(Q_diseno_m3_d / A_operando_adoptado_m2, 3),
+        }
+    else:
+        nota_estratigrafia_medio = (
+            "Estratigrafía adoptada para la ruta clásica del HAFV; "
+            "se documenta como configuración del medio filtrante de esta metodología."
+        )
+        texto_interpretacion_criterio_resultados = (
+            "El dimensionamiento de la ruta clásica queda gobernado por los criterios "
+            "combinados de carga orgánica superficial y contraste por habitante equivalente, "
+            "propios de la configuración en dos etapas."
+        )
+        COS_real = masa_DBO_g_d / A_1etapa
+        campos_render = {
+            "criterio_resultados": "COS/PE",
+            "A_operando_resultados_m2": round(A_1etapa, 1),
+            "n_filtros_resultados": n_filtros_1e,
+            "ciclo_resultados": f"{Q.humedal_clasico_ciclo_alim_1etapa_dias}/{Q.humedal_clasico_ciclo_reposo_1etapa_dias}",
+            "ciclo_alim_resultados_dias": Q.humedal_clasico_ciclo_alim_1etapa_dias,
+            "ciclo_reposo_resultados_dias": Q.humedal_clasico_ciclo_reposo_1etapa_dias,
+            "carga_organica_resultados_etiqueta": "COS real",
+            "carga_organica_resultados_valor": round(COS_real, 1),
+            "carga_organica_resultados_unidad": "g DBO5/m²·d",
+            "HLR_resultados_m_d": round(Q_diseno_m3_d / A_1etapa, 3),
+        }
+    estados_filtros_esquema = [
+        {
+            "indice": i + 1,
+            "estado": "ALIMENTANDO" if i == 0 else "REPOSO",
+            "duracion_dias": (
+                campos_render["ciclo_alim_resultados_dias"]
+                if i == 0
+                else campos_render["ciclo_reposo_resultados_dias"]
+            ),
+        }
+        for i in range(campos_render["n_filtros_resultados"])
+    ]
+    texto_operacion_alternada = (
+        f"El esquema representa un ciclo operativo con 1 filtro en alimentacion durante "
+        f"{campos_render['ciclo_alim_resultados_dias']:.1f} dias y "
+        f"{max(campos_render['n_filtros_resultados'] - 1, 0)} filtro(s) en reposo durante "
+        f"{campos_render['ciclo_reposo_resultados_dias']:.1f} dias. "
+        "La rotacion distribuye el desgaste entre unidades y permite la recuperacion aerobia del medio filtrante."
+    )
+    texto_operacion_figura = (
+        f"Operacion alternada: {campos_render['ciclo_alim_resultados_dias']:.1f} dias alimentando / "
+        f"{campos_render['ciclo_reposo_resultados_dias']:.1f} dias reposo"
+    )
+    
     return {
-        "unidad": "Humedal Construido Flujo Vertical Subsuperficial (HFCV)",
+        "unidad": "Humedal Artificial Flujo Vertical (HAFV)",
+        "metodologia": metodologia_descriptiva,
+        "justificacion_seleccion": seleccion["justificacion"],
+        "seleccion_sistema": seleccion,
+        "nota_metodologica_seleccion": seleccion["trazabilidad"]["nota_metodologica"],
+        "texto_criterio_PE": texto_criterio_PE,
+        "nota_metodologia_area": nota_metodologia_area,
+        **resultado_base,
+        **campos_render,
+        # Verificación cinética (modelo k-C* completo)
+        "verificacion_kC": verif_kc,
+        "estado_verificacion_kC": estado_verificacion_kC,
+        "texto_cumplimiento_kC": texto_cumplimiento_kC,
+        # DBO de salida (CRÍTICO para integración con resto del proyecto)
+        "DBO_salida_mg_L": DBO_salida_mg_L,           # Calculado por k-C* (efluente esperado)
+        "DBO_objetivo_mg_L": DBO_objetivo_mg_L,       # Objetivo de diseño original
         # Datos de entrada
         "DBO_entrada_mg_L": round(DBO_entrada_mg_L, 1),
-        "DBO_salida_mg_L": DBO_salida_mg_L,
-        "C_fondo_mg_L": C_fondo_mg_L,
-        "Q_m3_d": round(Q_m3_d, 1),
-        # Parámetros del modelo k-C*
-        "k_20_m_d": k_20_m_d,
-        "k_T_m_d": round(k_T_m_d, 4),
-        "theta": theta,
-        "n_porosidad": n_p,
-        "h_lecho_m": h_lecho,
-        # Resultados
-        "A_sup_m2": round(A_m2, 1),
-        "A_diseño_m2": round(A_m2_diseño, 1),
-        "q_hidraulica_m_d": round(q_m_d, 5),
-        "largo_m": round(largo_m, 1),
-        "ancho_m": round(ancho_m, 1),
-        "V_lecho_m3": round(V_lecho_m3, 1),
-        "TRH_dias": round(TRH_d, 2),
-        "H_total_m": round(h_lecho + borde_libre, 2),
-        # Para layout
-        "largo_layout_m": round(largo_m, 1),
-        "ancho_layout_m": round(ancho_m, 1),
-        "fuente": (
-            f"Modelo k-C* de {ref_kw} (Ec. 6.4, p. 302); "
-            f"{ref_vy} (doi:10.1021/es101403q); "
-            f"{ref_rd} (Cap. 7)"
-        ),
-        "notas": (
-            f"k_T = {k_T_m_d:.4f} m/d a T={Q.T_agua_C} grados C "
-            f"(k_20 = {k_20_m_d} m/d, θ = {theta}; {ref_kw}, Tabla 6.7). "
-            f"C* = {C_fondo_mg_L} mg/L para clima tropical "
-            f"({ref_kw}, Tabla 6.6). "
-            f"Coeficiente de seguridad CS = {Q.CS_area} aplicado al área."
-        ),
+        "DQO_entrada_mg_L": round(DQO_entrada_mg_L, 1),
+        "Q_m3_d": round(Q_diseno_m3_d, 1),
+        "Q_linea_m3_d": round(Q_m3_d, 1),
+        "Q_total_sistema_m3_d": round(Q_total_m3_d, 1),
+        "num_lineas": Q.num_lineas,
+        "T_agua_C": Q.T_agua_C,
+        # Parámetros de diseño
+        "k_20_m_d": Q.humedal_k_20_m_d,
+        "theta": Q.humedal_theta,
+        "n_porosidad": Q.humedal_n_porosidad,
+        "h_lecho_m": h_medio_resultado,
+        "capas_medio_filtrante": capas_medio_filtrante,
+        "nota_estratigrafia_medio": nota_estratigrafia_medio,
+        "texto_interpretacion_criterio_resultados": texto_interpretacion_criterio_resultados,
+        "estados_filtros_esquema": estados_filtros_esquema,
+        "texto_operacion_alternada": texto_operacion_alternada,
+        "texto_operacion_figura": texto_operacion_figura,
+        # Para layout (compatibilidad con ptar_layout_graficador.py)
+        "largo_layout_m": round(largo_total_m, 1),
+        "ancho_layout_m": round(ancho_total_m, 1),
+        "A_sup_m2": round(A_total_adoptado_m2 if ruta == "B" else A_total, 1),
+        "A_diseño_m2": round(A_total_adoptado_m2 if ruta == "B" else A_total, 1),
+        "A_total_sistema_m2": round((A_total_adoptado_m2 if ruta == "B" else A_total) * Q.num_lineas, 1),
+        "largo_m": round(largo_total_m, 1),
+        "ancho_m": round(ancho_total_m, 1),
+        "H_total_m": H_total_resultado,
+        "altura_sobre_lecho_m": round(altura_sobre_lecho_m, 2),
+        # Datos específicos para referencias
+        "fuente": f"{ref_molle if ruta == 'B' else ref_cooper}; Kadlec & Wallace (2009) para verificación k-C*",
+        # Subproductos - estructura normalizada
+        "subproductos": {
+            "lodos": [],  # No hay purga diaria de lodos al lecho en el dimensionamiento
+            "retenciones": [
+                {
+                    "origen": "Humedal Vertical",
+                    "tipo": "solidos retenidos/acumulados en el medio filtrante",
+                    "kg_d": None,
+                    "base_solidos": "SST",
+                    "kg_SST_d": None,
+                    "kg_SSV_d": None,
+                    "m3_d": None,
+                    "concentracion_kg_m3": None,
+                    "estado_fisico": "acumulado_en_medio_filtrante",
+                    "destino": "mantenimiento_periodico_humedal",
+                    "apto_lecho_directo": False,
+                    "nota": "El humedal retiene solidos en el medio filtrante durante la operacion; "
+                            "no se considera una purga diaria hacia el lecho de secado en el "
+                            "dimensionamiento actual. Requiere mantenimiento periodico del lecho."
+                }
+            ],
+            "transferencias": [],
+            "biogas": [],
+            "residuos_gruesos": [],
+            "arenas": []
+        },
     }
 
 
@@ -2183,12 +3394,15 @@ def dimensionar_humedal_vertical(Q: ConfigDiseno = CFG,
 
 def dimensionar_sedimentador_sec(Q: ConfigDiseno = CFG,
                                   DBO_entrada_mg_L: float = None,
+                                  solidos_biologicos_entrada_kg_d: float = None,
                                   DBO_removida_fp_kg_d: float = None) -> Dict[str, Any]:
     """
     Dimensionamiento del sedimentador secundario circular (clarificador).
 
-    El sedimentador secundario acompaña al filtro percolador para separar
-    el biopelícula desprendida (humus) del efluente tratado.
+    El sedimentador secundario separa los solidos biologicos desprendidos 
+    de una etapa biologica aerobia (filtro percolador, MBBR, biofiltro, etc.)
+    del efluente tratado. Es una unidad de post-tratamiento reusable para
+    cualquier proceso de biopelicula que genere humus o lodos biologicos.
 
     Criterio de diseño
     ------------------
@@ -2205,7 +3419,7 @@ def dimensionar_sedimentador_sec(Q: ConfigDiseno = CFG,
 
     Tiempo de retención hidráulico:
         TRH = V / Q = A_sup * h_sed / Q                    [Ec. 7d]
-        Mínimo 1.5 h para sedimentadores secundarios de FP.
+        Mínimo 1.5 h para sedimentadores secundarios posteriores a procesos biológicos aerobios.
 
     Autoajuste iterativo:
         Si SOR_max (a caudal pico) excede el límite de 45 m³/m²·d,
@@ -2254,7 +3468,7 @@ def dimensionar_sedimentador_sec(Q: ConfigDiseno = CFG,
     
     # Límite recomendado por Metcalf & Eddy para SOR máximo: 40-50 m³/m²·d
     # Usamos 45 m³/m²·d como valor intermedio
-    SOR_max_limite = 45.0
+    SOR_max_limite = Q.sed_SOR_max_limite_m3_m2_d
     margen_seguridad_pct = ((SOR_max_limite - SOR_max_m3_m2_d) / SOR_max_limite) * 100
     
     # Ajuste automático si excede el límite (aumentar área reduciendo SOR)
@@ -2271,7 +3485,7 @@ def dimensionar_sedimentador_sec(Q: ConfigDiseno = CFG,
             break
         
         # Reducimos SOR (aumentamos área) en 2%, pero no bajamos de 16.0 (límite inferior del rango operativo)
-        SOR_m3_m2_d = max(SOR_m3_m2_d * 0.98, 16.0)
+        SOR_m3_m2_d = max(SOR_m3_m2_d * 0.98, Q.sed_SOR_min_m3_m2_d)
         A_sup_m2 = Q_m3_d / SOR_m3_m2_d
         D_m = math.sqrt(4 * A_sup_m2 / math.pi)
         perimetro_m = math.pi * D_m
@@ -2289,16 +3503,22 @@ def dimensionar_sedimentador_sec(Q: ConfigDiseno = CFG,
     # Verificaciones adicionales
     # Carga sobre vertedero perimetral (weir loading)
     weir_loading_m3_m_d = Q_m3_d / perimetro_m  # m³/m·d
-    weir_loading_max = 250.0  # límite según Metcalf & Eddy
+    weir_loading_max = Q.sed_weir_loading_max_m3_m_d  # límite según Metcalf & Eddy
     
-    # Tasa de aplicación de sólidos (humus del filtro percolador)
-    # Producción típica: ~0.15 kg SST/kg DBO removida en el FP
+    # Tasa de aplicación de solidos biologicos (humus de etapa biologica aerobia)
+    # Produccion tipica: ~0.15 kg SST/kg DBO removida en proceso aerobio
     factor_produccion_humus = Q.sed_factor_produccion_humus  # kg SST/kg DBO removida
     
-    # Producción de humus - requiere DBO removida del Filtro Percolador (encadenado)
-    if DBO_removida_fp_kg_d is None:
-        raise ValueError("DBO_removida_fp_kg_d es requerida para dimensionar el sedimentador (cálculo encadenado)")
-    produccion_humus_kg_d = factor_produccion_humus * DBO_removida_fp_kg_d
+    # Produccion de solidos biologicos - entrada generica para reusabilidad
+    # Se acepta tanto el nuevo parametro (solidos_biologicos_entrada_kg_d) como
+    # el antiguo (DBO_removida_fp_kg_d) para mantener compatibilidad hacia atras
+    if solidos_biologicos_entrada_kg_d is not None:
+        produccion_humus_kg_d = solidos_biologicos_entrada_kg_d
+    elif DBO_removida_fp_kg_d is not None:
+        # Compatibilidad hacia atras con codigo existente
+        produccion_humus_kg_d = factor_produccion_humus * DBO_removida_fp_kg_d
+    else:
+        raise ValueError("solidos_biologicos_entrada_kg_d (o DBO_removida_fp_kg_d para compatibilidad) es requerida para dimensionar el sedimentador")
     
     solids_loading_kg_m2_d = produccion_humus_kg_d / A_sup_m2
     
@@ -2308,15 +3528,15 @@ def dimensionar_sedimentador_sec(Q: ConfigDiseno = CFG,
     if DBO_entrada_mg_L is None:
         raise ValueError("DBO_entrada_mg_L es requerida para calcular la DBO de salida del sedimentador")
     DBO_salida_mg_L = DBO_entrada_mg_L * (1 - eta_DBO_sed)
-    solids_loading_limite = 100.0  # kg/m²·d (conservador para FP)
+    solids_loading_limite = Q.sed_solids_loading_limite_kg_m2_d  # kg/m²·d
     
     # Verificaciones finales
     # Verificación final: SOR debe estar dentro del rango operativo documentado 16-32 m³/m²·d
-    assert 16.0 <= SOR_m3_m2_d <= 32.0, (
-        f"SOR = {SOR_m3_m2_d} m^3/m^2*d fuera de rango 16-32 ({ref_me}, Tabla 9-35)"
+    assert Q.sed_SOR_min_m3_m2_d <= SOR_m3_m2_d <= Q.sed_SOR_max_m3_m2_d, (
+        f"SOR = {SOR_m3_m2_d} m^3/m^2*d fuera de rango {Q.sed_SOR_min_m3_m2_d}-{Q.sed_SOR_max_m3_m2_d} ({ref_me}, Tabla 9-35)"
     )
-    assert TRH_h >= 1.5, (
-        f"TRH = {TRH_h:.1f} h < 1.5 h mínimo ({ref_me}, p. 872)"
+    assert TRH_h >= Q.sed_TRH_min_h, (
+        f"TRH = {TRH_h:.1f} h < {Q.sed_TRH_min_h:.1f} h mínimo ({ref_me}, p. 872)"
     )
     assert weir_loading_m3_m_d <= weir_loading_max, (
         f"Weir loading = {weir_loading_m3_m_d:.1f} m³/m·d > {weir_loading_max} límite"
@@ -2328,6 +3548,59 @@ def dimensionar_sedimentador_sec(Q: ConfigDiseno = CFG,
     else:
         verif_sor_max_texto = f"la tasa de desbordamiento máxima ({SOR_max_m3_m2_d:.1f} m³/m²·d) excede el límite recomendado ({SOR_max_limite:.0f} m³/m²·d), se recomienda duplicar unidades"
 
+    estado_sor_max = "Cumple" if SOR_max_m3_m2_d <= SOR_max_limite else "No cumple"
+    texto_sor_max_verificacion = (
+        f"{verif_sor_max_texto}. El margen de seguridad respecto al límite de "
+        f"{SOR_max_limite:.0f} m³/m²·d es del {margen_seguridad_pct:.1f} por ciento. "
+        "Según Metcalf & Eddy (2014), mantener el SOR máximo por debajo del límite "
+        "asegura que la sedimentación no se vea afectada por las condiciones de pico, "
+        "preservando la calidad del efluente."
+    )
+
+    estado_weir_loading = "Cumple" if weir_loading_m3_m_d <= weir_loading_max else "No cumple"
+    texto_weir_loading = (
+        f"La carga calculada de {weir_loading_m3_m_d:.1f} m³/m·d se compara contra el "
+        f"límite establecido por Metcalf & Eddy de {weir_loading_max:.0f} m³/m·d para "
+        "sedimentadores secundarios. Este límite surge de la necesidad de mantener "
+        "velocidades de aproximación al vertedero suficientemente bajas que no arrastren "
+        "los sólidos ya sedimentados hacia el efluente. Con la carga calculada, el estado "
+        f"de la verificación es {estado_weir_loading}."
+    )
+
+    estado_solids_loading = "Cumple" if solids_loading_kg_m2_d <= solids_loading_limite else "No cumple"
+    texto_solids_loading = (
+        f"La tasa de aplicación de sólidos calculada de {solids_loading_kg_m2_d:.2f} "
+        f"kg SST/m²·d se compara contra el límite conservador de {solids_loading_limite:.0f} "
+        "kg SST/m²·d adoptado para este diseño, basado en criterios de Metcalf & Eddy "
+        "para sedimentadores secundarios después de procesos biológicos aerobios. "
+        f"El rango operativo típico de referencia es {Q.sed_solids_loading_tipico_min_kg_m2_d:.0f}--"
+        f"{Q.sed_solids_loading_tipico_max_kg_m2_d:.0f} kg SST/m²·d. "
+        f"El estado de la verificación es {estado_solids_loading}."
+    )
+
+    estado_trh_min = "Aceptable" if TRH_min_h <= Q.sed_TRH_min_operacion_alerta_h else "Requiere monitoreo operativo"
+    if TRH_min_h <= Q.sed_TRH_min_operacion_alerta_h:
+        texto_trh_min = "Este valor es aceptable para operación normal."
+    else:
+        texto_trh_min = (
+            f"Este valor excede {Q.sed_TRH_min_operacion_alerta_h:.1f} horas, por lo que se "
+            "recomienda monitorear la operación para evitar condiciones sépticas."
+        )
+
+    nota_operacion_caudal_minimo = (
+        f"El HRT de {TRH_min_h:.1f} h a caudal mínimo puede favorecer condiciones sépticas "
+        "en el fondo del sedimentador si la operación no se controla. Se recomiendan las "
+        "siguientes medidas operativas: (1) mantener una recirculación interna del efluente "
+        "clarificado hacia la entrada del sedimentador para mantener la turbulencia y prevenir "
+        "la putrefacción de lodos; (2) instalar un sistema de control de nivel que permita "
+        "operar con tirante variable, reduciendo el volumen almacenado en horas de bajo caudal; "
+        f"(3) programar purgas periódicas de lodos acumulados en la tolva, mínimo cada "
+        f"{Q.sed_purga_lodos_min_h:.0f} horas. Estas medidas deberán detallarse en la "
+        "ingeniería de detalle del proyecto."
+    )
+
+    altura_total_construccion_m = h_sed_m + Q.sed_h_lodos_tolva_m + Q.sed_bordo_libre_m
+
     return {
         "unidad": "Sedimentador secundario circular",
         "Q_m3_d": round(Q_m3_d, 1),
@@ -2336,23 +3609,67 @@ def dimensionar_sedimentador_sec(Q: ConfigDiseno = CFG,
         "factor_pico": factor_pico,
         "factor_min": factor_min,
         "SOR_m3_m2_d": round(SOR_m3_m2_d, 1),
+        "SOR_min_m3_m2_d": Q.sed_SOR_min_m3_m2_d,
+        "SOR_max_rango_m3_m2_d": Q.sed_SOR_max_m3_m2_d,
         "SOR_max_m3_m2_d": round(SOR_max_m3_m2_d, 1),
         "SOR_max_limite": SOR_max_limite,
+        "estado_sor_max": estado_sor_max,
+        "texto_sor_max_verificacion": texto_sor_max_verificacion,
         "margen_seguridad_pct": round(margen_seguridad_pct, 1),
         "A_sup_m2": round(A_sup_m2, 2),
         "D_m": round(D_m, 2),
         "perimetro_m": round(perimetro_m, 2),
         "h_sed_m": h_sed_m,
+        "h_sed_min_m": Q.sed_h_sed_min_m,
+        "h_sed_max_m": Q.sed_h_sed_max_m,
+        "h_lodos_tolva_m": Q.sed_h_lodos_tolva_m,
+        "bordo_libre_m": Q.sed_bordo_libre_m,
+        "altura_total_construccion_m": round(altura_total_construccion_m, 2),
         "V_m3": round(V_m3, 1),
         "TRH_h": round(TRH_h, 1),
+        "TRH_min_criterio_h": Q.sed_TRH_min_h,
         "TRH_max_h": round(TRH_max_h, 1),
         "TRH_min_h": round(TRH_min_h, 1),
+        "TRH_min_operacion_alerta_h": Q.sed_TRH_min_operacion_alerta_h,
+        "estado_trh_min": estado_trh_min,
+        "texto_trh_min": texto_trh_min,
+        "nota_operacion_caudal_minimo": nota_operacion_caudal_minimo,
         "weir_loading_m3_m_d": round(weir_loading_m3_m_d, 1),
         "weir_loading_max": weir_loading_max,
+        "estado_weir_loading": estado_weir_loading,
+        "texto_weir_loading": texto_weir_loading,
         "solids_loading_kg_m2_d": round(solids_loading_kg_m2_d, 2),
         "solids_loading_limite": solids_loading_limite,
+        "solids_loading_tipico_min": Q.sed_solids_loading_tipico_min_kg_m2_d,
+        "solids_loading_tipico_max": Q.sed_solids_loading_tipico_max_kg_m2_d,
+        "estado_solids_loading": estado_solids_loading,
+        "texto_solids_loading": texto_solids_loading,
         "produccion_humus_kg_d": round(produccion_humus_kg_d, 2),
         "factor_produccion_humus": factor_produccion_humus,
+        # Subproductos - estructura normalizada
+        "subproductos": {
+            "lodos": [
+                {
+                    "origen": "Sedimentador Secundario",
+                    "tipo": "humus sedimentado / lodo biologico",
+                    "kg_d": round(produccion_humus_kg_d, 2),
+                    "base_solidos": "SST",
+                    "kg_SST_d": round(produccion_humus_kg_d, 2),
+                    "kg_SSV_d": None,
+                    "m3_d": None,
+                    "concentracion_kg_m3": None,
+                    "estado_fisico": "sedimentado_en_tolva",
+                    "destino": "lecho_secado",
+                    "apto_lecho_directo": True,
+                    "nota": "Solidos biologicos separados en el sedimentador secundario; "
+                            "se envian al lecho de secado como lodo/humus sedimentado."
+                }
+            ],
+            "transferencias": [],
+            "biogas": [],
+            "residuos_gruesos": [],
+            "arenas": []
+        },
         "DBO_entrada_mg_L": round(DBO_entrada_mg_L, 1) if DBO_entrada_mg_L else None,
         "DBO_salida_mg_L": round(DBO_salida_mg_L, 1),
         "eta_DBO_sed": eta_DBO_sed,
@@ -2435,8 +3752,12 @@ def dimensionar_desinfeccion_cloro(Q: ConfigDiseno = CFG,
     TRH_min = Q.desinfeccion_TRH_min                  # minutos (tiempo de contacto)
     relacion_L_A = Q.desinfeccion_relacion_L_A        # Relación largo/ancho
     h_tanque_m = Q.desinfeccion_h_tanque_m            # m (profundidad)
-    borde_libre_m = 0.30                              # m (estándar)
-    
+    borde_libre_m = Q.desinfeccion_borde_libre_m
+    n_canales_serpentin = max(2, int(Q.desinfeccion_n_canales_serpentin))
+    ancho_canal_min_m = Q.desinfeccion_ancho_canal_min_m
+    espesor_bafle_m = Q.desinfeccion_espesor_bafle_m
+    relacion_recorrido_ancho_min = Q.desinfeccion_relacion_recorrido_ancho_min
+
     # Caudales
     Q_m3_d = Q.Q_linea_m3_d
     Q_m3_h = Q.Q_linea_m3_h
@@ -2450,12 +3771,23 @@ def dimensionar_desinfeccion_cloro(Q: ConfigDiseno = CFG,
     V_contacto_m3 = Q_m3_min * TRH_min  # m³
     
     # Dimensiones del tanque
-    A_superficial_m2 = V_contacto_m3 / h_tanque_m
-    ancho_m = math.sqrt(A_superficial_m2 / relacion_L_A)
-    largo_m = relacion_L_A * ancho_m
+    V_contacto_min_m3 = V_contacto_m3
+    A_superficial_min_m2 = V_contacto_min_m3 / h_tanque_m
+    coef_b = relacion_recorrido_ancho_min * (n_canales_serpentin - 1) * espesor_bafle_m / n_canales_serpentin
+    ancho_canal_teorico_m = (-coef_b + math.sqrt(coef_b ** 2 + 4 * relacion_recorrido_ancho_min * A_superficial_min_m2)) / (2 * relacion_recorrido_ancho_min)
+    ancho_canal_m = max(ancho_canal_teorico_m, ancho_canal_min_m)
+    largo_canal_m = relacion_recorrido_ancho_min * ancho_canal_m / n_canales_serpentin
+    ancho_total_m = n_canales_serpentin * ancho_canal_m + (n_canales_serpentin - 1) * espesor_bafle_m
+    largo_m = largo_canal_m
+    ancho_m = ancho_total_m
+    longitud_recorrido_m = n_canales_serpentin * largo_canal_m
+    relacion_recorrido_ancho = longitud_recorrido_m / ancho_canal_m
+    A_superficial_m2 = largo_m * ancho_m
+    V_contacto_m3 = A_superficial_m2 * h_tanque_m
+    TRH_adoptado_min = V_contacto_m3 / Q_m3_min
     
     # [Ec. 7h] CT calculado
-    CT_calculado = cloro_residual_mg_L * TRH_min  # mg·min/L = 0.5 * 30 = 15
+    CT_calculado = cloro_residual_mg_L * TRH_adoptado_min
     
     # [Ec. 7k] Log reducción estimada
     # Coeficiente ajustado para cumplir TULSMA sin excederse
@@ -2470,11 +3802,42 @@ def dimensionar_desinfeccion_cloro(Q: ConfigDiseno = CFG,
     pct_reduccion = (1 - CF_final_NMP / CF_entrada_NMP) * 100
     
     # Verificación de cumplimiento TULSMA (CF ≤ 3000 NMP/100mL)
-    cumple_TULSMA = CF_final_NMP <= 3000
+    limite_TULSMA_CF_NMP = Q.desinfeccion_limite_TULSMA_CF_NMP
+    cumple_TULSMA = CF_final_NMP <= limite_TULSMA_CF_NMP
     
     # Verificación CT mínimo recomendado
-    CT_min_recomendado = 30.0  # mg·min/L
+    CT_min_recomendado = Q.desinfeccion_CT_min_recomendado_mg_min_L  # mg·min/L
     CT_aceptable = CT_calculado >= CT_min_recomendado
+    
+    # Textos de verificación para módulo LaTeX
+    if cumple_TULSMA:
+        verif_TULSMA_texto = f"Cumple con el límite de TULSMA (CF final = {CF_final_NMP:.0f} NMP/100mL $≤$ {limite_TULSMA_CF_NMP:.0f} NMP/100mL)."
+        estado_TULSMA = "Cumple"
+    else:
+        verif_TULSMA_texto = f"No cumple con el límite de TULSMA (CF final = {CF_final_NMP:.0f} NMP/100mL > {limite_TULSMA_CF_NMP:.0f} NMP/100mL). Se recomienda aumentar el CT o revisar el sistema."
+        estado_TULSMA = "No cumple"
+    
+    if CT_aceptable:
+        verif_CT_texto = f"El valor CT calculado ({CT_calculado:.1f} mg$⋅$min/L) supera el mínimo recomendado de {CT_min_recomendado:.0f} mg$⋅$min/L."
+        estado_CT = "Cumple"
+    else:
+        verif_CT_texto = f"El valor CT calculado ({CT_calculado:.1f} mg$⋅$min/L) está por debajo del mínimo recomendado de {CT_min_recomendado:.0f} mg$⋅$min/L."
+        estado_CT = "No cumple"
+
+    estado_camara_contacto = "Cumple" if relacion_recorrido_ancho >= relacion_recorrido_ancho_min else "No cumple"
+    texto_camara_contacto = (
+        f"La camara de contacto se configura como culebrin con {n_canales_serpentin} pasos "
+        f"hidraulicos, ancho de canal de {ancho_canal_m:.2f} m y recorrido total de "
+        f"{longitud_recorrido_m:.1f} m. La relacion recorrido/ancho es "
+        f"{relacion_recorrido_ancho:.1f}:1, frente al criterio minimo adoptado de "
+        f"{relacion_recorrido_ancho_min:.0f}:1 para aproximar flujo piston y reducir "
+        f"cortocircuitos hidraulicos. El estado de la verificacion es {estado_camara_contacto}."
+    )
+    texto_volumen_contacto = (
+        f"El volumen minimo por tiempo de contacto es {V_contacto_min_m3:.1f} m3; "
+        f"la geometria serpentina adoptada entrega {V_contacto_m3:.1f} m3 y un tiempo "
+        f"hidraulico teorico de {TRH_adoptado_min:.1f} min."
+    )
     
     # Consumo de cloro (como Cl₂ activo)
     consumo_cloro_kg_d = (dosis_cloro_mg_L * Q_m3_d) / 1000  # kg Cl₂/d
@@ -2487,10 +3850,60 @@ def dimensionar_desinfeccion_cloro(Q: ConfigDiseno = CFG,
     # Volumen de NaOCl (densidad desde configuración)
     densidad_NaOCl = Q.desinfeccion_densidad_NaOCl  # kg/L
     volumen_NaOCl_L_d = consumo_NaOCl_kg_d / densidad_NaOCl  # L/d
-    volumen_NaOCl_L_mes = volumen_NaOCl_L_d * 30  # L/mes
+    volumen_NaOCl_L_mes = volumen_NaOCl_L_d * Q.desinfeccion_almacenamiento_dias  # L/periodo
     
-    # Volumen de almacenamiento (30 días)
+    # Volumen de almacenamiento
     volumen_almacenamiento_L = volumen_NaOCl_L_mes
+
+    rango_demanda_cloro_mg_L_texto = f"{Q.desinfeccion_demanda_cloro_min_mg_L:.0f}--{Q.desinfeccion_demanda_cloro_max_mg_L:.0f} mg/L"
+    rango_cloro_residual_mg_L_texto = f"{Q.desinfeccion_cloro_residual_min_mg_L:.1f}--{Q.desinfeccion_cloro_residual_max_mg_L:.1f} mg/L".replace(".", ",")
+    rango_dosis_cloro_mg_L_texto = f"{Q.desinfeccion_dosis_cloro_min_mg_L:.0f}--{Q.desinfeccion_dosis_cloro_max_mg_L:.0f} mg/L"
+    rango_TRH_min_texto = f"{Q.desinfeccion_TRH_recomendado_min:.0f}--{Q.desinfeccion_TRH_recomendado_max:.0f} min"
+    rango_NaOCl_comercial_pct_texto = f"{Q.desinfeccion_NaOCl_comercial_min_pct:.0f}--{Q.desinfeccion_NaOCl_comercial_max_pct:.1f}\\%"
+    rango_residual_monitoreo_mg_L_texto = f"{Q.desinfeccion_residual_monitoreo_min_mg_L:.1f}--{Q.desinfeccion_residual_monitoreo_max_mg_L:.1f} mg/L".replace(".", ",")
+    texto_operacion_cloro = (
+        f"Se recomienda monitorear el cloro residual en la salida del tanque "
+        f"(debe mantenerse entre {rango_residual_monitoreo_mg_L_texto}) y ajustar "
+        f"la dosis según la demanda del efluente. Realizar pruebas de coliformes "
+        f"periódicas para verificar la eficacia del sistema."
+    )
+    
+    # =============================================================================
+    # COMPARACIÓN CON LÍMITES TULSMA POR USO DEL AGUA
+    # =============================================================================
+    # Tablas del TULSMA - Límites de Coliformes Fecales (NMP/100mL)
+    limites_tulsma_cf = {
+        "agua_dulce": {"tabla": "Tabla 12", "limite": limite_TULSMA_CF_NMP, "descripcion": "Agua dulce"},
+        "agua_marina": {"tabla": "Tabla 13", "limite": limite_TULSMA_CF_NMP, "descripcion": "Agua marina"},
+        "alcantarillado": {"tabla": "Tabla 11", "limite": None, "descripcion": "Alcantarillado"},
+        "flora_fauna": {"tabla": "Tabla 3", "limite": 200, "descripcion": "Flora y fauna"},
+        "agricola_riego": {"tabla": "Tabla 6", "limite": 1000, "descripcion": "Agrícola/riego"},
+        "pecuario": {"tabla": "Tabla 7", "limite": 1000, "descripcion": "Pecuario"},
+        "recreativo_primario": {"tabla": "Tabla 9", "limite": 200, "descripcion": "Recreativo primario"},
+        "recreativo_secundario": {"tabla": "Tabla 10", "limite": 2000, "descripcion": "Recreativo secundario"},
+        "consumo_humano": {"tabla": "Tabla 1", "limite": 600, "descripcion": "Consumo humano trat. conv."},
+    }
+    
+    # Calcular cumplimiento para cada uso
+    comparacion_tulsma = {}
+    for uso, datos in limites_tulsma_cf.items():
+        limite = datos["limite"]
+        if limite is None:
+            # Sin límite específico (ej. alcantarillado)
+            cumple = True
+            dictamen = "N/A"
+        else:
+            cumple = CF_final_NMP <= limite
+            dictamen = "CUMPLE" if cumple else "NO CUMPLE"
+        
+        comparacion_tulsma[uso] = {
+            "tabla": datos["tabla"],
+            "descripcion": datos["descripcion"],
+            "limite_CF": limite,
+            "CF_calculado": round(CF_final_NMP, 0),
+            "cumple": cumple,
+            "dictamen": dictamen
+        }
     
     return {
         "unidad": "Tanque de contacto con cloro",
@@ -2500,11 +3913,32 @@ def dimensionar_desinfeccion_cloro(Q: ConfigDiseno = CFG,
         "cloro_residual_mg_L": cloro_residual_mg_L,
         "dosis_cloro_mg_L": dosis_cloro_mg_L,
         "TRH_min": TRH_min,
+        "TRH_adoptado_min": round(TRH_adoptado_min, 1),
+        "texto_volumen_contacto": texto_volumen_contacto,
+        "rango_demanda_cloro_mg_L_texto": rango_demanda_cloro_mg_L_texto,
+        "rango_cloro_residual_mg_L_texto": rango_cloro_residual_mg_L_texto,
+        "rango_dosis_cloro_mg_L_texto": rango_dosis_cloro_mg_L_texto,
+        "rango_TRH_min_texto": rango_TRH_min_texto,
+        "rango_NaOCl_comercial_pct_texto": rango_NaOCl_comercial_pct_texto,
+        "rango_residual_monitoreo_mg_L_texto": rango_residual_monitoreo_mg_L_texto,
+        "texto_operacion_cloro": texto_operacion_cloro,
+        "dias_almacenamiento": Q.desinfeccion_almacenamiento_dias,
         # Dimensiones
         "V_contacto_m3": round(V_contacto_m3, 1),
+        "V_contacto_min_m3": round(V_contacto_min_m3, 1),
         "A_superficial_m2": round(A_superficial_m2, 1),
         "largo_m": round(largo_m, 1),
         "ancho_m": round(ancho_m, 1),
+        "largo_canal_m": round(largo_canal_m, 2),
+        "ancho_canal_m": round(ancho_canal_m, 2),
+        "ancho_canal_teorico_m": round(ancho_canal_teorico_m, 2),
+        "n_canales_serpentin": n_canales_serpentin,
+        "espesor_bafle_m": espesor_bafle_m,
+        "longitud_recorrido_m": round(longitud_recorrido_m, 1),
+        "relacion_recorrido_ancho": round(relacion_recorrido_ancho, 1),
+        "relacion_recorrido_ancho_min": relacion_recorrido_ancho_min,
+        "estado_camara_contacto": estado_camara_contacto,
+        "texto_camara_contacto": texto_camara_contacto,
         "h_tanque_m": h_tanque_m,
         "h_total_m": round(h_tanque_m + borde_libre_m, 2),
         # Parámetros de desinfección
@@ -2516,6 +3950,11 @@ def dimensionar_desinfeccion_cloro(Q: ConfigDiseno = CFG,
         "CF_final_NMP": round(CF_final_NMP, 0),
         "pct_reduccion": round(pct_reduccion, 1),
         "cumple_TULSMA": cumple_TULSMA,
+        "limite_TULSMA_CF_NMP": limite_TULSMA_CF_NMP,
+        "estado_TULSMA": estado_TULSMA,
+        "estado_CT": estado_CT,
+        "verif_TULSMA_texto": verif_TULSMA_texto,
+        "verif_CT_texto": verif_CT_texto,
         # Consumos
         "consumo_cloro_kg_d": round(consumo_cloro_kg_d, 2),  # kg Cl₂/d
         "concentracion_NaOCl_pct": concentracion_NaOCl * 100,  # %
@@ -2526,6 +3965,8 @@ def dimensionar_desinfeccion_cloro(Q: ConfigDiseno = CFG,
         # Layout (dimensiones reales calculadas, sin márgenes adicionales)
         "largo_layout_m": round(largo_m, 1),
         "ancho_layout_m": round(ancho_m, 1),
+        # Comparación TULSMA por uso del agua
+        "comparacion_tulsma": comparacion_tulsma,
         "fuente": f"{ref_me} (pp. 1200-1220); {ref_epa}; {ref_ops}",
     }
 
@@ -2681,9 +4122,10 @@ def dimensionar_lecho_secado(Q: ConfigDiseno = CFG,
     # Parámetros de diseño adoptados desde configuración
     C_SST_kg_m3 = Q.lecho_C_SST_kg_m3
     t_secado_d = Q.lecho_t_secado_d
-    # Usar num_lineas del proyecto (para construcción por fases)
-    n_celdas = Q.num_lineas  # Una celda por línea de tratamiento
+    n_celdas_por_bloque = Q.lecho_n_celdas
+    n_celdas_total = Q.num_lineas * n_celdas_por_bloque
     h_lodo_m = Q.lecho_h_lodo_m
+    relacion_L_A = Q.lecho_relacion_L_A
 
     # Caudal total del sistema (todas las líneas)
     Q_m3_d = Q.Q_total_m3_d  # Caudal total para calcular lodos de todo el sistema
@@ -2702,29 +4144,76 @@ def dimensionar_lecho_secado(Q: ConfigDiseno = CFG,
     A_bloque_m2 = A_total_m2 / Q.num_lineas
 
     # [Ec. 8d] ÁREA POR CELDA (subdivisión interna de cada bloque)
-    A_celda_m2 = A_total_m2 / n_celdas
+    A_celda_m2 = A_total_m2 / n_celdas_total
 
-    # Geometría del BLOQUE (relación 3:1) - para el layout de cada tren
-    ancho_m = math.sqrt(A_bloque_m2 / 3.0)
-    largo_m = 3.0 * ancho_m
+    # Geometría del BLOQUE - para el layout de cada tren
+    ancho_m = math.sqrt(A_bloque_m2 / relacion_L_A)
+    largo_m = relacion_L_A * ancho_m
 
     # Tasa de carga de sólidos (por bloque)
     lodos_por_bloque_kg_d = lodos_kg_SST_d / Q.num_lineas
     rho_S_kgSST_m2_año = lodos_por_bloque_kg_d * 365 / A_bloque_m2
 
     # Dimensiones de la celda (para referencia interna)
-    ancho_celda_m = math.sqrt(A_celda_m2 / 3.0)
-    largo_celda_m = 3.0 * ancho_celda_m
+    ancho_celda_m = math.sqrt(A_celda_m2 / relacion_L_A)
+    largo_celda_m = relacion_L_A * ancho_celda_m
+
+    rango_rho_S_texto = f"{Q.lecho_rho_S_min_kgSST_m2_año:.0f}--{Q.lecho_rho_S_max_kgSST_m2_año:.0f} kg SST/m²·año"
+    rango_C_SST_texto = f"{Q.lecho_C_SST_min_kg_m3:.0f}--{Q.lecho_C_SST_max_kg_m3:.0f} kg/m³"
+    rango_t_secado_texto = f"{Q.lecho_t_secado_min_d:.0f}--{Q.lecho_t_secado_max_d:.0f} días"
+    rango_h_lodo_texto = f"{Q.lecho_h_lodo_min_m:.2f}--{Q.lecho_h_lodo_max_m:.2f} m"
+    rango_relacion_L_A_texto = f"{Q.lecho_relacion_L_A_min:.0f}:1--{Q.lecho_relacion_L_A_max:.0f}:1"
+    rango_humedad_final_texto = f"{Q.lecho_humedad_final_min_pct:.0f}--{Q.lecho_humedad_final_max_pct:.0f}\\%"
+
+    if Q.lecho_rho_S_min_kgSST_m2_año <= rho_S_kgSST_m2_año <= Q.lecho_rho_S_max_kgSST_m2_año:
+        estado_carga_solidos = "Cumple"
+        texto_carga_solidos = (
+            f"El valor obtenido ({rho_S_kgSST_m2_año:.1f} kg SST/m²·año) se encuentra "
+            f"dentro del rango recomendado de {rango_rho_S_texto} para lechos de secado "
+            "según Metcalf & Eddy."
+        )
+    elif rho_S_kgSST_m2_año < Q.lecho_rho_S_min_kgSST_m2_año:
+        estado_carga_solidos = "Bajo (conservador)"
+        texto_carga_solidos = (
+            f"El valor obtenido ({rho_S_kgSST_m2_año:.1f} kg SST/m²·año) está por debajo "
+            f"del rango recomendado de {rango_rho_S_texto}. La condición es conservadora "
+            "desde el punto de vista de área, aunque puede implicar mayor ocupación de terreno."
+        )
+    else:
+        estado_carga_solidos = "No cumple"
+        texto_carga_solidos = (
+            f"El valor obtenido ({rho_S_kgSST_m2_año:.1f} kg SST/m²·año) excede el rango "
+            f"recomendado de {rango_rho_S_texto}; se recomienda aumentar el área de lechos "
+            "o revisar el ciclo de secado adoptado."
+        )
+
+    texto_operacion_lecho = (
+        "Se recomienda operar los lechos en sistema de rotación, aplicando lodo en una "
+        "celda mientras las demás están en proceso de secado o reposo. Bajo operación "
+        f"normal, el lodo secado puede alcanzar contenidos de humedad del "
+        f"{rango_humedad_final_texto}, facilitando su manejo y disposición final."
+    )
+    desglose_lodos = [
+        {
+            "origen": "Producción total de lodos",
+            "por_linea_kg_d": round(lodos_kg_SST_d / Q.num_lineas, 2),
+            "total_kg_d": round(lodos_kg_SST_d, 2),
+        }
+    ]
     
     return {
         "unidad": "Lecho de secado de lodos",
         "lodos_kg_SST_d": round(lodos_kg_SST_d, 2),
+        "lodos_total_kg_d": round(lodos_kg_SST_d, 2),
+        "lodos_total_kg_d_por_linea": round(lodos_kg_SST_d / Q.num_lineas, 2),
+        "desglose_lodos": desglose_lodos,
         "lodos_por_bloque_kg_d": round(lodos_por_bloque_kg_d, 2),
         "C_SST_kg_m3": C_SST_kg_m3,
         "t_secado_d": t_secado_d,
         "V_lodo_m3_d": round(V_lodo_m3_d, 3),
         "V_total_secando_m3": round(V_total_secando_m3, 2),
-        "n_celdas": n_celdas,
+        "n_celdas": n_celdas_total,
+        "n_celdas_por_bloque": n_celdas_por_bloque,
         "num_lineas": Q.num_lineas,
         # Áreas
         "A_total_m2": round(A_total_m2, 1),      # Área TOTAL de todos los lechos
@@ -2737,7 +4226,19 @@ def dimensionar_lecho_secado(Q: ConfigDiseno = CFG,
         "largo_celda_m": round(largo_celda_m, 1),
         "ancho_celda_m": round(ancho_celda_m, 1),
         "h_lodo_m": h_lodo_m,
+        "h_arena_m": Q.lecho_h_arena_m,
+        "h_grava_m": Q.lecho_h_grava_m,
+        "relacion_L_A": relacion_L_A,
         "rho_S_kgSST_m2_año": round(rho_S_kgSST_m2_año, 1),
+        "rango_rho_S_texto": rango_rho_S_texto,
+        "rango_C_SST_texto": rango_C_SST_texto,
+        "rango_t_secado_texto": rango_t_secado_texto,
+        "rango_h_lodo_texto": rango_h_lodo_texto,
+        "rango_relacion_L_A_texto": rango_relacion_L_A_texto,
+        "rango_humedad_final_texto": rango_humedad_final_texto,
+        "estado_carga_solidos": estado_carga_solidos,
+        "texto_carga_solidos": texto_carga_solidos,
+        "texto_operacion_lecho": texto_operacion_lecho,
         # Layout usa dimensiones del bloque
         "largo_layout_m": round(largo_m, 1),
         "ancho_layout_m": round(ancho_m, 1),
@@ -2768,13 +4269,21 @@ def calcular_tren_A(Q: ConfigDiseno = None) -> Dict[str, Any]:
     uasb       = dimensionar_uasb(Q)
     # Usar eta_DBO calculado por UASB (ajustado por temperatura) para el FP
     fp         = dimensionar_filtro_percolador(Q, DBO_entrada_mg_L=Q.DBO5_mg_L * (1 - uasb['eta_DBO']))
-    # Dimensionar sedimentador con parámetros reales del FP
+    # Dimensionar sedimentador secundario - unidad reusable para separar sólidos biológicos
+    # Calcula carga de sólidos desde la etapa biológica aerobia (filtro percolador)
     if "DBO_salida_Germain_mg_L" not in fp:
         raise KeyError("Falta 'DBO_salida_Germain_mg_L' en resultados del Filtro Percolador")
     DBO_fp_salida = fp["DBO_salida_Germain_mg_L"]
     if "DBO_removida_kg_d" not in fp:
         raise KeyError("Falta 'DBO_removida_kg_d' en resultados del Filtro Percolador")
-    sed_sec = dimensionar_sedimentador_sec(Q, DBO_entrada_mg_L=DBO_fp_salida, DBO_removida_fp_kg_d=fp["DBO_removida_kg_d"])
+    # Calcular carga genérica de sólidos biológicos para interfaz reusable
+    solidos_biologicos_kg_d = fp["DBO_removida_kg_d"] * Q.sed_factor_produccion_humus
+    sed_sec = dimensionar_sedimentador_sec(
+        Q, 
+        DBO_entrada_mg_L=DBO_fp_salida, 
+        solidos_biologicos_entrada_kg_d=solidos_biologicos_kg_d
+        # DBO_removida_fp_kg_d se mantiene disponible para retrocompatibilidad legacy
+    )
     
     # Calcular CF de entrada (post-sedimentador) basado en eficiencias configuradas (encadenado)
     cf_afluente = 1e7  # NMP/100mL (típico aguas residuales sin tratar)
@@ -2803,6 +4312,18 @@ def calcular_tren_A(Q: ConfigDiseno = None) -> Dict[str, Any]:
     lecho["lodos_uasb_kg_d"] = round(lodos_uasb_kg_d_por_linea * Q.num_lineas, 2)
     lecho["lodos_fp_kg_d"] = round(lodos_fp_kg_d_por_linea * Q.num_lineas, 2)
     lecho["lodos_total_kg_d"] = round(lodos_total_kg_d_total, 2)
+    lecho["desglose_lodos"] = [
+        {
+            "origen": "Lodos UASB (anaerobios)",
+            "por_linea_kg_d": lecho["lodos_uasb_kg_d_por_linea"],
+            "total_kg_d": lecho["lodos_uasb_kg_d"],
+        },
+        {
+            "origen": "Humus FP + Sedimentador",
+            "por_linea_kg_d": lecho["lodos_fp_kg_d_por_linea"],
+            "total_kg_d": lecho["lodos_fp_kg_d"],
+        },
+    ]
 
     # Balance de calidad (progresivo) - usando resultados reales del dimensionamiento
     DBO_in     = Q.DBO5_mg_L
@@ -2873,39 +4394,94 @@ def calcular_tren_C() -> Dict[str, Any]:
     desarenador= dimensionar_desarenador(Q)
     uasb       = dimensionar_uasb(Q)
     humedal    = dimensionar_humedal_vertical(Q, DBO_entrada_mg_L=Q.DBO5_mg_L * 0.30)
-    lecho      = dimensionar_lecho_secado(Q)
+    
+    # Calcular CF de entrada para desinfección (post-humedal)
+    cf_afluente = 1e7  # NMP/100mL (típico aguas residuales sin tratar)
+    cf_tras_uasb = cf_afluente * (1 - Q.balance_eta_CF_uasb)
+    cf_tras_humedal = cf_tras_uasb * (1 - Q.humedal_eta_CF)  # Eficiencia específica del HAFV según manual
+    cloro      = dimensionar_desinfeccion_cloro(Q, CF_entrada_NMP=cf_tras_humedal)
+    
+    # Calcular producción de lodos REAL para toda la planta
+    # UASB: lodos anaerobios (factor de producción desde config)
+    DBO_removida_uasb_kg_d_por_linea = Q.Q_linea_m3_d * (Q.DBO5_mg_L / 1000) * uasb['eta_DBO']
+    lodos_uasb_kg_d_por_linea = Q.lecho_factor_produccion_lodos * DBO_removida_uasb_kg_d_por_linea
+    # Humedal: produce lodos mínimos (retención en el lecho), se considera despreciable para simplificación
+    lodos_humedal_kg_d_por_linea = 0.0  # Los sólidos se acumulan en el lecho del humedal
+    # Producción total de lodos (ambas líneas)
+    lodos_total_kg_d_total = (lodos_uasb_kg_d_por_linea + lodos_humedal_kg_d_por_linea) * Q.num_lineas
+    lecho      = dimensionar_lecho_secado(Q, lodos_kg_SST_d=lodos_total_kg_d_total)
+    lecho["lodos_uasb_kg_d_por_linea"] = round(lodos_uasb_kg_d_por_linea, 2)
+    lecho["lodos_humedal_kg_d_por_linea"] = round(lodos_humedal_kg_d_por_linea, 2)
+    lecho["lodos_uasb_kg_d"] = round(lodos_uasb_kg_d_por_linea * Q.num_lineas, 2)
+    lecho["lodos_humedal_kg_d"] = round(lodos_humedal_kg_d_por_linea * Q.num_lineas, 2)
+    lecho["lodos_total_kg_d"] = round(lodos_total_kg_d_total, 2)
+    lecho["desglose_lodos"] = [
+        {
+            "origen": "Lodos UASB (anaerobios)",
+            "por_linea_kg_d": lecho["lodos_uasb_kg_d_por_linea"],
+            "total_kg_d": lecho["lodos_uasb_kg_d"],
+        },
+        {
+            "origen": "Retención/acumulación en humedal",
+            "por_linea_kg_d": lecho["lodos_humedal_kg_d_por_linea"],
+            "total_kg_d": lecho["lodos_humedal_kg_d"],
+        },
+    ]
 
     DBO_in     = Q.DBO5_mg_L
     DBO_uasb   = DBO_in * (1 - uasb["eta_DBO"])
     DBO_efluente = humedal["DBO_salida_mg_L"]
+    CF_final = cloro["CF_final_NMP"]
+    
+    # Verificación de cumplimiento TULSMA (DBO y CF)
+    cumple_DBO = DBO_efluente <= 100
+    cumple_CF = CF_final <= 3000
+    cumple_TULSMA = cumple_DBO and cumple_CF
 
     print("=" * 70)
     print("TREN C - UASB + HUMEDAL VERTICAL + CLORO")
     print(f"Caudal por línea: {Q.Q_linea_L_s} L/s = {Q.Q_linea_m3_d} m^3/d")
     print("=" * 70)
+    
+    # Metodología actualizada: HAFV tropical de alta carga (Ruta B) según manual
+    print(f"\n  SISTEMA HUMEDAL: {humedal['metodologia']}")
+    print(f"  Selección: {humedal['justificacion_seleccion']}")
+    print(f"  Criterio que controla: {humedal.get('criterio_controla', 'N/A')}")
+    print(f"  OLR real: {humedal.get('OLR_gDQO_m2_d', 0):.0f} g DQO/m²·d")
+    print(f"  HLR: {humedal.get('HLR_m_d', 0):.2f} m/d")
+    print(f"  Verificación k-C*: DBO salida = {humedal['verificacion_kC']['DBO_salida_calc_mg_L']:.1f} mg/L")
 
     print(f"\n  UASB          Ø {uasb['diametro_layout_m']:.1f} m   V={uasb['V_r_m3']:.1f} m^3")
-    print(f"  Humedal HFCV  {humedal['largo_layout_m']:.1f} × {humedal['ancho_layout_m']:.1f} m"
+    print(f"  Humedal HFCV  {humedal['largo_layout_m']:.1f} x {humedal['ancho_layout_m']:.1f} m"
           f"  A={humedal['A_sup_m2']:.0f} m^2")
+    print(f"  Desinfeccion  {cloro['largo_m']:.1f} m × {cloro['ancho_m']:.1f} m  TRH={cloro['TRH_min']:.0f} min")
     print(f"  Lecho Secado  {lecho['largo_layout_m']:.1f} × {lecho['ancho_layout_m']:.1f} m")
 
     print("\nBALANCE DE CALIDAD:")
     print(f"  Afluente    DBO5 = {DBO_in:.0f} mg/L")
     print(f"  Tras UASB   DBO5 = {DBO_uasb:.0f} mg/L")
     print(f"  Tras HFCV   DBO5 ~ {DBO_efluente:.0f} mg/L")
-    print(f"  TULSMA       <= 100 mg/L -> {'CUMPLE [OK]' if DBO_efluente <= 100 else 'NO CUMPLE'}")
+    print(f"  Efluente    CF   ~ {CF_final:.0f} NMP/100mL")
+    print(f"\n  CUMPLIMIENTO TULSMA:")
+    print(f"    DBO5 <= 100 mg/L      -> {'CUMPLE [OK]' if cumple_DBO else 'NO CUMPLE [X]'}")
+    print(f"    CF   <= 3000 NMP/100mL -> {'CUMPLE [OK]' if cumple_CF else 'NO CUMPLE [X]'}")
+    print(f"    TOTAL                  -> {'CUMPLE [OK]' if cumple_TULSMA else 'NO CUMPLE [X]'}")
 
     return {
         "rejillas": rejillas,
         "desarenador": desarenador,
         "uasb": uasb,
         "humedal": humedal,
+        "desinfeccion": cloro,
         "lecho_secado": lecho,
         "balance": {
             "DBO_in_mg_L": DBO_in,
             "DBO_tras_UASB_mg_L": round(DBO_uasb, 1),
             "DBO_efluente_mg_L": round(DBO_efluente, 1),
-            "cumple_TULSMA": DBO_efluente <= 100,
+            "CF_final_NMP": CF_final,
+            "cumple_DBO": cumple_DBO,
+            "cumple_CF": cumple_CF,
+            "cumple_TULSMA": cumple_TULSMA,
         },
     }
 
@@ -3005,6 +4581,34 @@ def calcular_balance_calidad_agua(Q: ConfigDiseno = None,
                 "CF_pct": round(eta_CF_fp * 100, 1),
             }
         
+        # Tras Humedal Vertical (Alternativa C)
+        if "humedal" in resultados and "tras_uasb" in calidad:
+            hum = resultados["humedal"]
+            DBO_entrada_hum = calidad["tras_uasb"]["DBO5_mg_L"]
+            # DBO salida del humedal según modelo k-C*
+            DBO_salida_hum = hum.get("DBO_salida_mg_L", Q.humedal_DBO_salida_mg_L)
+            eta_DBO_hum = 1 - (DBO_salida_hum / DBO_entrada_hum) if DBO_entrada_hum > 0 else 0
+            # SST removido por humedal
+            eta_SST_hum = Q.balance_eta_SST_humedal
+            # DQO similar a DBO
+            eta_DQO_hum = eta_DBO_hum
+            # CF remoción según configuración del humedal
+            eta_CF_hum = Q.humedal_eta_CF
+            
+            calidad["tras_humedal"] = {
+                "DBO5_mg_L": round(DBO_salida_hum, 1),
+                "DQO_mg_L": round(calidad["tras_uasb"]["DQO_mg_L"] * (1 - eta_DQO_hum), 1),
+                "SST_mg_L": round(calidad["tras_uasb"]["SST_mg_L"] * (1 - eta_SST_hum), 1),
+                "CF_NMP": round(calidad["tras_uasb"]["CF_NMP"] * (1 - eta_CF_hum), 0),
+            }
+            # Guardar eficiencias por parámetro
+            calidad["eficiencias_humedal"] = {
+                "DBO5_pct": round(eta_DBO_hum * 100, 1),
+                "DQO_pct": round(eta_DQO_hum * 100, 1),
+                "SST_pct": round(eta_SST_hum * 100, 1),
+                "CF_pct": round(eta_CF_hum * 100, 1),
+            }
+        
         # Tras Sedimentador Secundario
         if "sedimentador_sec" in resultados and "tras_fp" in calidad:
             sed = resultados["sedimentador_sec"]
@@ -3036,7 +4640,14 @@ def calcular_balance_calidad_agua(Q: ConfigDiseno = None,
         # Tras desinfección (UV o Cloro)
         desinfeccion_keys = ["uv", "desinfeccion", "cloro"]
         tiene_desinfeccion = any(k in resultados for k in desinfeccion_keys)
-        if tiene_desinfeccion and "tras_sed" in calidad:
+        # Determinar etapa previa (sed o humedal)
+        etapa_previa = None
+        if "tras_sed" in calidad:
+            etapa_previa = "tras_sed"
+        elif "tras_humedal" in calidad:
+            etapa_previa = "tras_humedal"
+        
+        if tiene_desinfeccion and etapa_previa:
             if "uv" in resultados:
                 # UV inactiva >99.9% de coliformes
                 eta_CF = 0.999
@@ -3052,14 +4663,14 @@ def calcular_balance_calidad_agua(Q: ConfigDiseno = None,
                 eta_CF = 1 - (10 ** (-log_red))
             
             # Desinfección no remueve DBO/DQO/SST significativamente
-            CF_final = round(calidad["tras_sed"]["CF_NMP"] * (1 - eta_CF), 0)
+            CF_final = round(calidad[etapa_previa]["CF_NMP"] * (1 - eta_CF), 0)
             if CF_final < 1:
                 CF_final = 1  # Mínimo detectable
             
             calidad["efluente_final"] = {
-                "DBO5_mg_L": calidad["tras_sed"]["DBO5_mg_L"],
-                "DQO_mg_L": calidad["tras_sed"]["DQO_mg_L"],
-                "SST_mg_L": calidad["tras_sed"]["SST_mg_L"],
+                "DBO5_mg_L": calidad[etapa_previa]["DBO5_mg_L"],
+                "DQO_mg_L": calidad[etapa_previa]["DQO_mg_L"],
+                "SST_mg_L": calidad[etapa_previa]["SST_mg_L"],
                 "CF_NMP": CF_final,
             }
     

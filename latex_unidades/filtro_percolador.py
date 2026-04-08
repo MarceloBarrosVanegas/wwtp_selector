@@ -47,7 +47,9 @@ El filtro percolador (también denominado trickling filter) constituye la unidad
 
 El principio de funcionamiento se basa en el contacto intermitente entre el agua residual, la biopelícula y el aire, permitiendo la degradación aerobia de la DBO. El aire circula por convección natural en sentido contrario (o igual, según la temperatura) al flujo del agua, suministrando el oxígeno necesario para mantener la actividad microbiana. Los microorganismos forman una capa adherida al medio denominada biopelícula, mientras que el exceso de biomasa (sloughings) se desprende periódicamente y es recolectado en el sistema de drenaje inferior (underdrain), requiriendo posterior sedimentación secundaria.
 
-El diseño se fundamenta en el modelo cinético de Germain (1966), que describe la remoción de DBO mediante la expresión exponencial relacionada con la profundidad del medio y la tasa hidráulica, complementado con criterios de carga orgánica volumétrica según WEF MOP-8 (2010).
+El dimensionamiento del filtro percolador se realiza mediante el criterio de carga orgánica volumétrica (COV) según WEF MOP-8 (2010), que es el método estándar para el diseño de filtros con medio plástico. Este enfoque garantiza que el volumen de medio sea suficiente para soportar la carga biológica aplicada sin riesgo de sobrecarga orgánica.
+
+El modelo cinético de Germain (1966) se utiliza como verificación complementaria para estimar la concentración de DBO en el efluente y confirmar que el diseño cumple con el objetivo de calidad del agua tratada. Este modelo describe la remoción de DBO mediante una expresión exponencial relacionada con la profundidad del medio y la tasa hidráulica aplicada.
 
 
 

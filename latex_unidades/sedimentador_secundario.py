@@ -49,6 +49,26 @@ El sedimentador secundario constituye una unidad de separación física por grav
 
 Los flóculos biológicos provenientes de filtros percoladores, MBBR o biofiltros aerados son agregados relativamente ligeros con densidades ligeramente superiores al agua, típicamente en el rango de 1,02--1,05 g/cm³, y velocidades de sedimentación que oscilan entre 0,3 y 1,2 m/h según Sperling \cite{{sperling2007}}. Estas partículas son susceptibles a la compactación y pueden re-suspenderse fácilmente si la velocidad ascensional del líquido excede ciertos límites críticos, lo que justifica el diseño conservador de estos tanques.
 
+\textbf{{Densidad de flóculos y su relevancia en el diseño:}}
+
+La densidad de los flóculos biológicos es un parámetro crítico que determina la velocidad de sedimentación y, consecuentemente, la eficiencia de separación en el sedimentador secundario. A diferencia de los sólidos minerales (arena, grava) que tienen densidades superiores a 2,5 g/cm³, los flóculos biológicos presentan:
+
+\begin{{itemize}}[noitemsep,leftmargin=2em]
+    \item \textbf{{Densidad aparente:}} 1,02--1,05 g/cm³ (incluyendo agua intraflocular), solo ligeramente superior al agua (1,0 g/cm³).
+    \item \textbf{{Densidad real de sólidos:}} 1,10--1,15 g/cm³ si se considera únicamente la materia seca de los microorganismos.
+    \item \textbf{{Porosidad del flóculo:}} 90--95\% de agua embebida en la estructura del biofloc.
+\end{{itemize}}
+
+Esta baja diferencia de densidad (2--5\% respecto al agua) implica que la fuerza de flotación es casi igual al peso del flóculo, resultando en velocidades de sedimentación muy bajas. Por esta razón, el diseño del sedimentador secundario requiere:
+
+\begin{{itemize}}[noitemsep,leftmargin=2em]
+    \item \textbf{{SOR conservadora:}} Valores de 16--32 m³/m²·d (equivalente a 0,67--1,33 m/h) que garanticen que la velocidad ascensional del líquido no supere la velocidad de caída de los flóculos.
+    \item \textbf{{Tiempo de retención suficiente:}} Mínimo 1,5 horas para permitir que incluso los flóculos más pequeños sedimenten.
+    \item \textbf{{Gradientes de velocidad bajos:}} Evitar turbulencias que puedan fragmentar los flóculos o mantenerlos en suspensión.
+\end{{itemize}}
+
+\textit{{Nota técnica:}} La densidad de los flóculos puede variar según la carga orgánica aplicada al sistema biológico previo. A mayor carga, los flóculos tienden a ser más livianos (mayor contenido de biomasa activa, menor densidad), requiriendo diseños más conservadores del sedimentador.
+
 \textbf{{Mecanismos de sedimentación y transporte}}
 
 El proceso de separación en el sedimentador secundario involucra cuatro mecanismos principales: (1) \textit{{sedimentación discreta}} de partículas individuales en la zona superior, (2) \textit{{sedimentación en floculación}} donde las partículas se agregan durante su descenso aumentando su velocidad de caída, (3) \textit{{compresión por estratificación}} en la zona de acumulación de lodos, y (4) \textit{{transporte por flujo laminar}} hacia el sistema de recolección de efluente clarificado.

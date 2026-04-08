@@ -192,7 +192,33 @@ Tiempo retenci\'on real & {d['t_r_real_s']:.1f} s \\
 \end{{tabular}}
 \end{{table}}
 
-{figura_latex}"""
+{figura_latex}\textbf{{Manejo de arena removida}}
+
+El desarenador retiene part\'iculas minerales (arena, grava fina) que se sedimentan en el fondo del canal. El manejo adecuado de estos residuos incluye:
+
+\begin{{itemize}}[noitemsep,leftmargin=2em]
+    \item \textbf{{Caracter\'isticas de la arena:}} Part\'iculas minerales con di\'ametro $>${d['d_mm']:.2f}~mm, gravedad espec\'ifica de {d['Ss']:.2f}, que representan s\'olidos inorg\'anicos de alta densidad presentes en el agua residual.
+    \item \textbf{{Volumen de almacenamiento:}} El canal incluye una zona de almacenamiento de {d['h_almacenamiento_arena_m']:.2f}~m de altura, dise\~nada para acumular la arena removida entre operaciones de limpieza.
+    \item \textbf{{Frecuencia de limpieza:}} Diaria o seg\'un acumulaci\'on observada. En condiciones normales, la arena acumulada no debe superar el 50\% de la altura de almacenamiento designada.
+    \item \textbf{{M\'etodo de remoci\'on:}} Manual mediante palas y cubos desde la plataforma de operaci\'on, o mediante sistema de succi\'on/bombeo si el caudal y la producci\'on de arena lo justifican.
+\end{{itemize}}
+
+\textbf{{Disposici\'on final de la arena:}}
+
+La arena removida en el desarenador tiene las siguientes opciones de manejo, seg\'un su composici\'on y la normativa local:
+
+\begin{{itemize}}[noitemsep,leftmargin=2em]
+    \item \textbf{{Relleno sanitario:}} Es la opci\'on m\'as com\'un. La arena, al ser material inorg\'anico inerte, puede disposicionarse en rellenos sanitarios autorizados sin restricciones especiales.
+    \item \textbf{{Reuso condicionado:}} Si la arena est\'a relativamente limpia (bajo contenido de materia org\'anica adherida), puede utilizarse para:
+    \begin{{itemize}}[noitemsep,leftmargin=1.5em]
+        \item Relleno y compactaci\'on en obras civiles (previa caracterizaci\'on)
+        \item Mezcla con concreto para elementos no estructurales
+        \item Complemento en sistemas de filtraci\'on gruesa (previo lavado)
+    \end{{itemize}}
+    \item \textbf{{Lavado previo:}} Si se detecta alta carga org\'anica adherida a los granos de arena (olor f\'etido, color oscuro), se recomienda lavado antes de la disposici\'on final para reducir el impacto ambiental.
+\end{{itemize}}
+
+\textit{{Nota sobre cantidades:}} El presente dimensionamiento no estima la masa o volumen diario de arena removida. Seg\'un Metcalf y Eddy \cite{{metcalf2014}}, la producci\'on t\'ipica de arena en aguas residuales municipales var\'ia entre 0.004--0.15 L/m\textsuperscript{{3}} de agua tratada, dependiendo de las caracter\'isticas del sistema de alcantarillado (red combinada vs. separada) y del suelo local. Para el caudal de dise\'no, esto representar\'ia aproximadamente 0.02--0.6 L/d (total planta), sujeto a caracterizaci\'on local."""
 
         return f"{teoria}\n\n{verificacion}\n\n{resultados}"
 

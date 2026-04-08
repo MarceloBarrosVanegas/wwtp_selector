@@ -1262,9 +1262,9 @@ La Figura \ref{{fig:filtro_percolador}} presenta el esquema del filtro percolado
 
 \subsection{{Sedimentador Secundario}}
 
-El sedimentador secundario tiene la función de separar los sólidos biológicos desprendidos del filtro percolador (conocidos como humus o lodos biológicos) del efluente tratado, permitiendo obtener un efluente clarificado. Su diseño se fundamenta principalmente en el criterio de la tasa de desbordamiento superficial (SOR), que relaciona el caudal con el área superficial del tanque, garantizando una velocidad ascensional suficientemente baja para que los flóculos sedimenten por gravedad.
+El sedimentador secundario tiene la función de separar los sólidos biológicos desprendidos de la etapa biológica aerobia precedente (conocidos como humus o lodos biológicos) del efluente tratado, permitiendo obtener un efluente clarificado. Esta unidad de post-tratamiento es aplicable tras procesos de biopelícula como filtros percoladores, MBBR o biofiltros aerados. Su diseño se fundamenta principalmente en el criterio de la tasa de desbordamiento superficial (SOR), que relaciona el caudal con el área superficial del tanque, garantizando una velocidad ascensional suficientemente baja para que los flóculos sedimenten por gravedad.
 
-El diseño sigue los criterios recomendados por Metcalf \& Eddy \cite{{metcalf2014}} y Sperling \cite{{sperling2007}} para sedimentadores secundarios ubicados después de filtros percoladores.
+El diseño sigue los criterios recomendados por Metcalf \& Eddy \cite{{metcalf2014}} y Sperling \cite{{sperling2007}} para sedimentadores secundarios ubicados después de procesos biológicos aerobios.
 
 \textbf{{Parámetros de diseño}}
 
@@ -1290,7 +1290,7 @@ Bordo libre & 0,30 m & – & Norma constructiva \\
 \end{{tabular}}
 \end{{table}}
 
-El diseño del sedimentador secundario se fundamenta en la tasa de desbordamiento superficial (SOR), que relaciona el caudal con el área superficial del tanque. Para sedimentadores secundarios ubicados después de filtros percoladores, Metcalf \& Eddy (2014) recomiendan valores de SOR entre 16 y 32 m³/m²·d para operación normal, con un límite máximo de 45 m³/m²·d para condiciones de pico horario.
+El diseño del sedimentador secundario se fundamenta en la tasa de desbordamiento superficial (SOR), que relaciona el caudal con el área superficial del tanque. Para sedimentadores secundarios ubicados después de procesos biológicos aerobios (como filtros percoladores, MBBR o biofiltros), Metcalf \& Eddy (2014) recomiendan valores de SOR entre 16 y 32 m³/m²·d para operación normal, con un límite máximo de 45 m³/m²·d para condiciones de pico horario.
 
 El tiempo de retención hidráulico (TRH) resultante del volumen del tanque debe ser al menos 1,5 horas para garantizar la sedimentación efectiva de los sólidos biológicos. El valor calculado para este diseño es {s['TRH_h']:.1f} horas. Valores mayores a 4 horas son aceptables y favorecen la clarificación sin penalizar el desempeño, especialmente en climas tropicales, por lo que el diseño actual cumple satisfactoriamente con el criterio.
 
@@ -1370,7 +1370,7 @@ La carga calculada de {s['weir_loading_m3_m_d']:.1f} m³/m·d se compara contra 
 
 \subsubsection{{Almacenamiento de Lodos -- Dimensionamiento}}
 
-La producción de humus —sólidos biológicos desprendidos del filtro percolador como resultado del control de espesor de la biopelícula— se estima siguiendo los criterios de Metcalf \& Eddy \cite{{metcalf2014}}. El factor de producción de {s['factor_produccion_humus']:.2f} kg SST por kg de DBO removida representa la fracción de sólidos generados en el proceso de oxidación biológica que deben ser separados en el sedimentador secundario. Este valor es característico de sistemas con filtros percoladores y permite estimar la carga de sólidos sobre el área de sedimentación:
+La producción de humus —sólidos biológicos desprendidos de la etapa biológica aerobia como resultado del control de espesor de la biopelícula— se estima siguiendo los criterios de Metcalf \& Eddy \cite{{metcalf2014}}. El factor de producción de {s['factor_produccion_humus']:.2f} kg SST por kg de DBO removida representa la fracción de sólidos generados en el proceso de oxidación biológica que deben ser separados en el sedimentador secundario. Este valor es característico de sistemas con biopelícula aerobia y permite estimar la carga de sólidos sobre el área de sedimentación:
 
 \begin{{equation}}
 P_{{\text{{humus}}}} = {s['factor_produccion_humus']:.2f} \times \text{{DBO}}_{{\text{{removida}}}} = {s['produccion_humus_kg_d']:.1f} \text{{ kg SST/d}}
@@ -1384,7 +1384,7 @@ C_{{\text{{sólidos}}}} = \frac{{P_{{\text{{humus}}}}}}{{A_s}} = \frac{{{s['prod
 
 \subsubsection{{Almacenamiento de Lodos -- Verificación}}
 
-La tasa de aplicación de sólidos calculada de {s['solids_loading_kg_m2_d']:.2f} kg SST/m²·d está significativamente por debajo del límite conservador de {s['solids_loading_limite']:.0f} kg SST/m²·d adoptado para este diseño, basado en criterios de Metcalf \& Eddy \cite{{metcalf2014}} para sedimentadores secundarios después de filtros percoladores. Este límite, más restrictivo que el rango operativo típico (50–150 kg SST/m²·d), garantiza la capacidad de los lodos biológicos (humus) para sedimentar eficientemente sin causar saturación en la zona de acumulación. El valor muy bajo obtenido indica que el área del sedimentador es ampliamente suficiente para manejar la producción de humus, operando con un margen de seguridad muy conservador que previene problemas de acumulación y olores.
+La tasa de aplicación de sólidos calculada de {s['solids_loading_kg_m2_d']:.2f} kg SST/m²·d está significativamente por debajo del límite conservador de {s['solids_loading_limite']:.0f} kg SST/m²·d adoptado para este diseño, basado en criterios de Metcalf \& Eddy \cite{{metcalf2014}} para sedimentadores secundarios después de procesos biológicos aerobios. Este límite, más restrictivo que el rango operativo típico (50–150 kg SST/m²·d), garantiza la capacidad de los lodos biológicos (humus) para sedimentar eficientemente sin causar saturación en la zona de acumulación. El valor muy bajo obtenido indica que el área del sedimentador es ampliamente suficiente para manejar la producción de humus, operando con un margen de seguridad muy conservador que previene problemas de acumulación y olores.
 
 Respecto al tiempo de retención a caudal mínimo (factor {s['factor_min']:.1f} del medio), el TRH resultante es de {s['TRH_min_h']:.1f} horas. {'Este valor es aceptable para operación normal.' if s['TRH_min_h'] <= 8 else 'Este valor excede 8 horas, por lo que se recomienda monitorear la operación para evitar condiciones sépticas.'}
 
@@ -1420,7 +1420,7 @@ Carga de sólidos & {s['solids_loading_kg_m2_d']:.2f} kg/m²·d \\
 \begin{{figure}}[H]
 \centering
 \includegraphics[width=0.92\textwidth]{{Esquema_Sedimentador_Secundario.png}}
-\caption{{Esquema del sedimentador secundario circular: entrada central del efluente del filtro percolador, zona de clarificación, tolva de lodos, vertedero perimetral y salida de efluente clarificado. Diámetro adoptado: {s['D_m']:.2f} m, profundidad lateral: {s['h_sed_m']:.2f} m, SOR promedio: {s['SOR_m3_m2_d']:.1f} m³/m²·d.}}
+\caption{{Esquema del sedimentador secundario circular: entrada central del efluente de la etapa biológica, zona de clarificación, tolva de lodos, vertedero perimetral y salida de efluente clarificado. Diámetro adoptado: {s['D_m']:.2f} m, profundidad lateral: {s['h_sed_m']:.2f} m, SOR promedio: {s['SOR_m3_m2_d']:.1f} m³/m²·d.}}
 \label{{fig:sedimentador_secundario}}
 \end{{figure}}
 

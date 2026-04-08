@@ -94,7 +94,7 @@ TECNOLOGIAS = [
                 "Robustez Hidraulica": 8, "Impacto Ambiental": 8, "Dependencia Importaciones": 5,
                 "Generacion Lodos": 7, "Costo Total 20 anos": 6}, "area": 1779, "energia": 0.023},
     
-    {"codigo": "C", "nombre": "UASB + Humedal Vertical + UV",
+    {"codigo": "C", "nombre": "UASB + Humedal Vertical + Cloro",
      "valores": {"Disponibilidad de Area": 3, "Consumo Energetico": 10, "Complejidad Operativa": 9,
                 "Robustez Hidraulica": 9, "Impacto Ambiental": 9, "Dependencia Importaciones": 9,
                 "Generacion Lodos": 8, "Costo Total 20 anos": 9}, "area": 6377, "energia": 0.012},

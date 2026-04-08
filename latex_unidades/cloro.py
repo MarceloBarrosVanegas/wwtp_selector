@@ -366,12 +366,14 @@ CT = C \times t
 CT = {c['cloro_residual_mg_L']:.1f} \times {c['TRH_adoptado_min']:.1f} = {c['CT_mg_min_L']:.0f} \text{{ mg$\cdot$min/L}}
 \end{{equation}}
 
-La reducción de coliformes se estima mediante:
+La reducción de coliformes se estima mediante una relación empírica simplificada, válida como aproximación preliminar de diseño para efluentes secundarios típicos:
 
 \begin{{equation}}
 \text{{Log reducción}} \approx {cfg.desinfeccion_coef_log_red:.2f} \times CT
 \end{{equation}}
-\captionequation{{Log reduccion de coliformes}}
+\captionequation{{Estimacion empirica de log-reduccion (simplificacion para diseño preliminar)}}
+
+\textit{{Nota metodológica:}} Esta relación lineal es una simplificación empírica calibrada para condiciones típicas de aguas residuales tratadas (pH 6.5--8.5, temperatura 20--25°C, baja materia orgánica residual). El modelo cinético formal de inactivación microbiana es el de Chick-Watson: $N/N_0 = e^{{-k \cdot C^n \cdot t}}$, donde $k$ es la constante de inactivación específica para cada microorganismo y $n$ es el coeficiente de dilución (típicamente $n \approx 1$ para cloro libre). La forma lineal utilizada es práctica para diseño preliminar pero debe verificarse con ensayos de desinfección específicos si se requiere precisión rigurosa.
 
 \begin{{equation}}
 \text{{Log reducción}} \approx {cfg.desinfeccion_coef_log_red:.2f} \times {c['CT_mg_min_L']:.0f} = {c['log_reduccion']:.1f} \text{{ log}}
@@ -430,7 +432,21 @@ Considerando una densidad de {cfg.desinfeccion_densidad_NaOCl:.2f} kg/L para la 
 \text{{Volumen NaOCl}} = \frac{{{c['consumo_NaOCl_kg_d']:.1f} \text{{ kg/d}}}}{{{cfg.desinfeccion_densidad_NaOCl:.2f} \text{{ kg/L}}}} = {c['volumen_NaOCl_L_d']:.1f} \text{{ L/d}} \approx {c['volumen_almacenamiento_L']:.0f} \text{{ L/mes}}
 \end{{equation}}
 
-El volumen de almacenamiento en bodega se recomienda para {c['dias_almacenamiento']:.0f} días de operación: {c['volumen_almacenamiento_L']:.0f} L (equivalente a {c['volumen_almacenamiento_L']/1000:.1f} m³)."""
+El volumen de almacenamiento en bodega se recomienda para {c['dias_almacenamiento']:.0f} días de operación: {c['volumen_almacenamiento_L']:.0f} L (equivalente a {c['volumen_almacenamiento_L']/1000:.1f} m³).
+
+\textbf{{Nota sobre subproductos de la desinfección}}
+
+La cloración de aguas residuales puede generar subproductos de desinfección (DBPs, por sus siglas en inglés), principalmente trihalometanos (THMs) y ácidos haloacéticos (HAAs), como resultado de la reacción del cloro con la materia orgánica residual presente en el efluente tratado.
+
+Para plantas de tratamiento de pequeña escala como la proyectada, la formación de THMs puede controlarse mediante:
+\begin{{itemize}}[noitemsep,leftmargin=2em]
+    \item \textbf{{Control de dosis:}} Aplicar la dosis mínima efectiva que garantice el residual requerido, evitando sobredosis innecesaria.
+    \item \textbf{{Monitoreo de residual:}} Mantener el residual combinado en el rango de {c['cloro_residual_mg_L']:.1f}--1.0 mg/L, evitando valores superiores que favorecen la formación de DBPs.
+    \item \textbf{{Calidad del efluente previo:}} Asegurar que el tratamiento biológico previo (HAFV) remueva adecuadamente la materia orgánica, ya que menor DQO/DBO residual implica menor potencial de formación de THMs.
+    \item \textbf{{Monitoreo periódico:}} Realizar análisis trimestral de THMs totales en el efluente final si la autoridad ambiental lo requiere; para vertimiento a cuerpos receptores no destinados a consumo humano, los requisitos son menos estrictos que para agua potable.
+\end{{itemize}}
+
+Para el presente diseño, el riesgo de formación de THMs se considera manejable mediante la operación adecuada del sistema de dosificación y el control de residual, dado que el efluente del HAFV tiene baja concentración de materia orgánica precursora y la dosis de cloro aplicada es moderada."""
 
     def generar_verificacion(self) -> str:
         """Genera subsection Verificación con comprobaciones de cumplimiento."""

@@ -49,12 +49,12 @@ CONFIG_REPORTE = {
             descripcion="Tratamiento primario UASB + reactor biológico de lecho móvil (MBBR)"
         ),
         
-        # Alternativa C: UASB + Biofiltro Aerado
+        # Alternativa C: UASB + Humedal Vertical
         "C": ConfigAlternativa(
             incluir=False,
             caudal_lps=5.0,
-            nombre="UASB + Biofiltro Aerado",
-            descripcion="Tratamiento primario UASB + biofiltro aerado de baja carga"
+            nombre="UASB + Humedal Vertical + Cloro",
+            descripcion="Tratamiento primario UASB + humedal vertical de flujo subsuperficial + desinfeccion con cloro"
         ),
         
         # Alternativa D: Lodos Activados (Aireación Extendida)

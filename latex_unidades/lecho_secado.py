@@ -203,6 +203,64 @@ class GeneradorLechoSecado:
 
 El lecho de secado es una unidad de manejo de lodos que utiliza procesos fisicos de drenaje gravitacional y evaporacion para reducir el contenido de humedad de los lodos generados en el tratamiento. Este sistema es ampliamente utilizado en plantas de tratamiento de pequeno y mediano tamano debido a su bajo consumo energetico y simplicidad operativa.
 
+\textbf{{Mecanismos de secado}}
+
+El proceso de deshidratación de lodos en el lecho se realiza mediante dos mecanismos fundamentales que actúan simultáneamente:
+
+\begin{{itemize}}[noitemsep,leftmargin=2em]
+    \item \textbf{{Drenaje gravitacional:}} Durante las primeras horas o días después de la aplicación del lodo, el agua libre drena por gravedad a través del medio filtrante (arena y grava) hacia el sistema de drenaje inferior. Este mecanismo remueve aproximadamente el 30--50\% del agua inicial del lodo.
+    
+    \item \textbf{{Evaporación:}} Una vez agotado el drenaje libre, la humedad restante se pierde por evaporación al ambiente, favorecida por la exposición superficial del lodo y el clima local. En condiciones tropicales de Galápagos (temperatura promedio 24°C, insolación elevada), la evaporación es el mecanismo dominante durante la mayor parte del ciclo de secado.
+\end{{itemize}}
+
+\textit{{Nota:}} La literatura técnica (Metcalf \& Eddy, 2014; OPS/CEPIS, 2005) reporta proporciones variables entre estos mecanismos según el clima local, con rangos típicos de 1/3 drenaje y 2/3 evaporación en climas cálidos y secos, hasta proporciones inversas en climas húmedos. Para el diseño del presente proyecto se considera el efecto combinado de ambos mecanismos sin asignar proporciones fijas, dado que el tiempo de secado adoptado ({l['t_secado_d']:.0f} días) se basa en criterios operativos conservadores de la región.
+
+\textbf{{Estructura física del lecho}}
+
+El lecho de secado consiste en una estructura impermeabilizada con capas estratificadas que permiten el drenaje y soporte del lodo:
+
+\begin{{itemize}}[noitemsep,leftmargin=2em]
+    \item \textbf{{Capa de arena (superior):}} Espesor de {l['h_arena_m']:.2f} m. Constituye el medio de filtración principal donde se aplica el lodo. La arena fina retiene las partículas de lodo mientras permite el paso del agua. Debe tener granulometría uniforme (típicamente 0.25--1.0 mm) para maximizar la retención de sólidos sin colmatarse rápidamente.
+    
+    \item \textbf{{Capa de grava (intermedia):}} Espesor de {l['h_grava_m']:.2f} m. Proporciona soporte estructural a la capa de arena y distribuye uniformemente el agua drenada hacia el sistema de drenaje. La granulometría es mayor que la arena (típicamente 10--30 mm) para crear un medio permeable y estable.
+    
+    \item \textbf{{Sistema de drenaje (inferior):}} Compuesto por tuberías perforadas o zanjas de drenaje que recolectan el agua filtrada (liquiado) y la conducen a un punto de descarga o recolección. El gradiente de drenaje debe ser suficiente (mínimo 1--2\%) para evitar estancamiento y garantizar el flujo continuo.
+\end{{itemize}}
+
+\textbf{{Ciclo operativo y destino del lodo}}
+
+El lecho opera mediante ciclos alternados de carga y descarga:
+
+\begin{{enumerate}}[noitemsep,leftmargin=2em]
+    \item \textbf{{Aplicación:}} El lodo húmedo se distribuye uniformemente sobre la superficie del lecho con un espesor de aproximadamente {l['h_lodo_m']:.2f} m.
+    \item \textbf{{Secado:}} El lodo permanece en reposo durante {l['t_secado_d']:.0f} días, período durante el cual pierde humedad por drenaje y evaporación.
+    \item \textbf{{Retiro:}} Una vez alcanzado el contenido de humedad objetivo (típicamente 40--60\% de sólidos), el lodo seco se retira manualmente o con equipos ligeros.
+\end{{enumerate}}
+
+El lodo seco resultante tiene dos destinos principales según su calidad y la normativa local:
+\begin{{itemize}}[noitemsep,leftmargin=2em]
+    \item \textbf{{Disposición en relleno sanitario:}} Es la opción más común para lodos de PTAR municipales. El lodo estabilizado y deshidratado cumple con los criterios de manejabilidad para disposición final controlada.
+    \item \textbf{{Uso agrícola condicionado:}} Solo si el lodo cumple con requisitos de estabilización, ausencia de metales pesados y patógenos reducidos, según normativa sanitaria aplicable ( Ministerio de Salud, Ministerio del Ambiente). Requiere análisis periódicos y autorización expresa de la autoridad competente.
+\end{{itemize}}
+
+\textbf{{Parámetro de diseño: Carga superficial de sólidos ($\rho_S$)}}
+
+El parámetro que controla el área requerida del lecho es la carga superficial de sólidos ($\rho_S$), definida como la masa de sólidos totales (SST) aplicada por unidad de área del lecho por año de operación. Este parámetro integra la producción de lodos con la capacidad de secado del sistema:
+
+\begin{{equation}}
+\rho_S = \frac{{M_{{SST}} \times 365}}{{A_{{total}}}}
+\end{{equation}}
+\captionequation{{Carga superficial de solidos -- parametro de control del area}}
+
+\textit{{Donde:}}
+\begin{{itemize}}[noitemsep,leftmargin=2em]
+    \item[$\rho_S$] = Carga superficial de sólidos (kg SST/m²·año)
+    \item[$M_{{SST}}$] = Masa diaria de sólidos a tratar (kg SST/d)
+    \item[$A_{{total}}$] = Área superficial total del lecho (m²)
+\end{{itemize}}
+
+La carga superficial $\rho_S$ es crítica porque determina la frecuencia de aplicación de lodos y la eficiencia del secado. Valores elevados de $\rho_S$ implican mayor frecuencia de carga y mayor demanda de área. Los rangos típicos según Metcalf \& Eddy (2014) y OPS/CEPIS (2005) son {l['rango_rho_S_texto']}, dependiendo del tipo de lodo, clima y disponibilidad de área.
+
 \textbf{{Criterios de diseno}}
 
 \begin{{table}}[H]
