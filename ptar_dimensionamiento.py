@@ -709,6 +709,49 @@ class ConfigDiseno:
     baf_fraccion_bw_min_pct: float = 3.0        # Fracción retrolavado mínima (%)
     baf_fraccion_bw_max_pct: float = 7.0        # Fracción retrolavado máxima (%)
     baf_duracion_fase_agua_bw_min: float = 10.0 # Duración fase agua retrolavado (min)
+    
+    # =============================================================================
+    # PARÁMETROS DE DISEÑO - REACTOR ANAEROBIO CON PANTALLAS (ABR / RAP)
+    # =============================================================================
+    # El ABR (Anaerobic Baffled Reactor) o RAP (Reactor Anaerobio con Pantallas)
+    # es un reactor anaerobio de múltiples compartimentos sin separador trifásico.
+    # Referencia: manual_ABR_RAP.txt
+    
+    # Parámetros de diseño principales
+    abr_TRH_diseno_h: float = 48.0              # Tiempo de retención hidráulico (h) - rango: 24-72 h
+    abr_TRH_min_h: float = 24.0                 # TRH mínimo absoluto (h)
+    abr_TRH_max_h: float = 72.0                 # TRH máximo recomendado (h)
+    abr_num_compartimentos: int = 4             # Número de compartimentos - rango: 2-8, recomendado: 4-6
+    abr_num_compartimentos_min: int = 3         # Mínimo compartimentos para separación funcional
+    abr_num_compartimentos_recomendado: int = 4 # Mínimo recomendado
+    abr_num_compartimentos_max: int = 8         # Máximo práctico
+    
+    # Velocidad ascensional - parámetro crítico de diseño
+    abr_v_up_diseno_m_h: float = 1.0            # Velocidad ascensional diseño (m/h) - rango: 0.2-1.5
+    abr_v_up_max_admisible_m_h: float = 2.0     # Velocidad máxima admisible en picos (m/h)
+    abr_v_up_min_operativa_m_h: float = 0.2     # Velocidad mínima operativa (m/h)
+    
+    # Geometría del reactor
+    abr_profundidad_util_m: float = 2.0         # Profundidad útil líquido (m) - rango: 1.5-3.0
+    abr_profundidad_min_m: float = 1.5          # Profundidad mínima (m)
+    abr_profundidad_max_m: float = 3.0          # Profundidad máxima (m)
+    abr_zona_lodos_m: float = 0.30              # Zona acumulación lodos (m) - rango: 0.2-0.5
+    abr_bordo_libre_m: float = 0.30             # Bordo libre (m)
+    
+    # Criterios geométricos
+    abr_relacion_Lcomp_W_min: float = 0.5       # Relación largo/ancho compartimento mínima
+    abr_relacion_Lcomp_W_max: float = 2.0       # Relación largo/ancho compartimento máxima
+    abr_COV_referencial_min: float = 0.5        # Carga orgánica volumétrica mínima (kg DBO/m³·d)
+    abr_COV_referencial_max: float = 5.0        # Carga orgánica volumétrica máxima (kg DBO/m³·d)
+    
+    # Calidad del afluente (valores por defecto para diseño)
+    abr_DBO_entrada_mg_L: float = 200.0         # DBO5 entrada (mg/L) - típico doméstico
+    abr_DQO_entrada_mg_L: float = 400.0         # DQO entrada (mg/L) - relación DQO/DBO = 2.0
+    abr_SST_entrada_mg_L: float = 200.0         # SST entrada (mg/L)
+    
+    # Temperatura de diseño
+    abr_temp_min_diseno_C: float = 18.0         # Temperatura mínima diseño (°C)
+    abr_temp_optima_min_C: float = 20.0         # Temperatura óptima mínima (°C)
 
     def __post_init__(self):
         # Caudal por línea en m^3/d (conversión exacta: 1 L/s = 86.4 m^3/d)
@@ -5451,6 +5494,291 @@ def dimensionar_baf(Q: ConfigDiseno = CFG,
         
         # Referencias
         "fuente": f"{ref_me}; {ref_henze}"
+    }
+
+
+# =============================================================================
+# 4d - REACTOR ANAEROBIO CON PANTALLAS (ABR / RAP)
+# =============================================================================
+
+def dimensionar_abr_rap(Q: ConfigDiseno = CFG,
+                        DBO_entrada_mg_L: float = None,
+                        DQO_entrada_mg_L: float = None,
+                        SST_entrada_mg_L: float = None) -> Dict[str, Any]:
+    """
+    Dimensionamiento del Reactor Anaerobio con Pantallas (ABR / RAP).
+    
+    El ABR (Anaerobic Baffled Reactor) o RAP es un reactor anaerobio de
+    múltiples compartimentos que opera mediante flujo ascendente-descendente
+    a través de una serie de cámaras separadas por pantallas o bafles.
+    
+    A diferencia del UASB, el ABR no requiere separador trifásico: la
+    retención de biomasa se logra por medios puramente hidráulicos y
+    gravitacionales, aprovechando la baja velocidad ascensional en cada
+    compartimento.
+    
+    NOTA IMPORTANTE SOBRE EL ALCANCE:
+    Esta función implementa el dimensionamiento básico del ABR según el
+    manual_ABR_RAP.txt. Calcula volumen, geometría y verificaciones
+    hidráulicas fundamentales. No implementa: modelo cinético de remoción
+    de DBO, cálculo de producción de biogás, balance detallado de lodos,
+    ni diseño de pantallas individuales.
+    
+    Parámetros:
+        Q: ConfigDiseno con parámetros globales
+        DBO_entrada_mg_L: DBO5 del afluente al ABR (mg/L)
+        DQO_entrada_mg_L: DQO del afluente al ABR (mg/L)
+        SST_entrada_mg_L: SST del afluente al ABR (mg/L)
+    
+    Retorna:
+        Dict con resultados del dimensionamiento y verificaciones
+    """
+    ref_barber = "Barber & Stuckey (1999)"
+    ref_foxon = "Foxon et al. (2004)"
+    ref_ops = "OPS/OMS (2005)"
+    
+    # Usar valores de configuración si no se especifican
+    if DBO_entrada_mg_L is None:
+        DBO_entrada_mg_L = Q.abr_DBO_entrada_mg_L
+    if DQO_entrada_mg_L is None:
+        DQO_entrada_mg_L = Q.abr_DQO_entrada_mg_L
+    if SST_entrada_mg_L is None:
+        SST_entrada_mg_L = Q.abr_SST_entrada_mg_L
+    
+    # Parámetros de caudal
+    Q_m3_d = Q.Q_linea_m3_d
+    Q_m3_h = Q.Q_linea_m3_h
+    factor_pico = Q.factor_pico_Qmax
+    Q_max_m3_d = Q_m3_d * factor_pico
+    Q_max_m3_h = Q_max_m3_d / 24.0
+    
+    # =============================================================================
+    # DIMENSIONAMIENTO PRINCIPAL
+    # =============================================================================
+    
+    # [PASO 1] Volumen total según TRH de diseño
+    # V_total = Q_medio × TRH
+    TRH_diseno_h = Q.abr_TRH_diseno_h
+    TRH_diseno_d = TRH_diseno_h / 24.0
+    V_total_m3 = Q_m3_d * TRH_diseno_d
+    
+    # [PASO 2] Número de compartimentos
+    n_comp = Q.abr_num_compartimentos
+    
+    # Volumen por compartimento (distribución uniforme)
+    V_comp_m3 = V_total_m3 / n_comp
+    
+    # [PASO 3] Área de sección transversal por velocidad ascensional
+    # A_transversal = Q_medio / v_up_diseno
+    v_up_diseno_m_h = Q.abr_v_up_diseno_m_h
+    A_transversal_m2 = Q_m3_h / v_up_diseno_m_h
+    
+    # [PASO 4] Dimensiones geométricas
+    # Profundidad útil del líquido
+    H_util_m = Q.abr_profundidad_util_m
+    
+    # Ancho del reactor: W = A_transversal / H
+    W_m = A_transversal_m2 / H_util_m
+    
+    # Largo de cada compartimento: L_comp = V_comp / (W × H)
+    L_comp_m = V_comp_m3 / (W_m * H_util_m)
+    
+    # Largo total del reactor
+    L_total_m = n_comp * L_comp_m
+    
+    # Profundidad total (incluye zona de lodos y bordo libre)
+    H_zona_lodos_m = Q.abr_zona_lodos_m
+    H_bordo_m = Q.abr_bordo_libre_m
+    H_total_m = H_util_m + H_zona_lodos_m + H_bordo_m
+    
+    # [PASO 5] Verificaciones hidráulicas
+    
+    # Velocidad ascensional calculada a caudal medio
+    v_up_calc_m_h = Q_m3_h / (W_m * H_util_m)
+    
+    # Velocidad ascensional a caudal máximo
+    v_up_max_calc_m_h = Q_max_m3_h / (W_m * H_util_m)
+    
+    # TRH calculado a partir de la geometría
+    V_geometria_m3 = L_total_m * W_m * H_util_m
+    TRH_calc_h = (V_geometria_m3 / Q_m3_d) * 24.0
+    
+    # Carga hidráulica superficial (informativa)
+    A_planta_m2 = L_total_m * W_m
+    CHS_m_d = Q_m3_d / A_planta_m2
+    
+    # Carga orgánica volumétrica (informativa)
+    COV_kgDBO_m3_d = (Q_m3_d * DBO_entrada_mg_L / 1000.0) / V_total_m3
+    
+    # Relación L_comp / W (informativa)
+    relacion_Lcomp_W = L_comp_m / W_m
+    
+    # =============================================================================
+    # VERIFICACIONES DE DISEÑO
+    # =============================================================================
+    
+    verificaciones = {}
+    
+    # [V-1] Velocidad ascensional a caudal medio
+    cumple_v_up_medio = v_up_calc_m_h <= Q.abr_v_up_diseno_m_h
+    estado_v_up_medio = "CUMPLE" if cumple_v_up_medio else "NO CUMPLE"
+    verificaciones["v_up_medio"] = {
+        "parametro": "Velocidad ascensional (caudal medio)",
+        "valor": round(v_up_calc_m_h, 2),
+        "unidad": "m/h",
+        "criterio": f"≤ {Q.abr_v_up_diseno_m_h} m/h",
+        "cumple": cumple_v_up_medio,
+        "estado": estado_v_up_medio,
+        "tipo": "obligatoria"
+    }
+    
+    # [V-2] Velocidad ascensional a caudal máximo
+    cumple_v_up_max = v_up_max_calc_m_h <= Q.abr_v_up_max_admisible_m_h
+    estado_v_up_max = "CUMPLE" if cumple_v_up_max else "NO CUMPLE"
+    verificaciones["v_up_max"] = {
+        "parametro": "Velocidad ascensional (caudal máximo)",
+        "valor": round(v_up_max_calc_m_h, 2),
+        "unidad": "m/h",
+        "criterio": f"≤ {Q.abr_v_up_max_admisible_m_h} m/h",
+        "cumple": cumple_v_up_max,
+        "estado": estado_v_up_max,
+        "tipo": "obligatoria"
+    }
+    
+    # [V-3] TRH verificado
+    cumple_TRH = TRH_calc_h >= TRH_diseno_h
+    estado_TRH = "CUMPLE" if cumple_TRH else "NO CUMPLE"
+    verificaciones["TRH"] = {
+        "parametro": "Tiempo de retención hidráulico",
+        "valor": round(TRH_calc_h, 1),
+        "unidad": "h",
+        "criterio": f"≥ {TRH_diseno_h} h",
+        "cumple": cumple_TRH,
+        "estado": estado_TRH,
+        "tipo": "obligatoria"
+    }
+    
+    # [V-4] Largo mínimo de compartimento
+    cumple_Lcomp = L_comp_m >= H_util_m
+    estado_Lcomp = "CUMPLE" if cumple_Lcomp else "NO CUMPLE"
+    verificaciones["L_comp"] = {
+        "parametro": "Largo de compartimento vs profundidad",
+        "valor": round(L_comp_m, 2),
+        "unidad": "m",
+        "criterio": f"≥ {H_util_m} m (profundidad)",
+        "cumple": cumple_Lcomp,
+        "estado": estado_Lcomp,
+        "tipo": "obligatoria"
+    }
+    
+    # [V-5] Relación L_comp / W (complementaria/informativa)
+    cumple_relacion = (Q.abr_relacion_Lcomp_W_min <= relacion_Lcomp_W <= Q.abr_relacion_Lcomp_W_max)
+    if relacion_Lcomp_W < Q.abr_relacion_Lcomp_W_min:
+        estado_relacion = "BAJO RANGO"
+    elif relacion_Lcomp_W > Q.abr_relacion_Lcomp_W_max:
+        estado_relacion = "SOBRE RANGO"
+    else:
+        estado_relacion = "DENTRO RANGO"
+    verificaciones["relacion_LW"] = {
+        "parametro": "Relación L_comp / W",
+        "valor": round(relacion_Lcomp_W, 2),
+        "unidad": "-",
+        "criterio": f"{Q.abr_relacion_Lcomp_W_min} - {Q.abr_relacion_Lcomp_W_max}",
+        "cumple": cumple_relacion,
+        "estado": estado_relacion,
+        "tipo": "complementaria"
+    }
+    
+    # [V-6] Número de compartimentos mínimo (complementaria)
+    cumple_n_comp = n_comp >= Q.abr_num_compartimentos_min
+    estado_n_comp = "CUMPLE" if cumple_n_comp else "NO CUMPLE"
+    verificaciones["n_comp"] = {
+        "parametro": "Número de compartimentos",
+        "valor": n_comp,
+        "unidad": "-",
+        "criterio": f"≥ {Q.abr_num_compartimentos_min}",
+        "cumple": cumple_n_comp,
+        "estado": estado_n_comp,
+        "tipo": "complementaria"
+    }
+    
+    # Texto de resumen de verificaciones
+    obligatorias = [v for v in verificaciones.values() if v["tipo"] == "obligatoria"]
+    cumplen_todas = all(v["cumple"] for v in obligatorias)
+    n_obligatorias = len(obligatorias)
+    n_cumplen = sum(1 for v in obligatorias if v["cumple"])
+    
+    if cumplen_todas:
+        texto_resumen_verificaciones = (
+            f"Todas las verificaciones obligatorias CUMPLEN ({n_cumplen}/{n_obligatorias}). "
+            f"El diseño del ABR es técnicamente aceptable."
+        )
+    else:
+        texto_resumen_verificaciones = (
+            f"ALERTA: {n_obligatorias - n_cumplen} verificación(es) obligatoria(s) no cumple(n). "
+            f"Revise los parámetros de diseño."
+        )
+    
+    # =============================================================================
+    # RESULTADOS CONSOLIDADOS
+    # =============================================================================
+    
+    return {
+        # Parámetros de entrada
+        "Q_m3_d": Q_m3_d,
+        "Q_m3_h": round(Q_m3_h, 2),
+        "Q_max_m3_d": round(Q_max_m3_d, 1),
+        "Q_max_m3_h": round(Q_max_m3_h, 2),
+        "factor_pico": factor_pico,
+        
+        # Parámetros de diseño adoptados
+        "TRH_diseno_h": TRH_diseno_h,
+        "n_compartimentos": n_comp,
+        "v_up_diseno_m_h": v_up_diseno_m_h,
+        "H_util_m": H_util_m,
+        "H_zona_lodos_m": H_zona_lodos_m,
+        "H_bordo_m": H_bordo_m,
+        
+        # Dimensiones geométricas
+        "V_total_m3": round(V_total_m3, 1),
+        "V_comp_m3": round(V_comp_m3, 2),
+        "A_transversal_m2": round(A_transversal_m2, 2),
+        "A_planta_m2": round(A_planta_m2, 2),
+        "W_m": round(W_m, 2),
+        "L_comp_m": round(L_comp_m, 2),
+        "L_total_m": round(L_total_m, 2),
+        "H_total_m": round(H_total_m, 2),
+        # Claves adicionales para compatibilidad con esquema matplotlib
+        "H_total_construccion_m": round(H_total_m, 2),
+        "H_zona_liquida_m": round(H_util_m, 2),
+        "H_zona_biogas_m": round(H_bordo_m * 0.6, 2),  # Estimación zona biogás
+        "H_bordo_libre_m": round(H_bordo_m, 2),
+        "num_compartimentos": n_comp,
+        "Vup_m_h": round(v_up_calc_m_h, 2),
+        "TRH_h": round(TRH_calc_h, 1),
+        
+        # Parámetros hidráulicos calculados
+        "v_up_calc_m_h": round(v_up_calc_m_h, 2),
+        "v_up_max_calc_m_h": round(v_up_max_calc_m_h, 2),
+        "TRH_calc_h": round(TRH_calc_h, 1),
+        "CHS_m_d": round(CHS_m_d, 2),
+        
+        # Parámetros de calidad (informativos)
+        "DBO_entrada_mg_L": DBO_entrada_mg_L,
+        "DQO_entrada_mg_L": DQO_entrada_mg_L,
+        "SST_entrada_mg_L": SST_entrada_mg_L,
+        "COV_kgDBO_m3_d": round(COV_kgDBO_m3_d, 2),
+        
+        # Verificaciones
+        "verificaciones": verificaciones,
+        "todas_verificaciones_cumplen": cumplen_todas,
+        "texto_resumen_verificaciones": texto_resumen_verificaciones,
+        
+        # Metadatos
+        "fuente": f"{ref_barber}; {ref_foxon}; {ref_ops}",
+        "alcance": "Dimensionamiento básico de volumen y geometría. "
+                   "No incluye: modelo cinético de remoción, cálculo de biogás, "
+                   "balance de lodos, diseño de pantallas individuales."
     }
 
 
