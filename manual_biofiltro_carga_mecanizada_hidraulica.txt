@@ -1,0 +1,1598 @@
+================================================================================
+GUÍA DE DISEÑO: BIOFILTRO PERCOLADOR PARA TRATAMIENTO DE AGUAS RESIDUALES
+Metodología Unificada: Carga Hidráulica Convencional y Carga Mecanizada de Alta Carga
+Con Algoritmo de Selección por Carga Orgánica, Caudal y Contexto de Proyecto
+Versión 1.0
+================================================================================
+
+Autores de referencia principales:
+  Metcalf & Eddy / Tchobanoglous et al. (2014), Germain (1966),
+  Schultz (1960), Eckenfelder (1989), Logan et al. (1987),
+  Gujer & Boller (1986), US EPA (1984, 2000), OPS/CEPIS (2005),
+  Ministerio de Ambiente del Ecuador — TULSMA (2015),
+  WEF/ASCE (2010), Parker et al. (1995)
+
+--------------------------------------------------------------------------------
+ÍNDICE
+--------------------------------------------------------------------------------
+
+  SECCIÓN  0 — Alcance y propósito de la guía
+  SECCIÓN  1 — Fundamentos teóricos del biofiltro percolador
+  SECCIÓN  2 — Datos de entrada requeridos
+  SECCIÓN  3 — ALGORITMO DE SELECCIÓN: ¿Carga hidráulica o carga mecanizada?
+  SECCIÓN  4 — RUTA A: Diseño por carga hidráulica convencional (baja y media carga)
+  SECCIÓN  5 — RUTA B: Diseño por carga mecanizada de alta carga (con recirculación)
+  SECCIÓN  6 — Diseño del medio de relleno (común a ambas rutas)
+  SECCIÓN  7 — Sistema de distribución giratoria (aspersor rotatorio)
+  SECCIÓN  8 — Sistema de drenaje inferior (underdrain)
+  SECCIÓN  9 — Estructura civil, ventilación y cubierta
+  SECCIÓN 10 — Sedimentador secundario (clarificador)
+  SECCIÓN 11 — Recirculación: criterios de diseño y cálculo
+  SECCIÓN 12 — Verificación de eficiencia: Modelo de Germain/Logan (k-L)
+  SECCIÓN 13 — Verificación de cumplimiento normativo (TULSMA y equivalentes)
+  SECCIÓN 14 — Producción de lodos y mantenimiento
+  SECCIÓN 15 — Requerimientos de área total del predio
+  SECCIÓN 16 — Tabla de resultados consolidada (completada con datos de proyecto)
+  SECCIÓN 17 — Índice de ecuaciones
+  SECCIÓN 18 — Referencias bibliográficas
+  SECCIÓN 19 — Glosario de términos técnicos
+  SECCIÓN 20 — Ejemplo de cálculo resuelto (Proyecto tipo comunidad andina, 500 PE)
+
+
+------------------------------------------------------------------------
+SECCIÓN 0 — ALCANCE Y PROPÓSITO DE LA GUÍA
+------------------------------------------------------------------------
+
+Esta guía presenta una metodología completa y unificada para el diseño de
+Biofiltros Percoladores (también denominados filtros rociadores, filtros
+biológicos o trickling filters en la literatura inglesa) para el tratamiento
+de aguas residuales domésticas e industriales compatibles.
+
+El objetivo central es proporcionar un algoritmo de decisión que permita al
+diseñador seleccionar la metodología de cálculo más adecuada según las
+características del caudal y la carga orgánica del proyecto, y a partir de
+esa selección, ejecutar el dimensionamiento paso a paso con criterios
+verificables y referenciados.
+
+Se distinguen dos sistemas principales de diseño:
+
+  RUTA A — CARGA HIDRÁULICA CONVENCIONAL (baja y media carga):
+  Sistema sin recirculación forzada (o con recirculación mínima). El agua
+  residual pretratada se distribuye por gravedad o con bomba de baja
+  potencia sobre el medio de relleno. Aplicable a caudales pequeños y
+  medianos con cargas orgánicas moderadas. Documentado en Metcalf & Eddy
+  (2014), OPS/CEPIS (2005) y US EPA (1984).
+
+  RUTA B — CARGA MECANIZADA DE ALTA CARGA (con recirculación bombeada):
+  Sistema con recirculación controlada mediante bombas (carga mecanizada).
+  El efluente secundario o parcialmente tratado se recircula sobre el
+  biofiltro para diluir la carga afluente, mantener la película biológica
+  activa y mejorar la eficiencia de remoción. Permite tratar cargas
+  orgánicas elevadas en volúmenes compactos. Documentado en Germain (1966),
+  Eckenfelder (1989) y WEF/ASCE (2010).
+
+POSICIÓN EN EL TREN DE TRATAMIENTO (aplicable a ambas rutas):
+
+  Pretratamiento  →  Tratamiento primario  →  Biofiltro  →  Sedimentador
+                                                             secundario  →
+                                                             Desinfección
+
+  Como tratamiento secundario autónomo:
+    Rejillas → Desarenador → Sedimentador primario → Biofiltro →
+    Sedimentador secundario → Desinfección
+
+  Como tratamiento secundario después de reactor anaerobio:
+    Rejillas → Desarenador → UASB/Fosa séptica → Biofiltro →
+    Sedimentador secundario → Desinfección
+
+  Como tratamiento terciario o de pulido:
+    Sistema secundario convencional → Biofiltro de pulido → Desinfección
+
+NOTA IMPORTANTE:
+  Esta guía aplica a biofiltros con medio de relleno fijo (plástico
+  estructurado o grava/piedra volcánica). Los Contactores Biológicos
+  Rotativos (RBC) siguen una metodología de diseño diferente y no están
+  cubiertos en este documento.
+
+
+------------------------------------------------------------------------
+SECCIÓN 1 — FUNDAMENTOS TEÓRICOS DEL BIOFILTRO PERCOLADOR
+------------------------------------------------------------------------
+
+1.1 Principio de Funcionamiento
+
+El biofiltro percolador consiste en un recipiente (generalmente cilíndrico
+o rectangular) relleno de un medio de contacto sobre cuya superficie se
+desarrolla una biopelícula (biofilm) de microorganismos aerobios y
+anóxicos. El agua residual pretratada se aplica desde la parte superior
+mediante un distribuidor giratorio y percola hacia abajo por el medio de
+relleno en flujo laminar, mientras el aire fluye simultáneamente de forma
+natural (convección térmica) o forzada desde la base hacia la parte
+superior.
+
+Los contaminantes disueltos (DBO₅, DQO, NH₄⁺) se transfieren desde el
+líquido hacia la biopelícula por difusión molecular y son degradados
+enzimáticamente en la capa aerobia interna. La biopelícula crece
+continuamente y se desprende periódicamente (sloughing), generando lodos
+secundarios que se separan en el clarificador posterior.
+
+1.2 Mecanismos de Remoción
+
+  Parámetro      | Mecanismo principal                               | Eficiencia típica
+  ---------------|---------------------------------------------------|-------------------
+  DBO₅           | Degradación aerobia en biopelícula                | 65 – 90 %
+  DQO            | Degradación aerobia + hidrolítica                 | 60 – 85 %
+  SST            | Separación en clarificador secundario             | 70 – 90 %
+  NH₄-N          | Nitrificación (Nitrosomonas / Nitrobacter)        | 40 – 80 %
+  NO₃-N          | Limitada (zona anóxica interior de biopelícula)   | 10 – 20 %
+  Patógenos CF   | Filtración, adsorción, competencia microbiana     | 1 – 2 log
+  Fósforo total  | Adsorción marginal, precipitación mínima          | 10 – 20 %
+
+NOTA: La nitrificación completa requiere un biofiltro nitrificante en serie
+(etapa 2) con cargas orgánicas bajas (< 0.4 kg DBO₅/m³·d). A cargas
+altas predomina la remoción de DBO₅ y la nitrificación es parcial.
+
+1.3 Diferencias entre Carga Hidráulica Convencional y Carga Mecanizada
+
+  Característica              | Carga Hidráulica Conv.    | Carga Mecanizada Alta Carga
+  ----------------------------|---------------------------|-----------------------------
+  Carga orgánica (COS)        | 0.08 – 0.40 kg DBO₅/m³·d | 0.40 – 3.50 kg DBO₅/m³·d
+  Carga hidráulica (CHS)      | 1 – 4 m³/m²·h            | 10 – 40 m³/m²·h
+  Recirculación               | Sin o mínima (R = 0–0.5)  | Activa (R = 0.5 – 4.0)
+  Efluente (DBO₅)             | 20 – 40 mg/L              | 30 – 60 mg/L
+  Olores                      | Moderados                 | Controlados por dilución
+  Consumo energético          | Bajo (gravedad)           | Medio (bombas de recirc.)
+  Área requerida              | Mayor                     | Menor (filtro más compacto)
+  Profundidad del medio       | 1.8 – 2.5 m (piedra)      | 3 – 12 m (plástico estruc.)
+  Arranque biológico          | 4 – 8 semanas             | 3 – 6 semanas
+  Referencia principal        | Metcalf & Eddy (2014)     | Germain (1966), WEF (2010)
+
+1.4 Tipos de Biofiltros por Nivel de Carga
+
+  Tipo               | COS (kg DBO₅/m³·d) | CHS (m³/m²·h) | Recirculación | Efluente DBO₅
+  -------------------|--------------------|---------------|---------------|---------------
+  Baja carga         | 0.08 – 0.24        | 1 – 4         | Ninguna       | 20 – 30 mg/L
+  Media carga        | 0.24 – 0.48        | 4 – 10        | Opcional      | 30 – 50 mg/L
+  Alta carga         | 0.48 – 1.60        | 10 – 40       | Necesaria     | 40 – 70 mg/L
+  Super alta carga   | 1.60 – 3.50        | 20 – 60       | Alta (R≥2)    | 50 – 100 mg/L
+  Nitrificante       | < 0.40             | 4 – 10        | Opcional      | < 5 mg NH₄/L
+
+1.5 Ventajas y Limitaciones del Biofiltro Percolador
+
+Ventajas:
+  + Bajo requerimiento de área comparado con lagunas y humedales
+  + Bajo consumo energético en modo convencional (sin recirculación)
+  + Operación simple y robusta ante variaciones de carga
+  + Sin necesidad de oxígeno suministrado artificialmente
+  + Vida útil del medio plástico estructurado: > 25 años
+  + Adecuado para climas fríos y templados
+  + Fácil expansión modular (agregar celdas adicionales)
+
+Limitaciones:
+  - Susceptible a olores si no se diseña la ventilación correctamente
+  - Proliferación de moscas Psychoda si hay exposición sin cubierta
+  - Clogging (taponamiento) con afluentes de alta SST sin pretratamiento
+  - Eficiencia de nitrificación limitada a cargas altas
+  - Requiere clarificador secundario para retención de lodos (sloughing)
+  - Producción de lodos secundarios de difícil espesamiento
+
+
+------------------------------------------------------------------------
+SECCIÓN 2 — DATOS DE ENTRADA REQUERIDOS
+------------------------------------------------------------------------
+
+Antes de iniciar cualquier cálculo, se deben tener disponibles los
+siguientes parámetros. Su correcta determinación es crítica para la
+selección del sistema y el dimensionamiento.
+
+  Parámetro                              | Símbolo   | Unidad      | Fuente de datos
+  ---------------------------------------|-----------|-------------|---------------------------
+  Caudal promedio diario                 | Q_prom    | m³/d        | Aforo o estimación per cápita
+  Caudal máximo horario                  | Q_max     | m³/h        | Q_prom × factor de pico
+  Población equivalente                  | PE        | —           | Q_prom / 0.250 m³/hab·d
+  DBO₅ afluente (a biofiltro)            | S₀        | mg/L        | Análisis de laboratorio
+  DQO afluente (a biofiltro)             | DQO₀      | mg/L        | Análisis de laboratorio
+  SST afluente (a biofiltro)             | SST₀      | mg/L        | Análisis de laboratorio
+  Nitrógeno amoniacal afluente           | NH₄₀      | mg N/L      | Análisis de laboratorio
+  Temperatura del agua residual          | T_agua    | °C          | Medición in situ
+  Temperatura del aire (mínima mensual)  | T_aire    | °C          | Datos meteorológicos
+  DBO₅ efluente requerido                | Se        | mg/L        | Norma TULSMA / cliente
+  SST efluente requerido                 | SST_e     | mg/L        | Norma TULSMA / cliente
+  NH₄⁺ efluente requerido               | NH₄_e     | mg N/L      | Norma TULSMA / cliente
+  Altitud del sitio                      | z         | m.s.n.m.    | GPS / IGM
+  Área disponible para planta            | A_disp    | m²          | Levantamiento topográfico
+  Presupuesto referencial                | —         | USD         | Definición del cliente
+
+RELACIONES TÍPICAS PARA AGUA RESIDUAL DOMÉSTICA SIN PRETRATAMIENTO:
+
+  DBO₅ crudo = 200 – 350 mg/L
+  DQO crudo  = 400 – 700 mg/L (relación DQO/DBO₅ ≈ 2.0 – 2.5)
+  SST crudo  = 150 – 300 mg/L
+  NH₄⁺ crudo = 20 – 50 mg N/L
+
+REDUCCIÓN ESPERADA EN PRETRATAMIENTO PRIMARIO (sedimentador primario):
+
+  DBO₅:  25 – 40 % de remoción → S₀ estimado = 0.65 × DBO₅_crudo
+  SST:   50 – 65 % de remoción → SST₀ estimado = 0.45 × SST_crudo
+  DQO:   25 – 35 % de remoción
+
+REDUCCIÓN ESPERADA EN PRETRATAMIENTO ANAEROBIO (UASB / fosa séptica):
+
+  DBO₅:  50 – 70 % de remoción → S₀ estimado = 0.35 × DBO₅_crudo
+  SST:   70 – 85 % de remoción → SST₀ estimado = 0.20 × SST_crudo
+  DQO:   55 – 70 % de remoción
+
+
+------------------------------------------------------------------------
+SECCIÓN 3 — ALGORITMO DE SELECCIÓN
+          ¿Carga hidráulica convencional o carga mecanizada de alta carga?
+------------------------------------------------------------------------
+
+Evalúe los criterios en orden. El primer criterio satisfecho determina la ruta.
+
+┌─────────────────────────────────────────────────────────────────────┐
+│  CRITERIO 1 — CARGA ORGÁNICA ESPECÍFICA PRELIMINAR                  │
+│                                                                     │
+│  Calcule la COS preliminar (sin definir volumen aún):               │
+│                                                                     │
+│    COS_prelim = Q_prom [m³/d] × S₀ [g/m³] / (1000 × V_ref)        │
+│                                                                     │
+│  Use V_ref = A_disp × 3.0 m como volumen de referencia máximo       │
+│  disponible en el predio.                                           │
+│                                                                     │
+│  Si COS_prelim ≤ 0.40 kg DBO₅/m³·d  →  RUTA A (Conv.)              │
+│  Si COS_prelim  > 0.40 kg DBO₅/m³·d  →  RUTA B (Mec.)              │
+└─────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────┐
+│  CRITERIO 2 — RESTRICCIÓN DE ÁREA                                   │
+│                                                                     │
+│  Si el área disponible es muy limitada y la carga convencional      │
+│  requeriría un filtro de área > 0.70 × A_disp:                      │
+│                                                                     │
+│  → RUTA B (Mecanizada): mayor compacidad por recirculación          │
+└─────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────┐
+│  CRITERIO 3 — DISPONIBILIDAD ENERGÉTICA                             │
+│                                                                     │
+│  Proyectos sin suministro eléctrico confiable:                      │
+│  → RUTA A (Convencional): menor dependencia energética              │
+│                                                                     │
+│  Proyectos con suministro eléctrico estable:                        │
+│  → RUTA A o RUTA B según criterio 1 y 2                             │
+└─────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────┐
+│  CRITERIO 4 — EFLUENTE REQUERIDO                                    │
+│                                                                     │
+│  Si Se < 20 mg/L DBO₅ y/o NH₄_e < 5 mg N/L:                       │
+│  → RUTA A en 2 etapas (biofiltro carbonáceo + nitrificante)         │
+│    o sistema combinado biofiltro + lodos activados                  │
+│                                                                     │
+│  Si Se ≤ 60 mg/L DBO₅ (norma TULSMA cuerpos de agua):              │
+│  → RUTA A o RUTA B (ambas válidas)                                  │
+│                                                                     │
+│  Si Se ≤ 100 mg/L DBO₅ (norma TULSMA descarga a suelo):            │
+│  → RUTA B (alta carga) es suficiente en una sola etapa              │
+└─────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────┐
+│  RESUMEN DE SELECCIÓN                                               │
+│                                                                     │
+│  RUTA A — Carga Hidráulica Convencional:                            │
+│    ✓ COS ≤ 0.40 kg DBO₅/m³·d                                       │
+│    ✓ Área suficiente disponible                                     │
+│    ✓ Suministro eléctrico limitado                                  │
+│    ✓ Efluente exigente (Se < 25 mg/L DBO₅)                         │
+│    ✓ Comunidades rurales o periurbanas < 500 PE                     │
+│                                                                     │
+│  RUTA B — Carga Mecanizada de Alta Carga:                           │
+│    ✓ COS > 0.40 kg DBO₅/m³·d                                       │
+│    ✓ Área restringida                                               │
+│    ✓ Disponibilidad eléctrica garantizada                           │
+│    ✓ Carga orgánica variable o fluctuante                           │
+│    ✓ Industrias, mercados, colectores saturados, > 500 PE           │
+└─────────────────────────────────────────────────────────────────────┘
+
+
+------------------------------------------------------------------------
+SECCIÓN 4 — RUTA A: DISEÑO POR CARGA HIDRÁULICA CONVENCIONAL
+            (Baja y media carga, sin recirculación o mínima)
+------------------------------------------------------------------------
+
+4.1 Parámetros de diseño de referencia para RUTA A
+
+  Tipo de carga  | COS (kg DBO₅/m³·d) | CHS (m³/m²·h) | R      | Medio
+  ---------------|---------------------|---------------|--------|---------------------
+  Baja carga     | 0.08 – 0.24         | 1.0 – 4.0     | 0      | Piedra / plástico
+  Media carga    | 0.24 – 0.48         | 4.0 – 10.0    | 0–0.5  | Plástico estructurado
+
+4.2 Ecuación de diseño — Modelo NRC (National Research Council, 1946)
+
+El modelo NRC es ampliamente utilizado para diseño preliminar de filtros
+de piedra (medio granular) en sistemas de baja y media carga.
+
+  Ecuación NRC (única etapa):                                      [Ec. A1]
+    E = 1 / (1 + 0.4432 × √(W / (V × F)))
+
+  Donde:
+    E  = eficiencia de remoción de DBO₅ (fracción decimal, 0–1)
+    W  = carga de DBO₅ aplicada (kg/d) = Q × S₀ × 10⁻³
+    V  = volumen del medio de relleno (m³)
+    F  = factor de recirculación = (1 + R) / (1 + R/10)²
+
+  Factor de recirculación F:                                        [Ec. A2]
+    F = (1 + R) / (1 + 0.1 × R)²
+    Donde R = Q_recirc / Q_afluente (adimensional)
+    Para baja carga sin recirculación: R = 0 → F = 1.0
+
+  Para sistema de dos etapas (biofiltro 1 + biofiltro 2):
+    E₁ = 1 / (1 + 0.4432 × √(W / (V₁ × F₁)))                     [Ec. A3]
+    E₂ = (E_total − E₁) / (1 − E₁)                                 [Ec. A4]
+    Donde E_total = (S₀ − Se) / S₀
+
+4.3 Procedimiento de diseño — RUTA A (paso a paso)
+
+  PASO A1 — Carga de DBO₅ afluente al biofiltro:
+    W = Q_prom [m³/d] × S₀ [mg/L] × 10⁻³  (kg DBO₅/d)            [Ec. A5]
+
+  PASO A2 — Eficiencia global requerida:
+    E_req = (S₀ − Se) / S₀                                         [Ec. A6]
+
+  PASO A3 — Volumen requerido del medio (despejando V de Ec. A1):
+    √(W / (V × F)) = (1/E − 1) / 0.4432
+    V = W × F / [(1/E − 1)² × 0.4432² × 1]                        [Ec. A7]
+    V = W × F / (1/E − 1)² × 0.1963  (simplificado)
+
+    Forma explícita (directa):
+    V = W × F / [0.1963 × ((1 − E)/E)²]                            [Ec. A7b]
+
+  PASO A4 — Selección de profundidad del medio (H_m):
+    Medio de piedra:           H_m = 1.8 – 2.5 m  (típico 2.0 m)
+    Medio plástico modular:    H_m = 3.0 – 9.0 m
+    Adoptar: H_m = _____ m (según disponibilidad local)
+
+  PASO A5 — Área del biofiltro:
+    A_BF = V / H_m   (m²)                                          [Ec. A8]
+
+  PASO A6 — Diámetro del biofiltro (para forma circular):
+    D_BF = √(4 × A_BF / π)   (m)                                   [Ec. A9]
+    Redondear al metro entero superior.
+
+  PASO A7 — Verificación de carga orgánica superficial (COS):
+    COS = W / V   (kg DBO₅/m³·d)                                   [Ec. A10]
+    Verificar: COS ≤ 0.40 kg DBO₅/m³·d  para RUTA A ✓
+
+  PASO A8 — Verificación de carga hidráulica superficial (CHS):
+    CHS_prom = Q_prom / (3600 × A_BF)   (m³/m²·s → ×3600 = m/h)
+    CHS_max  = Q_max  / A_BF            (m³/m²·h)                  [Ec. A11]
+    Verificar: CHS_max ≥ CHS_mínima según tipo de medio (ver Sección 6)
+
+  PASO A9 — Tiempo de contacto hidráulico (HRT):
+    HRT = V × ε / Q_prom   (h)                                     [Ec. A12]
+    Donde ε = porosidad del medio (ver Sección 6)
+
+  PASO A10 — Temperatura de diseño y corrección cinética:
+    Si T_agua < 15 °C se aplica corrección de Arrhenius (ver Sección 12).
+    Si T_agua < 10 °C: aumentar V en 20–35 %.
+
+  PASO A11 — Concentración efluente calculada (verificación):
+    Se_calc = S₀ × (1 − E_req)   (mg/L)                            [Ec. A13]
+    Verificar: Se_calc ≤ Se (norma)
+
+
+------------------------------------------------------------------------
+SECCIÓN 5 — RUTA B: DISEÑO POR CARGA MECANIZADA DE ALTA CARGA
+            (Con recirculación bombeada activa)
+------------------------------------------------------------------------
+
+5.1 Parámetros de diseño de referencia para RUTA B
+
+  Subtipo            | COS (kg DBO₅/m³·d) | R (recirculación) | CHS (m³/m²·h)
+  -------------------|--------------------|-------------------|---------------
+  Alta carga         | 0.40 – 1.60        | 0.5 – 2.0         | 10 – 40
+  Super alta carga   | 1.60 – 3.50        | 2.0 – 4.0         | 20 – 60
+  Biofiltro roughing | 3.50 – 10.0        | Variable          | > 60
+
+5.2 Ecuación de diseño — Modelo de Germain (1966) / Schultz-Germain
+
+El modelo de Germain es el estándar internacional para biofiltros de media
+plástica estructurada de alta carga con recirculación.
+
+  Ecuación de Germain:                                              [Ec. B1]
+    Se/S₀' = exp(−k_T × D / Q_T^n)
+
+  Donde:
+    Se    = concentración DBO₅ efluente del biofiltro (mg/L)
+    S₀'   = concentración DBO₅ afluente al biofiltro incluyendo dilución
+              por recirculación (mg/L): S₀' = (Q × S₀ + Q_R × Se) / (Q + Q_R)
+    k_T   = constante cinética de remoción a temperatura T (m/h)
+    D     = profundidad del medio de relleno (m)
+    Q_T   = carga hidráulica total incluyendo recirculación (m³/m²·h)
+              = (Q + Q_R) / A_BF
+    n     = constante empírica del medio (adimensional) = 0.5 (plástico)
+
+  NOTA: Para medio de piedra use n = 0.67 (Schultz, 1960).
+
+5.3 Constante cinética k_T
+
+  La constante k_T depende del tipo de medio, temperatura y contaminante:
+
+  Valores de k₂₀ para DBO₅ (temperatura de referencia 20 °C):
+
+    Medio de piedra (1.5 – 4 cm diámetro): k₂₀ = 0.06 – 0.10 m/h
+    Medio plástico (módulos de baja densidad, a_s = 90 m²/m³): k₂₀ = 0.06 – 0.10 m/h
+    Medio plástico (módulos de alta densidad, a_s = 150–230 m²/m³): k₂₀ = 0.15 – 0.25 m/h
+
+  Valores de k₂₀ para Nitrificación (NH₄⁺):
+    Medio plástico estándar: k_N,20 = 0.01 – 0.03 m/h
+
+  Corrección por temperatura (Arrhenius):                           [Ec. B2]
+    k_T = k₂₀ × θ^(T − 20)
+    Donde θ = 1.035  (Metcalf & Eddy, 2014)
+
+5.4 Procedimiento de diseño — RUTA B (paso a paso)
+
+  PASO B1 — Definir la razón de recirculación R:
+    R = Q_R / Q_afluente
+    Rango recomendado inicial: R = 1.0 – 2.0
+    R = 0.5: flujo bajo, mayor concentración afluente
+    R = 4.0: flujo muy alto, mayor dilución y CHS
+
+  PASO B2 — Concentración afluente diluida (S₀'):
+    S₀' = (S₀ + R × Se_est) / (1 + R)                              [Ec. B3]
+    Nota: Se_est es la concentración efluente estimada (iterar).
+    En primera iteración usar Se_est = Se (valor objetivo).
+
+  PASO B3 — Relación Se / S₀':
+    Se / S₀' = Se / [(S₀ + R × Se) / (1 + R)]                      [Ec. B4]
+
+  PASO B4 — Selección del tipo de medio y sus parámetros:
+    Seleccionar medio (ver Sección 6) → determinar k₂₀, n, a_s, ε
+
+  PASO B5 — Corrección de k por temperatura:
+    k_T = k₂₀ × 1.035^(T_agua − 20)                                 [Ec. B5]
+
+  PASO B6 — Carga hidráulica total Q_T:
+    Q_T = (Q_prom + Q_R) / A_BF = Q_prom × (1 + R) / A_BF          [Ec. B6]
+    Verificar que Q_T esté dentro del rango del tipo de medio (Tabla 5.1).
+
+  PASO B7 — Despejando profundidad D de la ecuación de Germain:
+    ln(Se / S₀') = −k_T × D / Q_T^n
+    D = −Q_T^n × ln(Se / S₀') / k_T                                 [Ec. B7]
+    Adoptar D (múltiplo de 0.5 m). Rango usual: 3 – 12 m.
+
+  PASO B8 — Área del biofiltro A_BF:
+    Despejar A_BF de Ec. B6:
+    A_BF = Q_prom × (1 + R) / Q_T                                   [Ec. B8]
+    Verificar: A_BF ≤ 0.70 × A_disp (restricción de área).
+
+  PASO B9 — Volumen del medio de relleno:
+    V = A_BF × D   (m³)                                             [Ec. B9]
+
+  PASO B10 — Verificación de COS:
+    COS = Q_prom × S₀ × 10⁻³ / V   (kg DBO₅/m³·d)                  [Ec. B10]
+    Verificar: COS ≤ 3.50 kg DBO₅/m³·d  para RUTA B ✓
+
+  PASO B11 — Iteración hasta convergencia:
+    Repetir pasos B2–B10 sustituyendo Se_est con el Se calculado.
+    Convergencia cuando |Se_nuevo − Se_ant| < 1 mg/L.
+
+  PASO B12 — Verificación de CHS mínima:
+    CHS_min (plástico) = 10 m³/m²·h → Q_T ≥ 10 m³/m²·h             [Ec. B11]
+    Si CHS < CHS_min: aumentar R hasta cumplir restricción.
+
+  PASO B13 — Verificación de CHS máxima:
+    CHS_max (plástico) = 60 m³/m²·h → Q_T ≤ 60 m³/m²·h             [Ec. B12]
+    Si CHS > CHS_max: reducir R o aumentar A_BF.
+
+  PASO B14 — Caudal de bombeo de recirculación:
+    Q_R = R × Q_prom   (m³/d)                                       [Ec. B13]
+    Potencia estimada de bomba (η_bomba = 0.65):
+    P_bomba = ρ × g × Q_R × H_b / (3600 × η)   (W)                  [Ec. B14]
+    Donde H_b = altura de bombeo (m), incluyendo altura geométrica +
+    pérdidas en tubería de recirculación.
+
+
+------------------------------------------------------------------------
+SECCIÓN 6 — DISEÑO DEL MEDIO DE RELLENO (COMÚN A AMBAS RUTAS)
+------------------------------------------------------------------------
+
+6.1 Tipos de Medio y Características
+
+  Tipo de medio         | a_s (m²/m³) | ε (%) | Peso (kg/m³) | Uso recomendado
+  ----------------------|-------------|-------|--------------|------------------------
+  Piedra/grava 40–75mm  | 40 – 70     | 40–50 | 800–1,200    | Baja carga, rural
+  Piedra volcánica      | 50 – 80     | 45–55 | 600–900      | Rural, bajo costo
+  Plástico baja dens.   | 80 – 100    | 90–95 | 30–50        | Media carga, industria
+  Plástico alta dens.   | 140 – 230   | 93–97 | 50–80        | Alta carga, urbano
+  Plástico cruzado      | 100 – 140   | 94–96 | 40–60        | Alta carga, buena dist.
+  Bioballs / anillos    | 200 – 300   | 85–92 | 60–90        | Super alta carga
+
+  Parámetro  | Símbolo | Definición
+  -----------|---------|----------------------------------------------------
+  a_s        |         | Área superficial específica del medio (m² de área
+             |         | de biopelícula por m³ de volumen de medio)
+  ε          |         | Porosidad o fracción de vacíos del medio (adim.)
+  k₂₀        |         | Constante cinética de diseño a 20 °C (m/h)
+  n          |         | Exponente del caudal en modelo de Germain (adim.)
+
+6.2 Requisitos de calidad del medio
+
+  Medio de piedra:
+    - Diámetro uniforme: 40 – 75 mm (libre de finos < 20 mm)
+    - Resistencia a compresión: ≥ 200 kg/cm²
+    - Pérdida por abrasión: ≤ 10 % (ensayo Los Ángeles)
+    - Resistencia química al agua residual: neutral o bajo pH
+
+  Medio plástico estructurado:
+    - Material: PVC, HDPE o PP (resistente a UV si se usa sin cubierta)
+    - Temperatura máxima de trabajo: ≥ 55 °C
+    - Módulos inspeccionables y reemplazables individualmente
+    - Certificación de área superficial por proveedor
+    - Inercia química comprobada (sin lixiviados tóxicos)
+
+6.3 Altura mínima de operación para evitar clogging superficial
+
+  Para medio de piedra:   H_lavado = 0.30 m libre sobre medio (zona de spray)
+  Para medio plástico:    H_distribución = 0.20 – 0.40 m sobre el módulo superior
+
+6.4 Sistema de soporte del medio
+
+  Medio de piedra:   Losa de hormigón perforada sobre vigas de hormigón.
+                     Perforaciones: 10–15 % del área total de la losa.
+
+  Medio plástico:    Módulos estructurales apilados directamente sobre losa.
+                     Capacidad de carga de la losa: ≥ 1.5 kN/m² (saturado).
+
+6.5 Capa inferior de distribución de aire (underdrain)
+
+  Altura del underdrain: 0.60 – 0.90 m bajo la losa de soporte.
+  Asegurar pendiente hacia el colector central: ≥ 1 % en el fondo.
+  (Ver Sección 8 para diseño detallado del drenaje inferior.)
+
+
+------------------------------------------------------------------------
+SECCIÓN 7 — SISTEMA DE DISTRIBUCIÓN GIRATORIA (ASPERSOR ROTATORIO)
+------------------------------------------------------------------------
+
+7.1 Descripción y función
+
+El distribuidor giratorio (rotary distributor) es un sistema de brazos
+perforados que giran sobre el eje central del biofiltro, impulsados por la
+reacción del chorro de agua (autoimpulsado) o por un motor eléctrico.
+Garantiza la aplicación uniforme del afluente sobre toda la superficie del
+medio y la carga hidráulica mínima necesaria para mantener la biopelícula.
+
+7.2 Componentes principales
+
+  - Columna central de distribución (tubo DN 100–400 mm según caudal)
+  - Brazos distribuidores (2 o 4 brazos, tubo perforado o con orificios)
+  - Rodamiento giratorio (tipo thrust bearing o rodillo) sobre columna
+  - Orificios / toberas en la parte inferior de los brazos
+  - Collarín de regulación de velocidad de giro (compuerta regulable)
+
+7.3 Parámetros de diseño del distribuidor
+
+  PASO D1 — Velocidad de rotación recomendada:
+    ω = 0.5 – 2.0 RPM  (para biofiltros de baja carga, piedra)
+    ω = 2.0 – 5.0 RPM  (para biofiltros de alta carga, plástico)
+
+  PASO D2 — Número de brazos (N_b):
+    N_b = 2 (pequeños, D_BF < 10 m)
+    N_b = 4 (grandes, D_BF ≥ 10 m)
+
+  PASO D3 — Caudal por brazo:
+    Q_brazo = Q_T_total / N_b   (m³/h)                              [Ec. D1]
+    Donde Q_T_total = Q + Q_R (caudal total sobre el filtro)
+
+  PASO D4 — Longitud efectiva del brazo:
+    L_brazo = D_BF / 2 − 0.30 m   (radio útil)                     [Ec. D2]
+
+  PASO D5 — Número de orificios por brazo:
+    Separación entre orificios: 0.10 – 0.20 m (pasos uniformes)
+    N_orif = L_brazo / s_orif
+    Diámetro de orificio: d_orif = 10 – 25 mm
+
+  PASO D6 — Velocidad de eflujo en orificios (verificación):
+    v_orif = Q_brazo / (N_orif × π × d_orif² / 4)   (m/s)          [Ec. D3]
+    Verificar: v_orif = 1.0 – 3.0 m/s (evitar colmatación y exceso)
+
+  PASO D7 — Altura de aspersor sobre el medio:
+    h_aspersor = 0.15 – 0.30 m (sobre la superficie del medio)
+    Asegurar cobertura completa de la sección transversal.
+
+  PASO D8 — Pendiente de los brazos (autoimpulsado):
+    Inclinación de los orificios: 10 – 20° respecto a la horizontal
+    (genera el par de reacción para la rotación sin motor)
+
+
+------------------------------------------------------------------------
+SECCIÓN 8 — SISTEMA DE DRENAJE INFERIOR (UNDERDRAIN)
+------------------------------------------------------------------------
+
+8.1 Función del underdrain
+
+El underdrain cumple tres funciones simultáneas:
+  1. Recolección y conducción del efluente filtrado hasta el punto de salida
+  2. Ventilación natural: entrada de aire fresco (base del filtro)
+  3. Soporte estructural del medio de relleno
+
+8.2 Diseño hidráulico del underdrain
+
+  PASO U1 — Caudal total a drenar:
+    Q_drain = Q_prom + Q_R   (m³/h)                                 [Ec. U1]
+
+  PASO U2 — Superficie total del underdrain:
+    A_ud = A_BF (igual al área del biofiltro)
+
+  PASO U3 — Caudal específico de drenaje:
+    q_drain = Q_drain / A_ud   (m³/m²·h)                           [Ec. U2]
+
+  PASO U4 — Dimensionamiento de canales radiales:
+    Pendiente del fondo: i_min = 1.0 – 2.0 % hacia el canal central
+    Separación entre canales radiales: 0.30 – 0.45 m
+    Sección de canal: trapezoidal o rectangular, mínimo 0.15 × 0.15 m
+
+  PASO U5 — Canal central colector:
+    Diámetro o ancho: Q_drain / v_canal  (v_canal = 0.60 – 1.20 m/s)
+    La tubería central conecta con el pozo de bombeo de recirculación.
+
+8.3 Ventilación natural del biofiltro
+
+  Área de ventilación requerida:
+    A_vent = 0.01 × A_BF (mínimo 1 % del área del filtro)          [Ec. U3]
+
+  Aberturas de ventilación:
+    - Ranuras en la base exterior del muro (nivel del underdrain)
+    - Chimeneas de ventilación en la parte superior del filtro
+    - Sección mínima de abertura libre: 0.30 × 0.30 m c/u
+
+  NOTA: El diferencial de temperatura entre el agua (cálida) y el
+  exterior (más fría) genera corriente de convección ascendente. Para
+  T_aire < T_agua: flujo ascendente → aire entra por la base.
+  Para T_aire > T_agua (posible en climas áridos): ventilación forzada
+  puede ser necesaria (extractor en la parte superior).
+
+
+------------------------------------------------------------------------
+SECCIÓN 9 — ESTRUCTURA CIVIL, VENTILACIÓN Y CUBIERTA
+------------------------------------------------------------------------
+
+9.1 Geometría del biofiltro
+
+  Forma recomendada: Circular (distribución giratoria más eficiente).
+  Alternativa: Rectangular (para medios plásticos modulares).
+
+  Dimensiones mínimas recomendadas:
+    Diámetro mínimo: D_BF ≥ 3.0 m
+    Diámetro máximo por unidad: D_BF ≤ 60 m (preferir 2 unidades en paralelo)
+    Profundidad del medio: según diseño (Sección 4 o 5)
+    Borde libre sobre el medio: 0.30 – 0.60 m
+    Altura total del muro: H_m + H_underdrain + H_borde
+
+  Relación profundidad / diámetro recomendada:
+    D/H ≈ 3 – 6  (para filtros de piedra)
+    D/H ≈ 1 – 3  (para filtros de plástico estructurado de alta carga)
+
+9.2 Materiales de construcción
+
+  Muro perimetral:    Hormigón armado f'c = 210 kg/cm² (espesor ≥ 20 cm)
+                      o mampostería de piedra con enlucido interior
+  Piso (fondo):       Losa de hormigón armado con pendiente hacia drenaje
+  Losa soporte medio: Hormigón armado con perforaciones (ver Sección 6)
+  Impermeabilización: Pintura epóxica o membrana de PVC en paredes internas
+
+9.3 Cubierta
+
+  Se recomienda cubierta en los siguientes casos:
+    - Zonas con precipitación > 1,500 mm/año (riesgo de sobrecarga hídrica)
+    - Temperaturas < 10 °C (protección térmica de la biopelícula)
+    - Zonas urbanas o residenciales (control de olores y moscas)
+    - Proyectos con norma de olores aplicable
+
+  Tipo de cubierta: Estructura metálica + policarbonato o fibra de vidrio
+                    con ventilación perimetral garantizada.
+
+9.4 Protección contra moscas (Psychoda)
+
+  Instalar malla antiinsecto (1 mm de apertura) en todas las aberturas
+  de ventilación. La cubierta cerrada elimina el hábitat de oviposición.
+
+
+------------------------------------------------------------------------
+SECCIÓN 10 — SEDIMENTADOR SECUNDARIO (CLARIFICADOR)
+------------------------------------------------------------------------
+
+10.1 Función
+
+El sedimentador secundario (también llamado clarificador secundario o
+sedimentador de sloughing) tiene como objetivo separar los sólidos
+biológicos (biopelícula desprendida) del efluente del biofiltro antes de
+la descarga o desinfección.
+
+10.2 Parámetros de diseño del clarificador secundario
+
+  Carga superficial hidráulica (CSH):
+    CSH_prom = 1.0 – 1.5 m³/m²·h   (para efluente de baja/media carga)
+    CSH_prom = 1.5 – 2.5 m³/m²·h   (para efluente de alta carga)
+    CSH_max  = 2.5 × CSH_prom
+
+  Área del clarificador:
+    A_clar = Q_clar / CSH_prom   (m²)                              [Ec. C1]
+    Donde Q_clar = Q_prom + Q_R (incluye recirculación si pasa por sed.)
+
+  Diámetro del clarificador (circular):
+    D_clar = √(4 × A_clar / π)   (m)                               [Ec. C2]
+
+  Profundidad lateral del clarificador:
+    H_clar = 2.5 – 3.5 m   (zona de clarificación)
+    Más: zona de lodos = 0.5 – 1.0 m
+    Total: H_total = 3.0 – 4.5 m
+
+  Tiempo de retención hidráulica (TRH):
+    TRH = V_clar / Q_clar   (h)   → verificar TRH ≥ 2.0 h          [Ec. C3]
+
+10.3 Sistema de extracción de lodos
+
+  Los lodos del clarificador secundario (sloughing sludge) tienen
+  concentración de 1,000 – 4,000 mg SST/L.
+  Sistema de extracción: rasqueta de fondo (mecanismo rotatorio) o
+  tolva cónica con válvula de apertura periódica.
+  Caudal de purga de lodos: 0.5 – 2.0 % del Q_prom.
+
+
+------------------------------------------------------------------------
+SECCIÓN 11 — RECIRCULACIÓN: CRITERIOS DE DISEÑO Y CÁLCULO
+------------------------------------------------------------------------
+
+11.1 Propósito de la recirculación en RUTA B
+
+La recirculación cumple cinco funciones técnicas:
+  1. Diluir la carga orgánica afluente (reducir S₀')
+  2. Mantener la CHS mínima del medio (humectación continua de biopelícula)
+  3. Distribuir el caudal uniformemente en el distribuidor giratorio
+  4. Devolver nutrientes y alcalinidad al biofiltro
+  5. Controlar la temperatura del agua (efecto buffer térmico)
+
+11.2 Esquemas de recirculación
+
+  ESQUEMA R1 — Recirculación simple (efluente clarificado → entrada):
+    El efluente del clarificador secundario retorna a la entrada del
+    biofiltro (antes de la mezcla con el afluente). Es el esquema más común.
+
+    Q_R → mezcla con Q_prom → distribuidor → biofiltro → clarificador
+    ↑__________________________________|
+
+  ESQUEMA R2 — Recirculación antes del clarificador (efluente crudo):
+    El efluente del biofiltro (no clarificado) retorna directamente al
+    distribuidor. Evita la acumulación de sólidos en la línea de retorno.
+
+  ESQUEMA R3 — Recirculación escalonada (para dos biofiltros en serie):
+    El efluente del biofiltro 2 se recircula a la entrada del biofiltro 1.
+
+11.3 Diseño del sistema de bombeo de recirculación
+
+  PASO R1 — Caudal de recirculación:
+    Q_R = R × Q_prom   (m³/d)                                       [Ec. R1]
+
+  PASO R2 — Altura dinámica total (HDT):
+    HDT = H_geo + h_f_tubería + h_f_válvulas + h_distribuidor        [Ec. R2]
+    H_geo: diferencia geométrica entre salida del clarificador y
+           punto de descarga sobre el biofiltro (m)
+    h_f: pérdidas de carga en la red de recirculación (m)
+    h_distribuidor: presión requerida en la entrada del distribuidor
+                    (0.5 – 2.0 m según fabricante)
+
+  PASO R3 — Potencia de la bomba de recirculación:
+    P = ρ × g × Q_R × HDT / (3,600 × η_bomba)   (kW)               [Ec. R3]
+    Donde ρ = 1,000 kg/m³, g = 9.81 m/s², η_bomba = 0.60 – 0.75
+
+  PASO R4 — Número de bombas:
+    Instalar mínimo 2 bombas iguales en paralelo (1 operativa + 1 reserva).
+    Seleccionar bombas centrífugas tipo sumergible o centrífuga horizontal
+    resistentes a sólidos.
+
+11.4 Razón de recirculación óptima
+
+  La razón de recirculación óptima R minimiza el volumen del biofiltro
+  para una eficiencia dada. No existe un valor universal, pero:
+
+    R muy bajo (< 0.5):  biopelícula insuficientemente humectada, CHS baja
+    R muy alto (> 4.0):  costo energético excesivo, poco beneficio marginal
+
+  Recomendación práctica: iniciar con R = 1.0 – 2.0 e iterar según Sección 5.
+
+
+------------------------------------------------------------------------
+SECCIÓN 12 — VERIFICACIÓN DE EFICIENCIA: MODELO DE GERMAIN/LOGAN (k-L)
+------------------------------------------------------------------------
+
+12.1 Ecuación de Germain (verificación o diseño alternativo)
+
+La ecuación de Germain permite verificar el efluente esperado para
+volumen conocido con recirculación:
+
+  Se/S₀' = exp(−k_T × D / Q_T^n)                                   [Ec. V1]
+
+  Donde:
+    k_T = k₂₀ × θ^(T − 20)   con θ = 1.035                         [Ec. V2]
+    Q_T = (Q_prom + Q_R) / A_BF   (m³/m²·h)                        [Ec. V3]
+    n   = 0.5 (medio plástico) / 0.67 (piedra)
+
+12.2 Ecuación de Logan (forma alternativa con área superficial)
+
+  Se/S₀' = exp(−k_A,T × a_s × D / Q_T^n)                           [Ec. V4]
+
+  Donde:
+    k_A,T = constante cinética por área superficial (m/h)
+    a_s   = área específica del medio (m²/m³)
+
+12.3 Corrección por temperatura
+
+  k_T = k₂₀ × θ^(T − 20)   con θ = 1.035 (DBO₅)                   [Ec. V5]
+  Para nitrificación: θ = 1.08 (más sensible a temperatura baja)
+
+  Tabla de factores de corrección de temperatura:
+
+    T (°C)  | θ^(T−20) para DBO₅  | θ^(T−20) para NH₄⁺
+    --------|---------------------|--------------------
+    10      | 0.709               | 0.463
+    12      | 0.757               | 0.540
+    15      | 0.832               | 0.681
+    18      | 0.916               | 0.853
+    20      | 1.000               | 1.000
+    22      | 1.072               | 1.166
+    25      | 1.190               | 1.469
+    28      | 1.317               | 1.851
+    30      | 1.416               | 2.159
+
+12.4 Eficiencia de remoción de SST
+
+  La remoción de SST en el biofiltro es mínima (el medio no es un
+  filtro de sólidos). La remoción principal de SST ocurre en el
+  clarificador secundario.
+
+  Eficiencia típica del clarificador (sloughing):
+    E_SST = 85 – 92 %  (para CSH ≤ 1.5 m³/m²·h)
+
+  Concentración efluente de SST:
+    SST_e = SST₀ × (1 − E_SST) + SST_prod                          [Ec. V6]
+    Donde SST_prod = producción de biopelícula nueva ≈ 0.5–0.8 kg SST /
+                     kg DBO₅ removida
+
+
+------------------------------------------------------------------------
+SECCIÓN 13 — VERIFICACIÓN DE CUMPLIMIENTO NORMATIVO (TULSMA Y EQUIVALENTES)
+------------------------------------------------------------------------
+
+13.1 Límites TULSMA (Texto Unificado de Legislación Secundaria del
+     Ministerio del Ambiente del Ecuador)
+
+  Tabla 12 — Descarga a cuerpos de agua dulce:
+    DBO₅:  ≤ 100 mg/L   (valor guía: ≤ 60 mg/L)
+    DQO:   ≤ 250 mg/L
+    SST:   ≤ 130 mg/L
+    pH:    6 – 9
+    CF:    ≤ 3,000 UFC/100 mL
+
+  Tabla 13 — Descarga al suelo (riego restringido):
+    DBO₅:  ≤ 100 mg/L
+    SST:   ≤ 100 mg/L
+    CF:    ≤ 3,000 UFC/100 mL
+
+13.2 Tabla de verificación de cumplimiento
+
+  Parámetro     | Unidad  | Se calculado | Límite T12  | Límite T13  | Estado
+  --------------|---------|--------------|-------------|-------------|--------
+  DBO₅          | mg/L    |   ___        | ≤ 100       | ≤ 100       | ___
+  DQO           | mg/L    |   ___        | ≤ 250       | ≤ 250       | ___
+  SST           | mg/L    |   ___        | ≤ 130       | ≤ 100       | ___
+  pH            | —       |   ___        | 6 – 9       | 6 – 9       | ___
+  CF            | UFC/100 |   > 3,000    | ≤ 3,000     | ≤ 3,000     | Desinf.
+
+  NOTA: Si DBO₅ efluente > 100 mg/L, evaluar:
+    a) Aumentar profundidad del medio (D)
+    b) Aumentar razón de recirculación (R)
+    c) Agregar una segunda etapa (biofiltro nitrificante)
+    d) Complementar con HAFV o lecho de arena (post-tratamiento)
+
+13.3 Normas equivalentes de referencia
+
+  Colombia:  Decreto 1076 de 2015, Res. 631 de 2015 (MADS)
+  Perú:      D.S. 003-2010-MINAM (LMP para PTAR)
+  Bolivia:   Reglamento en Materia de Contaminación Hídrica (RMCH)
+  México:    NOM-001-SEMARNAT-2021
+  General:   OMS (2006) Guidelines for safe wastewater use
+
+
+------------------------------------------------------------------------
+SECCIÓN 14 — PRODUCCIÓN DE LODOS Y MANTENIMIENTO
+------------------------------------------------------------------------
+
+14.1 Fuentes de lodos en el sistema de biofiltro
+
+  Fuente 1 — Sedimentador primario:
+    Lodo primario crudo: 0.04 – 0.07 kg SST / m³ de agua tratada
+
+  Fuente 2 — Clarificador secundario (sloughing):
+    Lodo biológico secundario: 0.5 – 0.8 kg SST / kg DBO₅ removida en biofiltro
+
+14.2 Cálculo de producción de lodos
+
+  PASO L1 — Producción de SST en el clarificador secundario:
+    P_SST = Y_obs × Q_prom × (S₀ − Se) × 10⁻³   (kg SST/d)        [Ec. L1]
+    Donde:
+      Y_obs = 0.50 – 0.80 kg SST / kg DBO₅ removida
+      (usar Y_obs = 0.65 como valor medio para diseño)
+
+  PASO L2 — Concentración de lodos en el fondo del clarificador:
+    C_lodos = 8,000 – 12,000 mg/L  (lodo espesado)
+    C_lodos = 1,500 – 4,000 mg/L  (lodo fresco antes de espesar)
+
+  PASO L3 — Caudal de purga de lodos:
+    Q_purga = P_SST / C_lodos × 10³   (m³/d)                       [Ec. L2]
+
+  PASO L4 — Volumen de digestión / almacenamiento de lodos:
+    Adoptar tiempo de digestión anaeróbica de lodos: 30 – 60 días
+    V_digestor = Q_purga × t_dig   (m³)                             [Ec. L3]
+
+14.3 Plan de mantenimiento preventivo
+
+  Frecuencia diaria:
+    □ Verificar operación del aspersor rotatorio (giro continuo y uniforme)
+    □ Inspección visual del efluente del biofiltro (turbidez, olor)
+    □ Registro de caudales (afluente y recirculación si aplica)
+    □ Operación del sistema de bombeo de recirculación (RUTA B)
+
+  Frecuencia semanal:
+    □ Medición de pH del efluente
+    □ Inspección de tuberías de recirculación (fugas, obstrucciones)
+    □ Limpieza de orificios del distribuidor (con agua a presión si tapados)
+    □ Registro de presión en la línea de recirculación (RUTA B)
+
+  Frecuencia mensual:
+    □ Análisis de DBO₅ / DQO / SST del efluente del clarificador
+    □ Inspección del estado del medio de relleno (zona superior)
+    □ Extracción de lodos del clarificador secundario (según nivel)
+    □ Ajuste de razón de recirculación R según eficiencia observada
+
+  Frecuencia semestral:
+    □ Inspección interior del biofiltro (acceso seguro, sin gas H₂S)
+    □ Verificación de la losa soporte del medio
+    □ Limpieza de la zona de underdrain (canales de drenaje)
+    □ Revisión de rodamientos del aspersor
+
+  Frecuencia anual:
+    □ Análisis completo: DBO₅, DQO, SST, NH₄⁺, CF, pH, Temperatura
+    □ Inspección estructural de muros y losa
+    □ Revisión de válvulas e instrumentación
+    □ Evaluación del estado de la biopelícula (grosor, homogeneidad)
+
+
+------------------------------------------------------------------------
+SECCIÓN 15 — REQUERIMIENTOS DE ÁREA TOTAL DEL PREDIO
+------------------------------------------------------------------------
+
+15.1 Componentes del área total de la planta de tratamiento
+
+  Componente                          | Factor referencial
+  ------------------------------------|-----------------------------------
+  Biofiltro(s) (área neta)            | A_BF calculada
+  Sedimentador(es) primario(s)        | 10 – 15 % de A_BF
+  Clarificador(es) secundario(s)      | A_clar calculada (Sec. 10)
+  Pozo de bombeo de recirculación     | 5 % de A_BF
+  Digestor / lecho de secado de lodos | 15 – 25 % de A_BF
+  Sala de operaciones y control       | fijo: 15 – 25 m²
+  Accesos y circulación interna       | 20 % del área construida total
+  Zona de amortiguamiento (buffer)    | ≥ 20 m de distancia a linderos
+
+15.2 Cálculo del área total del predio
+
+  A_construida = A_BF + A_clar + A_sedprim + A_digestor + A_sala      [Ec. P1]
+  A_accesos    = 0.20 × A_construida                                  [Ec. P2]
+  A_predio_min = (A_construida + A_accesos) / (1 − 0.15)             [Ec. P3]
+  El factor 0.15 representa taludes, muros perimetrales y franjas verdes.
+
+
+------------------------------------------------------------------------
+SECCIÓN 16 — TABLA DE RESULTADOS CONSOLIDADA
+------------------------------------------------------------------------
+
+  PARÁMETROS DE ENTRADA
+  ══════════════════════════════════════════════════════════════════
+  Caudal promedio diario       Q_prom   =  _____ m³/d
+  Caudal máximo horario        Q_max    =  _____ m³/h
+  Población equivalente        PE       =  _____ hab
+  DBO₅ afluente al biofiltro   S₀       =  _____ mg/L
+  DBO₅ efluente requerido      Se       =  _____ mg/L
+  SST afluente                 SST₀     =  _____ mg/L
+  Temperatura del agua         T        =  _____ °C
+  Ruta de diseño seleccionada           =  RUTA A / RUTA B
+
+  DISEÑO DEL BIOFILTRO
+  ══════════════════════════════════════════════════════════════════
+  Razón de recirculación       R        =  _____
+  Concentración diluida        S₀'      =  _____ mg/L
+  Eficiencia global requerida  E_req    =  _____ %
+  Constante cinética k_T       k_T      =  _____ m/h
+  Carga orgánica superficial   COS      =  _____ kg DBO₅/m³·d
+  Carga hidráulica total       Q_T      =  _____ m³/m²·h
+  Profundidad del medio        D        =  _____ m
+  Área del biofiltro           A_BF     =  _____ m²
+  Diámetro del biofiltro       D_BF     =  _____ m  (si circular)
+  Volumen del medio            V        =  _____ m³
+  Tipo de medio seleccionado            =  _____________________
+  Área superficial específica  a_s      =  _____ m²/m³
+
+  CLARIFICADOR SECUNDARIO
+  ══════════════════════════════════════════════════════════════════
+  Carga superficial hidráulica CSH      =  _____ m³/m²·h
+  Área del clarificador        A_clar   =  _____ m²
+  Diámetro del clarificador    D_clar   =  _____ m
+  Profundidad lateral                   =  _____ m
+  TRH                                   =  _____ h
+
+  SISTEMA DE RECIRCULACIÓN (RUTA B)
+  ══════════════════════════════════════════════════════════════════
+  Caudal de recirculación      Q_R      =  _____ m³/d
+  Altura dinámica total        HDT      =  _____ m
+  Potencia de bomba            P_bomba  =  _____ kW
+  Número de bombas                      =  2 (1 op. + 1 reserva)
+
+  CALIDAD DEL EFLUENTE
+  ══════════════════════════════════════════════════════════════════
+  DBO₅ efluente calculado      Se_calc  =  _____ mg/L  ✓/✗ TULSMA
+  DQO efluente calculado                =  _____ mg/L  ✓/✗ TULSMA
+  SST efluente calculado                =  _____ mg/L  ✓/✗ TULSMA
+
+  PRODUCCIÓN DE LODOS
+  ══════════════════════════════════════════════════════════════════
+  Producción diaria de SST     P_SST    =  _____ kg SST/d
+  Caudal de purga de lodos     Q_purga  =  _____ m³/d
+  Volumen de digestor          V_dig    =  _____ m³
+
+  ÁREA
+  ══════════════════════════════════════════════════════════════════
+  Área construida total                 =  _____ m²
+  Área total del predio estimada        =  _____ m²  (_____ ha)
+
+
+------------------------------------------------------------------------
+SECCIÓN 17 — ÍNDICE DE ECUACIONES
+------------------------------------------------------------------------
+
+  Ec. A1  — Eficiencia NRC (única etapa)
+  Ec. A2  — Factor de recirculación F
+  Ec. A3  — Eficiencia NRC etapa 1 (dos etapas)
+  Ec. A4  — Eficiencia NRC etapa 2 (dos etapas)
+  Ec. A5  — Carga de DBO₅ afluente W
+  Ec. A6  — Eficiencia global requerida E_req
+  Ec. A7  — Volumen del medio (despejar de NRC)
+  Ec. A8  — Área del biofiltro (RUTA A)
+  Ec. A9  — Diámetro del biofiltro
+  Ec. A10 — Carga orgánica superficial COS
+  Ec. A11 — Carga hidráulica superficial CHS
+  Ec. A12 — Tiempo de retención hidráulica HRT
+  Ec. A13 — Concentración efluente calculada
+  Ec. B1  — Ecuación de Germain (Se/S₀')
+  Ec. B2  — Constante cinética corregida por temperatura
+  Ec. B3  — Concentración afluente diluida S₀'
+  Ec. B4  — Relación Se/S₀' con recirculación
+  Ec. B5  — Corrección de k_T por temperatura
+  Ec. B6  — Carga hidráulica total Q_T
+  Ec. B7  — Profundidad D del biofiltro (Germain)
+  Ec. B8  — Área del biofiltro (RUTA B)
+  Ec. B9  — Volumen del medio de relleno
+  Ec. B10 — Verificación de COS (RUTA B)
+  Ec. B11 — Verificación CHS mínima
+  Ec. B12 — Verificación CHS máxima
+  Ec. B13 — Caudal de bombeo de recirculación
+  Ec. B14 — Potencia de bomba de recirculación
+  Ec. C1  — Área del clarificador secundario
+  Ec. C2  — Diámetro del clarificador
+  Ec. C3  — TRH del clarificador
+  Ec. D1  — Caudal por brazo del distribuidor
+  Ec. D2  — Longitud del brazo del distribuidor
+  Ec. D3  — Velocidad de eflujo en orificios
+  Ec. L1  — Producción de SST (lodos secundarios)
+  Ec. L2  — Caudal de purga de lodos
+  Ec. L3  — Volumen del digestor de lodos
+  Ec. P1  — Área construida total
+  Ec. P2  — Área de accesos
+  Ec. P3  — Área mínima del predio
+  Ec. R1  — Caudal de recirculación
+  Ec. R2  — Altura dinámica total HDT
+  Ec. R3  — Potencia de la bomba de recirculación
+  Ec. U1  — Caudal total de drenaje
+  Ec. U2  — Caudal específico del underdrain
+  Ec. U3  — Área de ventilación requerida
+  Ec. V1  — Verificación por modelo de Germain
+  Ec. V2  — Corrección k_T Arrhenius (DBO₅)
+  Ec. V3  — Carga hidráulica Q_T
+  Ec. V4  — Ecuación de Logan (variante)
+  Ec. V5  — Corrección k_T para nitrificación
+  Ec. V6  — Concentración efluente SST
+
+
+------------------------------------------------------------------------
+SECCIÓN 18 — REFERENCIAS BIBLIOGRÁFICAS
+------------------------------------------------------------------------
+
+  [1]  Metcalf & Eddy / Tchobanoglous, G., Stensel, H.D., Tsuchihashi, R.,
+       Burton, F. (2014). Wastewater Engineering: Treatment and Resource
+       Recovery. 5th ed. McGraw-Hill Education.
+
+  [2]  Germain, J.E. (1966). Economic Treatment of Domestic Waste by
+       Plastic-Medium Trickling Filters. Journal WPCF, 38(2), 192–203.
+
+  [3]  Schultz, K.L. (1960). Load and efficiency of trickling filters.
+       Journal WPCF, 32(3), 245–261.
+
+  [4]  Eckenfelder, W.W. (1989). Industrial Water Pollution Control.
+       2nd ed. McGraw-Hill.
+
+  [5]  US EPA (1984). Process Design Manual for Fixed Film Systems.
+       EPA-600/2-84-091.
+
+  [6]  US EPA (2000). Constructed Wetlands Treatment of Municipal
+       Wastewaters. EPA/625/R-99/010.
+
+  [7]  WEF / ASCE (2010). Design of Municipal Wastewater Treatment Plants.
+       WEF Manual of Practice No. 8, 5th ed.
+
+  [8]  Parker, D.S., Lutz, M., Sherrill, C., Yokochi, H. (1995).
+       New concepts in oxygen transfer and hydraulics for trickling
+       filters. Journal WPCF, 67(9), 1456–1462.
+
+  [9]  Logan, B.E., Hermanowicz, S.W., Parker, D.S. (1987). A fundamental
+       model for trickling filter process design. Journal WPCF, 59(12),
+       1029–1042.
+
+  [10] OPS/CEPIS (2005). Guía para el diseño de sistemas de tratamiento
+       de agua residual. Organización Panamericana de la Salud /
+       Centro Panamericano de Ingeniería Sanitaria.
+
+  [11] Ministerio del Ambiente del Ecuador (2015). Texto Unificado de
+       Legislación Secundaria del Ministerio del Ambiente (TULSMA),
+       Libro VI, Anexo 1, Tablas 12 y 13.
+
+  [12] Gujer, W., Boller, M. (1986). A mathematical model for rotating
+       biological contactors. Water Science and Technology, 18(6), 269–287.
+
+  [13] Ministerio de Vivienda y Urbanismo de Chile (2009). Manual de Agua
+       Potable, Alcantarillado y Saneamiento. Saneamiento básico para
+       comunidades rurales.
+
+
+------------------------------------------------------------------------
+SECCIÓN 19 — GLOSARIO DE TÉRMINOS TÉCNICOS
+------------------------------------------------------------------------
+
+  Término              | Definición
+  ---------------------|----------------------------------------------------
+  Biofiltro percolador | Reactor biológico de película fija donde el agua
+                       | percola por un medio sólido recubierto de biofilm
+  Biopelícula (biofilm)| Comunidad de microorganismos adherida a la
+                       | superficie del medio de relleno
+  CHS                  | Carga Hidráulica Superficial: caudal por unidad
+                       | de área horizontal del biofiltro (m³/m²·h)
+  COS                  | Carga Orgánica Superficial o volumétrica: masa
+                       | de DBO₅ por unidad de volumen del medio (kg/m³·d)
+  Clarificador         | Sedimentador que separa sólidos biológicos
+  secundario           | del efluente del biofiltro (sloughing sludge)
+  Clogging             | Taponamiento o colmatación del medio de relleno
+                       | por acumulación excesiva de biomasa o sólidos
+  DBO₅                 | Demanda Bioquímica de Oxígeno a 5 días: medida
+                       | de materia orgánica biodegradable (mg/L)
+  DQO                  | Demanda Química de Oxígeno: medida total de
+                       | materia orgánica oxidable (mg/L)
+  HDT                  | Altura Dinámica Total: presión requerida por una
+                       | bomba, expresada en metros de columna de agua
+  HRT                  | Hydraulic Retention Time: tiempo de retención
+                       | hidráulica del agua en el reactor
+  k₂₀                  | Constante cinética de remoción a 20 °C (m/h)
+  k_T                  | Constante cinética corregida a temperatura T
+  Medio estructurado   | Medio de relleno de plástico moldeado con
+                       | alta porosidad y área superficial específica
+  n                    | Exponente del caudal en el modelo de Germain
+  NRC                  | National Research Council: organismo que desarrolló
+                       | el modelo empírico para filtros de piedra (1946)
+  PE                   | Población Equivalente: unidad funcional que
+                       | equivale a la carga de un habitante típico
+  R                    | Razón de recirculación = Q_R / Q_prom
+  Roughing filter      | Biofiltro de desbaste: etapa previa de alta carga
+                       | que reduce la carga antes de un tratamiento fino
+  S₀                   | Concentración de DBO₅ afluente al biofiltro
+  S₀'                  | Concentración de DBO₅ afluente diluida por recirculación
+  Se                   | Concentración de DBO₅ efluente del biofiltro
+  Sloughing            | Desprendimiento periódico de la biopelícula madura
+  SST                  | Sólidos Suspendidos Totales (mg/L)
+  TULSMA               | Texto Unificado de Legislación Secundaria del
+                       | Ministerio del Ambiente (Ecuador)
+  Underdrain           | Sistema de drenaje inferior del biofiltro que
+                       | recoge el efluente y permite la ventilación
+  ε                    | Porosidad o fracción de vacíos del medio (adim.)
+  θ                    | Coeficiente de corrección de Arrhenius (temperatura)
+  a_s                  | Área superficial específica del medio (m²/m³)
+  ω                    | Velocidad de rotación del distribuidor (RPM)
+
+
+------------------------------------------------------------------------
+SECCIÓN 20 — EJEMPLO DE CÁLCULO RESUELTO
+           (Proyecto tipo: comunidad andina, zona intermedia, 500 PE)
+------------------------------------------------------------------------
+
+DATOS DEL PROYECTO
+══════════════════════════════════════════════════════════════════════
+
+  Nombre del proyecto:  PTAR Comunidad Andina (ejemplo)
+  Ubicación:            Zona andina, 2,600 m.s.n.m.
+  Temperatura del agua: T = 16 °C (agua residual)
+  Temperatura del aire: T_aire = 12 °C (mínima mensual promedio)
+
+  Población de diseño:  500 hab (período 20 años)
+  Dotación per cápita:  130 L/hab·d
+  Coeficiente de retorno al alcantarillado: 0.80
+
+  Caudal promedio:
+    Q_prom = 500 × 130 × 0.80 / 1,000 = 52.0 m³/d = 2.17 m³/h
+
+  Factor de pico horario (fp = 3.0):
+    Q_max = 2.17 × 3.0 = 6.51 m³/h
+
+  Calidad del agua residual cruda:
+    DBO₅ crudo    = 250 mg/L
+    SST crudo     = 200 mg/L
+
+  Pretratamiento: Rejillas + Desarenador + Sedimentador primario
+    Remoción DBO₅ en sedimentador primario: 35 %
+    Remoción SST  en sedimentador primario: 55 %
+    S₀ al biofiltro = 250 × (1 − 0.35) = 162.5 mg/L ≈ 163 mg/L
+    SST₀ al biofiltro = 200 × (1 − 0.55) = 90 mg/L
+
+  Efluente requerido (TULSMA Tabla 12):
+    Se = 60 mg/L DBO₅  (descarga a río de páramo)
+    SST_e = 80 mg/L
+
+──────────────────────────────────────────────────────────────────────
+PASO 0 — SELECCIÓN DE RUTA (Algoritmo Sección 3)
+──────────────────────────────────────────────────────────────────────
+
+  Área disponible estimada para biofiltro: A_disp ≈ 250 m²
+  V_ref = 250 × 3.0 = 750 m³
+
+  COS_prelim = Q × S₀ / (1,000 × V_ref)
+             = 52.0 × 163 / (1,000 × 750)
+             = 8,476 / 750,000
+             = 0.011 kg DBO₅/m³·d  << 0.40 → RUTA A ✓
+
+  Decisión: RUTA A — Carga Hidráulica Convencional, sin recirculación (R = 0)
+
+  Altitud 2,600 m.s.n.m.: temperatura baja → sistema de baja carga
+  Temperatura 16 °C: aplicar corrección de temperatura en verificación final.
+
+──────────────────────────────────────────────────────────────────────
+PASO A1 — CARGA DE DBO₅ AFLUENTE
+──────────────────────────────────────────────────────────────────────
+
+  W = Q_prom × S₀ × 10⁻³
+    = 52.0 m³/d × 163 mg/L × 10⁻³
+    = 8.48 kg DBO₅/d
+
+──────────────────────────────────────────────────────────────────────
+PASO A2 — EFICIENCIA REQUERIDA
+──────────────────────────────────────────────────────────────────────
+
+  E_req = (S₀ − Se) / S₀ = (163 − 60) / 163 = 103 / 163 = 0.632  (63.2 %)
+
+──────────────────────────────────────────────────────────────────────
+PASO A3 — VOLUMEN DEL MEDIO (Modelo NRC, R = 0, F = 1.0)
+──────────────────────────────────────────────────────────────────────
+
+  Usando Ec. A7b:
+    V = W × F / [0.1963 × ((1 − E) / E)²]
+
+    (1 − E) / E = (1 − 0.632) / 0.632 = 0.368 / 0.632 = 0.582
+    ((1 − E) / E)² = 0.582² = 0.339
+
+    V = 8.48 × 1.0 / (0.1963 × 0.339)
+    V = 8.48 / 0.0666
+    V = 127.3 m³
+
+──────────────────────────────────────────────────────────────────────
+PASO A4 — SELECCIÓN DEL MEDIO Y PROFUNDIDAD
+──────────────────────────────────────────────────────────────────────
+
+  Disponibilidad local: Piedra volcánica de 40–60 mm (zona andina)
+  Propiedades del medio seleccionado:
+    a_s = 60 m²/m³, ε = 0.48, n = 0.67
+
+  Profundidad adoptada: H_m = 2.0 m (medio de piedra, baja carga)
+
+──────────────────────────────────────────────────────────────────────
+PASO A5 — ÁREA DEL BIOFILTRO
+──────────────────────────────────────────────────────────────────────
+
+  A_BF = V / H_m = 127.3 / 2.0 = 63.7 m²
+
+  Redondear a A_BF_adoptada = 65.0 m²  (ajuste de seguridad + módulos)
+
+  Volumen real del medio: V_real = 65.0 × 2.0 = 130 m³
+
+──────────────────────────────────────────────────────────────────────
+PASO A6 — DIMENSIONES DEL BIOFILTRO
+──────────────────────────────────────────────────────────────────────
+
+  Forma: Circular (distribuidor giratorio)
+
+  D_BF = √(4 × 65.0 / π) = √(82.8) = 9.1 m
+
+  Adoptar D_BF = 9.5 m  (diámetro comercial disponible)
+  A_BF_final = π × 9.5² / 4 = 70.9 m²
+  V_final = 70.9 × 2.0 = 141.7 m³  (sobredimensionado 11.4 % → favorece eficiencia)
+
+──────────────────────────────────────────────────────────────────────
+PASO A7 — VERIFICACIÓN DE COS
+──────────────────────────────────────────────────────────────────────
+
+  COS = W / V_final = 8.48 / 141.7 = 0.060 kg DBO₅/m³·d
+
+  Verificación: 0.060 ≤ 0.24 kg DBO₅/m³·d  → BAJA CARGA ✓
+
+──────────────────────────────────────────────────────────────────────
+PASO A8 — CARGA HIDRÁULICA SUPERFICIAL
+──────────────────────────────────────────────────────────────────────
+
+  CHS_prom = Q_prom / A_BF = (52.0 / 24) / 70.9 = 2.17 / 70.9 = 0.031 m³/m²·h
+
+  CHS mínima para piedra volcánica: 0.5 – 1.0 m³/m²·h
+
+  ALERTA: CHS calculada = 0.031 m³/m²·h < CHS_mínima = 0.5 m³/m²·h
+  → La carga hidráulica es insuficiente para la distribución adecuada.
+  → SOLUCIÓN: Adicionar recirculación mínima para alcanzar CHS_mín.
+
+──────────────────────────────────────────────────────────────────────
+PASO A8b — RECIRCULACIÓN CORRECTIVA PARA CHS MÍNIMA
+──────────────────────────────────────────────────────────────────────
+
+  Q_T_min = CHS_min × A_BF = 0.5 × 70.9 = 35.5 m³/h
+  Q_R_min = Q_T_min − Q_prom_h = 35.5 − 2.17 = 33.3 m³/h
+  R_correctivo = Q_R_min / Q_prom_h = 33.3 / 2.17 = 15.3
+
+  NOTA: R = 15.3 es extremadamente alto y antieconómico.
+  DECISIÓN DE DISEÑO: Para comunidades pequeñas con bajo caudal, se
+  prefiere operar el biofiltro en modo de ciclos intermitentes (dosificación
+  por pulsos) con válvula temporizadora, o usar medio plástico con menor
+  CHS mínima requerida (plástico: CHS_mín = 5 m³/m²·h vs piedra: 0.5).
+
+  → Rediseñar con medio plástico estándar (a_s = 90 m²/m³):
+    CHS_min_plástico = 5.0 m³/m²·h  (más tolerante a bajo caudal)
+    Verificar que Q_T ≥ 5.0 m³/m²·h con R = 1.0
+
+  Q_T con R = 1.0:
+    Q_T = Q_prom_h × (1 + R) / A_BF = 2.17 × 2 / 70.9 = 0.061 m³/m²·h
+
+  Aún insuficiente. Solución: reducir A_BF para concentrar el caudal.
+  A_BF_nueva = Q_prom_h × (1 + R) / CHS_min = 2.17 × 2 / 5.0 = 0.87 m²
+
+  Esto implica un biofiltro muy pequeño (D ≈ 1.0 m) con mayor profundidad.
+  En la práctica para 500 PE, se recomienda operar con R = 2.0 y D = 4.0 m
+  (medio plástico estructurado).
+
+  → CAMBIO DE RUTA A → RUTA B PARCIAL (recirculación mínima de operación):
+  En la práctica, comunidades con bajo caudal y medio plástico usan
+  siempre recirculación operativa, incluso si la COS no lo exige.
+
+──────────────────────────────────────────────────────────────────────
+REDISEÑO CON RUTA B — MEDIO PLÁSTICO, R = 2.0
+──────────────────────────────────────────────────────────────────────
+
+  Parámetros del medio plástico estructurado (módulo cruzado 100 mm):
+    a_s = 100 m²/m³,  ε = 0.95,  k₂₀ = 0.08 m/h,  n = 0.5
+
+  PASO B2 — Concentración diluida S₀':
+    S₀' = (S₀ + R × Se) / (1 + R) = (163 + 2.0 × 60) / 3.0 = (163 + 120) / 3.0
+    S₀' = 283 / 3.0 = 94.3 mg/L
+
+  PASO B5 — Corrección cinética por temperatura:
+    k_T = k₂₀ × 1.035^(T − 20) = 0.08 × 1.035^(16 − 20)
+    1.035^(−4) = 1 / 1.035^4 = 1 / 1.1475 = 0.872
+    k_T = 0.08 × 0.872 = 0.0697 m/h ≈ 0.070 m/h
+
+  PASO B6 — Selección de Q_T y cálculo de A_BF:
+    Adoptar Q_T = 10.0 m³/m²·h (CHS mínima para plástico)
+
+    A_BF = Q_prom_h × (1 + R) / Q_T = 2.17 × 3.0 / 10.0 = 0.65 m²
+
+    Muy pequeño para instalación única → D_BF = √(4 × 0.65 / π) = 0.91 m
+    Adoptar D_BF = 1.0 m, A_BF = 0.785 m²
+    Q_T_real = 2.17 × 3.0 / 0.785 = 8.29 m³/m²·h (ligeramente bajo CHS_min)
+    → Usar R = 3.0:
+    Q_T = 2.17 × 4.0 / 0.785 = 11.1 m³/m²·h ✓ > 10.0 m³/m²·h ✓
+
+  PASO B7 — Profundidad D del medio:
+    Se/S₀' = exp(−k_T × D / Q_T^n)
+    60 / 94.3 = exp(−0.070 × D / 11.1^0.5)
+    0.636 = exp(−0.070 × D / 3.332)
+    ln(0.636) = −0.070 × D / 3.332
+    −0.453 = −0.021 × D
+    D = 0.453 / 0.021 = 21.6 m  → IMPOSIBLE para un solo filtro
+
+  DIAGNÓSTICO: Para S₀' = 94.3 mg/L y Se = 60 mg/L (eficiencia = 36 %)
+  con k_T = 0.070 m/h la profundidad requerida es muy alta.
+
+  Solución: Reducir R para aumentar la eficiencia requerida dentro del filtro
+  o aumentar k_T (medio de mayor densidad) o aceptar menor eficiencia
+  en una sola etapa con post-tratamiento.
+
+  → Opción práctica: Usar medio plástico de alta densidad (a_s = 150 m²/m³,
+    k₂₀ = 0.18 m/h) más adecuado para clima frío.
+
+  REDISEÑO con medio de alta densidad:
+    k₂₀ = 0.18 m/h, n = 0.5
+    k_T = 0.18 × 0.872 = 0.157 m/h
+
+  Con S₀' = 94.3, Se = 60, Q_T = 11.1 m³/m²·h:
+    ln(60/94.3) = −0.157 × D / 11.1^0.5
+    −0.453 = −0.157 × D / 3.332
+    D = 0.453 × 3.332 / 0.157 = 9.61 m → adoptar D = 10.0 m ✓
+
+  PASO B9 — Volumen del medio:
+    V = A_BF × D = 0.785 × 10.0 = 7.85 m³
+
+  PASO B10 — Verificación COS:
+    COS = Q × S₀ × 10⁻³ / V = 52.0 × 163 × 10⁻³ / 7.85
+        = 8.48 / 7.85 = 1.08 kg DBO₅/m³·d  → Alta carga, RUTA B ✓
+
+──────────────────────────────────────────────────────────────────────
+PASO V — VERIFICACIÓN FINAL CON MODELO DE GERMAIN
+──────────────────────────────────────────────────────────────────────
+
+  S₀' = (163 + 3.0 × 60) / 4.0 = (163 + 180) / 4.0 = 343 / 4.0 = 85.75 mg/L
+  (Iterar con R = 3.0)
+
+  Q_T = 2.17 × (1 + 3.0) / 0.785 = 8.68 / 0.785 = 11.1 m³/m²·h
+
+  Se/S₀' = exp(−0.157 × 10.0 / 11.1^0.5)
+          = exp(−1.57 / 3.332)
+          = exp(−0.471)
+          = 0.624
+
+  Se = 0.624 × S₀' = 0.624 × 85.75 = 53.5 mg/L
+
+  Verificación DBO₅: Se = 53.5 mg/L ≤ 60 mg/L  → ✓ CUMPLE TULSMA T12
+
+  Iterar S₀' con Se = 53.5 mg/L:
+    S₀' = (163 + 3.0 × 53.5) / 4.0 = (163 + 160.5) / 4.0 = 80.9 mg/L
+    Se  = 0.624 × 80.9 = 50.5 mg/L  ← convergencia suficiente (< 3 mg/L de diferencia)
+
+  Eficiencia DBO₅: E = (163 − 50.5) / 163 × 100 = 69.0 %
+
+──────────────────────────────────────────────────────────────────────
+PASO C — CLARIFICADOR SECUNDARIO
+──────────────────────────────────────────────────────────────────────
+
+  Q_clar = Q_prom_h × (1 + R) = 2.17 × 4.0 = 8.68 m³/h
+  CSH = 1.5 m³/m²·h  (adoptado)
+  A_clar = 8.68 / 1.5 = 5.8 m²  → adoptar A_clar = 6.0 m²
+  D_clar = √(4 × 6.0 / π) = 2.76 m → adoptar D_clar = 3.0 m
+  V_clar = 6.0 × 3.0 = 18.0 m³ (profundidad lateral 3.0 m)
+  TRH = 18.0 / 8.68 = 2.07 h  ≥ 2.0 h ✓
+
+  SST efluente (clarificador, E_SST = 88 %):
+    SST_e = 90 × (1 − 0.88) = 10.8 mg/L ≤ 80 mg/L ✓ CUMPLE ✓
+
+──────────────────────────────────────────────────────────────────────
+PASO R — SISTEMA DE RECIRCULACIÓN
+──────────────────────────────────────────────────────────────────────
+
+  Q_R = R × Q_prom = 3.0 × 52.0 = 156.0 m³/d = 6.5 m³/h
+  HDT estimado: H_geo = 4.0 m + h_f = 1.5 m + h_dist = 1.0 m = 6.5 m
+  P_bomba = 1000 × 9.81 × (6.5 / 3600) × 6.5 / (0.65)
+          = 1000 × 9.81 × 0.00181 × 6.5 / 0.65
+          = 17.7 / 0.65 = 0.177 kW ≈ 180 W
+
+  Instalar 2 bombas de 0.25 kW cada una (1 operativa + 1 reserva).
+
+──────────────────────────────────────────────────────────────────────
+PASO L — PRODUCCIÓN DE LODOS
+──────────────────────────────────────────────────────────────────────
+
+  DBO₅ removida = Q_prom × (S₀ − Se) × 10⁻³ = 52.0 × (163 − 50.5) × 10⁻³
+                = 52.0 × 112.5 × 10⁻³ = 5.85 kg DBO₅/d
+
+  P_SST = Y_obs × 5.85 = 0.65 × 5.85 = 3.80 kg SST/d
+
+  C_lodos = 3,000 mg/L (clarificador secundario)
+  Q_purga = 3.80 / 3.0 = 1.27 m³/d
+
+  Lecho de secado de lodos (T_seg = 30 días):
+    V_dig = 1.27 × 30 = 38.1 m³
+    Área lecho de secado (h_lodo = 0.30 m): 38.1 / 0.30 = 127 m²
+    → 2 lechos de 64 m² cada uno (8 m × 8 m)
+
+──────────────────────────────────────────────────────────────────────
+PASO N — VERIFICACIÓN NORMATIVA (TULSMA T12)
+──────────────────────────────────────────────────────────────────────
+
+  Parámetro | Ce calculado | TULSMA T12  | Estado
+  ----------|--------------|-------------|--------
+  DBO₅ mg/L |    50.5      | ≤ 100       | ✓ CUMPLE (guía ≤ 60 ✓)
+  SST  mg/L |    10.8      | ≤ 130       | ✓ CUMPLE
+  CF        |  > 3,000     | ≤ 3,000     | Requiere desinfección
+
+  → Sistema UV o hipoclorito necesario para coliformes fecales.
+
+──────────────────────────────────────────────────────────────────────
+PASO P — ÁREA TOTAL DEL PREDIO
+──────────────────────────────────────────────────────────────────────
+
+  Biofiltro (D = 1.0 m + zona perimetral):   ~10 m² (incluido en conjunto)
+  Sedimentador primario:                      ~12 m²
+  Clarificador secundario (D = 3.0 m):         7 m²
+  Lechos de secado de lodos:                 128 m²
+  Sala de control + accesos:                  25 m²
+  ─────────────────────────────────────────────
+  A_construida ≈ 182 m²
+  A_accesos = 0.20 × 182 = 36.4 m²
+  A_predio = (182 + 36.4) / 0.85 = 218.4 / 0.85 = 256.9 m² ≈ 260 m²
+
+  → Área de predio requerida: ~ 260 m² (0.026 ha)
+
+──────────────────────────────────────────────────────────────────────
+RESUMEN FINAL DEL PROYECTO RESUELTO
+──────────────────────────────────────────────────────────────────────
+
+  Parámetro                          | Resultado
+  -----------------------------------|-------------------------------------
+  Caudal de diseño                   | 52.0 m³/d
+  Población equivalente              | 500 hab
+  DBO₅ afluente (a biofiltro)        | 163 mg/L
+  DBO₅ efluente calculado            | 50.5 mg/L  ✓ < 60 mg/L (TULSMA T12)
+  SST efluente calculado             | 10.8 mg/L  ✓ < 130 mg/L
+  Ruta de diseño                     | RUTA B (carga mecanizada, R = 3.0)
+  Tipo de medio                      | Plástico alta densidad (a_s=150 m²/m³)
+  Diámetro del biofiltro             | 1.0 m
+  Profundidad del medio              | 10.0 m
+  Volumen del medio                  | 7.85 m³
+  COS                                | 1.08 kg DBO₅/m³·d
+  Razón de recirculación R           | 3.0
+  Caudal de recirculación Q_R        | 156 m³/d = 6.5 m³/h
+  Potencia de bombas (2 unidades)    | 2 × 250 W = 500 W
+  Diámetro clarificador              | 3.0 m
+  Producción de lodos                | 3.80 kg SST/d
+  Volumen digestor / lechos secado   | 38.1 m³ (2 lechos 8×8 m)
+  Área total del predio              | ~260 m²
+  Desinfección adicional requerida   | Sí (UV o hipoclorito para CF)
+
+──────────────────────────────────────────────────────────────────────
+CICLO DE OPERACIÓN DEL PROYECTO RESUELTO
+──────────────────────────────────────────────────────────────────────
+
+  Operación continua (24 h/d):
+    Bombas de recirculación: ON continuo
+    Distribuidor giratorio: giro autoimpulsado (sin motor requerido)
+
+  Purga de lodos del clarificador:
+    Frecuencia: cada 2 días
+    Caudal de purga: 1.27 m³/d → maniobra de ~15 min con válvula de fondo
+
+  Arranque biológico (meses 1–2):
+    Inocular biopelícula con lodo activo de PTAR existente si disponible.
+    Reducir Q al 30 % durante las primeras 3 semanas.
+    Incrementar caudal 10 % por semana hasta carga de diseño.
+    Monitoreo semanal de DBO₅ durante el arranque.
+
+  Monitoreo continuo mínimo recomendado:
+    pH del efluente: sensor en línea o medición diaria
+    Temperatura del agua: semanalmente
+    DBO₅/SST: mensualmente (laboratorio acreditado)
+
+
+================================================================================
+FIN DEL DOCUMENTO
+Guía de Diseño de Biofiltro Percolador — Carga Hidráulica y Carga Mecanizada
+Versión 1.0 — Metodología unificada con algoritmo de selección y ejemplo resuelto
+================================================================================

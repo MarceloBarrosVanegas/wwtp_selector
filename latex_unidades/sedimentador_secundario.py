@@ -254,13 +254,24 @@ Respecto al tiempo de retención a caudal mínimo (factor {s['factor_min']:.1f} 
         
         return rf"""\subsection{{Resultados}}
 
-\begin{{table}}[H]
-\centering
-\caption{{Dimensiones del sedimentador secundario}}
-\begin{{tabular}}{{ll}}
+\begingroup
+\small
+\begin{{longtable}}{{ll}}
+\caption{{Dimensiones del sedimentador secundario}}\\
 \toprule
 Parámetro & Valor \\
 \midrule
+\endfirsthead
+\caption[]{{Dimensiones del sedimentador secundario (continuación)}}\\
+\toprule
+Parámetro & Valor \\
+\midrule
+\endhead
+\midrule
+\multicolumn{{2}}{{r}}{{\textit{{Continúa en la siguiente página}}}} \\
+\endfoot
+\bottomrule
+\endlastfoot
 Diámetro & {s['D_m']:.2f} m \\
 Área superficial & {s['A_sup_m2']:.2f} m² \\
 Profundidad lateral & {s['h_sed_m']:.2f} m \\
@@ -275,9 +286,8 @@ HRT (promedio) & {s['TRH_h']:.1f} h \\
 HRT (caudal máximo) & {s['TRH_max_h']:.1f} h \\
 Carga sobre vertedero & {s['weir_loading_m3_m_d']:.1f} m³/m·d \\
 Carga de sólidos & {s['solids_loading_kg_m2_d']:.2f} kg/m²·d \\
-\bottomrule
-\end{{tabular}}
-\end{{table}}
+\end{{longtable}}
+\endgroup
 
 {figura_latex}Se debe incluir un sistema de recolección de lodos (rastrillos o succionadores) y un mecanismo de extracción de lodos desde el fondo. Se recomienda considerar el caudal mínimo en el diseño operacional para evitar estancamiento."""
 
@@ -336,6 +346,7 @@ if __name__ == "__main__":
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{booktabs}
+\usepackage{longtable}
 \usepackage{graphicx}
 \usepackage{enumitem}
 \usepackage{tikz}

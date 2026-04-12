@@ -408,13 +408,24 @@ La carga superficial de solidos se verifica mediante:
         
         return rf"""\subsection{{Resultados}}
 
-\begin{{table}}[H]
-\centering
-\caption{{Resumen del dimensionamiento del lecho de secado}}
-\begin{{tabular}}{{ll}}
+\begingroup
+\small
+\begin{{longtable}}{{ll}}
+\caption{{Resumen del dimensionamiento del lecho de secado}}\\
 \toprule
 Parametro & Valor \\
 \midrule
+\endfirsthead
+\caption[]{{Resumen del dimensionamiento del lecho de secado (continuación)}}\\
+\toprule
+Parametro & Valor \\
+\midrule
+\endhead
+\midrule
+\multicolumn{{2}}{{r}}{{\textit{{Continúa en la siguiente página}}}} \\
+\endfoot
+\bottomrule
+\endlastfoot
 Area total requerida & {l['A_total_m2']:.1f} m$^2$ \\
 Numero de bloques (uno por tren) & {l['num_lineas']:.0f} \\
 Area por bloque & {l['A_bloque_m2']:.1f} m$^2$ \\
@@ -423,9 +434,8 @@ Numero total de celdas & {l['n_celdas']:.0f} \\
 Tiempo de secado & {l['t_secado_d']:.0f} dias \\
 Carga de solidos & {l['rho_S_kgSST_m2_año']:.1f} kg SST/m$^2$·anio \\
 Produccion total de lodos & {l['lodos_total_kg_d']:.2f} kg SST/d \\
-\bottomrule
-\end{{tabular}}
-\end{{table}}
+\end{{longtable}}
+\endgroup
 
 {figura_latex}El lecho de secado ha sido dimensionado para tratar {l['lodos_total_kg_d']:.2f} kg SST/d de lodos generados en el proceso de tratamiento, distribuidos en {l['num_lineas']:.0f} bloques independientes (uno por tren de tratamiento). Cada bloque opera con un ciclo de {l['t_secado_d']:.0f} dias de secado."""
 
@@ -476,6 +486,7 @@ if __name__ == "__main__":
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{booktabs}
+\usepackage{longtable}
 \usepackage{graphicx}
 \usepackage{enumitem}
 \usepackage{tikz}

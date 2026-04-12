@@ -448,22 +448,31 @@ Respecto a la perdida de carga, el valor maximo calculado es {r['hL_max_m']*100:
 
         return rf"""\subsection{{Resultados}}
 
-\begin{{table}}[H]
-\centering
-\caption{{Verificacion de criterios de diseno - Rejillas}}
-\begin{{tabular}}{{lccc}}
+\begingroup
+\small
+\begin{{longtable}}{{lccc}}
+\caption{{Verificacion de criterios de diseno - Rejillas}}\\
 \toprule
 Parametro & Valor calculado & Criterio & Estado \\
 \midrule
+\endfirsthead
+\caption[]{{Verificacion de criterios de diseno - Rejillas (continuación)}}\\
+\toprule
+Parametro & Valor calculado & Criterio & Estado \\
+\midrule
+\endhead
+\midrule
+\multicolumn{{4}}{{r}}{{\textit{{Continúa en la siguiente página}}}} \\
+\endfoot
+\bottomrule
+\endlastfoot
 Velocidad de diseno & {r['v_canal_adoptada_m_s']:.2f} m/s & {cfg.rejillas_v_canal_min_m_s:.2f} -- {cfg.rejillas_v_canal_max_m_s:.2f} m/s & {r['estado_velocidad_diseno']} \\
 Velocidad real & {r['v_canal_real_m_s']:.3f} m/s & Ancho minimo constructivo$^a$ & Aplicado \\
 Perdida de carga (Qmax) & {r['hL_max_m']*100:.4f} cm & $<$ {r['hL_criterio_m']*100:.0f} cm & {r['estado_perdida_qmax']} \\
 Ancho constructivo & {r['ancho_layout_m']:.2f} m & $\geq$ {ancho_criterio_tabla_m:.2f} m & {r['estado_ancho_constructivo']} \\
-\bottomrule
-\end{{tabular}}
-\small
-$^a$ Para caudales pequenos ({cfg.Q_linea_L_s:.1f} L/s) el ancho minimo constructivo ({ancho_minimo_constructivo_m:.2f} m) domina sobre el criterio de velocidad.
-\end{{table}}
+\multicolumn{{4}}{{p{{\textwidth}}}}{{\small $^a$ Para caudales pequenos ({cfg.Q_linea_L_s:.1f} L/s) el ancho minimo constructivo ({ancho_minimo_constructivo_m:.2f} m) domina sobre el criterio de velocidad.}} \\
+\end{{longtable}}
+\endgroup
 
 {figura_latex}\textbf{{Manejo de solidos retenidos}}
 
@@ -525,6 +534,7 @@ if __name__ == "__main__":
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{booktabs}
+\usepackage{longtable}
 \usepackage{graphicx}
 \usepackage{enumitem}
 \usepackage{tikz}

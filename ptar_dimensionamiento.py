@@ -626,6 +626,89 @@ class ConfigDiseno:
     layout_factor_acceso: float = 0.025            # 2.5%
     layout_factor_bodega_general: float = 0.018    # 1.8%
     layout_factor_carga_lodos: float = 0.025       # 2.5%
+    
+    # =============================================================================
+    # PARÁMETROS DE DISEÑO - BIOFILTRO CARGA MECANIZADA HIDRÁULICA (TAF)
+    # =============================================================================
+    # Biofiltro percolador con carga mecanizada hidráulica (Trickling Filter)
+    # Dos rutas de diseño: Ruta A (NRC, sin recirculación) y Ruta B (Germain, con recirculación)
+    bf_cmh_DBO_salida_objetivo_mg_L: float = 50.0   # DBO5 objetivo post-biofiltro (mg/L)
+    bf_cmh_k_20_m_h: float = 0.068              # Constante cinética a 20°C (m/h) - Germain
+    bf_cmh_theta: float = 1.035                 # Coeficiente temperatura DBO5
+    bf_cmh_n_germain: float = 0.50              # Exponente modelo Germain (plástico)
+    bf_cmh_n_nrc: float = 0.67                  # Exponente para medio de roca (NRC)
+    bf_cmh_D_medio_m: float = 3.00              # Profundidad medio filtrante (m)
+    bf_cmh_D_medio_min_m: float = 2.0           # Rango recomendado profundidad (m)
+    bf_cmh_D_medio_max_m: float = 8.0           # Rango recomendado profundidad (m)
+    bf_cmh_R_recirculacion: float = 1.0         # Tasa recirculación Ruta B (0.5-4.0)
+    bf_cmh_R_min: float = 0.5                   # Recirculación mínima
+    bf_cmh_R_max: float = 4.0                   # Recirculación máxima
+    bf_cmh_COS_limite_ruta_A: float = 0.40      # Límite COS para selección Ruta A (kg/m³·d)
+    bf_cmh_COS_max_kgDBO_m3_d: float = 1.2      # COS máxima recomendada (Ruta A)
+    bf_cmh_CHS_min_m3_m2_h: float = 0.5         # Carga hidráulica superficial mínima
+    bf_cmh_CHS_max_m3_m2_h: float = 4.0         # Carga hidráulica superficial máxima
+    bf_cmh_CHS_diseño_m3_m2_h: float = 1.5      # CHS de diseño objetivo
+    bf_cmh_Cv_kgDBO_m3_d: float = 0.6           # Carga orgánica volumétrica (Ruta A)
+    bf_cmh_Cv_ruta_B_kgDBO_m3_d: float = 1.0    # Carga orgánica volumétrica (Ruta B)
+    bf_cmh_H_distribucion_m: float = 0.20       # Espacio distribuidor-medio
+    bf_cmh_H_underdrain_m: float = 0.50         # Altura underdrain
+    bf_cmh_H_bordo_libre_m: float = 0.30        # Bordo libre
+    bf_cmh_tipo_medio_default: str = "plástico aleatorio"  # Tipo de medio
+    bf_cmh_sup_especifica_m2_m3: float = 100.0  # Superficie específica medio (m²/m³)
+    bf_cmh_vacios_pct: float = 94.0             # Índice de vacíos (%)
+    bf_cmh_densidad_media_kg_m3: float = 60.0   # Densidad aparente (kg/m³)
+    bf_cmh_eficiencia_DBO_max: float = 0.85     # Eficiencia máxima teórica
+    bf_cmh_num_brazos: int = 2                  # Número brazos distribuidor
+    bf_cmh_num_boquillas_por_brazo: int = 8     # Boquillas por brazo
+    bf_cmh_velocidad_boquilla_m_s: float = 2.0  # Velocidad salida boquilla
+    bf_cmh_factor_produccion_humus: float = 0.15 # kg SST/kg DBO removida
+    bf_cmh_area_ventilacion_pct: float = 1.0    # Área ventilación / Área sup (%)
+    bf_cmh_Q_aire_factor: float = 0.3           # Factor caudal aire/agua
+    
+    # =============================================================================
+    # PARÁMETROS DE DISEÑO - BIOFILTRO BIOLÓGICO AIREADO (BAF)
+    # =============================================================================
+    # Biofiltro de lecho sumergido con aireación forzada (Biological Aerated Filter)
+    # Post-tratamiento aerobio típico después de UASB
+    baf_HLR_diseño_m3_m2_h: float = 3.5         # Tasa hidráulica superficial (m³/m²·h)
+    baf_HLR_min_m3_m2_h: float = 2.0            # HLR mínimo recomendado
+    baf_HLR_max_m3_m2_h: float = 6.0            # HLR máximo recomendado
+    baf_HLR_max_pico_m3_m2_h: float = 10.0      # HLR máximo pico permisible
+    baf_EBCT_min_h: float = 0.5                 # Tiempo contacto mínimo (h)
+    baf_EBCT_max_h: float = 1.5                 # Tiempo contacto máximo (h)
+    baf_OLR_min_kgDBO_m3_d: float = 1.0         # Carga orgánica mínima (kg DBO/m³·d)
+    baf_OLR_max_kgDBO_m3_d: float = 6.0         # Carga orgánica máxima (kg DBO/m³·d)
+    baf_profundidad_lecho_m: float = 3.0        # Profundidad del lecho de relleno (m)
+    baf_profundidad_min_m: float = 2.5          # Profundidad mínima
+    baf_profundidad_max_m: float = 4.0          # Profundidad máxima
+    baf_relacion_aire_agua: float = 8.0         # Relación aire:agua (Nm³/m³)
+    baf_relacion_aire_agua_min: float = 5.0     # Relación mínima
+    baf_relacion_aire_agua_max: float = 10.0    # Relación máxima
+    baf_SAR_min_m3_m2_h: float = 15.0           # Tasa específica aireación mínima
+    baf_SAR_max_m3_m2_h: float = 50.0           # Tasa específica aireación máxima
+    baf_sup_especifica_m2_m3: float = 250.0     # Superficie específica relleno (m²/m³)
+    baf_porosidad_pct: float = 40.0             # Porosidad del lecho (%)
+    baf_altura_plenum_m: float = 0.50           # Altura plenum distribución (m)
+    baf_altura_headspace_m: float = 0.50        # Zona libre sobre relleno (m)
+    baf_altura_acumulacion_m: float = 0.30      # Zona acumulación retrolavado (m)
+    baf_bordo_libre_m: float = 0.30             # Bordo libre
+    baf_perdida_carga_max_m: float = 1.5        # Pérdida de carga máxima (m H2O)
+    baf_freq_retrolavado_h: float = 24.0        # Frecuencia retrolavado mínima (h)
+    baf_freq_retrolavado_max_h: float = 48.0    # Frecuencia retrolavado máxima (h)
+    baf_duracion_retrolavado_min: float = 20.0  # Duración retrolavado (min)
+    baf_vel_bw_aire_m3_m2_h: float = 75.0       # Velocidad retrolavado aire
+    baf_vel_bw_agua_m3_m2_h: float = 20.0       # Velocidad retrolavado agua
+    baf_DBO_entrada_mg_L: float = 100.0         # DBO entrada (efluente UASB)
+    baf_factor_O2_kgO2_kgDBO: float = 1.35      # Factor demanda oxígeno
+    baf_OTE_pct: float = 25.0                   # Eficiencia transferencia oxígeno (%)
+    baf_factor_seguridad_aire_min: float = 1.5  # Factor mínimo para "CUMPLE CON HOLGURA"
+    baf_densidad_aire_kg_Nm3: float = 1.20      # Densidad aire (kg/Nm³)
+    baf_fraccion_O2_aire: float = 0.2314        # Fracción O2 en aire
+    baf_relacion_H_D_min: float = 0.8           # Relación H/D mínima recomendada
+    baf_relacion_H_D_max: float = 1.5           # Relación H/D máxima recomendada
+    baf_fraccion_bw_min_pct: float = 3.0        # Fracción retrolavado mínima (%)
+    baf_fraccion_bw_max_pct: float = 7.0        # Fracción retrolavado máxima (%)
+    baf_duracion_fase_agua_bw_min: float = 10.0 # Duración fase agua retrolavado (min)
 
     def __post_init__(self):
         # Caudal por línea en m^3/d (conversión exacta: 1 L/s = 86.4 m^3/d)
@@ -2592,6 +2675,358 @@ def dimensionar_filtro_percolador(Q: ConfigDiseno = CFG,
             f"{' (cumple eficiencia requerida)' if se_cumple_objetivo else ' (NO CUMPLE eficiencia requerida)'}. "
             f"k_T = {k_T_m_h:.4f} m/h a T={Q.T_agua_C} grados C (θ={theta})."
         ),
+    }
+
+
+# =============================================================================
+# 4b - BIOFILTRO DE CARGA MECANIZADA HIDRÁULICA (TAF - TRICKLING FILTER)
+# =============================================================================
+
+def dimensionar_biofiltro_carga_mecanizada_hidraulica(
+    Q: ConfigDiseno = CFG,
+    DBO_entrada_mg_L: float = None,
+    SST_entrada_mg_L: float = None,
+    ruta_diseno: str = None
+) -> Dict[str, Any]:
+    """
+    Dimensionamiento del Biofiltro de Carga Mecanizada Hidráulica (TAF).
+    
+    Siguiendo el manual técnico, implementa dos rutas de diseño:
+    - RUTA A: Carga Hidráulica Convencional (modelo NRC, sin recirculación)
+    - RUTA B: Carga Mecanizada de Alta Carga (modelo Germain, con recirculación)
+    
+    El algoritmo de selección automática usa COS_preliminar > 0.40 kg/m³·d como
+    umbral para seleccionar Ruta B, con fallback a Ruta A.
+    
+    Parámetros:
+        Q: ConfigDiseno con parámetros globales
+        DBO_entrada_mg_L: DBO5 del afluente al biofiltro (mg/L)
+        SST_entrada_mg_L: SST del afluente al biofiltor (mg/L) 
+        ruta_diseno: "A", "B", o None para selección automática
+    
+    Retorna:
+        Dict con resultados del dimensionamiento y verificación
+    """
+    ref_me = citar("metcalf_2014")
+    ref_wef = citar("wef_mop8_2010")
+    ref_germain = "Germain (1966)"
+    ref_nrc = "NRC (National Research Council)"
+    
+    # DBO5 entrante al biofiltro (si no se especifica, asumir salida típica UASB)
+    if DBO_entrada_mg_L is None:
+        DBO_entrada_mg_L = Q.DBO5_mg_L * 0.30  # ~75 mg/L tras UASB con 70% remoción
+    
+    if SST_entrada_mg_L is None:
+        SST_entrada_mg_L = Q.SST_mg_L * 0.40  # ~100 mg/L tras UASB
+    
+    # Parámetros básicos
+    Q_m3_d = Q.Q_linea_m3_d
+    Q_m3_h = Q.Q_linea_m3_h
+    T = Q.T_agua_C
+    factor_pico = Q.factor_pico_Qmax
+    Q_max_m3_d = Q_m3_d * factor_pico
+    Q_max_m3_h = Q_max_m3_d / 24
+    
+    # Carga orgánica afluente (kg/d)
+    W_kg_d = Q_m3_d * DBO_entrada_mg_L / 1000.0
+    
+    # =============================================================================
+    # ALGORITMO DE SELECCIÓN DE RUTA
+    # =============================================================================
+    
+    # Estimación preliminar de COS para selección de ruta
+    # Asumiendo volumen típico inicial para estimar COS
+    V_estimado_m3 = W_kg_d / Q.bf_cmh_Cv_kgDBO_m3_d
+    COS_prelim = W_kg_d / V_estimado_m3
+    
+    if ruta_diseno is None:
+        # Selección automática basada en COS y criterios del manual
+        if COS_prelim > Q.bf_cmh_COS_limite_ruta_A:
+            ruta = "B"
+            criterio_seleccion = f"COS_prelim = {COS_prelim:.2f} kg/m³·d > {Q.bf_cmh_COS_limite_ruta_A:.2f} → Ruta B"
+        else:
+            ruta = "A"
+            criterio_seleccion = f"COS_prelim = {COS_prelim:.2f} kg/m³·d ≤ {Q.bf_cmh_COS_limite_ruta_A:.2f} → Ruta A"
+    else:
+        ruta = ruta_diseno.upper()
+        criterio_seleccion = f"Selección manual: Ruta {ruta}"
+    
+    # =============================================================================
+    # PARÁMETROS DEL MODELO
+    # =============================================================================
+    
+    # Corrección por temperatura
+    k_20 = Q.bf_cmh_k_20_m_h
+    theta = Q.bf_cmh_theta
+    k_T_m_h = k_20 * (theta ** (T - 20))
+    
+    # Profundidad del medio
+    D_m = Q.bf_cmh_D_medio_m
+    
+    if ruta == "A":
+        # =============================================================================
+        # RUTA A: CARGA HIDRÁULICA CONVENCIONAL - Modelo NRC
+        # =============================================================================
+        
+        # Sin recirculación para Ruta A convencional
+        R = 0.0
+        F_recirculacion = 1.0  # Factor F = 1 cuando R = 0
+        
+        # Carga orgánica y volumen por criterio de carga
+        Cv_diseno = Q.bf_cmh_Cv_kgDBO_m3_d
+        V_medio_m3 = W_kg_d / Cv_diseno
+        
+        # Área y diámetro
+        A_sup_m2 = V_medio_m3 / D_m
+        D_bf_m = math.sqrt(4 * A_sup_m2 / math.pi)
+        
+        # Carga Hidráulica Superficial (CHS)
+        CHS_m3_m2_h = Q_m3_h / A_sup_m2
+        CHS_m3_m2_d = CHS_m3_m2_h * 24
+        
+        # Verificación NRC: E = 1 / (1 + 0.4432 * sqrt(W/(V*F)))
+        E_calculada = 1.0 / (1.0 + 0.4432 * math.sqrt(W_kg_d / (V_medio_m3 * F_recirculacion)))
+        Se_calculada_mg_L = DBO_entrada_mg_L * (1 - E_calculada)
+        
+        # COS final
+        COS = W_kg_d / V_medio_m3
+        
+        # Tiempo de retención hidráulico
+        HRT_h = V_medio_m3 / Q_m3_h
+        
+        modelo_usado = "NRC (sin recirculación)"
+        ecuacion_eficiencia = r"E = \frac{1}{1 + 0.4432 \sqrt{\frac{W}{V \cdot F}}}"
+        
+    else:
+        # =============================================================================
+        # RUTA B: CARGA MECANIZADA DE ALTA CARGA - Modelo Germain
+        # =============================================================================
+        
+        # Con recirculación
+        R = Q.bf_cmh_R_recirculacion
+        
+        # Concentración diluida
+        S0_prima = DBO_entrada_mg_L / (1 + R)
+        
+        # Carga orgánica volumétrica para alta carga
+        Cv_diseno = Q.bf_cmh_Cv_ruta_B_kgDBO_m3_d
+        V_medio_m3 = W_kg_d / Cv_diseno
+        
+        # Área y dimensiones
+        A_sup_m2 = V_medio_m3 / D_m
+        D_bf_m = math.sqrt(4 * A_sup_m2 / math.pi)
+        
+        # Carga hidráulica total (con recirculación)
+        Q_T_m3_h = Q_m3_h * (1 + R)
+        Q_T_m3_m2_h = Q_T_m3_h / A_sup_m2
+        
+        # Modelo de Germain: Se/S0' = exp(-k_T * D / Q_T^n)
+        n = Q.bf_cmh_n_germain
+        relacion_Se_S0 = math.exp(-k_T_m_h * D_m / (Q_T_m3_m2_h ** n))
+        Se_calculada_mg_L = S0_prima * relacion_Se_S0
+        
+        # Eficiencia global (considerando recirculación)
+        E_calculada = (DBO_entrada_mg_L - Se_calculada_mg_L) / DBO_entrada_mg_L
+        
+        # COS y CHS
+        COS = W_kg_d / V_medio_m3
+        CHS_m3_m2_h = Q_T_m3_m2_h  # CHS total con recirculación
+        CHS_m3_m2_d = CHS_m3_m2_h * 24
+        
+        # Caudal de recirculación
+        Q_R_m3_d = Q_m3_d * R
+        Q_R_m3_h = Q_R_m3_d / 24
+        
+        # Tiempo de retención hidráulico
+        HRT_h = V_medio_m3 / Q_T_m3_h
+        
+        modelo_usado = "Germain (con recirculación)"
+        ecuacion_eficiencia = r"\frac{S_e}{S_0'} = \exp\left(-\frac{k_T \cdot D}{Q_T^n}\right)"
+        F_recirculacion = (1 + R) / ((1 + 0.1 * R) ** 2)  # Factor NRC equivalente
+    
+    # =============================================================================
+    # GEOMETRÍA COMPLETA
+    # =============================================================================
+    
+    H_distribucion = Q.bf_cmh_H_distribucion_m
+    H_underdrain = Q.bf_cmh_H_underdrain_m
+    H_bordo = Q.bf_cmh_H_bordo_libre_m
+    H_total_m = H_distribucion + D_m + H_underdrain + H_bordo
+    
+    # =============================================================================
+    # VERIFICACIONES
+    # =============================================================================
+    
+    # 1. Verificación COS (carga orgánica superficial)
+    cumple_COS = COS <= Q.bf_cmh_COS_max_kgDBO_m3_d
+    
+    # 3. Verificación CHS
+    cumple_CHS = (Q.bf_cmh_CHS_min_m3_m2_h <= CHS_m3_m2_h <= Q.bf_cmh_CHS_max_m3_m2_h)
+    
+    # 4. Verificación TULSMA
+    cumple_TULSMA = Se_calculada_mg_L <= Q.tulsma_DBO5_limite_mg_L
+    
+    # =============================================================================
+    # SISTEMA DE DISTRIBUCIÓN
+    # =============================================================================
+    
+    num_brazos = Q.bf_cmh_num_brazos
+    if ruta == "B":
+        Q_aplicado_m3_h = Q_m3_h * (1 + R)
+    else:
+        Q_aplicado_m3_h = Q_m3_h
+    
+    Q_por_brazo_m3_h = Q_aplicado_m3_h / num_brazos
+    L_brazo_m = D_bf_m / 2
+    
+    # Boquillas
+    num_boquillas = Q.bf_cmh_num_boquillas_por_brazo
+    Q_por_boquilla_L_s = (Q_por_brazo_m3_h / num_boquillas) * 1000 / 3600
+    v_boquilla_m_s = Q.bf_cmh_velocidad_boquilla_m_s
+    A_orificio_m2 = (Q_por_brazo_m3_h / 3600) / (num_boquillas * v_boquilla_m_s)
+    diam_orificio_mm = math.sqrt(4 * A_orificio_m2 / math.pi) * 1000
+    
+    # =============================================================================
+    # VENTILACIÓN
+    # =============================================================================
+    
+    area_vent_m2 = A_sup_m2 * Q.bf_cmh_area_ventilacion_pct / 100
+    Q_aire_m3_h = Q_m3_h * Q.bf_cmh_Q_aire_factor
+    
+    # =============================================================================
+    # PRODUCCIÓN DE LODOS (sólidos biológicos)
+    # =============================================================================
+    
+    DBO_removida_kg_d = Q_m3_d * (DBO_entrada_mg_L - Se_calculada_mg_L) / 1000
+    solidos_humus_kg_d = DBO_removida_kg_d * Q.bf_cmh_factor_produccion_humus
+    
+    # SST efluente estimado (considerando producción de humus)
+    SST_efluente_estimado = SST_entrada_mg_L * 0.7 + (solidos_humus_kg_d / Q_m3_d * 1000)
+    
+    # =============================================================================
+    # TEXTOS DE VERIFICACIÓN PARA LATEX
+    # =============================================================================
+    
+    if ruta == "A":
+        texto_ruta = (
+            f"Se selecciona la Ruta A (Carga Hidráulica Convencional) según el criterio: "
+            f"{criterio_seleccion}. Esta ruta utiliza el modelo NRC sin recirculación, "
+            f"apropiada para cargas orgánicas moderadas."
+        )
+    else:
+        texto_ruta = (
+            f"Se selecciona la Ruta B (Carga Mecanizada de Alta Carga) según el criterio: "
+            f"{criterio_seleccion}. Esta ruta utiliza el modelo Germain con recirculación "
+            f"R={R:.1f}, apropiada para alta carga orgánica y mejora la eficiencia de tratamiento."
+        )
+    
+    return {
+        "unidad": "Biofiltro Carga Mecanizada Hidráulica",
+        "ruta_diseno": ruta,
+        "modelo_usado": modelo_usado,
+        "criterio_seleccion": criterio_seleccion,
+        "texto_ruta": texto_ruta,
+        
+        # Datos de entrada
+        "Q_m3_d": round(Q_m3_d, 1),
+        "Q_m3_h": round(Q_m3_h, 2),
+        "Q_max_m3_d": round(Q_max_m3_d, 1),
+        "Q_max_m3_h": round(Q_max_m3_h, 2),
+        "DBO_entrada_mg_L": round(DBO_entrada_mg_L, 1),
+        "SST_entrada_mg_L": round(SST_entrada_mg_L, 1),
+        "T_agua_C": T,
+        
+        # Parámetros del modelo
+        "k_20_m_h": k_20,
+        "k_T_m_h": round(k_T_m_h, 4),
+        "theta": theta,
+        "n_germain": Q.bf_cmh_n_germain if ruta == "B" else None,
+        "D_medio_m": D_m,
+        "R_recirculacion": R,
+        "F_recirculacion": round(F_recirculacion, 3),
+        
+        # Resultados de dimensionamiento
+        "W_kg_d": round(W_kg_d, 2),
+        "E_calculada": round(E_calculada, 3),
+        "V_medio_m3": round(V_medio_m3, 1),
+        "A_sup_m2": round(A_sup_m2, 2),
+        "D_bf_m": round(D_bf_m, 2),
+        "COS_kg_m3_d": round(COS, 3),
+        "Cv_diseno_kg_m3_d": Cv_diseno,
+        "CHS_m3_m2_h": round(CHS_m3_m2_h, 3),
+        "CHS_m3_m2_d": round(CHS_m3_m2_d, 2),
+        "HRT_h": round(HRT_h, 2),
+        
+        # Geometría
+        "H_distribucion_m": H_distribucion,
+        "H_underdrain_m": H_underdrain,
+        "H_bordo_libre_m": H_bordo,
+        "H_total_m": round(H_total_m, 2),
+        
+        # Efluente calculado
+        "Se_calculada_mg_L": round(Se_calculada_mg_L, 1),
+        "texto_eficiencia": f"La DBO₅ efluente calculada es {Se_calculada_mg_L:.1f} mg/L.",
+        "cumple_TULSMA": cumple_TULSMA,
+        
+        # Ruta B específico
+        "S0_prima_mg_L": round(DBO_entrada_mg_L / (1 + R), 1) if ruta == "B" else None,
+        "Q_T_m3_h": round(Q_m3_h * (1 + R), 2) if ruta == "B" else None,
+        "Q_R_m3_d": round(Q_m3_d * R, 1) if ruta == "B" else None,
+        "Q_R_m3_h": round(Q_m3_h * R, 2) if ruta == "B" else None,
+        "relacion_Se_S0": round(Se_calculada_mg_L / DBO_entrada_mg_L, 4) if ruta == "B" else None,
+        
+        # Distribuidor
+        "num_brazos": num_brazos,
+        "Q_aplicado_m3_h": round(Q_aplicado_m3_h, 2),
+        "Q_por_brazo_m3_h": round(Q_por_brazo_m3_h, 2),
+        "L_brazo_m": round(L_brazo_m, 2),
+        "num_boquillas_por_brazo": num_boquillas,
+        "Q_por_boquilla_L_s": round(Q_por_boquilla_L_s, 3),
+        "v_boquilla_m_s": v_boquilla_m_s,
+        "diam_orificio_mm": round(diam_orificio_mm, 1),
+        
+        # Ventilación
+        "area_ventilacion_m2": round(area_vent_m2, 3),
+        "Q_aire_m3_h": round(Q_aire_m3_h, 1),
+        
+        # Lodos
+        "DBO_removida_kg_d": round(DBO_removida_kg_d, 2),
+        "solidos_humus_kg_d": round(solidos_humus_kg_d, 2),
+        "SST_efluente_estimado_mg_L": round(SST_efluente_estimado, 1),
+        
+        # Verificaciones
+        "verificaciones": {
+            "COS": {"valor": round(COS, 3), "limite": Q.bf_cmh_COS_max_kgDBO_m3_d, "cumple": cumple_COS},
+            "CHS": {"valor": round(CHS_m3_m2_h, 3), "min": Q.bf_cmh_CHS_min_m3_m2_h, "max": Q.bf_cmh_CHS_max_m3_m2_h, "cumple": cumple_CHS},
+            "TULSMA": {"valor": round(Se_calculada_mg_L, 1), "limite": Q.tulsma_DBO5_limite_mg_L, "cumple": cumple_TULSMA},
+        },
+        
+        # Subproductos
+        "subproductos": {
+            "lodos": [
+                {
+                    "origen": "Biofiltro TAF",
+                    "tipo": "solidos biologicos desprendidos / humus",
+                    "kg_d": round(solidos_humus_kg_d, 2),
+                    "base_solidos": "SST",
+                    "kg_SST_d": round(solidos_humus_kg_d, 2),
+                    "destino": "sedimentador_secundario",
+                    "nota": "Producción de humus del biofiltro TAF"
+                }
+            ],
+            "transferencias": [],
+            "biogas": [],
+            "residuos_gruesos": [],
+            "arenas": []
+        },
+        
+        # Layout
+        "diametro_layout_m": round(D_bf_m + 0.30, 1),
+        "ecuacion_eficiencia": ecuacion_eficiencia,
+        
+        # Fuentes
+        "fuente": f"{ref_me} (pp. 840-870); {ref_wef} (Cap. 9); {ref_germain if ruta == 'B' else ref_nrc}",
+        "notas": f"Ruta {ruta}: {modelo_usado}. COS={COS:.2f} kg/m³·d, CHS={CHS_m3_m2_h:.2f} m³/m²·h",
     }
 
 
@@ -4696,6 +5131,327 @@ def calcular_balance_calidad_agua(Q: ConfigDiseno = None,
         }
     
     return calidad
+
+
+# =============================================================================
+# 4c - BIOFILTRO BIOLÓGICO AIREADO (BAF)
+# =============================================================================
+
+def dimensionar_baf(Q: ConfigDiseno = CFG,
+                    DBO_entrada_mg_L: float = None) -> Dict[str, Any]:
+    """
+    Dimensionamiento del Biofiltro Biológico Aireado (BAF).
+    
+    El BAF es un reactor de lecho sumergido con aireación forzada que combina
+    degradación biológica y filtración física en una sola unidad, eliminando
+    la necesidad de sedimentador secundario posterior.
+    
+    Parámetros:
+        Q: ConfigDiseno con parámetros globales
+        DBO_entrada_mg_L: DBO5 del afluente al BAF (mg/L), típicamente efluente UASB
+    
+    Retorna:
+        Dict con resultados del dimensionamiento y verificaciones
+    """
+    ref_me = citar("metcalf_2014")
+    ref_henze = citar("henze_2008")
+    
+    # DBO5 entrante (si no se especifica, asumir valor típico post-UASB)
+    if DBO_entrada_mg_L is None:
+        DBO_entrada_mg_L = Q.baf_DBO_entrada_mg_L
+    
+    # Parámetros básicos
+    Q_m3_d = Q.Q_linea_m3_d
+    Q_m3_h = Q.Q_linea_m3_h
+    factor_pico = Q.factor_pico_Qmax
+    Q_max_m3_d = Q_m3_d * factor_pico
+    Q_max_m3_h = Q_max_m3_d / 24.0
+    
+    # =============================================================================
+    # DIMENSIONAMIENTO PRINCIPAL
+    # =============================================================================
+    
+    # [PASO 1] Área superficial por criterio HLR
+    HLR_diseño = Q.baf_HLR_diseño_m3_m2_h
+    A_s_m2 = Q_m3_h / HLR_diseño
+    
+    # [PASO 2] Diámetro del reactor circular
+    D_m = math.sqrt(4 * A_s_m2 / math.pi)
+    D_adoptado_m = math.ceil(D_m * 10) / 10  # Redondear a 1 decimal hacia arriba
+    
+    # Área real con diámetro adoptado
+    A_real_m2 = math.pi * (D_adoptado_m ** 2) / 4
+    
+    # HLR real a caudal medio
+    HLR_real_m3_m2_h = Q_m3_h / A_real_m2
+    
+    # [PASO 3] Volumen de lecho de relleno
+    H_lecho_m = Q.baf_profundidad_lecho_m
+    V_lecho_m3 = A_real_m2 * H_lecho_m
+    
+    # [PASO 4] Tiempo de contacto en lecho vacío (EBCT)
+    EBCT_h = V_lecho_m3 / Q_m3_h
+    
+    # [PASO 5] Carga orgánica volumétrica (OLR)
+    carga_DBO_kg_d = Q_m3_d * DBO_entrada_mg_L / 1000.0
+    OLR_kgDBO_m3_d = carga_DBO_kg_d / V_lecho_m3
+    
+    # [PASO 6] Demanda de aire para proceso biológico
+    relacion_aire_agua = Q.baf_relacion_aire_agua
+    Q_aire_Nm3_h = relacion_aire_agua * Q_m3_h
+    
+    # Tasa específica de aireación (SAR)
+    SAR_m3_m2_h = Q_aire_Nm3_h / A_real_m2
+    
+    # Verificación de suficiencia de oxígeno
+    DO_requerida_kg_d = Q.baf_factor_O2_kgO2_kgDBO * carga_DBO_kg_d
+    OTE = Q.baf_OTE_pct / 100.0
+    Q_aire_min_Nm3_h = (DO_requerida_kg_d / 
+                       (OTE * Q.baf_densidad_aire_kg_Nm3 * Q.baf_fraccion_O2_aire * 24))
+    factor_seguridad_aire = Q_aire_Nm3_h / Q_aire_min_Nm3_h if Q_aire_min_Nm3_h > 0 else 999
+    
+    # [PASO 7] Altura total de construcción
+    H_plenum_m = Q.baf_altura_plenum_m
+    H_headspace_m = Q.baf_altura_headspace_m
+    H_acumulacion_m = Q.baf_altura_acumulacion_m
+    H_bordo_m = Q.baf_bordo_libre_m
+    
+    H_total_m = H_plenum_m + H_lecho_m + H_headspace_m + H_acumulacion_m + H_bordo_m
+    
+    # [PASO 8] Diseño del retrolavado
+    vel_bw_aire_m3_m2_h = Q.baf_vel_bw_aire_m3_m2_h
+    vel_bw_agua_m3_m2_h = Q.baf_vel_bw_agua_m3_m2_h
+    
+    Q_bw_aire_m3_h = vel_bw_aire_m3_m2_h * A_real_m2
+    Q_bw_agua_m3_h = vel_bw_agua_m3_m2_h * A_real_m2
+    
+    # Volumen de agua de retrolavado por ciclo (fase agua configurable)
+    duracion_fase_agua_h = Q.baf_duracion_fase_agua_bw_min / 60.0
+    V_bw_ciclo_m3 = Q_bw_agua_m3_h * duracion_fase_agua_h
+    fraccion_bw_pct = (V_bw_ciclo_m3 / Q_m3_d) * 100
+    
+    # =============================================================================
+    # VERIFICACIONES
+    # =============================================================================
+    
+    # HLR a caudal máximo
+    HLR_max_m3_m2_h = Q_max_m3_h / A_real_m2
+    
+    # EBCT a caudal máximo
+    EBCT_pico_h = V_lecho_m3 / Q_max_m3_h
+    
+    # OLR a caudal máximo
+    carga_DBO_pico_kg_d = Q_max_m3_d * DBO_entrada_mg_L / 1000.0
+    OLR_pico_kgDBO_m3_d = carga_DBO_pico_kg_d / V_lecho_m3
+    
+    # Relación H/D
+    relacion_H_D = H_lecho_m / D_adoptado_m
+    
+    # =============================================================================
+    # VERIFICACIONES CON ESTADOS TEXTUALES PARA RENDER EN LATEX
+    # =============================================================================
+    
+    # Verificación EBCT pico: siempre requiere nota si está debajo del mínimo
+    cumple_EBCT_pico = EBCT_pico_h >= Q.baf_EBCT_min_h
+    if cumple_EBCT_pico:
+        estado_EBCT_pico = "CUMPLE"
+        texto_EBCT_pico = "El EBCT a caudal pico se encuentra dentro del rango de diseño."
+    else:
+        estado_EBCT_pico = "VER NOTA"
+        texto_EBCT_pico = ("El EBCT de pico es inferior al mínimo de diseño. "
+                          "Los picos de caudal son eventos de corta duración y la inercia "
+                          "biológica del biofilm amortigua los efectos. "
+                          "Se recomienda ecualización de caudales aguas arriba.")
+    
+    # Verificación OLR pico: requiere nota si supera el máximo
+    cumple_OLR_pico = OLR_pico_kgDBO_m3_d <= Q.baf_OLR_max_kgDBO_m3_d
+    if cumple_OLR_pico:
+        estado_OLR_pico = "CUMPLE"
+        texto_OLR_pico = "La OLR a caudal pico se encuentra dentro del rango permisible."
+    else:
+        estado_OLR_pico = "VER NOTA"
+        texto_OLR_pico = ("La OLR de pico supera ligeramente el límite durante caudal máximo. "
+                         "El UASB aguas arriba actúa como amortiguador. "
+                         "El impacto es transitorio y tolerable.")
+    
+    # Verificación de suficiencia de aire: con factor de seguridad
+    cumple_aire = factor_seguridad_aire >= 1.0
+    if factor_seguridad_aire >= Q.baf_factor_seguridad_aire_min:
+        estado_aire = "CUMPLE CON HOLGURA"
+        texto_aire = (f"El caudal de aire diseñado ({Q_aire_Nm3_h:.1f} Nm³/h) supera ampliamente "
+                     f"el requerimiento mínimo ({Q_aire_min_Nm3_h:.1f} Nm³/h), "
+                     f"con un factor de seguridad de {factor_seguridad_aire:.1f}.")
+    elif cumple_aire:
+        estado_aire = "CUMPLE"
+        texto_aire = "El caudal de aire diseñado satisface la demanda biológica mínima."
+    else:
+        estado_aire = "NO CUMPLE"
+        texto_aire = "El caudal de aire diseñado es insuficiente para la demanda biológica."
+    
+    # Verificaciones estructuradas para el render
+    verificaciones = {
+        "HLR_medio": {
+            "valor": HLR_real_m3_m2_h,
+            "min": Q.baf_HLR_min_m3_m2_h,
+            "max": Q.baf_HLR_max_m3_m2_h,
+            "cumple": Q.baf_HLR_min_m3_m2_h <= HLR_real_m3_m2_h <= Q.baf_HLR_max_m3_m2_h,
+            "estado": "CUMPLE" if Q.baf_HLR_min_m3_m2_h <= HLR_real_m3_m2_h <= Q.baf_HLR_max_m3_m2_h else "NO CUMPLE"
+        },
+        "HLR_maximo": {
+            "valor": HLR_max_m3_m2_h,
+            "limite": Q.baf_HLR_max_pico_m3_m2_h,
+            "cumple": HLR_max_m3_m2_h <= Q.baf_HLR_max_pico_m3_m2_h,
+            "estado": "CUMPLE" if HLR_max_m3_m2_h <= Q.baf_HLR_max_pico_m3_m2_h else "NO CUMPLE"
+        },
+        "EBCT_medio": {
+            "valor": EBCT_h,
+            "min": Q.baf_EBCT_min_h,
+            "max": Q.baf_EBCT_max_h,
+            "cumple": Q.baf_EBCT_min_h <= EBCT_h <= Q.baf_EBCT_max_h,
+            "estado": "CUMPLE" if Q.baf_EBCT_min_h <= EBCT_h <= Q.baf_EBCT_max_h else "NO CUMPLE"
+        },
+        "EBCT_pico": {
+            "valor": EBCT_pico_h,
+            "min": Q.baf_EBCT_min_h,
+            "cumple": cumple_EBCT_pico,
+            "estado": estado_EBCT_pico,
+            "texto": texto_EBCT_pico
+        },
+        "OLR_medio": {
+            "valor": OLR_kgDBO_m3_d,
+            "min": Q.baf_OLR_min_kgDBO_m3_d,
+            "max": Q.baf_OLR_max_kgDBO_m3_d,
+            "cumple": Q.baf_OLR_min_kgDBO_m3_d <= OLR_kgDBO_m3_d <= Q.baf_OLR_max_kgDBO_m3_d,
+            "estado": "CUMPLE" if Q.baf_OLR_min_kgDBO_m3_d <= OLR_kgDBO_m3_d <= Q.baf_OLR_max_kgDBO_m3_d else "NO CUMPLE"
+        },
+        "OLR_pico": {
+            "valor": OLR_pico_kgDBO_m3_d,
+            "max": Q.baf_OLR_max_kgDBO_m3_d,
+            "cumple": cumple_OLR_pico,
+            "estado": estado_OLR_pico,
+            "texto": texto_OLR_pico
+        },
+        "SAR": {
+            "valor": SAR_m3_m2_h,
+            "min": Q.baf_SAR_min_m3_m2_h,
+            "max": Q.baf_SAR_max_m3_m2_h,
+            "cumple": Q.baf_SAR_min_m3_m2_h <= SAR_m3_m2_h <= Q.baf_SAR_max_m3_m2_h,
+            "estado": "CUMPLE" if Q.baf_SAR_min_m3_m2_h <= SAR_m3_m2_h <= Q.baf_SAR_max_m3_m2_h else "NO CUMPLE"
+        },
+        "suficiencia_aire": {
+            "valor": factor_seguridad_aire,
+            "cumple": cumple_aire,
+            "estado": estado_aire,
+            "texto": texto_aire
+        },
+        "relacion_H_D": {
+            "valor": relacion_H_D,
+            "min": Q.baf_relacion_H_D_min,
+            "max": Q.baf_relacion_H_D_max,
+            "cumple": Q.baf_relacion_H_D_min <= relacion_H_D <= Q.baf_relacion_H_D_max,
+            "estado": "CUMPLE" if Q.baf_relacion_H_D_min <= relacion_H_D <= Q.baf_relacion_H_D_max else "NO CUMPLE"
+        },
+        "fraccion_retrolavado": {
+            "valor": fraccion_bw_pct,
+            "min": Q.baf_fraccion_bw_min_pct,
+            "max": Q.baf_fraccion_bw_max_pct,
+            "cumple": Q.baf_fraccion_bw_min_pct <= fraccion_bw_pct <= Q.baf_fraccion_bw_max_pct,
+            "estado": "CUMPLE" if Q.baf_fraccion_bw_min_pct <= fraccion_bw_pct <= Q.baf_fraccion_bw_max_pct else "NO CUMPLE"
+        }
+    }
+    
+    # Texto resumen de verificaciones para el cierre de la sección
+    verificaciones_cumplen = sum(1 for v in verificaciones.values() if v["estado"] == "CUMPLE")
+    verificaciones_cumplen_holgura = sum(1 for v in verificaciones.values() if v["estado"] == "CUMPLE CON HOLGURA")
+    verificaciones_ver_nota = sum(1 for v in verificaciones.values() if v["estado"] == "VER NOTA")
+    verificaciones_no_cumplen = sum(1 for v in verificaciones.values() if v["estado"] == "NO CUMPLE")
+    
+    if verificaciones_no_cumplen > 0:
+        texto_resumen_verificaciones = (
+            f"Se detectaron {verificaciones_no_cumplen} verificaciones que no cumplen los criterios establecidos. "
+            f"{verificaciones_cumplen} parámetros cumplen directamente; "
+            f"{verificaciones_cumplen_holgura} cumplen con holgura adicional; "
+            f"{verificaciones_ver_nota} requieren nota operativa por condiciones de pico transitorio. "
+            f"Se requiere revisión de diseño para los parámetros marcados como NO CUMPLE."
+        )
+    elif verificaciones_ver_nota > 0:
+        texto_resumen_verificaciones = (
+            f"Las verificaciones principales cumplen con los criterios establecidos. "
+            f"{verificaciones_cumplen} parámetros cumplen directamente; "
+            f"{verificaciones_cumplen_holgura} cumplen con holgura adicional; "
+            f"{verificaciones_ver_nota} requieren nota operativa por condiciones de pico transitorio."
+        )
+    else:
+        texto_resumen_verificaciones = (
+            f"Todas las verificaciones cumplen con los criterios establecidos. "
+            f"{verificaciones_cumplen} parámetros cumplen directamente y "
+            f"{verificaciones_cumplen_holgura} cumplen con holgura adicional."
+        )
+    
+    return {
+        # Identificación
+        "unidad": "BAF",
+        "nombre": "Biofiltro Biológico Aireado",
+        
+        # Dimensiones principales
+        "D_m": D_adoptado_m,
+        "A_real_m2": round(A_real_m2, 2),
+        "V_lecho_m3": round(V_lecho_m3, 2),
+        "H_lecho_m": H_lecho_m,
+        "H_plenum_m": H_plenum_m,
+        "H_headspace_m": H_headspace_m,
+        "H_acumulacion_m": H_acumulacion_m,
+        "H_bordo_m": H_bordo_m,
+        "H_total_m": H_total_m,
+        "relacion_H_D": round(relacion_H_D, 2),
+        
+        # Parámetros hidráulicos
+        "Q_m3_d": Q_m3_d,
+        "Q_m3_h": Q_m3_h,
+        "Q_max_m3_d": Q_max_m3_d,
+        "Q_max_m3_h": Q_max_m3_h,
+        "HLR_diseño_m3_m2_h": HLR_diseño,
+        "HLR_real_m3_m2_h": round(HLR_real_m3_m2_h, 2),
+        "HLR_max_m3_m2_h": round(HLR_max_m3_m2_h, 2),
+        
+        # Parámetros de proceso
+        "DBO_entrada_mg_L": DBO_entrada_mg_L,
+        "carga_DBO_kg_d": round(carga_DBO_kg_d, 1),
+        "carga_DBO_pico_kg_d": round(carga_DBO_pico_kg_d, 1),
+        "EBCT_h": round(EBCT_h, 2),
+        "EBCT_pico_h": round(EBCT_pico_h, 2),
+        "OLR_kgDBO_m3_d": round(OLR_kgDBO_m3_d, 2),
+        "OLR_pico_kgDBO_m3_d": round(OLR_pico_kgDBO_m3_d, 2),
+        
+        # Aireación
+        "relacion_aire_agua": relacion_aire_agua,
+        "Q_aire_Nm3_h": round(Q_aire_Nm3_h, 1),
+        "SAR_m3_m2_h": round(SAR_m3_m2_h, 1),
+        "Q_aire_min_Nm3_h": round(Q_aire_min_Nm3_h, 1),
+        "factor_seguridad_aire": round(factor_seguridad_aire, 1),
+        
+        # Retrolavado
+        "vel_bw_aire_m3_m2_h": vel_bw_aire_m3_m2_h,
+        "vel_bw_agua_m3_m2_h": vel_bw_agua_m3_m2_h,
+        "Q_bw_aire_m3_h": round(Q_bw_aire_m3_h, 1),
+        "Q_bw_agua_m3_h": round(Q_bw_agua_m3_h, 1),
+        "V_bw_ciclo_m3": round(V_bw_ciclo_m3, 1),
+        "fraccion_bw_pct": round(fraccion_bw_pct, 1),
+        "freq_retrolavado_h": Q.baf_freq_retrolavado_h,
+        "duracion_retrolavado_min": Q.baf_duracion_retrolavado_min,
+        
+        # Verificaciones
+        "verificaciones": verificaciones,
+        "todas_cumplen": all(v["cumple"] for v in verificaciones.values()),
+        "texto_resumen_verificaciones": texto_resumen_verificaciones,
+        
+        # Rellenos
+        "sup_especifica_m2_m3": Q.baf_sup_especifica_m2_m3,
+        "porosidad_pct": Q.baf_porosidad_pct,
+        
+        # Referencias
+        "fuente": f"{ref_me}; {ref_henze}"
+    }
 
 
 # =============================================================================

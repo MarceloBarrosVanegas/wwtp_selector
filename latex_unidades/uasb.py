@@ -774,13 +774,24 @@ La velocidad en boca de {u['velocidad_boca_m_s']:.2f} m/s {u['texto_boca']}"""
         
         return rf"""\subsection{{Resultados}}
 
-\begin{{table}}[H]
-\centering
-\caption{{Dimensiones y parámetros del reactor UASB}}
-\begin{{tabular}}{{ll}}
+\begingroup
+\small
+\begin{{longtable}}{{ll}}
+\caption{{Dimensiones y parámetros del reactor UASB}}\\
 \toprule
 Parámetro & Valor \\
 \midrule
+\endfirsthead
+\caption[]{{Dimensiones y parámetros del reactor UASB (continuación)}}\\
+\toprule
+Parámetro & Valor \\
+\midrule
+\endhead
+\midrule
+\multicolumn{{2}}{{r}}{{\textit{{Continúa en la siguiente página}}}} \\
+\endfoot
+\bottomrule
+\endlastfoot
 Diámetro & {u['D_m']:.2f} m \\
 \multicolumn{{2}}{{l}}{{\textit{{Desglose de alturas:}}}} \\
 \quad Zona de distribución (fondo) & {u['H_distribucion_m']:.2f} m \\
@@ -800,9 +811,8 @@ Biogás producido & {u['biogaz_m3_d']:.1f} m$^3$ CH$_4$/d \\
 \multicolumn{{2}}{{l}}{{\textit{{Subdivisión zona de reacción:}}}} \\
 \quad Lecho de lodo denso/granular ({int(cfg.uasb_porcion_lecho_granular*100):d}\%) & {u['H_lecho_granular_m']:.2f} m \\
 \quad Manto expandido ({int(cfg.uasb_porcion_manto_expandido*100):d}\%) & {u['H_manto_expandido_m']:.2f} m \\
-\bottomrule
-\end{{tabular}}
-\end{{table}}
+\end{{longtable}}
+\endgroup
 
 La subdivisión interna de la zona de reacción sigue criterios establecidos por Chernicharo \cite{{chernicharo2007}}. El lecho de lodo denso o granular (aproximadamente {int(cfg.uasb_porcion_lecho_granular*100):d}\% de la altura útil) contiene los lodos más viejos y densos, mientras que el manto de lodos expandido (aproximadamente {int(cfg.uasb_porcion_manto_expandido*100):d}\% de la altura útil) mantiene los lodos en suspensión activa donde ocurre la mayor parte de la degradación biológica.
 
@@ -862,6 +872,7 @@ if __name__ == "__main__":
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{booktabs}
+\usepackage{longtable}
 \usepackage{graphicx}
 \usepackage{enumitem}
 \usepackage{tikz}

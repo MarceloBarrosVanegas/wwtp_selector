@@ -552,13 +552,24 @@ La reducción logarítmica alcanzada es de {c['log_reduccion']:.1f} log, lo que 
         
         return rf"""\subsection{{Resultados}}
 
-\begin{{table}}[H]
-\centering
-\caption{{Resumen de dimensiones y parámetros de la desinfección}}
-\begin{{tabular}}{{@{{}}lc@{{}}}}
+\begingroup
+\small
+\begin{{longtable}}{{@{{}}lc@{{}}}}
+\caption{{Resumen de dimensiones y parámetros de la desinfección}}\\
 \toprule
 \textbf{{Parámetro}} & \textbf{{Valor}} \\
 \midrule
+\endfirsthead
+\caption[]{{Resumen de dimensiones y parámetros de la desinfección (continuación)}}\\
+\toprule
+\textbf{{Parámetro}} & \textbf{{Valor}} \\
+\midrule
+\endhead
+\midrule
+\multicolumn{{2}}{{r}}{{\textit{{Continúa en la siguiente página}}}} \\
+\endfoot
+\bottomrule
+\endlastfoot
 \multicolumn{{2}}{{l}}{{\textit{{Dimensiones del tanque}}}} \\
 \midrule
 Largo & {c['largo_m']:.1f} m \\
@@ -587,9 +598,8 @@ Concentración NaOCl & {c['concentracion_NaOCl_pct']:.0f} \% \\
 Consumo NaOCl & {c['consumo_NaOCl_kg_d']:.1f} kg/d \\
 Volumen NaOCl & {c['volumen_NaOCl_L_d']:.1f} L/d ({c['volumen_almacenamiento_L']:.0f} L/mes) \\
 Almacenamiento ({c['dias_almacenamiento']:.0f} d) & {c['volumen_almacenamiento_L']:.0f} L ({c['volumen_almacenamiento_L']/1000:.1f} m³) \\
-\bottomrule
-\end{{tabular}}
-\end{{table}}
+\end{{longtable}}
+\endgroup
 
 El sistema de desinfección con hipoclorito de sodio ha sido dimensionado para tratar un caudal de {c['Q_m3_d']:.1f} m³/d, logrando una reducción de {c['pct_reduccion']:.1f}\% de coliformes fecales y cumpliendo con los requisitos de la TULSMA para vertimiento de aguas residuales tratadas.\
 
@@ -649,6 +659,7 @@ if __name__ == "__main__":
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{booktabs}
+\usepackage{longtable}
 \usepackage{graphicx}
 \usepackage{enumitem}
 \usepackage{float}

@@ -26,6 +26,13 @@
 - "Arregla X" NO significa "también mejora Y y Z"
 - Mantener el scope exacto de lo solicitado
 
+### 6. CAMBIOS ESPECÍFICOS ÚNICAMENTE - NADA DE GENERALIDADES
+- **NUNCA** hacer cambios generales - solo el caso específico que se solicita
+- Cuando se pide algo, enfocarse ÚNICAMENTE en cambiar eso y **NUNCA** nada más
+- NO aplicar "mejoras" o "optimizaciones" no solicitadas
+- NO modificar código/archivos que no están directamente relacionados con la tarea
+- Si se pide "arregla X", solo se arregla X, no se toca Y ni Z aunque "quede mejor"
+
 ---
 
 ## RECORDATORIO INICIAL

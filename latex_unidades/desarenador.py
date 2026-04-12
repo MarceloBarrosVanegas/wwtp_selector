@@ -174,23 +174,33 @@ Con la velocidad calculada $v_{{h,max}} = {d['v_h_max_m_s']:.3f}$~m/s, la unidad
 
         resultados = rf"""\subsection{{Resultados}}
 
-\begin{{table}}[H]
-\centering
-\caption{{Dimensiones del desarenador}}
-\begin{{tabular}}{{l p{{9cm}}}}
+\begingroup
+\small
+\begin{{longtable}}{{l p{{9cm}}}}
+\caption{{Dimensiones del desarenador}}\\
 \toprule
 Par\'ametro & Valor \\
 \midrule
+\endfirsthead
+\caption[]{{Dimensiones del desarenador (continuación)}}\\
+\toprule
+Par\'ametro & Valor \\
+\midrule
+\endhead
+\midrule
+\multicolumn{{2}}{{r}}{{\textit{{Continúa en la siguiente página}}}} \\
+\endfoot
+\bottomrule
+\endlastfoot
 Longitud dise\~no & {d['L_diseno_m']:.1f} m (m\'inimo constructivo SENAGUA) \\
 Ancho & {d['b_canal_m']:.2f} m (m\'inimo constructivo) \\
 Profundidad \'util & {d['H_util_m']:.2f} m \\
 Velocidad horizontal real & {d['v_h_real_m_s']:.3f} m/s \\
 Velocidad cr\'itica resuspensi\'on & {d['v_c_scour_m_s']:.3f} m/s (Camp-Shields) \\
 Tiempo retenci\'on real & {d['t_r_real_s']:.1f} s \\
-\bottomrule
-\multicolumn{{2}}{{p{{\textwidth}}}}{{\small\textit{{$^a$Nota: El TRH de {d['t_r_real_s']:.0f}~s y velocidad de {d['v_h_real_m_s']:.3f}~m/s se deben al ancho m\'inimo constructivo de {d['b_min_constructivo_m']:.2f}~m. }}}}
-\end{{tabular}}
-\end{{table}}
+\multicolumn{{2}}{{p{{\textwidth}}}}{{\small\textit{{$^a$Nota: El TRH de {d['t_r_real_s']:.0f}~s y velocidad de {d['v_h_real_m_s']:.3f}~m/s se deben al ancho m\'inimo constructivo de {d['b_min_constructivo_m']:.2f}~m. }}}} \\
+\end{{longtable}}
+\endgroup
 
 {figura_latex}\textbf{{Manejo de arena removida}}
 

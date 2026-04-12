@@ -400,13 +400,24 @@ condiciones aerobias dentro del filtro.
         
         return rf"""\subsection{{Resultados}}
 
-\begin{{table}}[H]
-\centering
-\caption{{Resumen de resultados del filtro percolador}}
-\begin{{tabular}}{{ll}}
+\begingroup
+\small
+\begin{{longtable}}{{ll}}
+\caption{{Resumen de resultados del filtro percolador}}\\
 \toprule
 \textbf{{Parámetro}} & \textbf{{Valor}} \\
 \midrule
+\endfirsthead
+\caption[]{{Resumen de resultados del filtro percolador (continuación)}}\\
+\toprule
+\textbf{{Parámetro}} & \textbf{{Valor}} \\
+\midrule
+\endhead
+\midrule
+\multicolumn{{2}}{{r}}{{\textit{{Continúa en la siguiente página}}}} \\
+\endfoot
+\bottomrule
+\endlastfoot
 \multicolumn{{2}}{{l}}{{\textit{{Geometría principal}}}} \\
 Diámetro & {fp['D_filtro_m']:.2f} m \\
 Altura total & {fp['H_total_m']:.2f} m \\
@@ -438,9 +449,8 @@ Caudal de aire (óptimo) & {fp['Q_aire_opt_m3_h']:.1f} m³/h \\
 \multicolumn{{2}}{{l}}{{\textit{{Verificación mecánica del medio}}}} \\
 Carga sobre el medio & {fp['carga_sobre_medio_kg_m2']:.1f} kg/m² \\
 Resistencia a compresión & {fp['estado_resistencia']} \\
-\bottomrule
-\end{{tabular}}
-\end{{table}}\
+\end{{longtable}}
+\endgroup\
 
 
 
@@ -494,6 +504,7 @@ if __name__ == "__main__":
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{booktabs}
+\usepackage{longtable}
 \usepackage{graphicx}
 \usepackage{enumitem}
 \usepackage{tikz}
