@@ -21,11 +21,13 @@ class GeneradorBAF:
     Args:
         cfg: Configuracion de diseno
         datos: Resultados del dimensionamiento
+        ruta_figuras: Ruta base donde se guardan las figuras (default: 'figuras')
     """
 
-    def __init__(self, cfg, datos):
+    def __init__(self, cfg, datos, ruta_figuras='figuras'):
         self.cfg = cfg
         self.datos = datos
+        self.ruta_figuras = ruta_figuras
 
     def generar_completo(self) -> str:
         """Genera todo el contenido LaTeX del BAF en 3 subsections."""
@@ -265,7 +267,7 @@ EBCT pico        & {baf['EBCT_pico_h']:.2f} h              & $\geq$ {cfg.baf_EBC
 OLR medio        & {baf['OLR_kgDBO_m3_d']:.2f} kg/m³·d   & {cfg.baf_OLR_min_kgDBO_m3_d:.1f}--{cfg.baf_OLR_max_kgDBO_m3_d:.1f} kg/m³·d & \textbf{{{verifs['OLR_medio']['estado']}}} \\
 OLR pico         & {baf['OLR_pico_kgDBO_m3_d']:.2f} kg/m³·d & $\leq$ {cfg.baf_OLR_max_kgDBO_m3_d:.1f} kg/m³·d          & \textbf{{{verifs['OLR_pico']['estado']}}} \\
 SAR              & {baf['SAR_m3_m2_h']:.1f} m³/m²·h       & {cfg.baf_SAR_min_m3_m2_h:.0f}--{cfg.baf_SAR_max_m3_m2_h:.0f} m³/m²·h  & \textbf{{{verifs['SAR']['estado']}}} \\
-Suficiencia aire & {baf['factor_seguridad_aire']:.1f}      & $\geq$ {cfg.baf_factor_seguridad_aire_min:.1f} (holgura)              & \textbf{{{verifs['suficiencia_aire']['estado']}}} \\
+Suficiencia aire & {baf['factor_seguridad_aire']:.1f}      & $\geq$ 1.0 (mínimo); $\geq$ {cfg.baf_factor_seguridad_aire_min:.1f} (holgura)  & \textbf{{{verifs['suficiencia_aire']['estado']}}} \\
 Relación $H/D$   & {baf['relacion_H_D']:.2f}               & {cfg.baf_relacion_H_D_min:.1f}--{cfg.baf_relacion_H_D_max:.1f}          & \textbf{{{verifs['relacion_H_D']['estado']}}} \\
 Agua retrolavado & {baf['fraccion_bw_pct']:.1f}\%          & {cfg.baf_fraccion_bw_min_pct:.0f}--{cfg.baf_fraccion_bw_max_pct:.0f}\%  & \textbf{{{verifs['fraccion_retrolavado']['estado']}}} \\
 \bottomrule
@@ -275,9 +277,41 @@ Agua retrolavado & {baf['fraccion_bw_pct']:.1f}\%          & {cfg.baf_fraccion_b
 {texto_resumen}"""
 
     def generar_resultados(self) -> str:
-        """Genera subsection Resultados con longtable consolidada."""
+        """Genera subsection Resultados con longtable consolidada y figura."""
         cfg = self.cfg
         baf = self.datos
+
+        # Generar figura
+        if os.path.isabs(self.ruta_figuras):
+            output_dir = self.ruta_figuras
+            # Para LaTeX, construir ruta completa y normalizar a forward slashes
+            ruta_completa = os.path.join(self.ruta_figuras, 'Esquema_BAF.png')
+            latex_ruta_figura = ruta_completa.replace('\\', '/')
+        else:
+            output_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'resultados', self.ruta_figuras)
+            latex_ruta_figura = self.ruta_figuras + '/Esquema_BAF.png'
+
+        figura_generada = False
+        try:
+            self.generar_esquema_matplotlib(output_dir)
+            figura_latex = rf"""\begin{{figure}}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{{{latex_ruta_figura}}}
+\caption{{Esquema del Biofiltro Biológico Aireado (BAF) -- vista vertical (sección transversal)}}
+\label{{fig:esquema_baf}}
+\end{{figure}}
+
+"""
+            figura_generada = True
+        except Exception as e:
+            figura_latex = ""
+            figura_generada = False
+
+        # Texto descriptivo condicional a la existencia de figura
+        if figura_generada:
+            texto_esquema = "El esquema muestra la configuración de flujo ascendente (\\textit{{up-flow}}) con aireación en co-corriente, el lecho de relleno plástico sumergido, y las zonas de plenum, headspace y acumulación para retrolavado."
+        else:
+            texto_esquema = "La configuración de flujo es ascendente (\\textit{{up-flow}}) con aireación en co-corriente, con lecho de relleno plástico sumergido y zonas de plenum, headspace y acumulación para retrolavado."
 
         return rf"""\subsection{{Resultados}}
 
@@ -346,7 +380,263 @@ Porosidad                     & $\varepsilon = {baf['porosidad_pct']:.0f}$\,\% \
 Material                      & Plástico modular \\
 \end{{longtable}}
 
-El dimensionamiento del BAF produce un reactor compacto de {baf['D_m']:.2f}\,m de diámetro y {baf['H_total_m']:.2f}\,m de altura total, con un volumen de lecho de {baf['V_lecho_m3']:.2f}\,m³ por unidad. La configuración de lecho sumergido con aireación forzada permite alcanzar una calidad de efluente comparable a la de sistemas de lodos activados pero sin requerir sedimentador secundario posterior, logrando una reducción significativa en la huella de planta. La esquematización de la unidad y los detalles constructivos se desarrollarán en una fase posterior de la memoria técnica."""
+El dimensionamiento del BAF produce un reactor compacto de {baf['D_m']:.2f}\,m de diámetro y {baf['H_total_m']:.2f}\,m de altura total, con un volumen de lecho de {baf['V_lecho_m3']:.2f}\,m³ por unidad. El presente proyecto adopta la tecnología de biofiltro con lecho sumergido y aireación forzada, la cual opera con biomasa adherida al relleno plástico de alta superficie específica. Esta configuración tecnológica incorpora intrínsecamente la retención física de sólidos en el lecho, característica que en condiciones de diseño apropiadas permite obtener efluentes clarificados sin requerir una unidad de sedimentación secundaria independiente, diferenciándose así de los sistemas convencionales de lodos activados que sí necesitan sedimentador posterior.
+
+{figura_latex}{texto_esquema}"""
+
+    def generar_esquema_matplotlib(self, output_dir=None):
+        """
+        Genera un esquema técnico del reactor BAF (Biofiltro Biológico Aireado)
+        en vista vertical (sección transversal de reactor cilíndrico).
+        Basado exactamente en el estilo, paleta de colores, calidad visual y estructura
+        del esquema UASB proporcionado, pero adaptado a la geometría y zonas del BAF:
+        - Plenum inferior con difusores de agua y aire
+        - Lecho de relleno plástico sumergido (con biofilm y burbujas)
+        - Zona libre (headspace) + zona de acumulación para retrolavado
+        - Bordo libre
+        Usa los valores calculados en dimensionar_baf() sin fallbacks.
+        """
+        import matplotlib.pyplot as plt
+        import matplotlib.patches as mpatches
+        from matplotlib.patches import FancyBboxPatch, Rectangle, Circle, Polygon, FancyArrowPatch
+        import numpy as np
+        import os
+
+        resultados_baf = self.datos
+
+        # Extraer valores calculados (exactos del dimensionamiento BAF)
+        D = resultados_baf['D_m']
+        H_total = resultados_baf['H_total_m']
+        H_plenum = resultados_baf['H_plenum_m']
+        H_lecho = resultados_baf['H_lecho_m']
+        H_headspace = resultados_baf['H_headspace_m']
+        H_acumulacion = resultados_baf['H_acumulacion_m']
+        H_bordo = resultados_baf['H_bordo_m']
+        SAR = resultados_baf['SAR_m3_m2_h']
+        Q_aire = resultados_baf['Q_aire_Nm3_h']
+        Q_L_s = resultados_baf['Q_m3_h'] * 1000 / 3600
+        sup_especifica = resultados_baf['sup_especifica_m2_m3']
+
+        # Proporciones del esquema (vertical, como UASB)
+        ancho = 5.0                     # Ancho fijo del tanque visual (estética)
+        altura_total = 9.0              # Altura total del diagrama
+        escala = altura_total / H_total
+
+        # Coordenadas base
+        x_centro = 5
+        y_base = 1
+        x_izq = x_centro - ancho / 2
+        x_der = x_centro + ancho / 2
+
+        # Alturas escaladas
+        h_plenum = H_plenum * escala
+        h_lecho = H_lecho * escala
+        h_headspace = H_headspace * escala
+        h_acumulacion = H_acumulacion * escala
+        h_bordo = H_bordo * escala
+
+        # Crear figura (vertical)
+        fig, ax = plt.subplots(figsize=(8, 11))
+
+        # Colores consistentes con esquema UASB
+        c_plenum = '#C0C0C0'         # Gris claro (plenum / soporte)
+        c_lecho = '#A8D5BA'          # Verde claro (relleno plástico + biofilm)
+        c_liquido = '#E8F0F5'        # Azul muy pálido
+        c_headspace = '#F0F0F0'      # Gris muy claro
+        c_biogas = '#E8F5E9'         # Verde pálido (zona de aireación)
+        c_gris_placa = '#C0C0C0'     # Gris para estructuras
+        c_burbuja = '#81C784'        # Verde claro (burbujas de aire)
+
+        # === DIBUJO DEL REACTOR ===
+        y_bottom = y_base
+        y_top = y_bottom + h_plenum + h_lecho + h_headspace + h_acumulacion + h_bordo
+        reactor = FancyBboxPatch((x_izq, y_bottom), ancho, y_top - y_bottom,
+                                 boxstyle="round,pad=0.15", 
+                                 facecolor='white', edgecolor='#555555', linewidth=3)
+        ax.add_patch(reactor)
+
+        # 1. Plenum inferior (distribución agua + aire)
+        y_plenum_top = y_bottom + h_plenum
+        plenum = Rectangle((x_izq + 0.1, y_bottom), ancho - 0.2, h_plenum,
+                           facecolor=c_plenum, edgecolor='none', alpha=0.95)
+        ax.add_patch(plenum)
+
+        # Difusores de aire (pequeños rectángulos horizontales en base del lecho)
+        for i in range(6):
+            x_diff = x_izq + 0.5 + i * (ancho - 1.0) / 5
+            ax.add_patch(Rectangle((x_diff - 0.15, y_plenum_top - 0.15), 0.3, 0.08,
+                                  facecolor='#555555', edgecolor='none'))
+
+        # 2. Lecho de relleno (media biológica)
+        y_lecho_bottom = y_plenum_top
+        y_lecho_top = y_lecho_bottom + h_lecho
+        lecho = Rectangle((x_izq + 0.1, y_lecho_bottom), ancho - 0.2, h_lecho,
+                          facecolor=c_lecho, edgecolor='none', alpha=0.9)
+        ax.add_patch(lecho)
+
+        # Representación del relleno plástico modular (pequeños rectángulos apilados)
+        np.random.seed(42)
+        for _ in range(45):  # Muchos módulos para simular alta superficie específica
+            cx = x_centro + np.random.uniform(-ancho/2 + 0.4, ancho/2 - 0.4)
+            cy = y_lecho_bottom + np.random.uniform(0.2, h_lecho - 0.2)
+            w = np.random.uniform(0.18, 0.28)
+            h_mod = np.random.uniform(0.25, 0.35)
+            ax.add_patch(Rectangle((cx - w/2, cy - h_mod/2), w, h_mod,
+                                  facecolor='#6EBE8E', edgecolor='#4A8F6A', linewidth=0.6, alpha=0.85))
+
+        # Biofilm (pequeños puntos verdes adheridos al relleno)
+        for _ in range(35):
+            cx = x_centro + np.random.uniform(-ancho/2 + 0.5, ancho/2 - 0.5)
+            cy = y_lecho_bottom + np.random.uniform(0.3, h_lecho - 0.3)
+            ax.add_patch(Circle((cx, cy), 0.04, facecolor='#2E8B57', edgecolor='none', alpha=0.7))
+
+        # 3. Zona líquida + headspace + acumulación (sobre el lecho)
+        y_liquido_bottom = y_lecho_top
+        liquido = Rectangle((x_izq + 0.1, y_liquido_bottom), ancho - 0.2,
+                            h_headspace + h_acumulacion,
+                            facecolor=c_liquido, edgecolor='none', alpha=0.85)
+        ax.add_patch(liquido)
+
+        # 4. Bordo libre
+        y_bordo_bottom = y_liquido_bottom + h_headspace + h_acumulacion
+        bordo = Rectangle((x_izq + 0.1, y_bordo_bottom), ancho - 0.2, h_bordo,
+                          facecolor=c_headspace, edgecolor='none', alpha=0.9)
+        ax.add_patch(bordo)
+
+        # === BURBUJAS DE AIRE (co-corriente ascendente a través del lecho) ===
+        for _ in range(28):
+            cx = x_centro + np.random.uniform(-ancho/2 + 0.6, ancho/2 - 0.6)
+            cy_start = y_lecho_bottom + np.random.uniform(0.1, h_lecho * 0.8)
+            cy = cy_start + np.random.uniform(0.4, h_lecho * 0.9)
+            r = np.random.uniform(0.035, 0.085)
+            ax.add_patch(Circle((cx, cy), r, facecolor=c_burbuja, edgecolor='none', alpha=0.65))
+
+        # === FLECHAS DE FLUJO ===
+        # Agua ascendente (up-flow)
+        for fx in [x_centro - 1.1, x_centro, x_centro + 1.1]:
+            ax.annotate('', xy=(fx, y_lecho_top + 0.4), 
+                        xytext=(fx, y_plenum_top + 0.3),
+                        arrowprops=dict(arrowstyle='->', color='#1565C0', lw=3.0, alpha=0.9))
+
+        # Aire ascendente (co-corriente)
+        ax.annotate('', xy=(x_centro + 0.8, y_lecho_top - 0.3), 
+                    xytext=(x_centro + 0.8, y_plenum_top + 0.3),
+                    arrowprops=dict(arrowstyle='->', color='#2E7D32', lw=2.8, alpha=0.85))
+
+        # Salida de efluente (derecha, nivel superior)
+        y_salida = y_lecho_top + h_headspace * 0.6
+        ax.plot([x_der, x_der + 1.2], [y_salida, y_salida], 'k-', linewidth=3)
+        ax.annotate('', xy=(x_der + 1.1, y_salida), xytext=(x_der + 0.2, y_salida),
+                    arrowprops=dict(arrowstyle='->', color='#1565C0', lw=3.5))
+
+        # === ENTRADA Y AIREACIÓN ===
+        # Entrada de afluente (izquierda, fondo plenum)
+        y_entrada = y_bottom + 0.3
+        ax.plot([x_izq - 1.6, x_izq], [y_entrada, y_entrada], 'k-', linewidth=3.5)
+        ax.add_patch(Rectangle((x_izq - 0.35, y_entrada - 0.12), 0.7, 0.24,
+                              facecolor=c_liquido, edgecolor='#555555'))
+        ax.annotate('', xy=(x_izq, y_entrada), xytext=(x_izq - 1.3, y_entrada),
+                    arrowprops=dict(arrowstyle='->', color='#2E7D32', lw=3.5))
+
+        # Entrada de aire (base, centro)
+        y_aire = y_bottom + 0.15
+        ax.plot([x_centro, x_centro], [y_bottom - 0.6, y_aire], 'k-', linewidth=3)
+        ax.annotate('', xy=(x_centro, y_aire + 0.4), xytext=(x_centro, y_bottom - 0.4),
+                    arrowprops=dict(arrowstyle='->', color='#2E7D32', lw=3))
+
+        # === LÍNEAS DIVISORIAS (punteadas) ===
+        dash = dict(linestyle='--', color='#999999', linewidth=0.9, alpha=0.6)
+        ax.axhline(y=y_plenum_top, xmin=0.18, xmax=0.82, **dash)
+        ax.axhline(y=y_lecho_top, xmin=0.18, xmax=0.82, **dash)
+        ax.axhline(y=y_lecho_top + h_headspace + h_acumulacion, xmin=0.18, xmax=0.82, **dash)
+
+        # === LÍNEAS DE DIMENSIÓN VERTICALES (estilo UASB - alineadas) ===
+        # Línea base vertical alineada para todas las cotas
+        x_dim_base = x_izq - 2.0
+        tick_long = 0.15
+        
+        def draw_cota(y1, y2, texto, align_right=True):
+            """Dibuja una cota vertical con línea y texto alineado"""
+            # Línea vertical principal
+            ax.plot([x_dim_base, x_dim_base], [y1, y2], 'k-', linewidth=0.9)
+            # Ticks horizontales en extremos
+            ax.plot([x_dim_base - tick_long/2, x_dim_base + tick_long/2], [y1, y1], 'k-', linewidth=0.9)
+            ax.plot([x_dim_base - tick_long/2, x_dim_base + tick_long/2], [y2, y2], 'k-', linewidth=0.9)
+            # Texto alineado a la derecha de la línea
+            if align_right:
+                ax.text(x_dim_base - 0.15, (y1 + y2) / 2, texto, 
+                       ha='right', va='center', fontsize=8, linespacing=0.9)
+
+        # Cotas individuales (alineadas)
+        draw_cota(y_bottom, y_plenum_top, f'{H_plenum:.2f} m\n(plenum)')
+        draw_cota(y_plenum_top, y_lecho_top, f'{H_lecho:.2f} m\n(lecho)')
+        draw_cota(y_lecho_top, y_lecho_top + h_headspace + h_acumulacion,
+                  f'{H_headspace + H_acumulacion:.2f} m\n(headspace +\nacumulación)')
+        draw_cota(y_lecho_top + h_headspace + h_acumulacion, y_top,
+                  f'{H_bordo:.2f} m\n(bordo libre)')
+
+        # Altura total (línea más externa, con ticks como las demás)
+        x_dim_total = x_izq - 3.8
+        ax.plot([x_dim_total, x_dim_total], [y_bottom, y_top], 'k-', linewidth=0.9)
+        # Ticks horizontales en extremos (igual que cotas individuales)
+        ax.plot([x_dim_total - tick_long/2, x_dim_total + tick_long/2], [y_bottom, y_bottom], 'k-', linewidth=0.9)
+        ax.plot([x_dim_total - tick_long/2, x_dim_total + tick_long/2], [y_top, y_top], 'k-', linewidth=0.9)
+        ax.text(x_dim_total - 0.15, (y_bottom + y_top) / 2,
+                f'H = {H_total:.2f} m', ha='right', va='center',
+                fontsize=9, fontweight='bold')
+
+        # Diámetro (abajo) - con líneas verticales de marca
+        y_dim_bottom = y_bottom - 0.9
+        tick_vert = 0.15
+        ax.plot([x_izq, x_der], [y_dim_bottom, y_dim_bottom], 'k-', linewidth=0.9)
+        # Líneas verticales en los extremos
+        ax.plot([x_izq, x_izq], [y_dim_bottom - tick_vert/2, y_dim_bottom + tick_vert/2], 'k-', linewidth=0.9)
+        ax.plot([x_der, x_der], [y_dim_bottom - tick_vert/2, y_dim_bottom + tick_vert/2], 'k-', linewidth=0.9)
+        ax.text(x_centro, y_dim_bottom - 0.35, f'Ø {D:.2f} m', ha='center', va='top',
+                fontsize=9, fontweight='bold')
+
+        # === ETIQUETAS TÉCNICAS ===
+        offset_derecho = x_der + 0.8
+
+        # Etiquetas de zonas (derecha)
+        ax.text(offset_derecho + 0.5, y_lecho_top + (h_headspace + h_acumulacion) / 2,
+                'Zona libre +\nacumulación\n(retrolavado)', ha='left', va='center', 
+                fontsize=8, linespacing=0.9)
+        ax.text(offset_derecho, y_lecho_bottom + h_lecho / 2,
+                f'Lecho sumergido\nSAR = {SAR:.1f} m³/m²·h', ha='left', va='center',
+                fontsize=9, fontweight='bold')
+        ax.text(offset_derecho, (y_bottom + y_plenum_top) / 2,
+                'Plenum +\ndifusores\naire + agua', ha='left', va='center', 
+                fontsize=8, linespacing=0.9)
+        
+        # Etiquetas de flujos
+        ax.text(x_izq - 1.0, y_entrada - 0.5, f'Afluente\n{Q_L_s:.1f} L/s',
+                ha='center', va='top', fontsize=9, fontweight='bold', color='#2E7D32')
+        ax.text(x_der + 1.4, y_salida + 0.5, 'Efluente\ntratado',
+                ha='center', va='bottom', fontsize=9, fontweight='bold', color='#1565C0')
+        ax.text(x_centro + 0.3, y_top + 0.55, f'Aire\n{Q_aire:.1f} Nm³/h',
+                ha='left', va='bottom', fontsize=9, fontweight='bold', color='#2E7D32')
+
+        # Título
+        ax.text(x_centro, y_top + 1.4, 'REACTOR BAF – Esquema de Funcionamiento',
+                ha='center', va='bottom', fontsize=13, fontweight='bold')
+
+        # Configuración final
+        ax.set_xlim(x_izq - 4.2, x_der + 3.5)
+        ax.set_ylim(y_bottom - 1.3, y_top + 2.0)
+        ax.set_aspect('equal')
+        ax.axis('off')
+
+        # Guardar
+        if output_dir is None:
+            output_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'resultados', 'figuras')
+        os.makedirs(output_dir, exist_ok=True)
+
+        fig_path = os.path.join(output_dir, 'Esquema_BAF.png')
+        fig.savefig(fig_path, dpi=220, bbox_inches='tight', facecolor='white', pad_inches=0.3)
+        plt.close()
+
+        return fig_path
 
 
 # =============================================================================
@@ -378,13 +668,16 @@ if __name__ == "__main__":
     print(f"[3] OLR: {baf['OLR_kgDBO_m3_d']:.2f} kg/m³·d")
     print(f"[3] Q_aire: {baf['Q_aire_Nm3_h']:.1f} Nm³/h")
 
-    gen = GeneradorBAF(cfg, baf)
+    output_dir = os.path.join(_base_dir, 'resultados', 'test_modular')
+    os.makedirs(output_dir, exist_ok=True)
+    
+    figuras_dir = os.path.join(output_dir, 'figuras')
+    os.makedirs(figuras_dir, exist_ok=True)
+    
+    gen = GeneradorBAF(cfg, baf, ruta_figuras=figuras_dir)
     latex = gen.generar_completo()
 
     print(f"\n[4] LaTeX generado: {len(latex)} chars")
-
-    output_dir = os.path.join(_base_dir, 'resultados', 'test_modular')
-    os.makedirs(output_dir, exist_ok=True)
 
     tex_path = os.path.join(output_dir, 'baf_test.tex')
     with open(tex_path, 'w', encoding='utf-8') as f:
@@ -399,6 +692,7 @@ if __name__ == "__main__":
 \usepackage{amsmath,amsfonts,amssymb}
 \usepackage{booktabs,longtable,float}
 \usepackage{caption}
+\usepackage{graphicx}
 \usepackage{geometry}
 \geometry{margin=2.5cm}
 
@@ -432,31 +726,3 @@ if __name__ == "__main__":
     print("\n" + "=" * 70)
     print("TEST COMPLETADO")
     print("=" * 70)
-
-
-    def generar_esquema_matplotlib(self, output_dir=None):
-        import matplotlib.pyplot as plt
-        from matplotlib.patches import Rectangle, Circle
-        import numpy as np
-        import os
-
-        baf = self.datos
-        D_m = baf['D_m']
-        H_total = baf['H_total_m']
-        H_lecho = baf['H_lecho_m']
-        H_plenum = baf['H_plenum_m']
-        Q_m3_h = baf['Q_m3_h']
-
-        fig, ax = plt.subplots(figsize=(10, 12))
-        ax.text(0.5, 0.5, 'Esquema BAF - En desarrollo', ha='center', va='center', fontsize=20)
-        ax.set_xlim(0, 1)
-        ax.set_ylim(0, 1)
-        ax.axis('off')
-
-        if output_dir is None:
-            output_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'resultados', 'figuras')
-        os.makedirs(output_dir, exist_ok=True)
-        fig_path = os.path.join(output_dir, 'Esquema_BAF.png')
-        fig.savefig(fig_path, dpi=220, bbox_inches='tight', facecolor='white')
-        plt.close()
-        return fig_path
