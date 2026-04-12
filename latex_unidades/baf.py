@@ -292,6 +292,7 @@ Agua retrolavado & {baf['fraccion_bw_pct']:.1f}\%          & {cfg.baf_fraccion_b
             latex_ruta_figura = self.ruta_figuras + '/Esquema_BAF.png'
 
         figura_generada = False
+        error_figura = None
         try:
             self.generar_esquema_matplotlib(output_dir)
             figura_latex = rf"""\begin{{figure}}[H]
@@ -306,6 +307,10 @@ Agua retrolavado & {baf['fraccion_bw_pct']:.1f}\%          & {cfg.baf_fraccion_b
         except Exception as e:
             figura_latex = ""
             figura_generada = False
+            error_figura = str(e)
+            # Dejar traza del error sin interrumpir el documento
+            import warnings
+            warnings.warn(f"[BAF] No se pudo generar el esquema matplotlib: {error_figura}", RuntimeWarning)
 
         # Texto descriptivo condicional a la existencia de figura
         if figura_generada:
