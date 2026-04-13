@@ -185,8 +185,8 @@ def generar_caption_layout(unidades_presentes: list) -> str:
 
 def dibujar_numeros_arquitectura(ax, posiciones_unidades: dict, max_y: float):
     """
-    Dibuja números en la parte superior con líneas guía dashed hasta abajo.
-    Estilo arquitectura profesional.
+    Dibuja números en la parte superior con líneas guía dashed.
+    Estilo arquitectura profesional - las líneas no llegan hasta las dimensiones.
     
     Args:
         ax: Eje de matplotlib
@@ -194,6 +194,7 @@ def dibujar_numeros_arquitectura(ax, posiciones_unidades: dict, max_y: float):
         max_y: Altura máxima del layout
     """
     y_numeros = max_y + 2.5  # Posición Y para los números (arriba)
+    y_fin_linea = 2.0  # Donde terminan las líneas dashed (por encima de las dimensiones que están en -5)
     fontsize_num = 14
     
     for unidad, (x_c, y_c, ancho, alto) in posiciones_unidades.items():
@@ -203,8 +204,8 @@ def dibujar_numeros_arquitectura(ax, posiciones_unidades: dict, max_y: float):
         ax.text(x_c, y_numeros, numero, ha='center', va='bottom',
                fontsize=fontsize_num, fontweight='bold', color='black')
         
-        # Línea guía dashed desde el número hasta abajo del layout
-        ax.plot([x_c, x_c], [y_numeros - 0.5, -8], 'k--', lw=1.5, alpha=0.6)
+        # Línea guía dashed desde el número hasta y_fin_linea (no llega a las dimensiones)
+        ax.plot([x_c, x_c], [y_numeros - 0.5, y_fin_linea], 'k--', lw=1.5, alpha=0.6)
 
 def dibujar_leyenda_numerada(ax, unidades_presentes: list, max_x: float, max_y: float):
     """
@@ -1045,6 +1046,18 @@ def generar_layout(
     # Dibujar números arquitectura en la parte superior con líneas guía
     if posiciones_unidades_dict:
         dibujar_numeros_arquitectura(ax, posiciones_unidades_dict, max_y_layout)
+    
+    # Leyenda de colores (tipo de tratamiento) - esquina superior izquierda
+    leyenda_items = []
+    for tipo_nombre, color in COLORES.items():
+        if any(DIM[u]['tipo'] == tipo_nombre for u in unidades_layout) or tipo_nombre == 'manejo_lodos':
+            label = tipo_nombre.replace('_', ' ').title()
+            leyenda_items.append(mpatches.Patch(color=color, label=label))
+    
+    legend_fontsize = FONT_CONFIG['leyenda']
+    # Posicionar leyenda más arriba para que no tape los números
+    ax.legend(handles=leyenda_items, loc='upper left', fontsize=legend_fontsize, 
+             framealpha=0.9, edgecolor='gray', bbox_to_anchor=(0.02, 1.06))
     
     # Configuración final
     ax.set_xlim(-6, max_x_con_acot)

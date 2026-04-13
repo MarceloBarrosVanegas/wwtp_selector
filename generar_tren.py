@@ -897,14 +897,14 @@ if __name__ == "__main__":
     # Ejemplo de uso
     entrada = {
         "nombre_tren": "Sistema de Tratamiento con Reactor de Flujo Ascendente y Humedal Vertical",
-        "caudal_total_lps": 17.0,
+        "caudal_total_lps": 17.31,
         "num_lineas": 3,
         "afluente": {
-            "DBO5_mg_L": 250.0,
-            "DQO_mg_L": 500.0,
-            "SST_mg_L": 220.0,
-            "CF_NMP_100mL": 1.0e7,
-            "temperatura_C": 24.2,
+            "DBO5_mg_L": 243.10,
+            "DQO_mg_L": 498,
+            "SST_mg_L": 156.,
+            "CF_NMP_100mL": 3300,
+            "temperatura_C": 25.6,
         },
         "unidades": [
             "rejillas",
