@@ -34,6 +34,7 @@ import sys
 import subprocess
 from typing import Dict, Any, List, Optional
 from dataclasses import dataclass
+import ollama
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -68,7 +69,10 @@ from latex_unidades.taf import GeneradorBiofiltroCargaMecanizadaHidraulica
 
 # Importar generador de layout
 from ptar_layout_graficador import generar_layout
-from latex_unidades.reporte_layout import generar_latex_seccion_layout
+from latex_unidades.reporte_resultados import (
+    generar_latex_seccion_layout,
+    generar_resumen_resultados,
+)
 
 
 # =============================================================================
@@ -830,11 +834,13 @@ def generar_documento_tren(
         latex_parts.append(r"\section{Resultados}")
         latex_parts.append("")
         latex_parts.append(generar_latex_seccion_layout(cfg, layout_info, titulo_section=False))
+        latex_parts.append("")
+        latex_parts.append(generar_resumen_resultados(cfg, resultados, area_m2=layout_info.get('area_layout_m2', 0)))
     
     # Bibliografia
     latex_parts.append("")
     latex_parts.append(r"\newpage")
-    latex_parts.append(r"\section{Referencias Bibliograficas}")
+    # latex_parts.append(r"\section{Referencias Bibliograficas}")
     latex_parts.append(r"\bibliographystyle{plain}")
     latex_parts.append(r"\bibliography{referencias}")
     latex_parts.append("")
