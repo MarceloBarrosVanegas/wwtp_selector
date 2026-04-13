@@ -64,7 +64,7 @@ class GeneradorRejillas(GeneradorUnidadBase):
         ancho_minimo_constructivo_m = r['ancho_minimo_constructivo_m']
         hL_criterio_cm = r['hL_criterio_m'] * 100
 
-        return rf"""\subsection{{Dimensionamiento}}
+        return rf"""\
 
 Las rejillas constituyen la primera barrera de proteccion del sistema, reteniendo solidos gruesos como plasticos, ramas y papel que podrian danar equipos o causar obstrucciones en tuberias aguas abajo. El diseno hidraulico de esta unidad debe garantizar velocidades suficientes para arrastrar solidos sedimentables, pero no tan elevadas que dificulten el paso del agua a traves de las barras.
 
@@ -474,16 +474,9 @@ Ancho constructivo & {r['ancho_layout_m']:.2f} m & $\geq$ {ancho_criterio_tabla_
 \end{{longtable}}
 \endgroup
 
-{figura_latex}\textbf{{Manejo de solidos retenidos}}
+{figura_latex}
 
-Las rejillas retienen solidos gruesos presentes en el agua residual que podrian danar equipos o causar obstrucciones en el sistema. El manejo adecuado de estos residuos incluye:
 
-\begin{{itemize}}[noitemsep,leftmargin=2em]
-    \item \textbf{{Tipos de solidos retenidos:}} Plasticos, ramas, papel, trapos y otros desechos flotantes de tamano superior al espaciado entre barras ({cfg.rejillas_b_barra_m*1000:.0f} mm).
-    \item \textbf{{Frecuencia de limpieza:}} Diaria o segun acumulacion observada. La perdida de carga calculada de {r['perdida_carga_real_m']*100:.4f} cm (limpio) indica que la limpieza puede ser manual dado que es inferior al umbral de {r['hL_criterio_m']*100:.0f} cm recomendado para sistemas mecanizados.
-    \item \textbf{{Metodo de limpieza:}} Manual mediante rastrillos o ganchos desde la plataforma de operacion. El angulo de inclinacion de {cfg.rejillas_angulo_grados:.0f}\textdegree\ facilita el retiro de solidos hacia la parte superior del canal.
-    \item \textbf{{Disposicion final:}} Los solidos retenidos deben depositarse en contenedores impermeables y transportarse a un relleno sanitario autorizado. \textit{{No son aptos para compostaje directo}} debido a la presencia de plasticos y materiales no biodegradables.
-\end{{itemize}}
 
 \textit{{Nota sobre cantidades:}} El presente dimensionamiento no estima la masa o volumen diario de residuos de cribado. Segun Metcalf y Eddy \cite{{metcalf2014}}, la produccion tipica de residuos de rejillas finas en aguas residuales municipales varia entre 0.005--0.02 m\textsuperscript{{3}}/1000 m\textsuperscript{{3}} de agua tratada. Para el caudal de diseno, esto representaria aproximadamente 0.02--0.09 m\textsuperscript{{3}}/d (total planta), sujeto a caracterizacion local.
 

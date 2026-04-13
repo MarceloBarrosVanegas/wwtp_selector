@@ -53,7 +53,6 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 
 /* Params */
 .params-list{display:flex;flex-direction:column;gap:20px}
-.subsection-space{margin-top:22px}
 .param-row{display:flex;flex-direction:column;gap:6px}
 .param-header{display:flex;justify-content:space-between;align-items:baseline}
 .param-label{font-size:13px;color:var(--text2);font-weight:500}
@@ -137,8 +136,6 @@ input[type="range"]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;b
 
 /* Coherence */
 .coherence-info{margin-top:12px;padding:10px 14px;background:var(--bg2);border-radius:var(--radius-sm);font-size:11px;color:var(--text2);line-height:1.5}
-.quality-info{margin-top:10px;padding:10px 14px;background:var(--bg2);border-radius:var(--radius-sm);font-size:11px;color:var(--text2);line-height:1.5}
-.quality-info strong{color:var(--text)}
 .coherence-info .bonus{color:var(--green-text);font-weight:600}
 .coherence-info .penalty{color:var(--red-text);font-weight:600}
 
@@ -209,11 +206,6 @@ input[type="range"]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;b
     <div class="section-label">Condiciones del proyecto</div>
     <p class="section-desc">Ajusta los seis parámetros que describen las restricciones de tu proyecto.</p>
     <div class="params-list" id="ps"></div>
-    <div class="subsection-space">
-      <div class="section-label">Calidad del afluente y objetivo</div>
-      <p class="section-desc">Define el nivel típico de carga de entrada y la exigencia esperada del efluente final.</p>
-      <div class="params-list" id="qs"></div>
-    </div>
     <div class="weight-section">
       <div class="section-label">Importancia de cada criterio</div>
       <p class="section-desc">Define cuánto pesa cada criterio. Usa un preset o ajusta manualmente.</p>
@@ -459,8 +451,8 @@ const TRAINS = [
       {stage:'lodos',tech:'Espesador por gravedad',funcion:'Concentración de lodos por gravedad'}
     ]},
 
-  { id:'abr_biofiltro_taf', name:'ABR + Biofiltro TAF (sin terciario)',
-    desc:'Versión sin terciario. ABR + TAF con sed. secundario. Menor costo que la versión con filtro de arena.',
+  { id:'abr_biofiltro_taf', name:'ABR + Biofiltro TAF (económico)',
+    desc:'Versión económica sin terciario. ABR + TAF con sed. secundario. Menor costo que la versión con filtro de arena.',
     pro:'ABR y TAF no requieren energía mecánica. Robusto. Menor CAPEX al omitir terciario.',
     con:'Limitado a caudales pequeños. Sin pulimiento terciario, SST en efluente pueden ser mayores.',
     stages:[
@@ -484,11 +476,6 @@ const PARAMS = [
   {id:'operacion',label:'Capacidad operativa',            vals:['Mínima (sin técnicos)','Baja','Media','Alta (operadores capacitados)','Muy alta (ingenieros)']},
   {id:'mecanica', label:'Tolerancia a complejidad mecánica',vals:['Ninguna (todo gravedad)','Baja (bomba dosificadora)','Moderada','Alta (aireadores, mezcladores)','Sin restricción']}
 ];
-const QUALITY_PARAMS = [
-  {id:'dbo',      label:'DBO₅ afluente',                  vals:['Muy baja (<150 mg/L)','Baja (150–250 mg/L)','Media (250–400 mg/L)','Alta (400–600 mg/L)','Muy alta (>600 mg/L)']},
-  {id:'sst',      label:'SST afluente',                   vals:['Muy baja (<150 mg/L)','Baja (150–250 mg/L)','Media (250–350 mg/L)','Alta (350–500 mg/L)','Muy alta (>500 mg/L)']},
-  {id:'objetivo', label:'Exigencia del efluente final',   vals:['Básica','Moderada','Estricta','Muy estricta','Reúso / muy alta']}
-];
 const AXES = PARAMS.map(p => p.id);
 const AXIS_LABELS = {caudal:'Caudal',terreno:'Terreno',energia:'Energía',clima:'Clima',operacion:'Operación',mecanica:'Mecánica'};
 
@@ -506,22 +493,6 @@ const PRESETS = [
 
 let UP = {caudal:3,terreno:3,energia:3,clima:3,operacion:3,mecanica:3};
 let UW = {caudal:1,terreno:1,energia:1,clima:1,operacion:1,mecanica:1};
-let UQ = {dbo:3,sst:3,objetivo:3};
-
-const TRAIN_QUALITY = {
-  natural_pasivo:         {dbo:[2,4],sst:[2,4],objetivo:2},
-  compacto_lodos_act:     {dbo:[2,5],sst:[2,5],objetivo:4},
-  sbr_terciario:          {dbo:[2,5],sst:[2,5],objetivo:5},
-  biopelicula_humedal:    {dbo:[2,4],sst:[2,4],objetivo:3},
-  rural_descentralizado:  {dbo:[1,2],sst:[1,2],objetivo:2},
-  alta_tecnologia:        {dbo:[3,5],sst:[2,5],objetivo:5},
-  anaer_biopelicula:      {dbo:[3,5],sst:[2,4],objetivo:4},
-  oxidation_ditch:        {dbo:[2,5],sst:[2,5],objetivo:4},
-  anaer_humedal_uv:       {dbo:[2,4],sst:[2,4],objetivo:4},
-  uasb_baf_compacto:      {dbo:[3,5],sst:[2,4],objetivo:4},
-  uasb_humedal_v_cl:      {dbo:[2,4],sst:[2,4],objetivo:3},
-  abr_biofiltro_taf:      {dbo:[2,4],sst:[2,4],objetivo:3}
-};
 
 // ═══════════════════════════════════════════════════════════════
 // REGLAS DE VALIDACIÓN (Nivel 0)
@@ -548,10 +519,7 @@ function getTech(k,n){return SD[k]?.techs.find(t=>t.name===n)}
 
 function calcAxisScore(tech,u,axis){
   if(axis==='caudal'){const[mn,mx]=tech.caudal;if(u.caudal>=mn&&u.caudal<=mx)return 100;return u.caudal<mn?100*(u.caudal/mn):100*(mx/u.caudal)}
-  const req=tech[axis],avail=u[axis];
-  const simplicityFactor=1-((req-1)/4)*0.12; // premia tecnologías menos exigentes sin aplastar las viables más robustas
-  if(avail>=req)return 100*simplicityFactor;
-  return 100*Math.pow(avail/req,1.35)*simplicityFactor;
+  return u[axis]>=tech[axis]?100:100*Math.pow(u[axis]/tech[axis],1.5);
 }
 
 function calcTechScore(tech,u){
@@ -562,9 +530,7 @@ function calcTechScore(tech,u){
 function getTrainAxisScores(train,u){
   const r={};AXES.forEach(ax=>{
     const sc=train.stages.map(s=>{const t=getTech(s.stage,s.tech);return t?calcAxisScore(t,u,ax):0});
-    const avg=sc.reduce((a,b)=>a+b,0)/sc.length;
-    const bottleneck=Math.min(...sc);
-    r[ax]=avg*0.65+bottleneck*0.35;
+    r[ax]=sc.reduce((a,b)=>a+b,0)/sc.length;
   });return r;
 }
 
@@ -578,173 +544,37 @@ function coherenceBonus(train,u){
   return b;
 }
 
-function getTrainQualityProfile(train){
-  return TRAIN_QUALITY[train.id] || {dbo:[1,5],sst:[1,5],objetivo:3};
-}
-
-function calcRangeSuitability(value,min,max){
-  if(value>=min&&value<=max)return 100;
-  if(value<min)return 100*Math.pow(value/min,1.15);
-  return 100*Math.pow(max/value,1.15);
-}
-
-function calcCapabilitySuitability(need,cap){
-  if(cap>=need)return 100;
-  return 100*Math.pow(cap/need,1.25);
-}
-
-function getTrainQualityScores(train,uq){
-  const p=getTrainQualityProfile(train);
-  return {
-    dbo: Math.round(calcRangeSuitability(uq.dbo,p.dbo[0],p.dbo[1])),
-    sst: Math.round(calcRangeSuitability(uq.sst,p.sst[0],p.sst[1])),
-    objetivo: Math.round(calcCapabilitySuitability(uq.objetivo,p.objetivo))
-  };
-}
-
-function getQualitySummaryHTML(train,uq){
-  const q=getTrainQualityScores(train,uq);
-  return `<div class="quality-info"><strong>Compatibilidad de carga y meta:</strong> DBO₅ ${q.dbo}/100 · SST ${q.sst}/100 · Efluente ${q.objetivo}/100</div>`;
-}
-
 function checkViability(train,u){
   const issues=[];
   for(const st of train.stages){const t=getTech(st.stage,st.tech);if(!t)continue;
     const[mn,mx]=t.caudal;
     if(u.caudal>mx+1)issues.push(`${st.tech}: caudal excede capacidad`);
     if(u.caudal<mn-1)issues.push(`${st.tech}: caudal por debajo del mínimo`);
-    if((t.terreno-u.terreno)>=2)issues.push(`${st.tech}: terreno insuficiente para la huella requerida`);
-    if((t.energia-u.energia)>=2)issues.push(`${st.tech}: energía insuficiente para la demanda del proceso`);
-    if((t.operacion-u.operacion)>=2)issues.push(`${st.tech}: capacidad operativa insuficiente`);
-    if((t.clima-u.clima)>=2)issues.push(`${st.tech}: clima insuficiente para el desempeño esperado`);
-    if((t.mecanica-u.mecanica)>=2)issues.push(`${st.tech}: complejidad mecánica excesiva`);
-  }
-  const q=getTrainQualityProfile(train);
-  if(UQ.dbo>q.dbo[1]+1)issues.push('Carga orgánica de entrada demasiado alta para el rango típico del tren');
-  if(UQ.sst>q.sst[1]+1)issues.push('Carga de SST de entrada demasiado alta para el rango típico del tren');
-  if(UQ.objetivo>q.objetivo+1)issues.push('Objetivo de efluente más exigente que la capacidad típica del tren');
-  return{viable:!issues.length,issues};
+    if(t.terreno>=4&&u.terreno<=1)issues.push(`${st.tech}: terreno muy insuficiente`);
+    if(t.energia>=4&&u.energia<=1)issues.push(`${st.tech}: energía muy insuficiente`);
+    if(t.operacion>=4&&u.operacion<=1)issues.push(`${st.tech}: capacidad operativa insuficiente`);
+    if(t.clima>=4&&u.clima<=1)issues.push(`${st.tech}: clima inadecuado`);
+    if(t.mecanica>=4&&u.mecanica<=1)issues.push(`${st.tech}: complejidad mecánica excesiva`);
+  }return{viable:!issues.length,issues};
 }
 
 function scoreTrain(train,u){
   const ax=getTrainAxisScores(train,u);
   const W={};let tw=0;AXES.forEach(k=>{W[k]=WEIGHT_MAP[UW[k]];tw+=W[k]});
   let wt=0;AXES.forEach(k=>{wt+=ax[k]*W[k]});wt/=tw;
-  const q=getTrainQualityScores(train,UQ);
-  const qualityScore=(q.dbo*1.4 + q.sst*1.1 + q.objetivo*1.6)/(1.4+1.1+1.6);
-  wt=wt*0.72 + qualityScore*0.28;
   // Penalización por cuello de botella: si el proyecto no cumple lo que la tech más exigente pide
   ['terreno','energia','operacion','mecanica'].forEach(eje=>{
     const mx=Math.max(...train.stages.map(s=>{const t=getTech(s.stage,s.tech);return t?t[eje]:1}));
-    if(u[eje]<mx)wt*=Math.pow(u[eje]/mx,0.9);
+    if(u[eje]<mx)wt*=Math.pow(u[eje]/mx,1.3);
   });
   wt+=coherenceBonus(train,u);
-  // Penalización específica por exceso de huella: con terreno escaso se debe preferir
-  // de forma explícita el tren que requiere menos espacio.
-  const waterTechs=train.stages.filter(s=>s.stage!=='lodos').map(s=>getTech(s.stage,s.tech)).filter(Boolean);
-  const sludgeTechs=train.stages.filter(s=>s.stage==='lodos').map(s=>getTech(s.stage,s.tech)).filter(Boolean);
-  const maxTerreno=Math.max(...waterTechs.map(t=>t.terreno));
-  const avgTerreno=waterTechs.reduce((a,t)=>a+t.terreno,0)/waterTechs.length;
-  const avgTerrenoLodos=sludgeTechs.length?sludgeTechs.reduce((a,t)=>a+t.terreno,0)/sludgeTechs.length:0;
-  const excessTerrainMax=Math.max(0,maxTerreno-u.terreno);
-  const excessTerrainAvg=Math.max(0,avgTerreno-u.terreno);
-  const excessTerrainLodos=Math.max(0,avgTerrenoLodos-u.terreno);
-  const terrainScarcityBase=u.terreno<=1?5:u.terreno===2?3.5:u.terreno===3?2:1;
-  const terrainPriority=0.75+WEIGHT_MAP[UW.terreno]*0.35;
-  const terrainScarcityPenalty=Math.round(((excessTerrainMax*terrainScarcityBase*1.2)+(excessTerrainAvg*terrainScarcityBase*0.6)+(excessTerrainLodos*terrainScarcityBase*0.25))*terrainPriority);
-  wt-=terrainScarcityPenalty;
-  // Penalización por simplicidad estructural: se prefieren trenes con menos unidades,
-  // menos etapas en línea de agua y menor diversidad tecnológica.
+  // Penalización por complejidad: más unidades en línea de agua = más CAPEX, más O&M, más terreno
+  // Baseline: 3 etapas (pretrat + biológico + desinfección)
   const waterStages=train.stages.filter(s=>s.stage!=='lodos').length;
-  const totalStages=train.stages.length;
-  const distinctTechs=new Set(train.stages.map(s=>`${s.stage}:${s.tech}`)).size;
-  const extraWaterPenalty=Math.max(0,(waterStages-3))*2;
-  const extraUnitPenalty=Math.max(0,(totalStages-4))*1;
-  const techDiversityPenalty=Math.max(0,(distinctTechs-4))*1;
-  const complexityPenalty=extraWaterPenalty+extraUnitPenalty+techDiversityPenalty;
+  const complexityPenalty=Math.max(0,(waterStages-3))*4;
   wt-=complexityPenalty;
   const r={};AXES.forEach(k=>{r[k]=Math.round(ax[k])});
-  return{
-    total:Math.round(Math.max(0,Math.min(100,wt))),
-    axes:r,
-    qualityScores:q,
-    waterStages,
-    totalStages,
-    distinctTechs,
-    terrainScarcityPenalty,
-    extraWaterPenalty,
-    extraUnitPenalty,
-    techDiversityPenalty,
-    complexityPenalty
-  };
-}
-
-function buildContextualLimitations(train,u){
-  const techs=train.stages.map(s=>getTech(s.stage,s.tech)).filter(Boolean);
-  if(!techs.length)return train.con;
-  const maxReq={
-    terreno:Math.max(...techs.map(t=>t.terreno)),
-    energia:Math.max(...techs.map(t=>t.energia)),
-    clima:Math.max(...techs.map(t=>t.clima)),
-    operacion:Math.max(...techs.map(t=>t.operacion)),
-    mecanica:Math.max(...techs.map(t=>t.mecanica))
-  };
-  const notes=[];
-  if(maxReq.terreno>u.terreno){
-    notes.push('La huella requerida es exigente para el terreno disponible.');
-  }else if(maxReq.terreno===u.terreno&&u.terreno<=3){
-    notes.push('La implantación espacial queda ajustada respecto al terreno disponible.');
-  }
-  if(maxReq.energia>u.energia){
-    notes.push('El requerimiento energético supera la disponibilidad operativa declarada.');
-  }
-  if(maxReq.operacion>u.operacion){
-    notes.push('La operación del tren exige una capacidad técnica mayor que la declarada para el proyecto.');
-  }
-  if(maxReq.mecanica>u.mecanica){
-    notes.push('El tren incorpora más mecanización de la deseada para este caso.');
-  }
-  if(maxReq.clima>u.clima){
-    notes.push('El desempeño del tren depende de un clima más cálido que el indicado para el sitio.');
-  }
-  if(!notes.length){
-    if(u.clima>=4&&maxReq.clima<=u.clima){
-      notes.push('La temperatura alta del sitio favorece el desempeño biológico de este tren.');
-    }else if(u.operacion<=2&&maxReq.operacion<=u.operacion&&maxReq.mecanica<=u.mecanica){
-      notes.push('La operación y la mecanización del tren son compatibles con una gestión sencilla del sistema.');
-    }else{
-      notes.push('No se identifican restricciones dominantes entre este tren y las condiciones declaradas del proyecto.');
-    }
-  }
-  const staticSentences=train.con.split(/(?<=\.)\s+/).filter(Boolean).filter(sentence=>{
-    const s=sentence.toLowerCase();
-    if(maxReq.clima<=u.clima&&(s.includes('clima cálido')||s.includes('clima templado mínimo')||s.includes('temperatura'))){
-      return false;
-    }
-    if(maxReq.terreno<=u.terreno&&(s.includes('terreno amplio')||s.includes('requiere terreno')||s.includes('espacio moderado')||s.includes('huella mínima de terreno'))){
-      return false;
-    }
-    if(maxReq.operacion<=u.operacion&&maxReq.mecanica<=u.mecanica&&(s.includes('operadores capacitados')||s.includes('automatización confiable')||s.includes('aireación mecánica')||s.includes('retrolavado periódico'))){
-      return false;
-    }
-    return true;
-  });
-  const staticText=staticSentences.join(' ').trim();
-  return staticText?`${notes.join(' ')} ${staticText}`:notes.join(' ');
-}
-
-function normalizeViableScores(list){
-  if(!list.length)return [];
-  const maxRaw=Math.max(...list.map(t=>t.rawScore));
-  const minRaw=Math.min(...list.map(t=>t.rawScore));
-  if(maxRaw===minRaw){
-    const flatScore=list.length===1?100:80;
-    return list.map(t=>({...t,sc:flatScore}));
-  }
-  return list.map(t=>{
-    const norm=45+((t.rawScore-minRaw)/(maxRaw-minRaw))*55;
-    return {...t,sc:Math.round(Math.max(35,Math.min(100,norm)))};
-  });
+  return{total:Math.round(Math.max(0,Math.min(100,wt))),axes:r,waterStages,complexityPenalty};
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -828,13 +658,6 @@ PARAMS.forEach(p=>{
   psEl.appendChild(d);
   d.querySelector('#rng-'+p.id).addEventListener('input',e=>{UP[p.id]=+e.target.value;document.getElementById('lbl-'+p.id).textContent=p.vals[UP[p.id]-1]});
 });
-const qsEl=document.getElementById('qs');
-QUALITY_PARAMS.forEach(p=>{
-  const v=UQ[p.id],d=document.createElement('div');d.className='param-row';
-  d.innerHTML=`<div class="param-header"><label class="param-label">${p.label}</label><span class="param-val" id="qlbl-${p.id}">${p.vals[v-1]}</span></div><input type="range" min="1" max="5" step="1" value="${v}" id="qrng-${p.id}">`;
-  qsEl.appendChild(d);
-  d.querySelector('#qrng-'+p.id).addEventListener('input',e=>{UQ[p.id]=+e.target.value;document.getElementById('qlbl-'+p.id).textContent=p.vals[UQ[p.id]-1]});
-});
 
 // ═══════════════════════════════════════════════════════════════
 // UI — PRESETS Y PESOS
@@ -863,12 +686,12 @@ PARAMS.forEach(p=>{
 // EVALUAR Y RENDERIZAR
 // ═══════════════════════════════════════════════════════════════
 document.getElementById('ev').onclick=()=>{
-  const all=TRAINS.map(tr=>{const v=checkViability(tr,UP),sc=scoreTrain(tr,UP);return{...tr,rawScore:sc.total,sc:sc.total,axes:sc.axes,qualityScores:sc.qualityScores,waterStages:sc.waterStages,totalStages:sc.totalStages,distinctTechs:sc.distinctTechs,terrainScarcityPenalty:sc.terrainScarcityPenalty,complexityPenalty:sc.complexityPenalty,viability:v}});
-  const viable=normalizeViableScores(all.filter(t=>t.viability.viable).sort((a,b)=>b.rawScore-a.rawScore));
-  const inviable=all.filter(t=>!t.viability.viable).sort((a,b)=>b.rawScore-a.rawScore);
+  const all=TRAINS.map(tr=>{const v=checkViability(tr,UP),sc=scoreTrain(tr,UP);return{...tr,sc:sc.total,axes:sc.axes,waterStages:sc.waterStages,complexityPenalty:sc.complexityPenalty,viability:v}});
+  const viable=all.filter(t=>t.viability.viable).sort((a,b)=>b.sc-a.sc);
+  const inviable=all.filter(t=>!t.viability.viable).sort((a,b)=>b.sc-a.sc);
   const best=viable[0];
   document.getElementById('rsummary').innerHTML=best
-    ?`Se evaluaron <strong>${all.length} trenes</strong>. El más compatible es <strong>${best.name}</strong> con <strong>${best.sc}/100</strong> <span style="color:var(--text3)">(puntaje relativo entre alternativas viables)</span>.`
+    ?`Se evaluaron <strong>${all.length} trenes</strong>. El más compatible es <strong>${best.name}</strong> con <strong>${best.sc}/100</strong>.`
     :`Se evaluaron <strong>${all.length} trenes</strong>. <strong>Ningún tren es viable</strong> con estas condiciones.`;
   document.getElementById('stats-row').innerHTML=`<div class="stat-chip stat-viable">✓ ${viable.length} viables</div>${inviable.length?`<div class="stat-chip stat-inviable">✗ ${inviable.length} inviables</div>`:''}`;
 
@@ -888,8 +711,6 @@ function renderCard(tr,idx,container,isInv){
   const s=tr.sc,[bc,bl]=isInv?['badge-red','Inviable']:sBadge(s);
   const rc=isInv?'inviable':idx===0?'rank1':idx===1?'rank2':idx===2?'rank3':'';
   const rb=isInv?`<span class="badge badge-red">⛔ Inviable</span>`:idx===0?`<span class="badge badge-green">★ 1.ª opción</span>`:idx===1?`<span class="badge badge-amber">2.ª opción</span>`:idx===2?`<span class="badge badge-blue">3.ª opción</span>`:'';
-  const contextualLimitations=buildContextualLimitations(tr,UP);
-  const qualitySummaryHTML=getQualitySummaryHTML(tr,UQ);
 
   // Flow
   let fh='';
@@ -906,12 +727,9 @@ function renderCard(tr,idx,container,isInv){
   // Coherence + Complexity
   const cb=coherenceBonus(tr,UP);
   const cp=tr.complexityPenalty||0;
-  const tp=tr.terrainScarcityPenalty||0;
   const ws=tr.waterStages||0;
-  const tsCount=tr.totalStages||tr.stages.length;
-  const dtCount=tr.distinctTechs||tr.stages.length;
   let cohHTML='';
-  if(cb!==0||cp>0||tp>0){
+  if(cb!==0||cp>0){
     const parts=[],ts2=tr.stages.map(s_=>getTech(s_.stage,s_.tech)).filter(Boolean);
     const mxE=Math.max(...ts2.map(t=>t.energia)),mnE=Math.min(...ts2.map(t=>t.energia));
     const mxO=Math.max(...ts2.map(t=>t.operacion)),mnO=Math.min(...ts2.map(t=>t.operacion));
@@ -923,14 +741,7 @@ function renderCard(tr,idx,container,isInv){
     if(mxC<=2&&UP.clima<=2)parts.push('<span class="bonus">+2</span> resiliente al frío');
     if(mxM<=2&&UP.mecanica<=2)parts.push('<span class="bonus">+3</span> sin mecánica compleja');
     if(mxM-mnM>=3)parts.push('<span class="penalty">−2</span> dispersión mecánica');
-    if(tp>0)parts.push(`<span class="penalty">−${tp}</span> exceso de huella para el terreno disponible`);
-    if(cp>0){
-      const complexityReasons=[];
-      if(ws>3)complexityReasons.push(`${ws} etapas en línea de agua`);
-      if(tsCount>4)complexityReasons.push(`${tsCount} unidades totales`);
-      if(dtCount>4)complexityReasons.push(`${dtCount} tecnologías distintas`);
-      parts.push(`<span class="penalty">−${cp}</span> complejidad estructural (${complexityReasons.join(', ')})`);
-    }
+    if(cp>0)parts.push(`<span class="penalty">−${cp}</span> complejidad (${ws} etapas en línea de agua)`);
     if(parts.length)cohHTML=`<div class="coherence-info"><strong>Ajustes:</strong> ${parts.join(' · ')}</div>`;
   }
 
@@ -975,8 +786,8 @@ function renderCard(tr,idx,container,isInv){
     <div class="flow-section-label">Tren de tratamiento</div>
     <div class="train-flow">${fh}</div>
     <div class="detail-row"><div class="radar-container">${radarSVG}</div><div class="detail-content">
-      <div class="pros-cons"><div><p class="pc-label label-pro">Ventajas</p><p class="pc-text">${tr.pro}</p></div><div><p class="pc-label label-con">Limitaciones</p><p class="pc-text">${contextualLimitations}</p></div></div>
-      ${qualitySummaryHTML}${cohHTML}${reasonsHTML}</div></div>
+      <div class="pros-cons"><div><p class="pc-label label-pro">Ventajas</p><p class="pc-text">${tr.pro}</p></div><div><p class="pc-label label-con">Limitaciones</p><p class="pc-text">${tr.con}</p></div></div>
+      ${cohHTML}${reasonsHTML}</div></div>
     ${effTable}`;
   container.appendChild(card);
 }

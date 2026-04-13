@@ -34,7 +34,7 @@ class GeneradorUASB:
         # Texto de recomendacion de temperatura
         temp_recomendacion = u['texto_recomendacion_temp']
         
-        return rf"""\subsection{{Dimensionamiento}}
+        return rf"""
 
 El reactor UASB (Upflow Anaerobic Sludge Blanket), desarrollado por Lettinga y colaboradores en 1980 en la Universidad de Wageningen de los Países Bajos \cite{{vanhaandel1994}}, es uno de los sistemas de tratamiento anaerobio de alta tasa más utilizados en el mundo para aguas residuales municipales y agroindustriales. El agua residual entra por la parte inferior y fluye en sentido ascendente a través de un manto denso de lodo anaerobio, donde los microorganismos anaerobios degradan la materia orgánica mediante metanogénesis, convirtiéndola en biogás (metano y CO$_2$) y biomasa. El proceso ocurre sin oxígeno molecular, por lo que no requiere aireación, reduciendo drásticamente el consumo energético (5--10 veces menos que un sistema aerobio convencional).
 
@@ -154,40 +154,15 @@ La altura de la zona de reacción (manto de lodos) resulta {u['H_r_m']:.2f}~m, p
 
 \textbf{{Producción de biogás:}} La metanogénesis en el reactor UASB genera biogás compuesto principalmente por metano (CH$_4$) y dióxido de carbono (CO$_2$). Según Van Haandel y Lettinga \cite{{vanhaandel1994}}, la producción teórica de metano puede estimarse mediante relaciones estequiométricas. Experimentalmente se ha determinado que por cada kilogramo de DQO removida en condiciones anaerobias, se producen aproximadamente 0,35 m³ de metano (a condiciones estándar). Esta relación permite estimar la producción esperada de biogás:
 
-\textbf{{Composición típica del biogás:}} El biogás generado en reactores UASB tratando aguas residuales municipales tiene típicamente la siguiente composición:
+El biogás generado en reactores UASB tratando aguas residuales municipales está compuesto principalmente por metano (CH$_4$) en una proporción de {u['biogas_CH4_pct']:.0f}\%, situándose típicamente en un rango de 60 a 75\%. El metano constituye el componente energético del biogás, con un poder calorífico de aproximadamente 35 MJ/m³. El dióxido de carbono (CO$_2$) representa alrededor del {u['biogas_CO2_pct']:.0f}\% del volumen total, con un rango típico entre 25 y 40\%, siendo un producto natural de la digestión anaerobia. El sulfuro de hidrógeno (H$_2$S) se presenta en concentraciones inferiores a {u['biogas_H2S_max_ppm']:.0f} ppm, proveniente de la reducción de sulfatos presentes en el agua residual; cuando las concentraciones son elevadas se requiere tratamiento debido a su corrosividad y generación de olores. Finalmente, el biogás contiene vapor de agua y trazas de nitrógeno, oxígeno y otros gases en proporciones menores al 1\%.
 
-\begin{{itemize}}[noitemsep,leftmargin=2em]
-    \item \textbf{{Metano (CH$_4$):}} {u['biogas_CH4_pct']:.0f}\% (rango típico: 60--75\%). El metano es el componente energético del biogás, con poder calorífico de aproximadamente 35 MJ/m³.
-    \item \textbf{{Dióxido de carbono (CO$_2$):}} {u['biogas_CO2_pct']:.0f}\% (rango típico: 25--40\%). Producto de la digestión anaerobia.
-    \item \textbf{{Sulfuro de hidrógeno (H$_2$S):}} $<$ {u['biogas_H2S_max_ppm']:.0f} ppm. Proveniente de la reducción de sulfatos presentes en el agua residual. Concentraciones elevadas requieren tratamiento por corrosividad y olores.
-    \item \textbf{{Vapor de agua y trazas:}} Nitrógeno, oxígeno y otros gases en proporciones menores al 1\%.
-\end{{itemize}}
+El biogás producido debe manejarse de manera segura considerando aspectos de seguridad, aprovechamiento y monitoreo. En cuanto a seguridad, el biogás es inflamable en concentraciones del 5 al 15\% en aire, por lo que se requiere un sistema de venteo o quemador para evitar su acumulación. Respecto al aprovechamiento, existen tres opciones principales: el quemador de antorcha para eliminación segura, el calentamiento del propio reactor cuando la temperatura lo requiere, y la generación de energía eléctrica mediante microturbinas, aunque esta última requiere una evaluación de viabilidad económica. El monitoreo debe incluir el control periódico de la composición del biogás, especialmente el contenido de H$_2$S, así como la verificación del sistema de sellado del reactor.
 
-\textbf{{Manejo del biogás:}} El biogás producido debe manejarse de manera segura considerando los siguientes aspectos:
-
-\begin{{itemize}}[noitemsep,leftmargin=2em]
-    \item \textbf{{Seguridad:}} El biogás es inflamable en concentraciones del 5--15\% en aire. Se requiere sistema de venteo o quemador para evitar acumulación.
-    \item \textbf{{Opciones de aprovechamiento:}} (1) Quemador de antorcha para eliminación segura; (2) Calentamiento del propio reactor si la temperatura lo requiere; (3) Generación de energía eléctrica mediante microturbinas (evaluación de viabilidad económica requerida).
-    \item \textbf{{Monitoreo:}} Control periódico de la composición del biogás (especialmente H$_2$S) y del sistema de sellado del reactor.
-\end{{itemize}}
-
-\textbf{{Control de pH y alcalinidad:}} El proceso de metanogénesis es sensible a las condiciones de pH. Según Van Haandel y Lettinga \cite{{vanhaandel1994}} y Metcalf y Eddy \cite{{metcalf2014}}, los rangos óptimos son:
-
-\begin{{itemize}}[noitemsep,leftmargin=2em]
-    \item \textbf{{pH óptimo:}} {u['pH_optimo_min']:.1f}--{u['pH_optimo_max']:.1f}. El pH por debajo de 6,5 inhibe la actividad metanogénica y puede causar acidificación del reactor.
-    \item \textbf{{Alcalinidad mínima:}} {u['alcalinidad_min_mg_L']:.0f} mg/L como CaCO$_3$. La alcalinidad actúa como tampón ante la producción de ácidos durante la digestión, manteniendo la estabilidad del pH.
-\end{{itemize}}
+El proceso de metanogénesis es sensible a las condiciones de pH, por lo que según Van Haandel y Lettinga \cite{{vanhaandel1994}} y Metcalf y Eddy \cite{{metcalf2014}} es necesario mantener rangos óptimos de operación. El pH óptimo debe situarse entre {u['pH_optimo_min']:.1f} y {u['pH_optimo_max']:.1f}, ya que valores por debajo de 6,5 inhiben la actividad metanogénica y pueden causar la acidificación del reactor. Respecto a la alcalinidad, se recomienda un mínimo de {u['alcalinidad_min_mg_L']:.0f} mg/L como CaCO$_3$, ya que actúa como tampón ante la producción de ácidos durante la digestión, manteniendo la estabilidad del pH.
 
 \textit{{Nota:}} Las aguas residuales municipales típicamente contienen suficiente alcalinidad (bicarbonatos) para mantener el pH estable durante la digestión anaerobia. Si el pH del efluente descendiera consistentemente por debajo de 6,8, se debería evaluar la adición de fuentes de alcalinidad (carbonato cálcico, hidróxido de sodio) o revisar la carga orgánica aplicada.
 
-\textbf{{Estabilización del lodo:}} El lodo producido en el reactor UASB está {'' if u['lodo_estabilizado'] else 'NO '}estabilizado anaeróbicamente. Durante su retención prolongada en el reactor (tiempo de retención de sólidos >> tiempo de retención hidráulico), los microorganismos completan las etapas de digestión: hidrólisis, acidogénesis, acetogénesis y metanogénesis. Esto produce un lodo con:
-
-\begin{{itemize}}[noitemsep,leftmargin=2em]
-    \item Bajo contenido de materia orgánica volátil (reducción de 40--60\% respecto al lodo primario no estabilizado).
-    \item Ausencia de olores fétidos característicos de lodos frescos.
-    \item Mayor facilidad de deshidratación en lechos de secado.
-    \item Reducción significativa de patógenos (aunque no esterilización completa).
-\end{{itemize}}
+El lodo producido en el reactor UASB está {'' if u['lodo_estabilizado'] else 'NO '}estabilizado anaeróbicamente. Durante su retención prolongada en el reactor, donde el tiempo de retención de sólidos es significativamente mayor que el tiempo de retención hidráulico, los microorganismos completan las etapas de digestión: hidrólisis, acidogénesis, acetogénesis y metanogénesis. Como resultado, el lodo estabilizado presenta bajo contenido de materia orgánica volátil, con una reducción de 40 a 60\% respecto al lodo primario no estabilizado, ausencia de olores fétidos característicos de lodos frescos, mayor facilidad de deshidratación en lechos de secado, y una reducción significativa de patógenos, aunque sin alcanzar la esterilización completa.
 
 Esta estabilización hace que el lodo UASB sea más manejable para disposición final o uso condicionado en agricultura, comparado con lodos de tratamientos aerobios o sedimentación primaria sin digestión.
 
@@ -353,13 +328,13 @@ SOR_{{max}} = \frac{{Q_{{max}}}}{{A_{{sed}}}} = \frac{{{u['Q_max_m3_h']:.2f}}}{{
 
 El análisis de cumplimiento de criterios evalúa los valores calculados según los parámetros establecidos por Chernicharo (2007) para sedimentadores en reactores UASB:
 
-\begin{{itemize}}[leftmargin=2em]
-    \item \textbf{{SOR máximo}}: {u['SOR_max_texto']}. Este límite representa la velocidad de asentamiento mínima de los agregados de lodos anaerobios. Superar este valor implica que el flujo ascendente supera la velocidad de caída de los sólidos, causando su arrastre hacia el efluente.
+
+     \textbf{{SOR máximo}}: {u['SOR_max_texto']}. Este límite representa la velocidad de asentamiento mínima de los agregados de lodos anaerobios. Superar este valor implica que el flujo ascendente supera la velocidad de caída de los sólidos, causando su arrastre hacia el efluente.
     
-    \item \textbf{{SOR medio}}: {u['SOR_medio_texto']}. Según Chernicharo, este rango permite evaluar la eficiencia de separación sólido-líquido y el margen operativo de la cámara de sedimentación.
+     \textbf{{SOR medio}}: {u['SOR_medio_texto']}. Según Chernicharo, este rango permite evaluar la eficiencia de separación sólido-líquido y el margen operativo de la cámara de sedimentación.
     
-    \item \textbf{{TRH en sedimentador}}: {u['TRH_sed_texto']}
-\end{{itemize}}
+     \textbf{{TRH en sedimentador}}: {u['TRH_sed_texto']}
+
 
 \begin{{table}}[H]
 \centering

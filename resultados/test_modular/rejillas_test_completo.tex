@@ -1,0 +1,188 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usepackage{float}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\geometry{margin=2.5cm}
+
+\newcommand{\captionequation}[1]{}  % Simplificado para test
+
+\begin{document}
+
+\section{Unidad de Rejillas}
+
+\
+
+Las rejillas constituyen la primera barrera de proteccion del sistema, reteniendo solidos gruesos como plasticos, ramas y papel que podrian danar equipos o causar obstrucciones en tuberias aguas abajo. El diseno hidraulico de esta unidad debe garantizar velocidades suficientes para arrastrar solidos sedimentables, pero no tan elevadas que dificulten el paso del agua a traves de las barras.
+
+Segun los criterios establecidos por Metcalf y Eddy \cite{metcalf2014}, las velocidades de diseno en canales con rejillas deben mantenerse entre 0.40 y 0.60~m/s. Para este proyecto se adopta un valor intermedio de 0.50~m/s, lo cual resulta apropiado considerando el caudal de diseno. El tirante hidraulico se establece en 0.40~m, valor que permite una velocidad de flujo uniforme en la seccion del canal y evita la sedimentacion de solidos organicos antes de la rejilla, segun los criterios de Metcalf y Eddy \cite{metcalf2014}.
+
+La perdida de carga en rejillas limpias se calcula mediante la formula de Kirschmer (1926), que relaciona la geometria de las barras con las caracteristicas del flujo. Los parametros que determinan esta perdida son: el espaciado entre barras ($b$), el espesor de las barras ($w$), la velocidad del flujo ($v$) y el angulo de inclinacion ($\theta$):
+
+\begin{equation}
+h_L = \beta \cdot \left(\frac{w}{b}\right)^{4/3} \cdot \frac{v^2}{2g} \cdot \sin\theta
+\end{equation}
+\captionequation{Perdida de carga en rejillas limpias - Formula de Kirschmer}
+
+\textit{Donde:}
+\begin{itemize}[noitemsep,leftmargin=2em]
+    \item[$h_L$] = Perdida de carga en rejillas limpias (m)
+    \item[$\beta$] = Factor de forma de la barra (2.42 para barras rectangulares)
+    \item[$w$] = Espesor de la barra (10 mm)
+    \item[$b$] = Espaciado entre barras (15 mm)
+    \item[$v$] = Velocidad del flujo en el canal (m/s)
+    \item[$g$] = Aceleracion de la gravedad (9,81 m/s\textsuperscript{2})
+    \item[$\theta$] = Angulo de inclinacion de las barras (60\textdegree)
+\end{itemize}
+
+\begin{table}[H]
+\centering
+\caption{Parametros de diseno -- Rejillas}
+\begin{tabular}{llcc}
+\toprule
+Parametro & Descripcion & Valor adoptado & Fuente \\
+\midrule
+Velocidad en canal & Velocidad de paso & 0.50 m/s & Metcalf y Eddy \\
+Tirante hidraulico & Altura de agua en canal & 0.40 m & Criterio tecnico \\
+Angulo de rejilla & Inclinacion barras & 60\textdegree & Practica comun \\
+Espaciado entre barras & Abertura libre & 15 mm & OPS/CEPIS \\
+Espesor de barras & Seccion barra & 10 mm & Constructivo \\
+Factor de forma & Barras rectangulares & 2.42 & Kirschmer \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+El caudal de diseno por linea es 5.0 L/s. La seccion transversal del canal se determina aplicando la ecuacion de continuidad:
+
+\begin{equation}
+A_{{canal}} = \frac{Q}{v} = \frac{0.00500}{0.50} = 0.01000 \text{ m}^2
+\end{equation}
+
+\textit{Donde:}
+\begin{itemize}[noitemsep,leftmargin=2em]
+    \item[$A_{{canal}}$] = Seccion transversal del canal (m\textsuperscript{2})
+    \item[$Q$] = Caudal de diseno por linea (0.00500 m\textsuperscript{3}/s)
+    \item[$v$] = Velocidad de diseno adoptada (0.50 m/s)
+\end{itemize}
+
+Despejando el ancho del canal de la ecuacion $A = b \times h$, con $h = 0.40$ m:
+
+\begin{equation}
+b = \frac{A_{{canal}}}{h} = \frac{0.01000}{0.40} = 0.025 \text{ m}
+\end{equation}
+
+\textit{Donde:}
+\begin{itemize}[noitemsep,leftmargin=2em]
+    \item[$b$] = Ancho teorico del canal (m)
+    \item[$A_{{canal}}$] = Seccion transversal del canal (0.01000 m\textsuperscript{2})
+    \item[$h$] = Tirante hidraulico (0.40 m)
+\end{itemize}
+
+Este ancho teorico de 0.025 m es inferior al minimo constructivo practico. Se adopta un ancho de 0.60 m como dimension minima constructiva segun criterios de OPS/CEPIS \cite{ops2005} y SENAGUA \cite{senagua2012}, que establecen un ancho minimo de 0.60 m para permitir la operacion adecuada, el acceso para limpieza y la aplicacion de herramientas de mantenimiento. Verificando la velocidad real con este ancho:
+
+\begin{equation}
+v_{{real}} = \frac{Q}{A_{{real}}} = \frac{0.00500}{0.60 \times 0.40} = 0.021 \text{ m/s}
+\end{equation}
+
+\textit{Donde:}
+\begin{itemize}[noitemsep,leftmargin=2em]
+    \item[$v_{{real}}$] = Velocidad real verificada con ancho constructivo (m/s)
+    \item[$Q$] = Caudal de diseno (0.00500 m\textsuperscript{3}/s)
+    \item[$A_{{real}}$] = Seccion real con ancho constructivo adoptado (0.60 $\times$ 0.40 m\textsuperscript{2})
+\end{itemize}
+
+La velocidad real de 0.021 m/s es el resultado de adoptar el ancho minimo constructivo. La perdida de carga calculada con esta velocidad real resulta $h_L = 0.0027$ cm, menor al umbral de 15 cm que Metcalf y Eddy \cite{metcalf2014} indican como referencia para sistemas de limpieza mecanica.
+
+La longitud de 2.0 m y el ancho de 0.60 m responden a criterios constructivos y operativos. El ancho de 0.60 m es la dimension minima constructiva segun OPS/CEPIS \cite{ops2005} y SENAGUA \cite{senagua2012}, que permite la operacion adecuada de la rejilla, el acceso para limpieza y la aplicacion de herramientas de mantenimiento. La longitud contempla el espacio de la rejilla propiamente dicha mas las zonas de transicion necesarias para la operacion.
+
+
+
+
+
+\subsection{Verificacion}
+
+\textbf{Verificacion para Caudal Maximo Horario}
+
+Se verifica el comportamiento hidraulico para el caudal maximo horario, aplicando un factor de pico tipico de 2.5 sobre el caudal medio:
+
+\begin{equation}
+Q_{{max}} = 2.5 \times Q_{{medio}} = 2.5 \times 5.0 = 12.5 \text{ L/s}
+\end{equation}
+
+A caudal maximo, la velocidad horizontal resulta:
+
+\begin{equation}
+v_{{max}} = \frac{Q_{{max}}}{A_{{real}}} = \frac{12.500/1000}{0.60 \times 0.40} = 0.052 \text{ m/s}
+\end{equation}
+
+\textbf{Criterios de verificacion de velocidad} (segun Metcalf y Eddy \cite{metcalf2014}):
+
+La velocidad calculada $v_{{max}} = 0.052$~m/s se evalua segun:
+
+\begin{equation}
+\text{Estado} = \begin{cases}
+    \text{OPTIMO} & \text{si } v_{{max}} \leq 1.5 \text{ m/s} \quad \text{(sin riesgo)} \\
+    \text{ACEPTABLE} & \text{si } 1.5 < v_{{max}} \leq 2.0 \text{ m/s} \quad \text{(monitoreo)} \\
+    \text{NO ADMISIBLE} & \text{si } v_{{max}} > 2.0 \text{ m/s} \quad \text{(dano seguro)}
+\end{cases}
+\end{equation}
+\captionequation{Criterios de verificacion de velocidad en rejillas}
+
+Con la velocidad calculada $v_{{max}} = 0.052$~m/s, la unidad se clasifica como \textbf{OPTIMO}. En terminos de cumplimiento, la verificacion de velocidad \textbf{CUMPLE} porque es menor que el limite recomendado de 1.5~m/s para operacion segura.
+
+Respecto a la perdida de carga, el valor maximo calculado es 0.0169~cm. Por tanto, la verificacion de perdida de carga \textbf{CUMPLE}, ya que es menor que el umbral de 15~cm para limpieza manual aceptable.
+
+\subsection{Resultados}
+
+\begingroup
+\small
+\begin{longtable}{lccc}
+\caption{Verificacion de criterios de diseno - Rejillas}\\
+\toprule
+Parametro & Valor calculado & Criterio & Estado \\
+\midrule
+\endfirsthead
+\caption[]{Verificacion de criterios de diseno - Rejillas (continuación)}\\
+\toprule
+Parametro & Valor calculado & Criterio & Estado \\
+\midrule
+\endhead
+\midrule
+\multicolumn{4}{r}{\textit{Continúa en la siguiente página}} \\
+\endfoot
+\bottomrule
+\endlastfoot
+Velocidad de diseno & 0.50 m/s & 0.40 -- 0.60 m/s & Cumple \\
+Velocidad real & 0.021 m/s & Ancho minimo constructivo$^a$ & Aplicado \\
+Perdida de carga (Qmax) & 0.0169 cm & $<$ 15 cm & Cumple \\
+Ancho constructivo & 0.60 m & $\geq$ 0.30 m & Cumple \\
+\multicolumn{4}{p{\textwidth}}{\small $^a$ Para caudales pequenos (5.0 L/s) el ancho minimo constructivo (0.60 m) domina sobre el criterio de velocidad.} \\
+\end{longtable}
+\endgroup
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figuras/rejillas_rejillas.png}
+\caption{Esquema del canal de desbaste con rejillas (dimensiones en metros)}
+\label{fig:rejillas}
+\end{figure}
+
+
+
+
+
+\textit{Nota sobre cantidades:} El presente dimensionamiento no estima la masa o volumen diario de residuos de cribado. Segun Metcalf y Eddy \cite{metcalf2014}, la produccion tipica de residuos de rejillas finas en aguas residuales municipales varia entre 0.005--0.02 m\textsuperscript{3}/1000 m\textsuperscript{3} de agua tratada. Para el caudal de diseno, esto representaria aproximadamente 0.02--0.09 m\textsuperscript{3}/d (total planta), sujeto a caracterizacion local.
+
+Las dimensiones finales del canal con rejillas son: ancho 0.60 m, tirante 0.40 m y longitud 2.0 m. Se requieren dos unidades, una por cada linea de tratamiento.
+
+\end{document}

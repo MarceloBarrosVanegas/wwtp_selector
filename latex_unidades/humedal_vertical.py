@@ -361,10 +361,26 @@ class GeneradorHumedalVertical:
         OLR_adoptada = cfg.humedal_frances_OLR_gDQO_m2_d
         HLR_adoptada = cfg.humedal_frances_HLR_m_d
         area_por_PE = r['A_PE_m2'] / r['PE_carga']
+        
+        # Textos condicionales basados en temperatura
+        T = r['T_agua_C']
+        T_limite = cfg.humedal_temp_limite_transicion_C
+        
+        if T >= T_limite:
+            texto_umbral = "que supera el umbral de"
+            texto_sistema = "Sistema Francés Tropical"
+            texto_actividad = "suficientemente intensa"
+            texto_descripcion = "mineralizar el lodo superficial acumulado durante los ciclos de alimentación en tan solo 3.5 días de reposo, evitando la colmatación del lecho y permitiendo sostener cargas orgánicas e hidráulicas considerablemente más altas que en clima templado"
+            texto_referencia = "10 a 15 años en sistemas franceses tropicales (Molle et al., 2015; Lombard-Latune et al., 2018)"
+        else:
+            texto_umbral = "inferior al umbral de"
+            texto_sistema = "Sistema Clásico (Ruta A)"
+            texto_actividad = "más lenta"
+            texto_descripcion = "requerir períodos de reposo más prolongados (7 días o más por filtro). La configuración de dos etapas en serie distribuye la carga de forma decreciente: la primera etapa, más cargada, remueve la fracción principal de la DBO$_5$ soluble y suspendida; la segunda etapa actúa como unidad de pulido"
+            texto_referencia = "instalaciones de clima templado (Cooper et al., 1996; ÖNORM B 2505, 2009)"
 
-        return rf"""\subsection{{Dimensionamiento}}
+        return rf"""
 
-\subsubsection*{{Principios de Funcionamiento del Humedal Artificial de Flujo Vertical}}
 
 El Humedal Artificial de Flujo Vertical (HAFV) es un sistema de tratamiento biológico extensivo en el que el agua residual percola verticalmente a través de un medio filtrante granular estratificado, dentro del cual se desarrolla una biopelícula microbiana densa responsable de la degradación de la materia orgánica carbonácea y la oxidación del nitrógeno amoniacal. A diferencia de los sistemas de flujo horizontal subsuperficial (HFHS), donde el agua atraviesa el lecho en sentido horizontal y predominan condiciones anóxicas, el HAFV opera en modo intermitente, alternando períodos de saturación del medio con períodos de drenaje y re-aireación natural. Este ciclo es el mecanismo fundamental que distingue al sistema y le confiere sus características de rendimiento.
 
@@ -392,7 +408,7 @@ Fósforo total & Adsorción en el medio (limitada a largo plazo) & 20 -- 40 & \%
 \end{{tabular}}
 \end{{table}}
 
-\subsubsection*{{Criterio de Selección del Sistema: Temperatura como Factor Determinante}}
+\subsubsection*{{Criterio de Selección del Sistemacon base a la  Temperatura}}
 
 La selección entre las dos metodologías de diseño disponibles para el HAFV, el Sistema Clásico de doble etapa y el Sistema Francés Tropical de etapa única, se fundamenta en la temperatura del agua residual como criterio primario e indelegable. Esta dependencia no es arbitraria: la temperatura determina directamente la cinética de las reacciones biológicas en la biopelícula, la velocidad de mineralización aerobia de los sólidos retenidos en la capa superficial del filtro y, en consecuencia, la capacidad del sistema para soportar cargas orgánicas e hidráulicas elevadas sin colmatarse prematuramente.
 
@@ -421,11 +437,11 @@ Referencia principal & Cooper (1996), ÖNORM & Molle et al. (2015) \\
 \end{{tabular}}
 \end{{table}}
 
-Para la temperatura del agua residual de \textbf{{{r['T_agua_C']:.1f}\,°C}} del presente proyecto, que supera el umbral de {cfg.humedal_temp_limite_transicion_C:.0f}\,°C, corresponde aplicar el \textbf{{Sistema Francés Tropical (Ruta B)}}. A esta temperatura, la actividad microbiana es suficientemente intensa para mineralizar el lodo superficial acumulado durante los ciclos de alimentación en tan solo 3.5 días de reposo, evitando la colmatación del lecho y permitiendo sostener cargas orgánicas e hidráulicas considerablemente más altas que en clima templado. Esta elección está respaldada por los resultados de seguimientos de 10 a 15 años en sistemas franceses tropicales (Molle et al., 2015; Lombard-Latune et al., 2018).
+Para la temperatura del agua residual de \textbf{{{r['T_agua_C']:.1f}\,°C}} del presente proyecto, {texto_umbral} {cfg.humedal_temp_limite_transicion_C:.0f}\,°C, corresponde aplicar el \textbf{{{texto_sistema}}}. A esta temperatura, la actividad microbiana es {texto_actividad} para {texto_descripcion}. Esta elección está respaldada por los resultados de seguimientos de {texto_referencia}.
 
 \subsubsection*{{Configuración del Sistema y Ciclo de Operación}}
 
-El diseño contempla \textbf{{{r['n_filtros']} celdas por línea}} operando en modo alternado (operación alterna). Durante cada ciclo, una celda recibe el caudal completo de la línea ({cfg.Q_linea_L_s:.1f} L/s) mientras la otra permanece en reposo completo, con drenaje total del medio y libre circulación de aire desde el fondo hacia la superficie. El caudal no se divide entre las celdas: toda el agua va a la celda activa, y la celda en reposo recibe cero caudal durante su período de recuperación. Este esquema de operación alterna sirve tres propósitos complementarios: permite la re-aireación pasiva del lecho, facilita la mineralización aerobia de los sólidos acumulados en la capa superficial durante la alimentación, y distribuye el desgaste biológico y físico entre las celdas, extendiendo la vida útil del sistema. Cada celda está dimensionada con el área completa (A_operando) porque debe ser capaz de tratar todo el caudal de la línea cuando le corresponde operar.
+El diseño contempla \textbf{{{r['n_filtros']} celdas por línea}} operando en modo alternado (operación alterna). Durante cada ciclo, una celda recibe el caudal completo de la línea ({cfg.Q_linea_L_s:.1f} L/s) mientras la otra permanece en reposo completo, con drenaje total del medio y libre circulación de aire desde el fondo hacia la superficie. El caudal no se divide entre las celdas: toda el agua va a la celda activa, y la celda en reposo recibe cero caudal durante su período de recuperación. Este esquema de operación alterna sirve tres propósitos complementarios: permite la re-aireación pasiva del lecho, facilita la mineralización aerobia de los sólidos acumulados en la capa superficial durante la alimentación, y distribuye el desgaste biológico y físico entre las celdas, extendiendo la vida útil del sistema. Cada celda está dimensionada con el área completa ($A_\text{{operando}}$) porque debe ser capaz de tratar todo el caudal de la línea cuando le corresponde operar.
 
 El fundamento del ciclo de {r['ciclo_dias']}\,días totales ({r['ciclo_alim_dias']:.1f}\,días de alimentación y {r['ciclo_reposo_dias']:.1f}\,días de reposo por filtro) ha sido validado experimentalmente por Molle et al. (2015) en instalaciones de clima tropical con temperaturas medias del agua superiores a 22\,°C. A estas temperaturas, la tasa de mineralización aerobia del lodo superficial es suficiente para recuperar la permeabilidad del medio en el período de reposo disponible. El agua residual se aplica mediante pulsos intermitentes de corta duración (del orden de 10 minutos), a razón de 15 pulsos por día, lo que garantiza una distribución uniforme sobre toda la superficie del filtro, evita la formación de canales preferentes de flujo y provoca el efecto de succión-expulsión de aire que contribuye a la re-aireación interna del lecho.
 
@@ -738,13 +754,11 @@ Carga hidráulica del filtro activo & $q$ & {q:.4f} & m/d \\
 Relación $k_{{A,T}} / q$ & -- & {k_T/q:.4f} & -- \\
 DBO$_5$ del afluente & $C_i$ & {DBO_entrada:.1f} & mg/L \\
 DBO$_5$ del efluente estimada (modelo k-C*) & $C_e$ & {DBO_salida_calc:.1f} & mg/L \\
-DBO$_5$ objetivo de diseño & -- & {DBO_objetivo:.1f} & mg/L \\
 Eficiencia de remoción de DBO$_5$ en HAFV & $\eta$ & {eficiencia:.1f} & \% \\
 \bottomrule
 \end{{tabular}}
 \end{{table}}
 
-\textbf{{Resultado de la verificación:}} {r['texto_cumplimiento_kC']}
 
 \subsubsection*{{Retención de Sólidos, Producción de Lodo y Mantenimiento}}
 
@@ -857,34 +871,33 @@ Durante el período de reposo, el drenaje completo del lecho es condición neces
 
 \subsubsection*{{Vegetación Macrófita: Establecimiento y Manejo}}
 
-La vegetación macrófita (\textit{{Phragmites australis}} o especies tropicales equivalentes nativas) se establece sobre el lecho filtrante antes de la puesta en marcha del sistema, a una densidad de 4 a 6 plantas por metro cuadrado. Su sistema radicular, a medida que se desarrolla durante los primeros meses de operación, cumple funciones complementarias que contribuyen a la estabilidad del sistema:
+La vegetación macrófita (\textit{{Phragmites australis}} o especies tropicales equivalentes nativas) se establece sobre el lecho filtrante antes de la puesta en marcha del sistema, a una densidad de 4 a 6 plantas por metro cuadrado. Su sistema radicular, a medida que se desarrolla durante los primeros meses de operación, cumple funciones complementarias que contribuyen a la estabilidad del sistema. Entre estas funciones se encuentra el mantenimiento de la permeabilidad superficial del medio filtrante al impedir la compactación de las capas superiores, la creación de micrositios aerobios localizados en la rizosfera que amplían la diversidad de condiciones redox disponibles para las comunidades microbianas, la transferencia de pequeñas cantidades de oxígeno hacia las zonas profundas del lecho a través de los aerénquimas radiculares, y la contribución a la integración paisajística del sistema en el entorno natural del proyecto.
 
-\begin{{itemize}}[noitemsep,leftmargin=2em]
-    \item Mantiene la permeabilidad superficial del medio filtrante al impedir la compactación de las capas superiores
-    \item Crea micrositios aerobios localizados en la rizosfera, ampliando la diversidad de condiciones redox disponibles para las comunidades microbianas
-    \item Transfiere pequeñas cantidades de oxígeno hacia las zonas profundas del lecho a través de los aerénquimas radiculares
-    \item Contribuye a la integración paisajística del sistema en el entorno natural del proyecto
-\end{{itemize}}
-
-Durante los primeros 6 a 12 meses de operación (período de establecimiento de la biopelícula y de la vegetación), se recomienda operar el sistema con una carga reducida al 30 a 50\,\% de la carga de diseño, incrementándola gradualmente hasta alcanzar las condiciones nominales. Este período de arranque permite el desarrollo de la biopelícula, el acondicionamiento del medio filtrante y la estabilización de la vegetación antes de enfrentar la carga plena.
+Durante los primeros 6 a 12 meses de operación, correspondientes al período de establecimiento de la biopelícula y de la vegetación, se recomienda operar el sistema con una carga reducida al 30 a 50\,\% de la carga de diseño, incrementándola gradualmente hasta alcanzar las condiciones nominales. Este período de arranque permite el desarrollo de la biopelícula, el acondicionamiento del medio filtrante y la estabilización de la vegetación antes de enfrentar la carga plena.
 """
 
-    def generar_esquema_linea_humedal_5Ls_2celdas(self, output_dir=None):
+    def generar_esquema_linea_humedal_2celdas(self, output_dir=None):
         """
-        Esquema técnico estilo UASB para UNA LÍNEA de 5 L/s con 2 celdas de humedal vertical.
-        Cada celda procesa TODO el caudal de 5 L/s cuando le toca alimentar.
+        Esquema técnico estilo UASB para UNA LÍNEA de humedal vertical.
+        Cada celda procesa TODO el caudal de la línea cuando le toca alimentar.
+        Usa los valores reales de diseño desde self.datos y self.cfg.
         """
         import matplotlib.pyplot as plt
         import matplotlib.patches as mpatches
         from matplotlib.patches import FancyBboxPatch, Rectangle, Circle, Polygon, FancyArrowPatch
         import numpy as np
         import os
-
-        # Datos que usaremos (puedes cambiarlos desde self.datos si ya los tienes calculados)
-        Q_Ls = 5.0                                      # caudal por línea
-        area_celda_m2 = 720.0                           # A_operando que calcula tu código
-        largo_celda_m = 24.0
-        ancho_celda_m = 30.0                            # 24x30 = 720 m² (relación ≈ 1:1.25)
+        
+        # Usar valores reales de diseño
+        cfg = self.cfg
+        r = self.datos
+        
+        Q_Ls = cfg.Q_linea_L_s                          # caudal real por línea
+        area_celda_m2 = r.get('A_operando_m2', 720.0)   # Área operando real
+        # Calcular dimensiones aproximadas desde el área
+        import math
+        ancho_celda_m = math.sqrt(area_celda_m2 / 1.2)  # Relación largo:ancho ≈ 1.2:1
+        largo_celda_m = area_celda_m2 / ancho_celda_m
         # Valores estándar Molle et al. 2015 para sistema francés tropical
         H_drenaje = 0.15   # Capa drenaje 20-60 mm
         H_media = 0.25     # Capa media 5-15 mm
@@ -897,17 +910,17 @@ Durante los primeros 6 a 12 meses de operación (período de establecimiento de 
         ax.set_xlim(0, 70)
         ax.set_ylim(0, 60)
         ax.axis('off')
-        fig.suptitle('LÍNEA DE TRATAMIENTO TERCIARIO - 5 L/s\n'
+        fig.suptitle(f'LÍNEA DE TRATAMIENTO TERCIARIO - {Q_Ls:.1f} L/s\n'
                      'Humedal Vertical con 2 celdas en operación alternada',
-                     fontsize=16, fontweight='bold', y=0.98)
+                     fontsize=16, fontweight='bold', y=0.96)
 
         # ====================== VISTA EN PLANTA (arriba) ======================
-        y_planta = 38
+        y_planta = 42
         # Marco de la línea completa
         ax.add_patch(FancyBboxPatch((5, y_planta), 60, 12, boxstyle="round,pad=0.3",
                                    facecolor='#E6F3FF', edgecolor='black', linewidth=3))
 
-        ax.text(35, y_planta + 13, 'VISTA EN PLANTA - 2 CELDAS DE LA LÍNEA (5 L/s)',
+        ax.text(35, y_planta + 13, f'VISTA EN PLANTA - 2 CELDAS DE LA LÍNEA ({Q_Ls:.1f} L/s)',
                 ha='center', fontsize=13, fontweight='bold')
 
         # Celda 1 (izquierda - alimentando)
@@ -935,7 +948,7 @@ Durante los primeros 6 a 12 meses de operación (período de establecimiento de 
 
         # Flechas de entrada y salida
         ax.arrow(6, y_planta+6, 3, 0, head_width=1, head_length=1.5, fc='blue', ec='blue', lw=4)
-        ax.text(2, y_planta+7, 'Entrada 5 L/s', fontsize=11, color='blue', fontweight='bold')
+        ax.text(2, y_planta+7, f'Entrada {Q_Ls:.1f} L/s', fontsize=11, color='blue', fontweight='bold')
         ax.arrow(65, y_planta+6, 3, 0, head_width=1, head_length=1.5, fc='green', ec='green', lw=4)
         ax.text(67, y_planta+7, 'Salida tratada', fontsize=11, color='green', fontweight='bold')
 
@@ -1033,25 +1046,26 @@ Durante los primeros 6 a 12 meses de operación (período de establecimiento de 
             output_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'resultados', 'figuras')
         os.makedirs(output_dir, exist_ok=True)
 
-        fig_path = os.path.join(output_dir, 'Esquema_Linea_Humedal_5Ls_2celdas.png')
+        fig_path = os.path.join(output_dir, f'Esquema_Linea_Humedal_{Q_Ls:.1f}Ls_2celdas.png')
         fig.savefig(fig_path, dpi=250, bbox_inches='tight', facecolor='white')
         plt.close()
 
         return fig_path
 
-    def generar_esquema_humedal_matplotlib(self, caudal_Ls=5.0, n_modulos=3):
+    def generar_esquema_humedal_matplotlib(self, caudal_Ls=5.0, n_modulos=3, output_dir=None):
         """
-        Esquema técnico profesional para caudal de 5 L/s (432 m³/día).
+        Esquema técnico profesional para caudal real (Sistema Clásico).
         3 filtros de 20 m × 12 m cada uno.
         """
         import matplotlib.pyplot as plt
         import matplotlib.patches as patches
+        import os
 
-        Q_m3d = caudal_Ls * 86400 / 1000  # 432 m³/día
+        Q_m3d = caudal_Ls * 86400 / 1000  # m³/día
         area_por_filtro_m2 = 240.0        # calculado con HLR=0.6 m/d
 
         fig, axs = plt.subplots(2, 1, figsize=(14, 11), gridspec_kw={'height_ratios': [1, 1.3]})
-        fig.suptitle(f'HUMEDAL ARTIFICIAL DE FLUJO VERTICAL (HAFV) - 5 L/s ({Q_m3d:.0f} m³/día)',
+        fig.suptitle(f'HUMEDAL ARTIFICIAL DE FLUJO VERTICAL (HAFV) - SISTEMA CLÁSICO\n{caudal_Ls:.1f} L/s ({Q_m3d:.0f} m³/día)',
                      fontsize=16, fontweight='bold', y=0.98)
 
         # ====================== VISTA EN PLANTA ======================
@@ -1093,7 +1107,7 @@ Durante los primeros 6 a 12 meses de operación (período de establecimiento de 
 
         # Flechas
         ax1.arrow(0, 9, 2.5, 0, head_width=0.8, head_length=1, fc='blue', ec='blue', linewidth=4)
-        ax1.text(1, 11, 'Entrada\nagua residual (5 L/s)', fontsize=11, color='blue')
+        ax1.text(1, 11, f'Entrada\nagua residual ({caudal_Ls:.1f} L/s)', fontsize=11, color='blue')
 
         ax1.arrow(x + 20 + 2, 9, 2.5, 0, head_width=0.8, head_length=1, fc='green', ec='green', linewidth=4)
         ax1.text(x + 23, 11, 'Salida\nagua tratada', fontsize=11, color='green')
@@ -1154,16 +1168,39 @@ Durante los primeros 6 a 12 meses de operación (período de establecimiento de 
         ax2.text(21, 0, '18 m', fontsize=10)
 
         plt.tight_layout()
-        ruta_salida = os.path.join(self.ruta_figuras, 'humedal_vertical_5Ls_esquema.png')
-        os.makedirs(self.ruta_figuras, exist_ok=True)
+        
+        # Usar output_dir si se proporciona, sino usar self.ruta_figuras
+        if output_dir is None:
+            output_dir = self.ruta_figuras
+        os.makedirs(output_dir, exist_ok=True)
+        
+        # Nombre de archivo con el caudal real
+        ruta_salida = os.path.join(output_dir, f'humedal_vertical_{caudal_Ls:.1f}Ls_esquema.png')
         plt.savefig(ruta_salida, dpi=300, bbox_inches='tight')
         plt.close()
 
         return ruta_salida
 
+    def generar_esquema_matplotlib(self, output_dir=None):
+        """
+        Genera el esquema del humedal vertical según la ruta de diseño (A o B).
+        Ruta B (Francés Tropical): 2 celdas en paralelo, ciclos 3.5d/3.5d
+        Ruta A (Clásico): 3+2 filtros en 2 etapas, ciclos más largos
+        """
+        cfg = self.cfg
+        ruta = self.datos.get('ruta', 'B')
+        Q_Ls = cfg.Q_linea_L_s  # Caudal real por línea
+        
+        if ruta == 'B':
+            # Sistema Francés Tropical - 2 celdas en operación alterna
+            return self.generar_esquema_linea_humedal_2celdas(output_dir)
+        else:
+            # Sistema Clásico - 2 etapas (3+2 filtros)
+            return self.generar_esquema_humedal_matplotlib(Q_Ls, n_modulos=3, output_dir=output_dir)
+    
     def _generar_esquema_png(self):
-        """Genera el esquema de la línea de humedal vertical de 5 L/s y 2 celdas."""
-        return self.generar_esquema_linea_humedal_5Ls_2celdas()
+        """Genera el esquema de la línea de humedal vertical usando los valores reales de diseño."""
+        return self.generar_esquema_matplotlib()
 
 
 if __name__ == "__main__":

@@ -199,49 +199,45 @@ class GeneradorLechoSecado:
             for item in l['desglose_lodos']
         )
         
-        return rf"""\subsection{{Dimensionamiento}}
+        # Generar texto dinámico de fuentes de lodos
+        fuentes_lodos = []
+        for item in l['desglose_lodos']:
+            origen = item['origen']
+            if 'UASB' in origen or 'Anaerobio' in origen:
+                fuentes_lodos.append(f"lodos anaerobios del {origen} (factor {cfg.lecho_factor_produccion_lodos:.2f} kg SST/kg DBO removida)")
+            elif 'Filtro' in origen or 'FP' in origen or 'Percolador' in origen:
+                fuentes_lodos.append(f"humus del {origen} (factor {cfg.sed_factor_produccion_humus:.2f} kg SST/kg DBO removida)")
+            elif 'Humedal' in origen:
+                fuentes_lodos.append(f"solidos del {origen}")
+            else:
+                fuentes_lodos.append(f"lodos del {origen}")
+        
+        if len(fuentes_lodos) == 1:
+            texto_fuentes = fuentes_lodos[0]
+        elif len(fuentes_lodos) == 2:
+            texto_fuentes = f"{fuentes_lodos[0]} y {fuentes_lodos[1]}"
+        else:
+            texto_fuentes = ", ".join(fuentes_lodos[:-1]) + f" y {fuentes_lodos[-1]}"
+        
+        return rf"""
 
 El lecho de secado es una unidad de manejo de lodos que utiliza procesos fisicos de drenaje gravitacional y evaporacion para reducir el contenido de humedad de los lodos generados en el tratamiento. Este sistema es ampliamente utilizado en plantas de tratamiento de pequeno y mediano tamano debido a su bajo consumo energetico y simplicidad operativa.
 
 \textbf{{Mecanismos de secado}}
 
-El proceso de deshidratación de lodos en el lecho se realiza mediante dos mecanismos fundamentales que actúan simultáneamente:
-
-\begin{{itemize}}[noitemsep,leftmargin=2em]
-    \item \textbf{{Drenaje gravitacional:}} Durante las primeras horas o días después de la aplicación del lodo, el agua libre drena por gravedad a través del medio filtrante (arena y grava) hacia el sistema de drenaje inferior. Este mecanismo remueve aproximadamente el 30--50\% del agua inicial del lodo.
-    
-    \item \textbf{{Evaporación:}} Una vez agotado el drenaje libre, la humedad restante se pierde por evaporación al ambiente, favorecida por la exposición superficial del lodo y el clima local. En condiciones tropicales de Galápagos (temperatura promedio 24°C, insolación elevada), la evaporación es el mecanismo dominante durante la mayor parte del ciclo de secado.
-\end{{itemize}}
+El proceso de deshidratación de lodos en el lecho se realiza mediante dos mecanismos fundamentales que actúan simultáneamente: el drenaje gravitacional y la evaporación. El drenaje gravitacional ocurre durante las primeras horas o días después de la aplicación del lodo, cuando el agua libre drena por gravedad a través del medio filtrante (arena y grava) hacia el sistema de drenaje inferior, removiendo aproximadamente del 30 al 50\% del agua inicial del lodo. Una vez agotado el drenaje libre, la humedad restante se pierde por evaporación al ambiente, favorecida por la exposición superficial del lodo y el clima local. En condiciones tropicales de Galápagos, con temperatura promedio de 24°C e insolación elevada, la evaporación es el mecanismo dominante durante la mayor parte del ciclo de secado.
 
 \textit{{Nota:}} La literatura técnica (Metcalf \& Eddy, 2014; OPS/CEPIS, 2005) reporta proporciones variables entre estos mecanismos según el clima local, con rangos típicos de 1/3 drenaje y 2/3 evaporación en climas cálidos y secos, hasta proporciones inversas en climas húmedos. Para el diseño del presente proyecto se considera el efecto combinado de ambos mecanismos sin asignar proporciones fijas, dado que el tiempo de secado adoptado ({l['t_secado_d']:.0f} días) se basa en criterios operativos conservadores de la región.
 
 \textbf{{Estructura física del lecho}}
 
-El lecho de secado consiste en una estructura impermeabilizada con capas estratificadas que permiten el drenaje y soporte del lodo:
-
-\begin{{itemize}}[noitemsep,leftmargin=2em]
-    \item \textbf{{Capa de arena (superior):}} Espesor de {l['h_arena_m']:.2f} m. Constituye el medio de filtración principal donde se aplica el lodo. La arena fina retiene las partículas de lodo mientras permite el paso del agua. Debe tener granulometría uniforme (típicamente 0.25--1.0 mm) para maximizar la retención de sólidos sin colmatarse rápidamente.
-    
-    \item \textbf{{Capa de grava (intermedia):}} Espesor de {l['h_grava_m']:.2f} m. Proporciona soporte estructural a la capa de arena y distribuye uniformemente el agua drenada hacia el sistema de drenaje. La granulometría es mayor que la arena (típicamente 10--30 mm) para crear un medio permeable y estable.
-    
-    \item \textbf{{Sistema de drenaje (inferior):}} Compuesto por tuberías perforadas o zanjas de drenaje que recolectan el agua filtrada (liquiado) y la conducen a un punto de descarga o recolección. El gradiente de drenaje debe ser suficiente (mínimo 1--2\%) para evitar estancamiento y garantizar el flujo continuo.
-\end{{itemize}}
+El lecho de secado consiste en una estructura impermeabilizada con capas estratificadas que permiten el drenaje y soporte del lodo. La capa superior de arena, con un espesor de {l['h_arena_m']:.2f} m, constituye el medio de filtración principal donde se aplica el lodo. La arena fina retiene las partículas de lodo mientras permite el paso del agua, y debe tener granulometría uniforme, típicamente entre 0.25 y 1.0 mm, para maximizar la retención de sólidos sin colmatarse rápidamente. Debajo de esta, la capa intermedia de grava tiene un espesor de {l['h_grava_m']:.2f} m y proporciona soporte estructural a la capa de arena, distribuyendo uniformemente el agua drenada hacia el sistema de drenaje. La granulometría de la grava es mayor que la arena, típicamente entre 10 y 30 mm, para crear un medio permeable y estable. Finalmente, en la parte inferior, el sistema de drenaje está compuesto por tuberías perforadas o zanjas que recolectan el agua filtrada y la conducen a un punto de descarga. El gradiente de drenaje debe ser suficiente, con un mínimo del 1 al 2\%, para evitar estancamiento y garantizar el flujo continuo.
 
 \textbf{{Ciclo operativo y destino del lodo}}
 
-El lecho opera mediante ciclos alternados de carga y descarga:
+El lecho opera mediante ciclos alternados de carga y descarga. En la fase de aplicación, el lodo húmedo se distribuye uniformemente sobre la superficie del lecho con un espesor de aproximadamente {l['h_lodo_m']:.2f} m. Durante la fase de secado, el lodo permanece en reposo durante {l['t_secado_d']:.0f} días, período durante el cual pierde humedad por drenaje y evaporación. Finalmente, en la fase de retiro, una vez alcanzado el contenido de humedad objetivo, típicamente entre 40 y 60\% de sólidos, el lodo seco se retira manualmente o con equipos ligeros.
 
-\begin{{enumerate}}[noitemsep,leftmargin=2em]
-    \item \textbf{{Aplicación:}} El lodo húmedo se distribuye uniformemente sobre la superficie del lecho con un espesor de aproximadamente {l['h_lodo_m']:.2f} m.
-    \item \textbf{{Secado:}} El lodo permanece en reposo durante {l['t_secado_d']:.0f} días, período durante el cual pierde humedad por drenaje y evaporación.
-    \item \textbf{{Retiro:}} Una vez alcanzado el contenido de humedad objetivo (típicamente 40--60\% de sólidos), el lodo seco se retira manualmente o con equipos ligeros.
-\end{{enumerate}}
-
-El lodo seco resultante tiene dos destinos principales según su calidad y la normativa local:
-\begin{{itemize}}[noitemsep,leftmargin=2em]
-    \item \textbf{{Disposición en relleno sanitario:}} Es la opción más común para lodos de PTAR municipales. El lodo estabilizado y deshidratado cumple con los criterios de manejabilidad para disposición final controlada.
-    \item \textbf{{Uso agrícola condicionado:}} Solo si el lodo cumple con requisitos de estabilización, ausencia de metales pesados y patógenos reducidos, según normativa sanitaria aplicable ( Ministerio de Salud, Ministerio del Ambiente). Requiere análisis periódicos y autorización expresa de la autoridad competente.
-\end{{itemize}}
+El lodo seco resultante tiene dos destinos principales según su calidad y la normativa local. La disposición en relleno sanitario es la opción más común para lodos de PTAR municipales, ya que el lodo estabilizado y deshidratado cumple con los criterios de manejabilidad para disposición final controlada. Alternativamente, el uso agrícola condicionado es posible solo si el lodo cumple con requisitos estrictos de estabilización, ausencia de metales pesados y patógenos reducidos, según la normativa sanitaria aplicable del Ministerio de Salud y Ministerio del Ambiente, lo cual requiere análisis periódicos y autorización expresa de la autoridad competente.
 
 \textbf{{Parámetro de diseño: Carga superficial de sólidos ($\rho_S$)}}
 
@@ -282,7 +278,7 @@ Relacion Largo/Ancho & {l['rango_relacion_L_A_texto']} & {l['relacion_L_A']:.0f}
 
 \textbf{{Produccion de lodos}}
 
-La produccion de lodos se toma del balance encadenado del tren de tratamiento. Para los lodos anaerobios del UASB se emplea un factor de produccion de {cfg.lecho_factor_produccion_lodos:.2f} kg SST/kg DBO removida, mientras que las contribuciones de unidades posteriores se reportan segun el tren evaluado.
+La produccion de lodos se determina del balance encadenado del tren de tratamiento. En este caso, los lodos provienen de: {texto_fuentes}. Los factores de produccion especificos de cada unidad se aplican segun su tipologia: reactores anaerobios (UASB) tipicamente 0.10 kg SST/kg DBO removida, sistemas aerobios con biopelicula (filtros percoladores, humedales) tipicamente 0.15 kg SST/kg DBO removida, y sedimentadores secundarios segun la produccion de humus estimada.
 
 \textbf{{Balance de produccion de lodos:}}
 
@@ -378,6 +374,10 @@ La carga superficial de solidos se verifica mediante:
 \textbf{{Notas de operacion}}
 
 {l['texto_operacion_lecho']}"""
+
+    def generar_esquema_matplotlib(self, output_dir=None):
+        """Wrapper para compatibilidad con generar_tren.py"""
+        return self.generar_esquema(output_dir)
 
     def generar_resultados(self) -> str:
         """Genera subsection Resultados con tabla y figura."""

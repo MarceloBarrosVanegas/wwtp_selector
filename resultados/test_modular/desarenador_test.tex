@@ -1,0 +1,190 @@
+
+
+El desarenador remueve part\'iculas minerales (arena, grava) con di\'ametro superior a 0.20~mm mediante sedimentaci\'on gravitacional. Seg\'un Metcalf y Eddy \cite{metcalf2014}, los par\'ametros de dise\~no son: velocidad horizontal 0.25--0.30~m/s (m\'aximo 0.30~m/s para evitar arrastre de sedimentos), tiempo de retenci\'on 30--60~s, y profundidad de flujo 0.75--2.0~m (OPS/CEPIS \cite{ops2005} permite valores menores en plantas peque\~nas).
+
+La profundidad total del canal incluye: profundidad \'util de flujo (0.40~m), zona de almacenamiento de arena (0.25--0.30~m; se adopta 0.30~m), y bordo libre (0.30~m).
+
+El dise\~no del desarenador se fundamenta en la teor\'ia de sedimentaci\'on discreta. Primero se calcula la velocidad de sedimentaci\'on de las part\'iculas objetivo mediante la Ley de Stokes:
+
+\begin{equation}
+v_s = \frac{g \cdot (S_s - 1) \cdot d^2}{18 \cdot \nu}
+\end{equation}
+\captionequation{Ley de Stokes - Velocidad de sedimentacion de particulas}
+
+\textit{Donde:}
+\begin{itemize}[noitemsep,leftmargin=2em]
+    \item[$v_s$] = Velocidad de sedimentaci\'on (m/s)
+    \item[$g$] = Aceleraci\'on de la gravedad (9.81 m/s²)
+    \item[$S_s$] = Gravedad espec\'ifica de la arena (2.65)
+    \item[$d$] = Di\'ametro de la part\'icula (0.00020 m)
+    \item[$\nu$] = Viscosidad cinem\'atica del agua a 24.0°C ($8.8200e-07$ m²/s)
+\end{itemize}
+
+\begin{equation}
+v_s = \frac{9.81 \times (2.65 - 1) \times (0.00020)^2}{18 \times 8.8200e-07} = 0.041 \text{ m/s}
+\end{equation}
+
+Con este valor de $v_s$ se determina la longitud te\'orica del desarenador mediante la ecuaci\'on de sedimentaci\'on tipo I:
+
+\begin{equation}
+L = \frac{H \cdot v_h}{v_s} = \frac{0.40 \times 0.30}{0.041} = 2.9 \text{ m}
+\end{equation}
+
+\textit{Donde:}
+\begin{itemize}[noitemsep,leftmargin=2em]
+    \item[$L$] = Longitud del desarenador (m)
+    \item[$H$] = Profundidad \'util (0.40 m)
+    \item[$v_h$] = Velocidad horizontal adoptada (0.30 m/s)
+\end{itemize}
+
+La longitud te\'orica resultante (2.9~m) es adecuada para el caudal de dise\~no y se adopta como longitud de dise\~no.
+
+El ancho del canal se determina por la ecuaci\'on de continuidad:
+
+\begin{equation}
+B = \frac{Q}{v_h \cdot H} = \frac{0.00500}{0.30 \times 0.40} = 0.042 \text{ m}
+\end{equation}
+
+\textit{Donde:}
+\begin{itemize}[noitemsep,leftmargin=2em]
+    \item[$B$] = Ancho te\'orico del canal (m)
+    \item[$Q$] = Caudal de dise\~no (0.00500 m³/s)
+\end{itemize}
+
+El ancho te\'orico resulta inferior al m\'inimo constructivo. Se adopta 0.60 m seg\'un OPS/CEPIS \cite{ops2005} y SENAGUA \cite{senagua2012}, que establecen 0.60 m como ancho m\'inimo para operaci\'on y mantenimiento.
+
+Verificando la velocidad horizontal real con el ancho adoptado:
+
+\begin{equation}
+v_{real} = \frac{Q}{B \cdot H} = \frac{0.00500}{0.60 \times 0.40} = 0.021 \text{ m/s}
+\end{equation}
+
+El tiempo de retenci\'on real resulta:
+
+\begin{equation}
+t_r = \frac{L}{v_{real}} = \frac{3.0}{0.021} = 144.0 \text{ s}
+\end{equation}
+
+\subsection{Verificacion}
+
+\textbf{Verificacion de Velocidad Critica de Resuspension}
+
+Para garantizar que la arena sedimentada no sea resuspendida por el flujo, se verifica que la velocidad horizontal del dise\~no sea menor que la velocidad cr\'itica de resuspensi\'on, calculada mediante la f\'ormula de Camp-Shields:
+
+\begin{equation}
+v_c = \sqrt{\frac{8 \beta g (S_s - 1) d}{f}}
+\end{equation}
+\captionequation{Velocidad critica de resuspension - Camp-Shields}
+
+\textit{Donde:}
+\begin{itemize}[noitemsep,leftmargin=2em]
+    \item[$v_c$] = Velocidad cr\'itica de resuspensi\'on (m/s)
+    \item[$\beta$] = Factor de forma (0.05, rango 0.04--0.06)
+    \item[$g$] = Aceleraci\'on de la gravedad (9.81 m/s²)
+    \item[$S_s$] = Gravedad espec\'ifica de la arena (2.65)
+    \item[$d$] = Di\'ametro de la part\'icula (0.00020 m)
+    \item[$f$] = Factor de fricci\'on de Darcy-Weisbach (0.025, rango 0.02--0.03)
+\end{itemize}
+
+\begin{equation}
+v_c = \sqrt{\frac{8 \times 0.05 \times 9.81 \times (2.65 - 1) \times 0.00020}{0.025}} = 0.228 \text{ m/s}
+\end{equation}
+\captionequation{Velocidad critica calculada}
+
+\textbf{Verificacion para Caudal Maximo Horario}
+
+Se verifica el comportamiento hidr\'aulico para el caudal m\'aximo horario, aplicando un factor de pico t\'ipico de 2.5 sobre el caudal medio:
+
+\begin{equation}
+Q_{max} = 2.5 \times Q_{medio} = 2.5 \times 5.0 = 12.5 \text{ L/s}
+\end{equation}
+
+A caudal m\'aximo, la velocidad horizontal resulta:
+
+\begin{equation}
+v_{h,max} = \frac{Q_{max}}{B \cdot H} = \frac{12.500/1000}{0.60 \times 0.40} = 0.052 \text{ m/s}
+\end{equation}
+
+El tiempo de retenci\'on a caudal m\'aximo:
+
+\begin{equation}
+t_{r,max} = \frac{L}{v_{h,max}} = \frac{3.0}{0.052} = 57.6 \text{ s}
+\end{equation}
+
+\textbf{Criterios de verificaci\'on de resuspensi\'on} (Camp-Shields, Metcalf y Eddy \cite{metcalf2014}):
+
+La velocidad calculada $v_{h,max} = 0.052$~m/s se eval\'ua seg\'un (l\'imite: $v_c \times 90\% = 0.205$~m/s):
+
+\begin{equation}
+\text{Estado} = \begin{cases}
+    \text{SEGURIDAD} & \text{si } v_{h,max} \leq 0.205 \text{ m/s} \quad \text{(no hay resuspensi\'on)} \\
+    \text{RIESGO} & \text{si } v_{h,max} > 0.205 \text{ m/s} \quad \text{(arena resuspendida)}
+\end{cases}
+\end{equation}
+\captionequation{Criterios de verificacion de resuspension}
+
+Con la velocidad calculada $v_{h,max} = 0.052$~m/s, la unidad se clasifica como \textbf{SEGURIDAD}. En terminos de cumplimiento, la verificacion de resuspension \textbf{CUMPLE} porque es menor que el limite de resuspension con factor de seguridad (0.205~m/s), por lo que no se produce resuspension de la arena depositada.
+
+\subsection{Resultados}
+
+\begingroup
+\small
+\begin{longtable}{l p{9cm}}
+\caption{Dimensiones del desarenador}\\
+\toprule
+Par\'ametro & Valor \\
+\midrule
+\endfirsthead
+\caption[]{Dimensiones del desarenador (continuación)}\\
+\toprule
+Par\'ametro & Valor \\
+\midrule
+\endhead
+\midrule
+\multicolumn{2}{r}{\textit{Continúa en la siguiente página}} \\
+\endfoot
+\bottomrule
+\endlastfoot
+Longitud dise\~no & 3.0 m (m\'inimo constructivo SENAGUA) \\
+Ancho & 0.60 m (m\'inimo constructivo) \\
+Profundidad \'util & 0.40 m \\
+Velocidad horizontal real & 0.021 m/s \\
+Velocidad cr\'itica resuspensi\'on & 0.228 m/s (Camp-Shields) \\
+Tiempo retenci\'on real & 144.0 s \\
+\multicolumn{2}{p{\textwidth}}{\small\textit{$^a$Nota: El TRH de 144~s y velocidad de 0.021~m/s se deben al ancho m\'inimo constructivo de 0.60~m. }} \\
+\end{longtable}
+\endgroup
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figuras/Esquema_Desarenador.png}
+\caption{Esquema del desarenador de flujo horizontal con perfil longitudinal y corte transversal. Se muestran la entrada del afluente, la zona de flujo, el dep\'osito de arena y la salida . }
+\label{fig:desarenador}
+\end{figure}
+\textbf{Manejo de arena removida}
+
+El desarenador retiene part\'iculas minerales (arena, grava fina) que se sedimentan en el fondo del canal. El manejo adecuado de estos residuos incluye:
+
+\begin{itemize}[noitemsep,leftmargin=2em]
+    \item \textbf{Caracter\'isticas de la arena:} Part\'iculas minerales con di\'ametro $>$0.20~mm, gravedad espec\'ifica de 2.65, que representan s\'olidos inorg\'anicos de alta densidad presentes en el agua residual.
+    \item \textbf{Volumen de almacenamiento:} El canal incluye una zona de almacenamiento de 0.30~m de altura, dise\~nada para acumular la arena removida entre operaciones de limpieza.
+    \item \textbf{Frecuencia de limpieza:} Diaria o seg\'un acumulaci\'on observada. En condiciones normales, la arena acumulada no debe superar el 50\% de la altura de almacenamiento designada.
+    \item \textbf{M\'etodo de remoci\'on:} Manual mediante palas y cubos desde la plataforma de operaci\'on, o mediante sistema de succi\'on/bombeo si el caudal y la producci\'on de arena lo justifican.
+\end{itemize}
+
+\textbf{Disposici\'on final de la arena:}
+
+La arena removida en el desarenador tiene las siguientes opciones de manejo, seg\'un su composici\'on y la normativa local:
+
+\begin{itemize}[noitemsep,leftmargin=2em]
+    \item \textbf{Relleno sanitario:} Es la opci\'on m\'as com\'un. La arena, al ser material inorg\'anico inerte, puede disposicionarse en rellenos sanitarios autorizados sin restricciones especiales.
+    \item \textbf{Reuso condicionado:} Si la arena est\'a relativamente limpia (bajo contenido de materia org\'anica adherida), puede utilizarse para:
+    \begin{itemize}[noitemsep,leftmargin=1.5em]
+        \item Relleno y compactaci\'on en obras civiles (previa caracterizaci\'on)
+        \item Mezcla con concreto para elementos no estructurales
+        \item Complemento en sistemas de filtraci\'on gruesa (previo lavado)
+    \end{itemize}
+    \item \textbf{Lavado previo:} Si se detecta alta carga org\'anica adherida a los granos de arena (olor f\'etido, color oscuro), se recomienda lavado antes de la disposici\'on final para reducir el impacto ambiental.
+\end{itemize}
+
+\textit{Nota sobre cantidades:} El presente dimensionamiento no estima la masa o volumen diario de arena removida. Seg\'un Metcalf y Eddy \cite{metcalf2014}, la producci\'on t\'ipica de arena en aguas residuales municipales var\'ia entre 0.004--0.15 L/m\textsuperscript{3} de agua tratada, dependiendo de las caracter\'isticas del sistema de alcantarillado (red combinada vs. separada) y del suelo local. Para el caudal de dise\'no, esto representar\'ia aproximadamente 0.02--0.6 L/d (total planta), sujeto a caracterizaci\'on local.

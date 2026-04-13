@@ -45,7 +45,7 @@ class GeneradorDesarenador:
         
         # NOTA: Copia EXACTA de generar_latex_A.py reorganizada en 3 subsections
         # Seccion 1: Dimensionamiento (contiene teoria + parametros + calculos)
-        teoria = rf"""\subsection{{Dimensionamiento}}
+        teoria = rf"""
 
 El desarenador remueve part\'iculas minerales (arena, grava) con di\'ametro superior a {d['d_mm']:.2f}~mm mediante sedimentaci\'on gravitacional. Seg\'un Metcalf y Eddy \cite{{metcalf2014}}, los par\'ametros de dise\~no son: velocidad horizontal {cfg.desarenador_v_h_min_m_s:.2f}--{cfg.desarenador_v_h_max_m_s:.2f}~m/s (m\'aximo {cfg.desarenador_v_h_max_m_s:.2f}~m/s para evitar arrastre de sedimentos), tiempo de retenci\'on {cfg.desarenador_t_retencion_min_s:.0f}--{cfg.desarenador_t_retencion_max_s:.0f}~s, y profundidad de flujo {cfg.desarenador_H_min_m:.2f}--{cfg.desarenador_H_max_m:.1f}~m (OPS/CEPIS \cite{{ops2005}} permite valores menores en plantas peque\~nas).
 
@@ -202,32 +202,15 @@ Tiempo retenci\'on real & {d['t_r_real_s']:.1f} s \\
 \end{{longtable}}
 \endgroup
 
-{figura_latex}\textbf{{Manejo de arena removida}}
+\textbf{{Manejo de arena removida}}
 
-El desarenador retiene part\'iculas minerales (arena, grava fina) que se sedimentan en el fondo del canal. El manejo adecuado de estos residuos incluye:
-
-\begin{{itemize}}[noitemsep,leftmargin=2em]
-    \item \textbf{{Caracter\'isticas de la arena:}} Part\'iculas minerales con di\'ametro $>${d['d_mm']:.2f}~mm, gravedad espec\'ifica de {d['Ss']:.2f}, que representan s\'olidos inorg\'anicos de alta densidad presentes en el agua residual.
-    \item \textbf{{Volumen de almacenamiento:}} El canal incluye una zona de almacenamiento de {d['h_almacenamiento_arena_m']:.2f}~m de altura, dise\~nada para acumular la arena removida entre operaciones de limpieza.
-    \item \textbf{{Frecuencia de limpieza:}} Diaria o seg\'un acumulaci\'on observada. En condiciones normales, la arena acumulada no debe superar el 50\% de la altura de almacenamiento designada.
-    \item \textbf{{M\'etodo de remoci\'on:}} Manual mediante palas y cubos desde la plataforma de operaci\'on, o mediante sistema de succi\'on/bombeo si el caudal y la producci\'on de arena lo justifican.
-\end{{itemize}}
+El desarenador retiene part\'iculas minerales, principalmente arena y grava fina, que se sedimentan en el fondo del canal por acci\'on gravitacional. Estas part\'iculas presentan di\'ametros superiores a {d['d_mm']:.2f}~mm, con gravedad espec\'ifica de {d['Ss']:.2f}, correspondiendo a s\'olidos inorg\'anicos de alta densidad presentes en el agua residual. El canal incorpora una zona de almacenamiento de {d['h_almacenamiento_arena_m']:.2f}~m de altura, dimensionada espec\'ificamente para acumular la arena removida entre operaciones de limpieza. La frecuencia de limpieza recomendada es diaria o seg\'un la acumulaci\'on observada, manteniendo la arena acumulada por debajo del 50\% de la altura de almacenamiento designada para garantizar el funcionamiento \'optimo del sistema. La remoci\'on se realiza manualmente mediante palas y cubos desde la plataforma de operaci\'on, aunque puede implementarse un sistema de succi\'on o bombeo si el caudal y la producci\'on de arena lo justifican t\'ecnicamente.
 
 \textbf{{Disposici\'on final de la arena:}}
 
-La arena removida en el desarenador tiene las siguientes opciones de manejo, seg\'un su composici\'on y la normativa local:
+La arena removida en el desarenador puede manejarse de diferentes formas seg\'un su composici\'on y la normativa local vigente. La opci\'on m\'as com\'un es el relleno sanitario, ya que la arena es material inorg\'anico inerte que puede disposicionarse en rellenos autorizados sin restricciones especiales. En caso de que la arena est\'e relativamente limpia, con bajo contenido de materia org\'anica adherida, existe la posibilidad de reuso condicionado para relleno y compactaci\'on en obras civiles previa caracterizaci\'on, mezcla con concreto para elementos no estructurales, o como complemento en sistemas de filtraci\'on gruesa previo lavado. Si se detecta alta carga org\'anica adherida a los granos de arena, evidenciada por olor f\'etido o color oscuro, se recomienda un lavado previo antes de la disposici\'on final para reducir el impacto ambiental.
 
-\begin{{itemize}}[noitemsep,leftmargin=2em]
-    \item \textbf{{Relleno sanitario:}} Es la opci\'on m\'as com\'un. La arena, al ser material inorg\'anico inerte, puede disposicionarse en rellenos sanitarios autorizados sin restricciones especiales.
-    \item \textbf{{Reuso condicionado:}} Si la arena est\'a relativamente limpia (bajo contenido de materia org\'anica adherida), puede utilizarse para:
-    \begin{{itemize}}[noitemsep,leftmargin=1.5em]
-        \item Relleno y compactaci\'on en obras civiles (previa caracterizaci\'on)
-        \item Mezcla con concreto para elementos no estructurales
-        \item Complemento en sistemas de filtraci\'on gruesa (previo lavado)
-    \end{{itemize}}
-    \item \textbf{{Lavado previo:}} Si se detecta alta carga org\'anica adherida a los granos de arena (olor f\'etido, color oscuro), se recomienda lavado antes de la disposici\'on final para reducir el impacto ambiental.
-\end{{itemize}}
-
+{figura_latex}
 \textit{{Nota sobre cantidades:}} El presente dimensionamiento no estima la masa o volumen diario de arena removida. Seg\'un Metcalf y Eddy \cite{{metcalf2014}}, la producci\'on t\'ipica de arena en aguas residuales municipales var\'ia entre 0.004--0.15 L/m\textsuperscript{{3}} de agua tratada, dependiendo de las caracter\'isticas del sistema de alcantarillado (red combinada vs. separada) y del suelo local. Para el caudal de dise\'no, esto representar\'ia aproximadamente 0.02--0.6 L/d (total planta), sujeto a caracterizaci\'on local."""
 
         return f"{teoria}\n\n{verificacion}\n\n{resultados}"

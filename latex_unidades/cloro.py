@@ -250,14 +250,18 @@ class GeneradorCloro:
         
         return fig_path
 
+    def generar_esquema_matplotlib(self, output_dir=None):
+        """Wrapper para compatibilidad con generar_tren.py"""
+        return self.generar_esquema(output_dir)
+
     def generar_descripcion(self) -> str:
         """Genera subsection Dimensionamiento con teoría y cálculos."""
         cfg = self.cfg
         c = self.datos
         
-        return rf"""\subsection{{Dimensionamiento}}
+        return rf"""
 
-\textbf{{Fundamentos teóricos de la desinfección con cloro}}
+
 
 La desinfección constituye la etapa final del proceso de tratamiento de aguas residuales, cuyo objetivo es la inactivación de microorganismos patógenos (bacterias, virus y protozoos) presentes en el efluente tratado, garantizando que su descarga al cuerpo receptor no represente riesgo para la salud pública ni para los ecosistemas acuáticos. En el contexto de la normativa ecuatoriana, la TULSMA (Texto Unificado de Legislación Secundaria del Ministerio del Ambiente) establece un límite máximo de {c['limite_TULSMA_CF_NMP']:.0f} NMP/100mL para coliformes fecales en vertimientos de aguas residuales tratadas.
 
