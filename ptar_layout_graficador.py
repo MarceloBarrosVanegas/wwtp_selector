@@ -100,13 +100,12 @@ def get_unidad_left_center(x: float, y: float, unidad: str, DIM: dict = None) ->
         return (x, y + ancho/2)
 
 
-def dibujar_unidad_layout(ax, x: float, y: float, unidad: str, color: str, font_scale: float = 1.0, DIM: dict = None, linea_idx: int = 0, total_lineas: int = 1, usar_numeros: bool = True):
-    """Dibuja una unidad en el layout. Las acotaciones se dibujan separadas en columna paralela."""
+def dibujar_unidad_layout(ax, x: float, y: float, unidad: str, color: str, font_scale: float = 1.0, DIM: dict = None, linea_idx: int = 0, total_lineas: int = 1, usar_numeros: bool = False):
+    """Dibuja una unidad en el layout. Sin números internos (van arriba con línea guía)."""
     dim_dict = DIM if DIM else DIMENSIONES
     props = dim_dict[unidad]
     
     fontsize = FONT_CONFIG['unidad'] * font_scale
-    numero_fontsize = fontsize * 1.5  # Números más grandes
     
     if props['geom'] == 'circ':
         diam = props['diametro']
@@ -115,14 +114,7 @@ def dibujar_unidad_layout(ax, x: float, y: float, unidad: str, color: str, font_
                        facecolor=color, edgecolor='black', linewidth=2)
         ax.add_patch(circle)
         
-        if usar_numeros:
-            numero = NUMEROS_UNIDADES.get(unidad, '?')
-            ax.text(x + radio, y + radio, numero, ha='center', va='center', 
-                   fontsize=numero_fontsize, fontweight='bold', color='black')
-        else:
-            nombre = NOMBRES_DISPLAY.get(unidad, unidad.replace('_', '\n'))
-            ax.text(x + radio, y + radio, nombre, ha='center', va='center', 
-                   fontsize=fontsize, fontweight='bold')
+        # Sin texto interno - los números van arriba con línea guía
         
         return diam, diam, f'Ø{diam:.1f}m'
     else:
@@ -133,14 +125,7 @@ def dibujar_unidad_layout(ax, x: float, y: float, unidad: str, color: str, font_
                         edgecolor='black', linewidth=2)
         ax.add_patch(rect)
         
-        if usar_numeros:
-            numero = NUMEROS_UNIDADES.get(unidad, '?')
-            ax.text(x + largo/2, y + ancho/2, numero, ha='center', va='center',
-                   fontsize=numero_fontsize, fontweight='bold', color='black')
-        else:
-            nombre = NOMBRES_DISPLAY.get(unidad, unidad.replace('_', '\n'))
-            ax.text(x + largo/2, y + ancho/2, nombre, ha='center', va='center',
-                   fontsize=fontsize, fontweight='bold')
+        # Sin texto interno - los números van arriba con línea guía
         
         # Formato de dimensiones: Largo x Ancho
         return largo, ancho, f'{largo:.1f}m x {ancho:.1f}m'
@@ -197,6 +182,29 @@ def generar_caption_layout(unidades_presentes: list) -> str:
     
     return "Distribución de unidades: " + "; ".join(items) + "."
 
+
+def dibujar_numeros_arquitectura(ax, posiciones_unidades: dict, max_y: float):
+    """
+    Dibuja números en la parte superior con líneas guía dashed hasta abajo.
+    Estilo arquitectura profesional.
+    
+    Args:
+        ax: Eje de matplotlib
+        posiciones_unidades: Dict {unidad: (x_centro, y_centro, ancho, alto)}
+        max_y: Altura máxima del layout
+    """
+    y_numeros = max_y + 2.5  # Posición Y para los números (arriba)
+    fontsize_num = 14
+    
+    for unidad, (x_c, y_c, ancho, alto) in posiciones_unidades.items():
+        numero = NUMEROS_UNIDADES.get(unidad, '?')
+        
+        # Dibujar número arriba centrado
+        ax.text(x_c, y_numeros, numero, ha='center', va='bottom',
+               fontsize=fontsize_num, fontweight='bold', color='black')
+        
+        # Línea guía dashed desde el número hasta abajo del layout
+        ax.plot([x_c, x_c], [y_numeros - 0.5, -8], 'k--', lw=1.5, alpha=0.6)
 
 def dibujar_leyenda_numerada(ax, unidades_presentes: list, max_x: float, max_y: float):
     """
@@ -857,13 +865,14 @@ def generar_layout(
     
     # Dibujar cada línea
     todas_posiciones = []  # Lista de listas, una por línea
+    posiciones_unidades_dict = {}  # Para números arquitectura: {unidad: (x_c, y_c, ancho, alto)}
     
     for linea_idx in range(num_lineas):
         y_centro = posiciones_lineas_y[linea_idx]
         x_pos = MARGEN
         posiciones_esta_linea = []
         
-        # Dibujar unidades (sin acotaciones individuales - van en columna paralela)
+        # Dibujar unidades (sin números internos - van arriba con línea guía)
         for idx, unidad in enumerate(unidades_layout):
             color = COLORES[DIM[unidad]['tipo']]
             altura_unidad = get_unidad_altura(unidad, DIM)
@@ -871,6 +880,13 @@ def generar_layout(
             
             ancho, alto, dim_texto = dibujar_unidad_layout(ax, x_pos, y_pos, unidad, color, 1.0, DIM, linea_idx, num_lineas)
             posiciones_esta_linea.append((x_pos, y_pos, unidad, ancho, alto, dim_texto))
+            
+            # Guardar posición central para números arquitectura (solo primera línea)
+            if linea_idx == 0:
+                x_c = x_pos + ancho / 2
+                y_c = y_pos + alto / 2
+                posiciones_unidades_dict[unidad] = (x_c, y_c, ancho, alto)
+            
             x_pos += ancho + SEP_UNIDADES
         
         todas_posiciones.append(posiciones_esta_linea)
@@ -904,11 +920,11 @@ def generar_layout(
                              edgecolor='black', linewidth=2)
             ax.add_patch(rect)
             
-            # Número 6 en el lecho (usando NUMEROS_UNIDADES)
-            numero = NUMEROS_UNIDADES.get('Lecho de Secado', '6')
-            ax.text(x_lecho + lecho_ancho/2, y_lecho + lecho_largo/2, numero,
-                   ha='center', va='center', fontsize=FONT_CONFIG['unidad']*1.5, 
-                   fontweight='bold', color='white')
+            # Guardar posición del lecho para número arquitectura (solo primera línea)
+            if linea_idx == 0:
+                x_c_lecho = x_lecho + lecho_ancho / 2
+                y_c_lecho = y_lecho + lecho_largo / 2
+                posiciones_unidades_dict['Lecho de Secado'] = (x_c_lecho, y_c_lecho, lecho_ancho, lecho_largo)
             
             # Acotación vertical del lecho (solo en la última línea) - a la derecha
             if linea_idx == num_lineas - 1:
@@ -1026,9 +1042,13 @@ def generar_layout(
     
     max_x_con_acot = max_x_layout + 5
     
+    # Dibujar números arquitectura en la parte superior con líneas guía
+    if posiciones_unidades_dict:
+        dibujar_numeros_arquitectura(ax, posiciones_unidades_dict, max_y_layout)
+    
     # Configuración final
     ax.set_xlim(-6, max_x_con_acot)
-    ax.set_ylim(-11, max_y_layout + 4)  # Extender límite inferior para ver dimensión total
+    ax.set_ylim(-11, max_y_layout + 8)  # Extender más para los números arriba
     ax.set_aspect('equal')
     ax.set_xlabel('Distancia (m)', fontsize=12, fontweight='bold')
     ax.set_ylabel('Distancia (m)', fontsize=12, fontweight='bold')
