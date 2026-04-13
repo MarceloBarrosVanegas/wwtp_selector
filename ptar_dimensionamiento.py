@@ -354,6 +354,7 @@ class ConfigDiseno:
     desinfeccion_TRH_recomendado_max: float = 45.0      # Rango recomendado TRH (min)
     desinfeccion_CT_min_recomendado_mg_min_L: float = 30.0  # CT mínimo conservador (mg min/L)
     desinfeccion_limite_TULSMA_CF_NMP: float = 3000.0   # Límite CF para vertimiento (NMP/100mL)
+    desinfeccion_CF_objetivo_NMP: float = 3000.0        # CF objetivo de diseño para desinfección (NMP/100mL)
     desinfeccion_residual_monitoreo_min_mg_L: float = 0.5 # Rango recomendado monitoreo residual (mg/L)
     desinfeccion_residual_monitoreo_max_mg_L: float = 1.0 # Rango recomendado monitoreo residual (mg/L)
     desinfeccion_almacenamiento_dias: float = 30.0      # Autonomía almacenamiento NaOCl (días)
@@ -4163,7 +4164,8 @@ def dimensionar_sedimentador_sec(Q: ConfigDiseno = CFG,
 # =============================================================================
 
 def dimensionar_desinfeccion_cloro(Q: ConfigDiseno = CFG,
-                                    CF_entrada_NMP: float = None) -> Dict[str, Any]:
+                                    CF_entrada_NMP: float = None,
+                                    CF_objetivo_NMP: float = None) -> Dict[str, Any]:
     """
     Dimensionamiento del sistema de desinfección con hipoclorito de sodio.
 
@@ -4177,34 +4179,56 @@ def dimensionar_desinfeccion_cloro(Q: ConfigDiseno = CFG,
         t = tiempo de contacto efectivo (minutos)
         CT = mg.min/L (producto concentracion x tiempo)
     
+    Log reducción requerida para cumplir objetivo:
+        Log_red_req = log10(CF_entrada / CF_objetivo)        [Ec. 7g']
+    
+    CT requerido para lograr la reducción:
+        CT_req = Log_red_req / k                             [Ec. 7h']
+        donde k = coeficiente de log-reducción (log/CT)
+    
+    Filosofía de diseño adoptada (Opción A - residual fijo, TRH variable):
+        - Se fija un cloro residual objetivo (por criterio operativo/normativo)
+        - Se calcula el TRH necesario para alcanzar el CT requerido
+        - Si el TRH calculado excede límites prácticos, se ajusta y se verifica cumplimiento
+    
     Log reducción típica de coliformes:
         CT = 5-10 mg.min/L   -> 2-3 log  (99-99.9%)
         CT = 10-20 mg.min/L  -> 3-4 log  (99.9-99.99%)
         CT = 20-40 mg.min/L  -> 4-5 log  (99.99-99.999%)
     
     Estimación práctica:
-        Log reducción ≈ 0.1 × CT (cloro combinado, pH 7-8, 25°C)
+        Log reducción ≈ k × CT (coeficiente k desde configuración)
     
     Criterios de diseño
     -------------------
-    - Dosis de cloro: 5-15 mg/L (typ: 8-12 mg/L para efluente secundario)
-    - Cloro residual: 0.5-2.0 mg/L (post-demanda)
-    - Tiempo de contacto: 15-45 minutos (typ: 30 min)
-    - CT objetivo: >= 30 mg.min/L (conservador para cumplimiento)
+    - CF objetivo: definido por requisito de vertimiento (ej. TULSMA: 3000 NMP/100mL)
+    - Dosis de cloro: demanda + residual = dosis total
+    - Cloro residual: 0.5-2.0 mg/L (fijado por monitoreo operativo)
+    - Tiempo de contacto: resultado del cálculo basado en CT requerido
+    - CT: calculado desde reducción logarítmica requerida
     
     Ecuaciones de dimensionamiento
     ------------------------------
-    Volumen del tanque de contacto:
-        V = Q × t                                            [Ec. 7i]
+    Log reducción requerida:
+        Log_red_req = log10(CF_entrada / CF_objetivo)        [Ec. 7g']
     
-    CT calculado:
-        CT = C_residual × t                                  [Ec. 7j]
+    CT requerido:
+        CT_req = Log_red_req / k                             [Ec. 7h']
+    
+    TRH requerido (con residual fijo):
+        TRH_req = CT_req / C_residual                        [Ec. 7i']
+    
+    Volumen del tanque de contacto:
+        V = Q × t                                            [Ec. 7j]
+    
+    CT calculado (verificación):
+        CT = C_residual × t                                  [Ec. 7k]
     
     Log reducción estimada:
-        Log_red ≈ 0.1 × CT                                   [Ec. 7k]
+        Log_red ≈ k × CT                                     [Ec. 7l]
     
     Coliformes finales:
-        CF_final = CF_inicial / 10^Log_red                   [Ec. 7l]
+        CF_final = CF_inicial / 10^Log_red                   [Ec. 7m]
     
     Referencias
     -----------
@@ -4216,18 +4240,56 @@ def dimensionar_desinfeccion_cloro(Q: ConfigDiseno = CFG,
     ref_epa = "USEPA (2003)"
     ref_ops = citar("ops_cepis_2005")
     
-    # Parámetros de diseño - Optimizados para cumplir solo TULSMA (CF <= 3000)
-    # CF entrada típica post-sedimentador: ~5,000,000 NMP/100mL
-    # CF límite TULSMA: 3,000 NMP/100mL
-    # Reducción necesaria: log10(5000000/3000) ≈ 3.2 log
-    # CT necesario: ~15 mg·min/L (conservador, da margen de seguridad)
+    # =========================================================================
+    # PARÁMETROS DE DISEÑO BASADO EN OBJETIVO DE CF
+    # =========================================================================
     
-    # Descomposición de la dosis:
-    # Dosis_total = Demanda_cloro + Cloro_residual
+    # Coliformes de entrada - requerido para cálculo encadenado
+    if CF_entrada_NMP is None:
+        raise ValueError("CF_entrada_NMP es requerida para dimensionar la desinfección (cálculo encadenado)")
+    
+    # CF objetivo de diseño - puede pasarse explícito o tomar de configuración
+    if CF_objetivo_NMP is None:
+        CF_objetivo_NMP = Q.desinfeccion_CF_objetivo_NMP
+    
+    # Coeficiente de log-reducción (k): log reducidos por unidad de CT
+    k_log_red = Q.desinfeccion_coef_log_red  # log/(mg·min/L)
+    
+    # Filosofía de diseño: RESIDUAL FIJO + TRH VARIABLE (Opción A)
+    # El residual se fija por criterio operativo/normativo
+    # El TRH se calcula para alcanzar el CT requerido
+    
+    # Demanda de cloro (insumo del efluente)
     demanda_cloro_mg_L = Q.desinfeccion_demanda_cloro_mg_L   # mg/L (consumido por amoníaco y MO)
-    cloro_residual_mg_L = Q.desinfeccion_cloro_residual_mg_L # mg/L (mínimo necesario al final)
-    dosis_cloro_mg_L = demanda_cloro_mg_L + cloro_residual_mg_L
-    TRH_min = Q.desinfeccion_TRH_min                  # minutos (tiempo de contacto)
+    
+    # Residual mínimo operativo (criterio de monitoreo/fiscalización)
+    residual_minimo_operativo = Q.desinfeccion_cloro_residual_mg_L  # mg/L
+    
+    # TRH base de configuración (para iniciar dimensionamiento)
+    TRH_base_config = Q.desinfeccion_TRH_min  # min
+    
+    # Caudales
+    Q_m3_d = Q.Q_linea_m3_d
+    Q_m3_h = Q.Q_linea_m3_h
+    Q_m3_min = Q_m3_h / 60.0        # m³/min
+    
+    # =========================================================================
+    # CÁLCULO DEL CT REQUERIDO PARA CUMPLIR CF OBJETIVO
+    # =========================================================================
+    
+    # [Ec. 7g'] Log reducción requerida para alcanzar CF objetivo
+    # Log_red_req = log10(CF_entrada / CF_objetivo)
+    log_reduccion_requerida = math.log10(CF_entrada_NMP / CF_objetivo_NMP)
+    
+    # [Ec. 7h'] CT requerido para lograr la reducción necesaria
+    # CT_req = Log_red_req / k
+    CT_requerido = log_reduccion_requerida / k_log_red  # mg·min/L
+    
+    # =========================================================================
+    # DIMENSIONAMIENTO DEL TANQUE DE CONTACTO (base: TRH configurado)
+    # =========================================================================
+    
+    # Parámetros geométricos
     relacion_L_A = Q.desinfeccion_relacion_L_A        # Relación largo/ancho
     h_tanque_m = Q.desinfeccion_h_tanque_m            # m (profundidad)
     borde_libre_m = Q.desinfeccion_borde_libre_m
@@ -4235,18 +4297,9 @@ def dimensionar_desinfeccion_cloro(Q: ConfigDiseno = CFG,
     ancho_canal_min_m = Q.desinfeccion_ancho_canal_min_m
     espesor_bafle_m = Q.desinfeccion_espesor_bafle_m
     relacion_recorrido_ancho_min = Q.desinfeccion_relacion_recorrido_ancho_min
-
-    # Caudales
-    Q_m3_d = Q.Q_linea_m3_d
-    Q_m3_h = Q.Q_linea_m3_h
-    Q_m3_min = Q_m3_h / 60.0        # m³/min
     
-    # Coliformes de entrada - requerido para cálculo encadenado
-    if CF_entrada_NMP is None:
-        raise ValueError("CF_entrada_NMP es requerida para dimensionar la desinfección (cálculo encadenado)")
-    
-    # [Ec. 7i] Volumen del tanque de contacto
-    V_contacto_m3 = Q_m3_min * TRH_min  # m³
+    # [Ec. 7i] Volumen del tanque de contacto basado en TRH base de config
+    V_contacto_m3 = Q_m3_min * TRH_base_config  # m³
     
     # Dimensiones del tanque
     V_contacto_min_m3 = V_contacto_m3
@@ -4262,30 +4315,50 @@ def dimensionar_desinfeccion_cloro(Q: ConfigDiseno = CFG,
     relacion_recorrido_ancho = longitud_recorrido_m / ancho_canal_m
     A_superficial_m2 = largo_m * ancho_m
     V_contacto_m3 = A_superficial_m2 * h_tanque_m
-    TRH_adoptado_min = V_contacto_m3 / Q_m3_min
+    TRH_real_min = V_contacto_m3 / Q_m3_min  # TRH real con dimensiones adoptadas
     
-    # [Ec. 7h] CT calculado
-    CT_calculado = cloro_residual_mg_L * TRH_adoptado_min
+    # =========================================================================
+    # CÁLCULO DEL RESIDUAL REQUERIDO Y ADOPTADO (coherente con TRH real)
+    # =========================================================================
     
-    # [Ec. 7k] Log reducción estimada
-    # Coeficiente ajustado para cumplir TULSMA sin excederse
-    # Log_red ≈ coef × CT (coeficiente desde configuración)
-    log_reduccion = Q.desinfeccion_coef_log_red * CT_calculado
+    # [Ec. 7j'] Residual requerido para alcanzar CT_requerido con TRH_real
+    # C_req = CT_req / TRH_real
+    residual_requerido = CT_requerido / TRH_real_min  # mg/L
     
-    # [Ec. 7l] Coliformes finales estimados
-    # Obj: reducir de ~5,000,000 (post-sed) a ≤ 3,000 (TULSMA)
+    # Residual adoptado: el requerido para cumplir CF objetivo
+    # Se respeta el cálculo sin forzar mínimo operativo para evitar sobredosis
+    residual_adoptado = residual_requerido
+    
+    # Indicador si el residual queda por debajo del mínimo operativo recomendado
+    # (advertencia para operación, no forzado en diseño)
+    residual_por_debajo_minimo = (residual_requerido < residual_minimo_operativo)
+    
+    # [Ec. 7k'] CT real con el residual adoptado y TRH real
+    CT_real = residual_adoptado * TRH_real_min  # mg·min/L
+    
+    # Dosis total de cloro
+    dosis_cloro_mg_L = demanda_cloro_mg_L + residual_adoptado  # mg/L
+    
+    # =========================================================================
+    # VERIFICACIÓN DE LA REDUCCIÓN LOGARÍTMICA ALCANZADA
+    # =========================================================================
+    
+    # [Ec. 7l] Log reducción estimada con el CT real
+    log_reduccion = k_log_red * CT_real
+    
+    # [Ec. 7m] Coliformes finales estimados
     CF_final_NMP = CF_entrada_NMP / (10 ** log_reduccion)
     
     # Porcentaje de reducción
     pct_reduccion = (1 - CF_final_NMP / CF_entrada_NMP) * 100
     
-    # Verificación de cumplimiento TULSMA (CF ≤ 3000 NMP/100mL)
+    # Verificación de cumplimiento TULSMA (CF ≤ límite configurado)
     limite_TULSMA_CF_NMP = Q.desinfeccion_limite_TULSMA_CF_NMP
     cumple_TULSMA = CF_final_NMP <= limite_TULSMA_CF_NMP
     
     # Verificación CT mínimo recomendado
     CT_min_recomendado = Q.desinfeccion_CT_min_recomendado_mg_min_L  # mg·min/L
-    CT_aceptable = CT_calculado >= CT_min_recomendado
+    CT_aceptable = CT_real >= CT_min_recomendado
     
     # Textos de verificación para módulo LaTeX
     if cumple_TULSMA:
@@ -4296,10 +4369,10 @@ def dimensionar_desinfeccion_cloro(Q: ConfigDiseno = CFG,
         estado_TULSMA = "No cumple"
     
     if CT_aceptable:
-        verif_CT_texto = f"El valor CT calculado ({CT_calculado:.1f} mg$⋅$min/L) supera el mínimo recomendado de {CT_min_recomendado:.0f} mg$⋅$min/L."
+        verif_CT_texto = f"El valor CT real ({CT_real:.1f} mg$⋅$min/L) supera el mínimo recomendado de {CT_min_recomendado:.0f} mg$⋅$min/L."
         estado_CT = "Cumple"
     else:
-        verif_CT_texto = f"El valor CT calculado ({CT_calculado:.1f} mg$⋅$min/L) está por debajo del mínimo recomendado de {CT_min_recomendado:.0f} mg$⋅$min/L."
+        verif_CT_texto = f"El valor CT real ({CT_real:.1f} mg$⋅$min/L) está por debajo del mínimo recomendado de {CT_min_recomendado:.0f} mg$⋅$min/L."
         estado_CT = "No cumple"
 
     estado_camara_contacto = "Cumple" if relacion_recorrido_ancho >= relacion_recorrido_ancho_min else "No cumple"
@@ -4314,7 +4387,7 @@ def dimensionar_desinfeccion_cloro(Q: ConfigDiseno = CFG,
     texto_volumen_contacto = (
         f"El volumen minimo por tiempo de contacto es {V_contacto_min_m3:.1f} m3; "
         f"la geometria serpentina adoptada entrega {V_contacto_m3:.1f} m3 y un tiempo "
-        f"hidraulico teorico de {TRH_adoptado_min:.1f} min."
+        f"hidraulico teorico de {TRH_real_min:.1f} min."
     )
     
     # Consumo de cloro (como Cl₂ activo)
@@ -4388,10 +4461,13 @@ def dimensionar_desinfeccion_cloro(Q: ConfigDiseno = CFG,
         "Q_m3_d": round(Q_m3_d, 1),
         # Dosis descompuesta
         "demanda_cloro_mg_L": demanda_cloro_mg_L,
-        "cloro_residual_mg_L": cloro_residual_mg_L,
+        "cloro_residual_mg_L": round(residual_adoptado, 2),  # Residual adoptado para diseño
+        "residual_requerido": round(residual_requerido, 2),  # Residual teóricamente requerido
+        "residual_minimo_operativo": residual_minimo_operativo,  # Mínimo operativo/config
+        "residual_por_debajo_minimo": residual_por_debajo_minimo,  # True si residual < mínimo operativo (advertencia)
         "dosis_cloro_mg_L": dosis_cloro_mg_L,
-        "TRH_min": TRH_min,
-        "TRH_adoptado_min": round(TRH_adoptado_min, 1),
+        "TRH_base_config": TRH_base_config,  # TRH base de configuración (entrada al dimensionamiento)
+        "TRH_real_min": round(TRH_real_min, 1),  # TRH real del tanque dimensionado
         "texto_volumen_contacto": texto_volumen_contacto,
         "rango_demanda_cloro_mg_L_texto": rango_demanda_cloro_mg_L_texto,
         "rango_cloro_residual_mg_L_texto": rango_cloro_residual_mg_L_texto,
@@ -4419,12 +4495,18 @@ def dimensionar_desinfeccion_cloro(Q: ConfigDiseno = CFG,
         "texto_camara_contacto": texto_camara_contacto,
         "h_tanque_m": h_tanque_m,
         "h_total_m": round(h_tanque_m + borde_libre_m, 2),
-        # Parámetros de desinfección
-        "CT_mg_min_L": round(CT_calculado, 1),
+        # Parámetros de diseño basado en CF objetivo
+        "CF_objetivo_NMP": CF_objetivo_NMP,
+        "log_reduccion_requerida": round(log_reduccion_requerida, 2),
+        "CT_requerido": round(CT_requerido, 1),
+        # Parámetros de desinfección verificados
+        "CT_mg_min_L": round(CT_real, 1),  # CT real con residual adoptado y TRH real
+        "CT_requerido": round(CT_requerido, 1),  # CT requerido para lograr CF objetivo
         "CT_min_recomendado": CT_min_recomendado,
         "CT_aceptable": CT_aceptable,
-        "log_reduccion": round(log_reduccion, 1),
+        "log_reduccion": round(log_reduccion, 2),
         "CF_entrada_NMP": CF_entrada_NMP,
+        "k_log_red": k_log_red,  # Coeficiente log-reducción usado
         "CF_final_NMP": round(CF_final_NMP, 0),
         "pct_reduccion": round(pct_reduccion, 1),
         "cumple_TULSMA": cumple_TULSMA,
@@ -4913,7 +4995,7 @@ def calcular_tren_C() -> Dict[str, Any]:
     
     # Verificación de cumplimiento TULSMA (DBO y CF)
     cumple_DBO = DBO_efluente <= 100
-    cumple_CF = CF_final <= 3000
+    cumple_CF = CF_final <= Q.desinfeccion_CF_objetivo_NMP
     cumple_TULSMA = cumple_DBO and cumple_CF
 
     print("=" * 70)
@@ -4932,7 +5014,7 @@ def calcular_tren_C() -> Dict[str, Any]:
     print(f"\n  UASB          Ø {uasb['diametro_layout_m']:.1f} m   V={uasb['V_r_m3']:.1f} m^3")
     print(f"  Humedal HFCV  {humedal['largo_layout_m']:.1f} x {humedal['ancho_layout_m']:.1f} m"
           f"  A={humedal['A_sup_m2']:.0f} m^2")
-    print(f"  Desinfeccion  {cloro['largo_m']:.1f} m × {cloro['ancho_m']:.1f} m  TRH={cloro['TRH_min']:.0f} min")
+    print(f"  Desinfeccion  {cloro['largo_m']:.1f} m × {cloro['ancho_m']:.1f} m  TRH={cloro['TRH_real_min']:.0f} min, Residual={cloro['cloro_residual_mg_L']:.2f} mg/L")
     print(f"  Lecho Secado  {lecho['largo_layout_m']:.1f} × {lecho['ancho_layout_m']:.1f} m")
 
     print("\nBALANCE DE CALIDAD:")
@@ -4942,7 +5024,8 @@ def calcular_tren_C() -> Dict[str, Any]:
     print(f"  Efluente    CF   ~ {CF_final:.0f} NMP/100mL")
     print(f"\n  CUMPLIMIENTO TULSMA:")
     print(f"    DBO5 <= 100 mg/L      -> {'CUMPLE [OK]' if cumple_DBO else 'NO CUMPLE [X]'}")
-    print(f"    CF   <= 3000 NMP/100mL -> {'CUMPLE [OK]' if cumple_CF else 'NO CUMPLE [X]'}")
+    limite_cf = Q.desinfeccion_CF_objetivo_NMP
+    print(f"    CF   <= {limite_cf:.0f} NMP/100mL -> {'CUMPLE [OK]' if cumple_CF else 'NO CUMPLE [X]'}")
     print(f"    TOTAL                  -> {'CUMPLE [OK]' if cumple_TULSMA else 'NO CUMPLE [X]'}")
 
     return {
@@ -5167,10 +5250,11 @@ def calcular_balance_calidad_agua(Q: ConfigDiseno = None,
     # Verificar cumplimiento TULSMA
     if "efluente_final" in calidad:
         ef = calidad["efluente_final"]
+        limite_CF = Q.desinfeccion_CF_objetivo_NMP if Q else 3000.0
         calidad["cumplimiento_TULSMA"] = {
             "DBO5": ef["DBO5_mg_L"] <= 100,
             "SST": ef["SST_mg_L"] <= 100,
-            "CF": ef["CF_NMP"] <= 3000,
+            "CF": ef["CF_NMP"] <= limite_CF,
         }
     
     return calidad

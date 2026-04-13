@@ -737,15 +737,34 @@ La velocidad en boca de {u['velocidad_boca_m_s']:.2f} m/s {u['texto_boca']}"""
         # Generar figura
         if os.path.isabs(self.ruta_figuras):
             output_dir = self.ruta_figuras
-            latex_ruta_base = 'figuras'
+            # La ruta LaTeX debe ser relativa al documento, no absoluta
+            # Se asume que self.ruta_figuras apunta al directorio correcto
+            latex_ruta_base = os.path.basename(self.ruta_figuras.rstrip('\\/'))
         else:
             output_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'resultados', self.ruta_figuras)
             latex_ruta_base = self.ruta_figuras
         
         fig_path = self.generar_esquema_matplotlib(output_dir)
         
-        if fig_path:
+        # Solo construir ruta si la figura existe
+        fig_relativa = None
+        if fig_path and os.path.exists(fig_path):
             fig_relativa = (latex_ruta_base + '/' + os.path.basename(fig_path)).replace('\\', '/')
+        
+        # Texto de figura solo si existe
+        texto_figura = ""
+        if fig_relativa:
+            texto_figura = rf"""
+La siguiente figura presenta un esquema del reactor UASB con sus componentes principales y los flujos de agua y biogás:
+
+\begin{{figure}}[H]
+\centering
+\includegraphics[width=\textwidth]{{{fig_relativa}}}
+\caption{{Esquema del reactor UASB: distribución del afluente, zonas de reacción, separación gas-líquido-sólido y recolección de biogás. Caudal por línea: {u['Q_m3_h']:.2f} m³/h, Biogás: {u['biogaz_m3_d']:.1f} m³ CH$_4$/d, {u['num_puntos_distribucion']:.0f} puntos de distribución.}}
+\label{{fig:esquema_uasb}}
+\end{{figure}}
+
+"""
         
         return rf"""\subsection{{Resultados}}
 
@@ -793,16 +812,7 @@ La subdivisión interna de la zona de reacción sigue criterios establecidos por
 
 El reactor UASB requiere un inóculo inicial de lodo anaeróbico denso/granular o, en su defecto, lodo digerido anaeróbicamente. Según Lettinga y Hulshoff-Pol \cite{{vanhaandel1994}}, la cantidad recomendada de inóculo para el arranque es de {cfg.uasb_inoculo_ssv_min_kg_m3:.0f}--{cfg.uasb_inoculo_ssv_max_kg_m3:.0f} kg SSV/m³ (sólidos suspendidos volátiles), equivalente a llenar aproximadamente el {cfg.uasb_inoculo_vol_min_pct:.0f}--{cfg.uasb_inoculo_vol_max_pct:.0f}\% del volumen del reactor. El lodo granular consiste en agregados microbianos densos de {cfg.uasb_lodo_granular_diam_min_mm:.1f}--{cfg.uasb_lodo_granular_diam_max_mm:.0f} mm de diámetro, con velocidades de sedimentación superiores a {cfg.uasb_lodo_granular_vsed_min_m_h:.0f} m/h. Si no se dispone de lodo granular, pueden utilizarse alternativas como lodo de digestor anaerobio, estiércol de cerdo/vaca o lodo de fosas sépticas, desarrollándose la granulación natural en un período de {cfg.uasb_granulacion_natural_min_meses:.0f}--{cfg.uasb_granulacion_natural_max_meses:.0f} meses mediante aumento gradual de la carga orgánica. 
 
-La siguiente figura presenta un esquema del reactor UASB con sus componentes principales y los flujos de agua y biogás:
-
-\begin{{figure}}[H]
-\centering
-\includegraphics[width=\textwidth]{{{fig_relativa}}}
-\caption{{Esquema del reactor UASB: distribución del afluente, zonas de reacción, separación gas-líquido-sólido y recolección de biogás. Caudal por línea: {u['Q_m3_h']:.2f} m³/h, Biogás: {u['biogaz_m3_d']:.1f} m³ CH$_4$/d, {u['num_puntos_distribucion']:.0f} puntos de distribución.}}
-\label{{fig:esquema_uasb}}
-\end{{figure}}
-
-El esquema ilustra el flujo ascendente del afluente a través del lecho de lodo denso, donde ocurre la digestión anaerobia. El biogás producido se separa en el GLS y se recolecta en la cámara superior, mientras que el efluente tratado sale por el lateral del reactor. La velocidad ascendente de diseño de {u['v_up_m_h']:.2f} m/h garantiza la retención del manto de lodos."""
+{texto_figura}El esquema ilustra el flujo ascendente del afluente a través del lecho de lodo denso, donde ocurre la digestión anaerobia. El biogás producido se separa en el GLS y se recolecta en la cámara superior, mientras que el efluente tratado sale por el lateral del reactor. La velocidad ascendente de diseño de {u['v_up_m_h']:.2f} m/h garantiza la retención del manto de lodos."""
 
 
 # =============================================================================

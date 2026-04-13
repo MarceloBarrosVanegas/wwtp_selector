@@ -25,9 +25,10 @@ class GeneradorDesarenador:
         
         # Generar figura si es posible
         figura_latex = ""
+        figura_generada = False
         try:
             fig_path = self.generar_esquema_matplotlib()
-            if fig_path:
+            if fig_path and os.path.exists(fig_path):
                 if os.path.isabs(self.ruta_figuras):
                     latex_ruta_base = 'figuras'
                 else:
@@ -40,8 +41,14 @@ class GeneradorDesarenador:
 \label{{fig:desarenador}}
 \end{{figure}}
 """
-        except Exception:
-            pass
+                figura_generada = True
+        except Exception as e:
+            # La figura es opcional pero se registra la falla para diagnóstico
+            print(f"[ADVERTENCIA] No se pudo generar figura del desarenador: {e}")
+        
+        # Nota sobre disponibilidad de figura
+        if not figura_generada:
+            figura_latex = "\n\\textit{Nota: El esquema gráfico del desarenador no está disponible en esta compilación.}\n"
         
         # NOTA: Copia EXACTA de generar_latex_A.py reorganizada en 3 subsections
         # Seccion 1: Dimensionamiento (contiene teoria + parametros + calculos)

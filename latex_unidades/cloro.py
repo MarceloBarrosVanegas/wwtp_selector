@@ -242,7 +242,7 @@ class GeneradorCloro:
         draw.text((x_txt, sy + 35), f'Profundidad util = {h_util:.1f} m', font=f_texto_bold, fill=c_texto)
         draw.text((x_txt, sy + 75), f'Bordo libre = {h_bordo:.2f} m', font=f_texto, fill=c_texto)
         draw.text((x_txt, sy + 115), f'Volumen util = {c["V_contacto_m3"]:.1f} m3', font=f_texto, fill=c_texto)
-        draw.text((x_txt, sy + 155), f'TRH adoptado = {c["TRH_adoptado_min"]:.1f} min', font=f_texto, fill=c_texto)
+        draw.text((x_txt, sy + 155), f'TRH real = {c["TRH_real_min"]:.1f} min', font=f_texto, fill=c_texto)
         draw.text((x_txt, sy + 195), f'CT = {c["CT_mg_min_L"]:.1f} mg min/L', font=f_texto, fill=(109, 76, 0))
 
         fig_path = os.path.join(output_dir, 'Esquema_Camara_Contacto_Cloro.png')
@@ -301,7 +301,50 @@ Según Metcalf \& Eddy \cite{{metcalf2014}} y la USEPA \cite{{usepa2003}}, los v
     \item CT = 20--40 mg$\cdot$min/L: 4--5 log de reducción (99,99--99,999\%)
 \end{{itemize}}
 
-Para este diseño se adopta un CT mínimo de {c['CT_min_recomendado']:.0f} mg$\cdot$min/L, valor conservador que asegura el cumplimiento del límite de coliformes fecales establecido por la TULSMA, considerando las variaciones operativas esperadas y la necesidad de margen de seguridad.
+\textbf{{Criterio de disenio basado en CF objetivo}}
+
+El dimensionamiento del sistema de desinfección se fundamenta en un criterio de diseño explícito basado en la concentración de coliformes fecales (CF) objetivo. A diferencia de un enfoque de dosis fija, este método garantiza que el sistema sea capaz de alcanzar el nivel de inactivación microbiológica requerido, partiendo de la carga de coliformes de entrada y definiendo la reducción logarítmica necesaria para cumplir con el objetivo de calidad del efluente.
+
+Para este diseño, se establece un CF objetivo de {c['CF_objetivo_NMP']:.0f} NMP/100mL, correspondiente al límite establecido por la TULSMA para vertimiento de aguas residuales tratadas. Con una concentración de entrada de {c['CF_entrada_NMP']:.0f} NMP/100mL, la reducción logarítmica requerida es:
+
+\begin{{equation}}
+\text{{Log reducción}}_{{\text{{req}}}} = \log_{{10}}\left(\frac{{CF_{{\text{{entrada}}}}}}{{CF_{{\text{{objetivo}}}}}}\right) = \log_{{10}}\left(\frac{{{c['CF_entrada_NMP']:.0f}}}{{{c['CF_objetivo_NMP']:.0f}}}\right) = {c['log_reduccion_requerida']:.2f} \text{{ log}}
+\end{{equation}}
+\captionequation{{Log reduccion requerida para cumplir CF objetivo}}
+
+El CT requerido para lograr esta reducción se calcula mediante el coeficiente de inactivación adoptado:
+
+\begin{{equation}}
+CT_{{\text{{req}}}} = \frac{{\text{{Log reducción}}_{{\text{{req}}}}}}{{k}} = \frac{{{c['log_reduccion_requerida']:.2f}}}{{{c['k_log_red']:.2f}}} = {c['CT_requerido']:.1f} \text{{ mg$\cdot$min/L}}
+\end{{equation}}
+\captionequation{{CT requerido para alcanzar la reduccion logaritmica objetivo}}
+
+\textbf{{Filosofía de diseño adoptada: TRH base + Residual calculado}}
+
+El diseño adopta una filosofía de tiempo de contacto base y residual calculado. Primero se dimensiona el tanque de contacto con un TRH base de referencia ({c['TRH_base_config']:.0f} min), obteniéndose un TRH real de {c['TRH_real_min']:.1f} min según las dimensiones constructivas adoptadas. Posteriormente, se calcula el residual requerido para alcanzar el CT objetivo con ese TRH real:
+
+\begin{{equation}}
+C_{{\text{{req}}}} = \frac{{CT_{{\text{{req}}}}}}{{TRH_{{\text{{real}}}}}} = \frac{{{c['CT_requerido']:.1f}}}{{{c['TRH_real_min']:.1f}}} = {c['residual_requerido']:.2f} \text{{ mg/L}}
+\end{{equation}}
+\captionequation{{Residual requerido para alcanzar CT objetivo con TRH real}}
+
+El residual adoptado corresponde al valor requerido calculado, optimizando la dosis para cumplir justo con el objetivo de desinfección:
+
+\begin{{equation}}
+C_{{\text{{adoptado}}}} = C_{{\text{{req}}}} = {c['cloro_residual_mg_L']:.2f} \text{{ mg/L}}
+\end{{equation}}
+\captionequation{{Residual adoptado para cumplir CF objetivo}}
+
+\textit{{Nota operativa:}} El residual calculado ({c['residual_requerido']:.2f} mg/L) es inferior al mínimo operativo recomendado ({c['residual_minimo_operativo']:.1f} mg/L) para garantizar margen de seguridad en la operación. Se recomienda monitorear periódicamente para asegurar que el residual efectivo se mantenga en el rango de {c['rango_residual_monitoreo_mg_L_texto']}.
+
+El CT real alcanzado con el residual adoptado y el TRH real es:
+
+\begin{{equation}}
+CT_{{\text{{real}}}} = C_{{\text{{adoptado}}}} \times TRH_{{\text{{real}}}} = {c['cloro_residual_mg_L']:.2f} \times {c['TRH_real_min']:.1f} = {c['CT_mg_min_L']:.1f} \text{{ mg$\cdot$min/L}}
+\end{{equation}}
+\captionequation{{CT real alcanzado}}
+
+Como criterio adicional de verificación, se establece un CT mínimo de {c['CT_min_recomendado']:.0f} mg$\cdot$min/L, valor conservador que asegura el cumplimiento del límite de coliformes fecales establecido por la TULSMA, considerando las variaciones operativas esperadas.
 
 \textbf{{Demanda de cloro y dosificación}}
 
@@ -316,7 +359,7 @@ El cloro residual es la concentración que permanece después de satisfacer la d
 
 \textbf{{Diseño del tanque de contacto}}
 
-El tanque de contacto debe proporcionar el tiempo de retención hidráulico (TRH) necesario para alcanzar el CT objetivo. El TRH efectivo es el tiempo que permanece el agua en el tanque, calculado como el cociente entre el volumen útil y el caudal. Según Metcalf \& Eddy, para desinfección de efluentes secundarios se recomienda un TRH de {c['rango_TRH_min_texto']}; para este caso se adopta {c['TRH_min']:.0f} min como criterio de diseño conservador.
+El tanque de contacto se dimensiona para proporcionar un tiempo de retención hidráulico (TRH) adecuado que permita alcanzar el CT objetivo con el residual calculado. El TRH efectivo es el tiempo que permanece el agua en el tanque, calculado como el cociente entre el volumen útil y el caudal. Según Metcalf \& Eddy, para desinfección de efluentes secundarios se recomienda un TRH de {c['rango_TRH_min_texto']}; para este caso, se parte de un TRH base de {c['TRH_base_config']:.0f} min para el dimensionamiento geométrico.
 
 La geometría del tanque debe favorecer el flujo en pistón (plug flow) para evitar cortocircuitos hidráulicos que reduzcan el tiempo efectivo de contacto. Por ello, el volumen de contacto se organiza como una cámara con bafles alternados tipo culebrín, de modo que el recorrido hidráulico aumente y la relación recorrido/ancho del canal sea verificable.
 
@@ -333,12 +376,14 @@ El sistema se dimensiona considerando los siguientes parámetros fundamentales, 
 \textbf{{Parámetro}} & \textbf{{Valor adoptado}} & \textbf{{Rango/Unidad}} & \textbf{{Fuente}} \\
 \midrule
 Demanda de cloro & {c['demanda_cloro_mg_L']:.1f} mg/L & {c['rango_demanda_cloro_mg_L_texto']} & Estimado efluente post-sedimentador \\
-Cloro residual & {c['cloro_residual_mg_L']:.1f} mg/L & {c['rango_cloro_residual_mg_L_texto']} & OPS/CEPIS \cite{{ops2005}} \\
+Residual requerido & {c['residual_requerido']:.2f} mg/L & -- & Cálculo desde CT \\
+Residual adoptado & {c['cloro_residual_mg_L']:.2f} mg/L & $>${c['residual_requerido']:.2f} mg/L & Para cumplir CF objetivo \\
 Dosis total & {c['dosis_cloro_mg_L']:.1f} mg/L & {c['rango_dosis_cloro_mg_L_texto']} & Metcalf \& Eddy \cite{{metcalf2014}} \\
-Tiempo de contacto & {c['TRH_min']:.0f} min & {c['rango_TRH_min_texto']} & Metcalf \& Eddy \\
-Tiempo adoptado en culebrín & {c['TRH_adoptado_min']:.1f} min & $\geq$ {c['TRH_min']:.0f} min & Cámara con bafles \\
+TRH base de diseño & {c['TRH_base_config']:.0f} min & {c['rango_TRH_min_texto']} & Configuración \\
+TRH real del tanque & {c['TRH_real_min']:.1f} min & $\geq$ {c['TRH_base_config']:.0f} min & Dimensionado \\
 Relación recorrido/ancho & {c['relacion_recorrido_ancho']:.1f}:1 & $\geq$ {c['relacion_recorrido_ancho_min']:.0f}:1 & Criterio de flujo pistón \\
-CT calculado & {c['CT_mg_min_L']:.0f} mg$\cdot$min/L & $\geq$ {c['CT_min_recomendado']:.0f} mg$\cdot$min/L & Diseño conservador \\
+CT requerido & {c['CT_requerido']:.1f} mg$\cdot$min/L & -- & Desde log reducción \\
+CT real & {c['CT_mg_min_L']:.1f} mg$\cdot$min/L & $\geq$ {c['CT_min_recomendado']:.0f} mg$\cdot$min/L & Residual $\times$ TRH \\
 \bottomrule
 \end{{tabular}}
 \end{{table}}
@@ -363,11 +408,11 @@ CT = C \times t
 \begin{{itemize}}[noitemsep,leftmargin=2em]
     \item[$CT$] = Producto concentración-tiempo (mg$\cdot$min/L)
     \item[$C$] = Cloro residual ({c['cloro_residual_mg_L']:.1f} mg/L)
-    \item[$t$] = Tiempo de contacto adoptado en la cámara ({c['TRH_adoptado_min']:.1f} min)
+    \item[$t$] = Tiempo de contacto real en la cámara ({c['TRH_real_min']:.1f} min)
 \end{{itemize}}
 
 \begin{{equation}}
-CT = {c['cloro_residual_mg_L']:.1f} \times {c['TRH_adoptado_min']:.1f} = {c['CT_mg_min_L']:.0f} \text{{ mg$\cdot$min/L}}
+CT = {c['cloro_residual_mg_L']:.2f} \times {c['TRH_real_min']:.1f} = {c['CT_mg_min_L']:.1f} \text{{ mg$\cdot$min/L}}
 \end{{equation}}
 
 La reducción de coliformes se estima mediante una relación empírica simplificada, válida como aproximación preliminar de diseño para efluentes secundarios típicos:
@@ -402,11 +447,11 @@ V = Q \times t
 \begin{{itemize}}[noitemsep,leftmargin=2em]
     \item[$V$] = Volumen del tanque (m³)
     \item[$Q$] = Caudal ({c['Q_m3_d']:.1f} m³/d = {c['Q_m3_d']/24/60:.3f} m³/min)
-    \item[$t$] = Tiempo de contacto ({c['TRH_min']:.0f} min)
+    \item[$t$] = Tiempo de contacto base ({c['TRH_base_config']:.0f} min)
 \end{{itemize}}
 
 \begin{{equation}}
-V_{{min}} = {c['Q_m3_d']/24/60:.3f} \times {c['TRH_min']:.0f} = {c['V_contacto_min_m3']:.1f} \text{{ m}}^3
+V_{{min}} = {c['Q_m3_d']/24/60:.3f} \times {c['TRH_base_config']:.0f} = {c['V_contacto_min_m3']:.1f} \text{{ m}}^3
 \end{{equation}}
 
 {c['texto_volumen_contacto']}
@@ -589,8 +634,8 @@ Volumen útil & {c['V_contacto_m3']:.1f} m³ \\
 Demanda de cloro & {c['demanda_cloro_mg_L']:.1f} mg/L \\
 Cloro residual & {c['cloro_residual_mg_L']:.1f} mg/L \\
 Dosis total & {c['dosis_cloro_mg_L']:.1f} mg/L \\
-Tiempo minimo de contacto & {c['TRH_min']:.0f} min \\
-Tiempo adoptado & {c['TRH_adoptado_min']:.1f} min \\
+TRH base & {c['TRH_base_config']:.0f} min \\
+TRH real & {c['TRH_real_min']:.1f} min \\
 CT & {c['CT_mg_min_L']:.0f} mg$\cdot$min/L \\
 Log reducción & {c['log_reduccion']:.1f} log \\
 CF final & {c['CF_final_NMP']:.0f} NMP/100mL \\
@@ -605,7 +650,7 @@ Almacenamiento ({c['dias_almacenamiento']:.0f} d) & {c['volumen_almacenamiento_L
 \end{{longtable}}
 \endgroup
 
-El sistema de desinfección con hipoclorito de sodio ha sido dimensionado para tratar un caudal de {c['Q_m3_d']:.1f} m³/d, logrando una reducción de {c['pct_reduccion']:.1f}\% de coliformes fecales y cumpliendo con los requisitos de la TULSMA para vertimiento de aguas residuales tratadas.\
+El sistema de desinfección con hipoclorito de sodio ha sido dimensionado para tratar un caudal de {c['Q_m3_d']:.1f} m³/d, logrando una reducción de {c['pct_reduccion']:.1f}\% de coliformes fecales. El cumplimiento respecto a los límites de la TULSMA depende de la categoría de uso receptor específica del proyecto, conforme al dictamen técnico presentado en la tabla de verificación anterior.\
 
 {figura_latex}
 

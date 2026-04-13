@@ -581,24 +581,24 @@ El medio filtrante del Sistema Clásico difiere del sistema francés en su capa 
 
 \subsubsection*{{Dimensionamiento por Carga Orgánica Superficial (COS)}}
 
-La Carga Orgánica Superficial (COS) expresa la masa de DBO$_5$ aplicada por unidad de área del filtro activo por día. Es el criterio de dimensionamiento principal del Sistema Clásico, dado que a bajas temperaturas el control biológico del proceso es el factor limitante. El valor adoptado de {r.get('COS_gDBO_m2_d', 40):.0f}\,g\,DBO$_5$/m²·d corresponde al rango recomendado para la primera etapa en clima templado (Cooper et al., 1996), y garantiza que la biopelícula dispone de suficiente tiempo de contacto para degradar la carga recibida incluso bajo condiciones de menor actividad metabólica. El área de la primera etapa por este criterio es:
+La Carga Orgánica Superficial (COS) expresa la masa de DBO$_5$ aplicada por unidad de área del filtro activo por día. Es el criterio de dimensionamiento principal del Sistema Clásico, dado que a bajas temperaturas el control biológico del proceso es el factor limitante. El valor adoptado de {r['COS_gDBO_m2_d']:.0f}\,g\,DBO$_5$/m²·d corresponde al rango recomendado para la primera etapa en clima templado (Cooper et al., 1996), y garantiza que la biopelícula dispone de suficiente tiempo de contacto para degradar la carga recibida incluso bajo condiciones de menor actividad metabólica. El área de la primera etapa por este criterio es:
 
 \begin{{equation}}
-A_{{1a}} = \frac{{Q \times S_{{0,\text{{DBO5}}}} \times 10^{{-3}}}}{{\text{{COS}}_1}} = \frac{{{r['Q_m3_d']:.1f} \times {r['DBO_entrada_mg_L']:.0f} \times 10^{{-3}}}}{{{r.get('COS_gDBO_m2_d', 40):.0f} \times 10^{{-3}}}} = {r.get('A_1etapa_m2', 0):.1f}\ \text{{m}}^2
+A_{{1a}} = \frac{{Q \times S_{{0,\text{{DBO5}}}} \times 10^{{-3}}}}{{\text{{COS}}_1}} = \frac{{{r['Q_m3_d']:.1f} \times {r['DBO_entrada_mg_L']:.0f} \times 10^{{-3}}}}{{{r['COS_gDBO_m2_d']:.0f} \times 10^{{-3}}}} = {r['A_1etapa_m2']:.1f}\ \text{{m}}^2
 \end{{equation}}
 \captionequation{{Área de la primera etapa por criterio de carga orgánica superficial (COS) -- HAFV Sistema Clásico}}
 
 La segunda etapa recibe el efluente de la primera con carga ya parcialmente removida. Su área de diseño se establece en el 50\,\% del área de la primera etapa, lo que refleja la menor carga orgánica recibida y los menores requerimientos de tiempo de contacto para el pulido final:
 
 \begin{{equation}}
-A_{{2a}} = 0.50 \times A_{{1a}} = 0.50 \times {r.get('A_1etapa_m2', 0):.1f} = {r.get('A_2etapa_m2', 0):.1f}\ \text{{m}}^2
+A_{{2a}} = 0.50 \times A_{{1a}} = 0.50 \times {r['A_1etapa_m2']:.1f} = {r['A_2etapa_m2']:.1f}\ \text{{m}}^2
 \end{{equation}}
 \captionequation{{Área de la segunda etapa (50\,\% de la primera etapa) -- HAFV Sistema Clásico}}
 
 El área total del sistema es la suma de ambas etapas:
 
 \begin{{equation}}
-A_\text{{total}} = A_{{1a}} + A_{{2a}} = {r.get('A_1etapa_m2', 0):.1f} + {r.get('A_2etapa_m2', 0):.1f} = {r['A_total_m2']:.1f}\ \text{{m}}^2
+A_\text{{total}} = A_{{1a}} + A_{{2a}} = {r['A_1etapa_m2']:.1f} + {r['A_2etapa_m2']:.1f} = {r['A_total_m2']:.1f}\ \text{{m}}^2
 \end{{equation}}
 \captionequation{{Área total del sistema HAFV Sistema Clásico (suma de etapas)}}
 
@@ -1188,7 +1188,7 @@ Durante los primeros 6 a 12 meses de operación, correspondientes al período de
         Ruta A (Clásico): 3+2 filtros en 2 etapas, ciclos más largos
         """
         cfg = self.cfg
-        ruta = self.datos.get('ruta', 'B')
+        ruta = self.datos['ruta']  # Dato obligatorio, no usar fallback
         Q_Ls = cfg.Q_linea_L_s  # Caudal real por línea
         
         if ruta == 'B':

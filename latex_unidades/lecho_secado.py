@@ -337,9 +337,9 @@ A_{{total}} = \frac{{V_{{lodo}} \cdot t_s}}{{h_{{lodo}}}}
 A_{{total}} = \frac{{{l['V_lodo_m3_d']:.3f} \times {l['t_secado_d']:.0f}}}{{{l['h_lodo_m']:.2f}}} = {l['A_total_m2']:.1f} \text{{ m}}^2
 \end{{equation}}
 
-\textbf{{Distribucion por tren de tratamiento}}
+\textbf{{Distribucion por lineas de tratamiento}}
 
-El area total se distribuye en bloques independientes, uno al final de cada tren de tratamiento:
+El area total se distribuye en bloques independientes, uno por cada linea de tratamiento:
 
 \begin{{equation}}
 A_{{bloque}} = \frac{{A_{{total}}}}{{n_{{lineas}}}} = \frac{{{l['A_total_m2']:.1f}}}{{{l['num_lineas']:.0f}}} = {l['A_bloque_m2']:.1f} \text{{ m}}^2 \text{{ por bloque}}
@@ -427,7 +427,7 @@ Parametro & Valor \\
 \bottomrule
 \endlastfoot
 Area total requerida & {l['A_total_m2']:.1f} m$^2$ \\
-Numero de bloques (uno por tren) & {l['num_lineas']:.0f} \\
+Numero de bloques (corresponde al numero de lineas) & {l['num_lineas']:.0f} \\
 Area por bloque & {l['A_bloque_m2']:.1f} m$^2$ \\
 Dimensiones de cada bloque (L$\times$A) & {l['largo_m']:.1f} m $\times$ {l['ancho_m']:.1f} m \\
 Numero total de celdas & {l['n_celdas']:.0f} \\
@@ -437,7 +437,7 @@ Produccion total de lodos & {l['lodos_total_kg_d']:.2f} kg SST/d \\
 \end{{longtable}}
 \endgroup
 
-{figura_latex}El lecho de secado ha sido dimensionado para tratar {l['lodos_total_kg_d']:.2f} kg SST/d de lodos generados en el proceso de tratamiento, distribuidos en {l['num_lineas']:.0f} bloques independientes (uno por tren de tratamiento). Cada bloque opera con un ciclo de {l['t_secado_d']:.0f} dias de secado."""
+{figura_latex}El lecho de secado ha sido dimensionado para tratar {l['lodos_total_kg_d']:.2f} kg SST/d de lodos generados en el proceso de tratamiento, distribuidos en {l['num_lineas']:.0f} bloques independientes (uno por linea de tratamiento). Cada bloque opera con un ciclo de {l['t_secado_d']:.0f} dias de secado."""
 
 
 # =============================================================================
