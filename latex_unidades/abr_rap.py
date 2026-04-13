@@ -539,6 +539,22 @@ Esto implica una frecuencia indicativa de purga de lodos de aproximadamente \tex
         # Determinar estado general
         estado_general = "ACEPTABLE" if a["todas_verificaciones_cumplen"] else "REQUIERE REVISIÓN"
         
+        # Texto condicional sobre velocidades (evita contradecir la tabla cuando v_up_max no cumple)
+        if a["verificaciones"]["v_up_max"]["estado"] == "CUMPLE":
+            texto_velocidades = (
+                f"El diseño opera con una velocidad ascensional de {a['v_up_calc_m_h']:.2f}~m/h a caudal medio, "
+                f"valor que se eleva hasta {a['v_up_max_calc_m_h']:.2f}~m/h durante los picos de caudal. "
+                f"Ambos valores se mantienen dentro de los límites establecidos para la retención efectiva de la biomasa anaerobia sin requerir separador trifásico."
+            )
+        else:
+            texto_velocidades = (
+                f"El diseño opera con una velocidad ascensional de {a['v_up_calc_m_h']:.2f}~m/h a caudal medio, "
+                f"valor que se eleva hasta {a['v_up_max_calc_m_h']:.2f}~m/h durante los picos de caudal. "
+                f"La velocidad a caudal medio cumple con el límite operativo, pero la velocidad de pico "
+                f"supera el umbral bibliográfico admisible ({cfg.abr_v_up_max_admisible_m_h:.1f}~m/h), "
+                f"lo que indica que el reactor puede experimentar arrastre de biomasa en condiciones de caudal máximo y debe ser revisado."
+            )
+        
         # Generar figura si se solicita
         figura_latex = ""
         figura_generada = False
@@ -646,7 +662,7 @@ Verificación largo comp. & {a["verificaciones"]["L_comp"]["estado"]} & Criterio
 
 El reactor ABR / RAP dimensionado consta de {a["n_compartimentos"]} compartimentos idénticos con una geometría rectangular de {a["L_total_m"]:.2f}~m de largo total, {a["W_m"]:.2f}~m de ancho y {a["H_total_m"]:.2f}~m de profundidad total de construcción. La profundidad útil del líquido es de {a["H_util_m"]:.1f}~m, con una zona adicional de {a["H_zona_lodos_m"]:.2f}~m reservada para acumulación de lodos y {a["H_bordo_m"]:.2f}~m de bordo libre.
 
-El diseño opera con una velocidad ascensional de {a["v_up_calc_m_h"]:.2f}~m/h a caudal medio, valor que se eleva hasta {a["v_up_max_calc_m_h"]:.2f}~m/h durante los picos de caudal. Ambos valores se mantienen dentro de los límites establecidos para la retención efectiva de la biomasa anaerobia sin requerir separador trifásico.
+{texto_velocidades}
 
 El tiempo de retención hidráulico de {a["TRH_calc_h"]:.1f}~h ({a["TRH_calc_h"]/24:.2f}~días) proporciona el tiempo de contacto necesario entre el agua residual y la biomasa anaerobia para la degradación de la materia orgánica. Este valor se encuentra dentro del rango recomendado de 24--72 horas para reactores ABR tratando aguas residuales domésticas.
 
@@ -872,7 +888,7 @@ Este dimensionamiento cubre el volumen del reactor, la geometría básica y las 
 
         ax.text(offset_derecho, y_etiqueta_base + 1.8, 'Zona de biogás\nrecolección CH₄', ha='left', va='center', fontsize=9)
         ax.text(offset_derecho, y_etiqueta_base + 0.4, f'Zona líquida\nvup = {Vup:.2f} m/h', ha='left', va='center', fontsize=9, fontweight='bold')
-        ax.text(offset_derecho, y_etiqueta_base - 1.2, f'Zona de lodos\nTRH = {TRH:.0f} h', ha='left', va='center', fontsize=9, fontweight='bold')
+        ax.text(offset_derecho, y_etiqueta_base - 1.2, 'Zona de lodos\nacumulación', ha='left', va='center', fontsize=9, fontweight='bold')
         ax.text(offset_derecho - 1.2, y_base - 0.6, f'Afluente\n{Q_L_s:.1f} L/s', ha='center', va='top', fontsize=10, fontweight='bold', color='#2E7D32')
         ax.text(x_der + 1.9, y_salida + 0.3, 'Efluente\ntratado', ha='center', va='bottom', fontsize=10, fontweight='bold', color='#1565C0')
 

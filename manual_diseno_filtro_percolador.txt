@@ -1,0 +1,699 @@
+================================================================================
+       MANUAL DE DISEÑO DE FILTRO PERCOLADOR (TRICKLING FILTER)
+       Para Tratamiento Secundario de Aguas Residuales Municipales
+       Basado en: Metcalf & Eddy (2014), Chernicharo (2007),
+                  WEF Manual of Practice No. 8, EPA (2000)
+================================================================================
+
+INDICE
+------
+1. Descripcion general y componentes
+2. Datos de entrada necesarios
+3. PASO 1 - Seleccion del tipo de medio filtrante
+4. PASO 2 - Cargas de diseno (organica e hidraulica)
+5. PASO 3 - Dimensionamiento del medio filtrante (Modelo de Germain)
+6. PASO 4 - Geometria del filtro
+7. PASO 5 - Sistema de recirculacion
+8. PASO 6 - Distribuidor rotatorio
+9. PASO 7 - Sistema de drenaje inferior (Underdrain)
+10. PASO 8 - Ventilacion natural
+11. PASO 9 - Verificaciones finales
+12. PASO 10 - Especificacion del medio plastico
+13. Resumen de parametros y rangos de diseno
+14. Errores comunes
+
+
+================================================================================
+1. DESCRIPCION GENERAL Y COMPONENTES
+================================================================================
+
+El filtro percolador es un reactor biologico de pelicula fija (attached growth)
+en el que el agua residual se distribuye sobre un medio poroso donde crece una
+biopelícula aerobia que degrada la materia organica.
+
+COMPONENTES OBLIGATORIOS (todos deben dimensionarse):
+------------------------------------------------------
+  A) Medio filtrante         -> donde crece la biopelícula
+  B) Distribuidor rotatorio  -> aplica el agua uniformemente
+  C) Sistema de drenaje      -> recoge efluente y provee aire (underdrain)
+  D) Estructura del filtro   -> paredes, piso, vertedero de salida
+  E) Sistema de recirculacion-> bombas y tuberias
+
+PRINCIPIO DE FUNCIONAMIENTO:
+  - Agua residual cae por gravedad sobre el medio
+  - Biopelícula aerobia (0.1-0.2 mm espesor) degrada la DBO
+  - Aire circula en sentido contrario al agua (o mismo sentido segun T)
+  - Sloughings (biopelícula desprendida) se recoge en underdrain
+  - Efluente va al sedimentador secundario
+
+
+================================================================================
+2. DATOS DE ENTRADA NECESARIOS
+================================================================================
+
+Antes de empezar a disenar se deben conocer:
+
+  Q_medio   = caudal medio diario (m3/d o m3/h)
+  Q_max     = caudal maximo horario = fp x Q_medio  (fp tipico: 2.0-2.5)
+  S0        = DBO5 afluente al filtro (mg/L)
+              NOTA: si viene despues de UASB, S0 es la DBO del efluente UASB
+  Se        = DBO5 objetivo en el efluente del filtro (mg/L)
+  T         = temperatura del agua residual (°C)
+  E         = eficiencia de remocion requerida = (S0 - Se) / S0
+
+
+================================================================================
+3. PASO 1 - SELECCION DEL TIPO DE MEDIO FILTRANTE
+================================================================================
+
+Existen tres tipos principales:
+
++------------------+------------------+------------------+------------------+
+| Parametro        | Roca/Grava       | Plastico         | Plastico         |
+|                  |                  | Aleatorio        | Estructurado     |
++------------------+------------------+------------------+------------------+
+| Superficie esp.  | 40-70 m2/m3      | 90-150 m2/m3     | 100-200 m2/m3    |
+| Indice de vacios | 40-50 %          | 94-97 %          | 95-99 %          |
+| Densidad ap.     | 800-1100 kg/m3   | 30-100 kg/m3     | 20-80 kg/m3      |
+| Prof. maxima     | 1.5-3.0 m        | 6-12 m           | 6-15 m           |
+| Carga org. max   | 0.08-0.32 kg/m3d | 0.3-3.0 kg/m3d   | 0.5-5.0 kg/m3d   |
+| Costo relativo   | Bajo             | Medio            | Alto             |
++------------------+------------------+------------------+------------------+
+
+FUENTE: Metcalf & Eddy (2014), Tabla 9-7
+
+RECOMENDACION para plantas post-UASB:
+  -> Usar PLASTICO ALEATORIO
+  -> Superficie especifica: 90-150 m2/m3 (tipico 100 m2/m3)
+  -> Indice de vacios: >= 94%
+  -> Razon: menor peso, mayor profundidad posible, mejor aireacion
+
+NOTA IMPORTANTE: Para tratamiento carbonaceo (solo DBO, no nitrificacion)
+la superficie especifica no debe exceder 100 m2/m3 para evitar taponamiento.
+(WEF, Manual of Practice No. 8)
+
+
+================================================================================
+4. PASO 2 - CARGAS DE DISENO
+================================================================================
+
+--- 4.1 CARGA ORGANICA VOLUMETRICA (Cv) ---
+
+Es la cantidad de DBO que entra al filtro por unidad de volumen de medio.
+
+Rangos segun Metcalf & Eddy (2014) y WEF (2010):
+
++------------------------------+---------------------------+------------------+
+| Tipo de filtro               | Cv (kg DBO/m3·d)          | Remocion DBO     |
++------------------------------+---------------------------+------------------+
+| Baja tasa (low rate)         | 0.08 - 0.32               | 80-90 %          |
+| Alta tasa (high rate)        | 0.32 - 1.00               | 50-70 %          |
+| Super alta tasa (roughing)   | 1.00 - 3.00               | 40-70 %          |
+| Post-UASB (recomendado)      | 0.30 - 1.00               | 50-70 %          |
++------------------------------+---------------------------+------------------+
+
+SELECCION DE Cv:
+  - Si se quiere eficiencia alta (>70%): usar Cv = 0.30-0.50 kg/m3·d
+  - Si el UASB ya removio mucho y la DBO afluente es baja: Cv hasta 1.0
+  - Valor conservador tipico post-UASB: Cv = 0.30 kg DBO/m3·d
+
+--- 4.2 TASA HIDRAULICA SUPERFICIAL (qA) ---
+
+Es el caudal que se aplica por unidad de area superficial del filtro,
+INCLUYENDO la recirculacion.
+
+  qA = Q * (1 + R) / As    [m3/m2·h]
+
+Rangos segun Metcalf & Eddy (2014):
+
++------------------------------+---------------------------+
+| Tipo de filtro               | qA (m3/m2·h)              |
++------------------------------+---------------------------+
+| Baja tasa                    | 0.5 - 1.4                 |
+| Alta tasa                    | 1.0 - 3.0                 |
+| Super alta tasa              | 3.0 - 8.0                 |
+| Maximo recomendado           | <= 4.0 (caudal max)       |
++------------------------------+---------------------------+
+
+NOTA: La tasa hidraulica minima es CRITICA. Si qA es muy baja:
+  - La biopelícula se seca
+  - Se producen malos olores
+  - Se reduce la eficiencia
+  -> Por eso se usa recirculacion: para mantener qA en rango incluso a caudal minimo
+
+
+================================================================================
+5. PASO 3 - DIMENSIONAMIENTO DEL MEDIO (MODELO DE GERMAIN)
+================================================================================
+
+El modelo de Germain (1966), modificado por Schultz (1960), es el estandar
+internacional para diseno de filtros percoladores con medio plastico.
+
+--- 5.1 VOLUMEN DE MEDIO POR CRITERIO DE CARGA ORGANICA ---
+
+  V = (Q * S0) / Cv    [m3]
+
+Donde:
+  Q  = caudal diario (m3/d)
+  S0 = DBO afluente (kg/m3)
+  Cv = carga organica adoptada (kg DBO/m3·d)
+
+--- 5.2 CORRECCION DE CONSTANTE CINETICA POR TEMPERATURA ---
+
+La constante k20 (a 20°C) se corrige con Arrhenius:
+
+  kT = k20 * theta^(T - 20)
+
+Donde:
+  k20  = constante cinetica a 20°C
+  theta = coeficiente de temperatura = 1.035 (Metcalf & Eddy, 2014)
+  T    = temperatura del agua (°C)
+
+Valores de k20 segun tipo de medio (Metcalf & Eddy, 2014, Tabla 9-13):
+
++------------------------------+---------------------------+
+| Tipo de medio                | k20 (m/h)                 |
++------------------------------+---------------------------+
+| Plastico aleatorio           | 0.06 - 0.10               |
+| Plastico estructurado        | 0.06 - 0.10               |
+| Valor tipico medio plastico  | 0.068                     |
++------------------------------+---------------------------+
+
+--- 5.3 MODELO DE GERMAIN ---
+
+La eficiencia de remocion se calcula como:
+
+  Se/S0 = exp[ -(kT * D) / (qA^n) ]
+
+Despejando para encontrar la profundidad D necesaria:
+
+  D = [ -ln(Se/S0) * qA^n ] / kT
+
+Donde:
+  Se  = DBO efluente objetivo (mg/L)
+  S0  = DBO afluente (mg/L)
+  kT  = constante cinetica a temperatura T (m/h)
+  D   = profundidad del medio (m)
+  qA  = tasa hidraulica aplicada (m3/m2·h)
+  n   = coeficiente empirico del medio
+
+Valores de n segun tipo de medio:
+
++------------------------------+---------------------------+
+| Tipo de medio                | n (adimensional)          |
++------------------------------+---------------------------+
+| Plastico aleatorio           | 0.50                      |
+| Plastico estructurado        | 0.50 - 0.60               |
+| Roca                         | 0.50                      |
++------------------------------+---------------------------+
+
+FUENTE: Germain (1966), citado en Metcalf & Eddy (2014)
+
+PROFUNDIDADES TIPICAS DEL MEDIO:
+  - Minima recomendada:        3.0 m
+  - Tipica para alta tasa:     3.0 - 6.0 m
+  - Tipica para super alta:    6.0 - 12.0 m
+  - Maxima practica plastico:  12.0 m
+
+
+================================================================================
+6. PASO 4 - GEOMETRIA DEL FILTRO
+================================================================================
+
+--- 6.1 AREA SUPERFICIAL ---
+
+  As = V / D    [m2]
+
+Donde V es el volumen de medio y D la profundidad adoptada.
+
+--- 6.2 DIAMETRO ---
+
+Para filtro circular (lo mas comun):
+
+  D_filtro = sqrt(4 * As / pi)
+
+NOTA: Si el diametro resultante es > 15 m, considerar dividir en dos
+unidades paralelas.
+
+--- 6.3 ALTURA TOTAL DEL FILTRO ---
+
+La altura total incluye varias zonas:
+
+  H_total = H_distribucion + H_medio + H_underdrain + H_bordo_libre
+
+  H_distribucion: espacio entre el brazo distribuidor y el medio
+                  -> 0.15 - 0.23 m (6-9 pulgadas) [EPA, 2000; Metcalf & Eddy]
+
+  H_medio:        profundidad del medio filtrante
+                  -> calculada en Paso 3
+
+  H_underdrain:   altura del sistema de drenaje inferior
+                  -> 0.45 - 0.60 m (tipico)
+
+  H_bordo_libre:  0.30 - 0.50 m
+
+Ejemplo tipico de desglose de alturas:
+  H_distribucion = 0.20 m
+  H_medio        = 3.50 m  (o calculada)
+  H_underdrain   = 0.50 m
+  H_bordo_libre  = 0.30 m
+  --------------------------------
+  H_total        = 4.50 m
+
+
+================================================================================
+7. PASO 5 - SISTEMA DE RECIRCULACION
+================================================================================
+
+--- 7.1 POR QUE SE RECIRCULA ---
+
+La recirculacion sirve para:
+  1. Mantener la biopelícula humeda a caudal minimo nocturno
+  2. Diluir el afluente concentrado
+  3. Aumentar la tasa hidraulica qA para mejor distribucion
+  4. Reducir la concentracion de DBO afluente al filtro
+
+--- 7.2 RELACION DE RECIRCULACION (R) ---
+
+Definicion: R = Q_recirculado / Q_influente
+
+Rangos tipicos:
+
++------------------------------+---------------------------+
+| Tipo de filtro               | R (adimensional)          |
++------------------------------+---------------------------+
+| Sin recirculacion            | 0                         |
+| Baja tasa                    | 0 - 1                     |
+| Alta tasa                    | 1 - 3                     |
+| Post-UASB recomendado        | 1 - 2                     |
++------------------------------+---------------------------+
+
+FUENTE: Metcalf & Eddy (2014)
+
+--- 7.3 CALCULO DEL CAUDAL DE RECIRCULACION ---
+
+  Q_recirc = R * Q_medio    [m3/h]
+
+  Q_total_al_filtro = Q_medio * (1 + R)    [m3/h]
+
+--- 7.4 VERIFICACION DE TASA HIDRAULICA ---
+
+  qA_medio = Q_medio * (1 + R) / As    [m3/m2·h]
+  qA_max   = Q_max * (1 + R) / As     [m3/m2·h]  <- no debe exceder 4.0 m3/m2·h
+
+NOTA: Si qA_max excede 4.0 m3/m2·h, reducir R o aumentar As.
+
+
+================================================================================
+8. PASO 6 - DISTRIBUIDOR ROTATORIO
+================================================================================
+
+Este es el componente que mas frecuentemente se omite en memorias de calculo
+pero es IMPRESCINDIBLE para la construccion de la unidad.
+
+--- 8.1 DESCRIPCION ---
+
+El distribuidor rotatorio consiste en:
+  - Columna central hueca (pivot) por donde entra el agua
+  - 2 o 4 brazos radiales con boquillas
+  - Rotacion por fuerza hidraulica (o motor si Q es insuficiente)
+
+La fuerza de reaccion del agua al salir de las boquillas hace girar el brazo,
+similar al principio de un aspersor de jardin.
+(Metcalf & Eddy, 2014; EPA, 2000)
+
+--- 8.2 NUMERO DE BRAZOS ---
+
++------------------------------+---------------------------+
+| Diametro del filtro          | Numero de brazos          |
++------------------------------+---------------------------+
+| < 6 m                        | 2                         |
+| 6 - 15 m                     | 2 o 4                     |
+| > 15 m                       | 4                         |
++------------------------------+---------------------------+
+
+Para D = 6.56 m -> usar 2 BRAZOS.
+
+--- 8.3 LONGITUD DE CADA BRAZO ---
+
+  L_brazo = D_filtro / 2    [m]
+
+Ejemplo: D = 6.56 m -> L_brazo = 3.28 m
+
+--- 8.4 ALTURA SOBRE EL MEDIO ---
+
+La altura libre entre el fondo del brazo y la superficie del medio debe ser:
+
+  h_libre = 0.15 - 0.23 m  (6 a 9 pulgadas)
+
+FUENTE: EPA (2000), Metcalf & Eddy (2014), Lesson 15 MECC
+
+Razon: permite que el agua se distribuya en forma de abanico antes de
+caer sobre el medio, sin interferir con acumulacion de hielo en climas frios.
+
+--- 8.5 VELOCIDAD DE ROTACION ---
+
+  Velocidad tipica: 0.5 - 2.0 rpm
+  Velocidad periferica (en el extremo del brazo): 0.5 - 4.0 m/min
+
+Calculo de la velocidad angular minima para que el brazo gire por fuerza
+hidraulica (sin motor):
+
+  El caudal por brazo debe ser suficiente para generar el par necesario.
+  Regla practica: si Q_total > 10 m3/h por brazo, gira solo.
+
+  Q por brazo = Q_total_al_filtro / N_brazos
+
+  Ejemplo: Q_total = 54 m3/h, N = 2 brazos
+           Q_brazo = 27 m3/h  -> suficiente para rotacion hidraulica ✓
+
+Si Q_brazo < 10 m3/h se necesita motor electrico auxiliar.
+
+--- 8.6 DISEÑO DE BOQUILLAS (ORIFICOS) ---
+
+Las boquillas deben distribuir el agua uniformemente. El espaciado no es
+uniforme: debe ser mayor cerca del centro (donde el brazo cubre menos area)
+y menor cerca del extremo.
+
+Principio: cada boquilla debe cubrir la misma AREA superficial del filtro.
+
+Para 2 brazos, el area por boquilla:
+
+  A_boquilla = As / (N_brazos * N_boquillas_por_brazo)
+
+Numero tipico de boquillas por brazo: 5-15 (depende de L_brazo)
+
+Caudal por boquilla:
+
+  q_boquilla = Q_brazo / N_boquillas    [m3/h o L/s]
+
+Velocidad de salida de la boquilla (debe generar par de rotacion):
+
+  v_boquilla = q_boquilla / A_orificio
+
+  Rango recomendado: 1.5 - 3.0 m/s  [Metcalf & Eddy, 2014]
+
+Diametro tipico de orificio: 10 - 25 mm
+
+Presion de cabeza necesaria sobre el brazo:
+
+  h = v^2 / (2g * Cd^2)
+
+  Donde Cd = coeficiente de descarga = 0.62 (orificio estandar)
+
+  Tipicamente: h = 0.10 - 0.30 m de cabeza sobre el brazo
+
+--- 8.7 NECESIDAD DE MOTOR ---
+
+Se requiere motor electrico cuando:
+  - El caudal es muy bajo (< 10 m3/h por brazo)
+  - Se necesita controlar la velocidad de rotacion independientemente
+  - Se desea ciclos de dosificacion programados (mejora la eficiencia)
+
+Potencia tipica del motor: 0.5 - 2.0 kW para filtros de 5-10 m diametro.
+
+
+================================================================================
+9. PASO 7 - SISTEMA DE DRENAJE INFERIOR (UNDERDRAIN)
+================================================================================
+
+El underdrain cumple DOS funciones simultaneas e igualmente importantes:
+  1. Recolectar el efluente y los sloughings (biopelícula desprendida)
+  2. Proveer ventilacion al filtro (paso de aire)
+
+REGLA FUNDAMENTAL (EPA, WEF, Metcalf & Eddy):
+  "El underdrain debe diseñarse para fluir como maximo al 50% de su
+   capacidad hidraulica. El 50% restante garantiza el paso de aire."
+
+Si el underdrain fluye lleno -> no hay paso de aire -> condiciones anaerobias
+-> mal olor y perdida de eficiencia.
+
+--- 9.1 COMPONENTES DEL UNDERDRAIN ---
+
+  a) Piso del filtro con pendiente minima 1-2% hacia el canal central
+  b) Bloques o losas perforadas que soportan el medio
+  c) Canales colectores que llevan el flujo al canal principal
+  d) Canal principal de salida
+
+--- 9.2 CALCULO DEL CAUDAL DE DISEÑO DEL UNDERDRAIN ---
+
+  Q_underdrain = Q_total_al_filtro + Q_recirc_desde_fondo
+               = Q_medio * (1 + R)    [m3/h]
+
+  Con la regla del 50%:
+  El underdrain debe tener capacidad para:
+  Q_diseno_underdrain = Q_underdrain / 0.50 = 2 * Q_underdrain
+
+--- 9.3 CALCULO DEL CANAL CENTRAL DE SALIDA ---
+
+Usando Manning para canal de seccion rectangular o trapezoidal:
+
+  Q = (1/n) * A * R^(2/3) * S^(1/2)
+
+  Donde:
+    n = 0.013 (concreto)
+    S = pendiente minima 1% (0.01)
+    R = radio hidraulico = A/P
+    A = area de la seccion del canal
+
+  El canal debe fluir al maximo 50% de su capacidad:
+  A_flujo <= 0.50 * A_canal
+
+Dimensiones tipicas del canal central:
+  Ancho: 0.30 - 0.60 m
+  Alto:  0.30 - 0.60 m
+
+--- 9.4 ALTURA DEL UNDERDRAIN ---
+
+  H_underdrain = H_bloques_soporte + H_canal_central + H_libre
+               = 0.20 + 0.30 + 0.10
+               = 0.60 m  (tipico)
+
+  Minimo absoluto: 0.45 m (para garantizar circulacion de aire)
+
+--- 9.5 APERTURAS DE VENTILACION EN LA PARED ---
+
+La pared del filtro debe tener aperturas a nivel del underdrain para
+permitir la entrada/salida de aire.
+
+  Area de ventilacion = minimo 1% del area superficial del filtro
+
+  Ejemplo: As = 33.75 m2 -> Area ventilacion = 0.34 m2
+
+  Distribuir en aperturas de 0.20 x 0.30 m (0.06 m2 cada una)
+  Numero de aperturas = 0.34 / 0.06 ≈ 6 aperturas minimo
+  Espaciado recomendado: cada 1.5 - 2.0 m perimetro
+
+
+================================================================================
+10. PASO 8 - VENTILACION NATURAL
+================================================================================
+
+--- 10.1 DIRECCION DEL FLUJO DE AIRE ---
+
+La direccion del flujo de aire en el filtro depende de la diferencia de
+temperatura entre el agua y el ambiente:
+
+  T_agua > T_ambiente: flujo de aire ASCENDENTE (natural favorable)
+                       Agua caliente calienta el aire dentro -> sube
+                       El aire fresco entra por la base
+
+  T_agua < T_ambiente: flujo de aire DESCENDENTE
+                       Puede requerir ventilacion forzada
+
+FUENTE: Metcalf & Eddy (2014); Lesson 15 MECC Water Course
+
+Para Quito (T_ambiente tipica: 12-15°C) y T_agua = 25.6°C:
+  -> Flujo ascendente ✓ -> ventilacion natural es suficiente
+
+--- 10.2 CAUDAL DE AIRE NECESARIO ---
+
+  Minimo recomendado: 0.1 m3_aire / m3_agua tratada
+  Optimo:            0.3 - 0.5 m3_aire / m3_agua tratada
+
+  Q_aire_min = Q_medio * 0.1 = 18 * 0.1 = 1.8 m3/h  (minimo)
+  Q_aire_opt = Q_medio * 0.3 = 18 * 0.3 = 5.4 m3/h  (optimo)
+
+--- 10.3 VERIFICACION DE TIRO NATURAL ---
+
+La fuerza de tiro natural (diferencia de presion que mueve el aire) se
+puede estimar como:
+
+  DeltaP = rho_aire * g * H_medio * (T_agua - T_aire) / T_aire_K
+
+  Para condiciones tipicas (H=3.5 m, DT=10°C):
+  DeltaP ≈ 1.2 * 9.81 * 3.5 * 10/288 ≈ 1.43 Pa
+
+  Este DeltaP es suficiente para vencer la resistencia del medio plastico
+  (resistencia tipica del plastico aleatorio: 0.5-2.0 Pa/m de profundidad)
+
+  Verificacion: DeltaP > resistencia_medio * H
+               1.43 Pa > 1.0 * 3.5 = 3.5 Pa  <- Marginal
+
+  Conclusion: Con T_agua - T_ambiente = 10°C y H = 3.5 m, el tiro natural
+  es marginal. Se recomienda asegurar que las aperturas de ventilacion
+  sean generosas (al menos 1.5% del area superficial en este caso).
+
+
+================================================================================
+11. PASO 9 - VERIFICACIONES FINALES
+================================================================================
+
+Una vez dimensionados todos los componentes, verificar:
+
+  [1] Carga organica volumetrica:
+      Cv = Q * S0 / V    debe estar en el rango adoptado  ✓
+
+  [2] Tasa hidraulica media:
+      qA = Q*(1+R) / As  debe estar en rango (0.5-4.0 m3/m2·h)  ✓
+
+  [3] Tasa hidraulica maxima:
+      qA_max = Q_max*(1+R)/As  debe ser <= 4.0 m3/m2·h  ✓
+
+  [4] Eficiencia verificada con Germain:
+      Se/S0 = exp(-kT*D/qA^n)  debe dar Se <= objetivo  ✓
+
+  [5] Relacion largo/ancho del underdrain:
+      flujo <= 50% capacidad del canal  ✓
+
+  [6] Ventilacion:
+      Area aperturas >= 1% de As  ✓
+
+  [7] Distribuidor:
+      Q_brazo suficiente para rotacion hidraulica (> 10 m3/h)  ✓
+      v_boquilla en rango 1.5-3.0 m/s  ✓
+      h_libre sobre el medio: 0.15-0.23 m  ✓
+
+  [8] Verificacion a caudal minimo (factor 0.4):
+      qA_min = Q_min*(1+R)/As  debe ser > 0.5 m3/m2·h (biopelícula humeda) ✓
+      Si qA_min < 0.5 -> aumentar R o incluir control de nivel
+
+
+================================================================================
+12. PASO 10 - ESPECIFICACION DEL MEDIO PLASTICO
+================================================================================
+
+Esta seccion es necesaria para licitar y comprar el medio. Debe incluir:
+
+ESPECIFICACIONES MINIMAS DEL MEDIO PLASTICO ALEATORIO:
+
+  Superficie especifica:        90-150 m2/m3  (tipico: 100 m2/m3)
+  Indice de vacios (voids):     >= 94 %
+  Densidad aparente:            30-100 kg/m3
+  Material:                     PVC, HDPE o PP
+  Resistencia a compresion:     minimo 600 kg/m2 (para H <= 3.5 m)
+                                minimo 1000 kg/m2 (para H > 3.5 m)
+  Resistencia a UV:             requerida si hay exposicion solar
+  Temperatura de operacion:     0 - 60 °C
+  Resistencia quimica:          a acidos y alcalis hasta pH 2-12
+
+CALCULO DE CARGA SOBRE EL MEDIO:
+
+  La carga total sobre el medio incluye:
+  - Peso propio del medio:   densidad * H_medio
+  - Peso del agua retenida:  aprox. 30-50 kg/m2 para plastico
+  - Peso de la biopelícula:  aprox. 10-20 kg/m2
+
+  Carga total ≈ (densidad_media + 40 + 15) * H_medio [kg/m2]
+
+  Ejemplo: densidad=60, H=3.5 m
+  Carga = (60 + 40 + 15) * 3.5 = 402 kg/m2 < 600 kg/m2 ✓
+
+CRITERIO DE SELECCION (WEF, 2010):
+  Para tratamiento carbonaceo post-UASB: superficie = 90-100 m2/m3
+  Para nitrificacion: superficie = 130-150 m2/m3
+  No usar > 150 m2/m3 para tratamiento carbonaceo (riesgo de taponamiento)
+
+
+================================================================================
+13. RESUMEN DE PARAMETROS Y RANGOS DE DISENO
+================================================================================
+
++----------------------------------+-------------------+---------------------+
+| Parametro                        | Rango             | Fuente              |
++----------------------------------+-------------------+---------------------+
+| Carga organica Cv                | 0.30-3.0 kg/m3·d  | Metcalf & Eddy 2014 |
+| Tasa hidraulica qA media         | 0.5-4.0 m3/m2·h   | Metcalf & Eddy 2014 |
+| Tasa hidraulica qA maxima        | <= 4.0 m3/m2·h    | Metcalf & Eddy 2014 |
+| Profundidad medio plastico       | 3.0-12.0 m        | WEF 2010            |
+| Relacion R de recirculacion      | 1-3               | Metcalf & Eddy 2014 |
+| Constante k20 (medio plastico)   | 0.06-0.10 m/h     | Metcalf & Eddy 2014 |
+| Coeficiente n (Germain)          | 0.50              | Germain (1966)      |
+| Theta (correccion T)             | 1.035             | Metcalf & Eddy 2014 |
+| Brazos distribuidor (D<6m)       | 2                 | Metcalf & Eddy 2014 |
+| Brazos distribuidor (D 6-15m)    | 2 o 4             | Metcalf & Eddy 2014 |
+| Altura libre brazo sobre medio   | 0.15-0.23 m       | EPA 2000            |
+| Velocidad rotacion brazo         | 0.5-2.0 rpm       | WEF 2010            |
+| Velocidad periferica brazo       | 0.5-4.0 m/min     | WEF 2010            |
+| Velocidad boquilla               | 1.5-3.0 m/s       | Metcalf & Eddy 2014 |
+| Llenado maximo underdrain        | <= 50 %           | EPA 2000            |
+| Pendiente piso underdrain        | >= 1 %            | WEF 2010            |
+| Altura underdrain                | 0.45-0.60 m       | Metcalf & Eddy 2014 |
+| Area ventilacion / As            | >= 1 %            | EPA 2000            |
+| Superficie especifica medio      | 90-150 m2/m3      | WEF 2010            |
+| Indice de vacios medio           | >= 94 %           | WEF 2010            |
+| Caudal aire minimo               | 0.1 m3/m3_agua    | Metcalf & Eddy 2014 |
++----------------------------------+-------------------+---------------------+
+
+
+================================================================================
+14. ERRORES COMUNES EN EL DISENO DE FILTROS PERCOLADORES
+================================================================================
+
+ERROR 1: Dimensionar solo el medio y olvidar el distribuidor y underdrain.
+CONSECUENCIA: La unidad no puede construirse ni licitarse.
+
+ERROR 2: No verificar qA a caudal minimo.
+CONSECUENCIA: La biopelícula se seca en horas nocturnas de bajo caudal.
+
+ERROR 3: Dimensionar el underdrain para fluir lleno.
+CONSECUENCIA: Sin paso de aire -> condiciones anaerobias -> mal olor y
+falla del proceso.
+
+ERROR 4: Usar k20 o n sin especificar el tipo de medio.
+CONSECUENCIA: El modelo de Germain da resultados incorrectos.
+
+ERROR 5: No especificar la resistencia a compresion del medio.
+CONSECUENCIA: El medio se aplasta bajo su propio peso y el de la biopelícula.
+
+ERROR 6: Olvidar que la recirculacion aumenta el caudal al sedimentador.
+CONSECUENCIA: El sedimentador secundario queda subdimensionado.
+-> El caudal de diseno del sedimentador debe ser Q_medio + Q_recirc,
+   no solo Q_medio.
+
+ERROR 7: Asumir que el distribuidor gira siempre sin motor.
+CONSECUENCIA: A caudal minimo nocturno, si Q_brazo < 10 m3/h, el brazo
+no gira y el medio se moja de forma no uniforme.
+
+
+================================================================================
+REFERENCIAS BIBLIOGRAFICAS
+================================================================================
+
+[1] Metcalf & Eddy Inc. (2014). Wastewater Engineering: Treatment and Resource
+    Recovery. 5th ed. McGraw-Hill Education, New York.
+    -> Capitulos 9 y 10: Fixed-Film processes, trickling filters.
+
+[2] Chernicharo, C.A.L. (2007). Biological Wastewater Treatment in Warm Climate
+    Regions. Vol. 2. IWA Publishing, London.
+    -> Capitulo sobre filtros percoladores post-UASB.
+
+[3] WEF - Water Environment Federation (2010). Biofilm Reactors. Manual of
+    Practice No. 35. WEF Press, Alexandria, Virginia.
+
+[4] EPA - U.S. Environmental Protection Agency (2000). Wastewater Technology
+    Fact Sheet: Trickling Filters. EPA 832-F-00-014. Washington, D.C.
+
+[5] Germain, J.E. (1966). Economical treatment of domestic waste by plastic
+    medium trickling filters. Journal WPCF, 38(2), 192-203.
+
+[6] Daigger, G.T. and Boltz, J.P. (2011). Trickling filter and trickling
+    filter-suspended growth combination process design and operation.
+    Water Environment Research, 83(1), 10-26.
+
+[7] OPS/CEPIS (2005). Guia para el diseno de plantas de tratamiento de aguas
+    residuales. Lima, Peru.
+
+================================================================================
+              FIN DEL MANUAL DE DISENO DE FILTRO PERCOLADOR
+================================================================================

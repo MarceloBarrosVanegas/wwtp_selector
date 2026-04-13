@@ -27,10 +27,25 @@ Uso simple:
     }
     
     generar_documento_tren(entrada, output_dir="resultados/mis_trenes")
+
+Unidades disponibles (palabras clave para la lista "unidades"):
+    - "rejillas"                : Rejillas de desbaste
+    - "desarenador"             : Desarenador de arenas
+    - "uasb"                    : Reactor anaerobio de flujo ascendente (UASB)
+    - "abr_rap"                 : Reactor anaerobio de bafles con remoción acelerada de fósforo (ABR-RAP)
+    - "filtro_percolador"       : Filtro percolador (trickling filter)
+    - "humedal_vertical"        : Humedal artificial de flujo subsuperficial vertical
+    - "baf"                     : Biofiltro aerobio sumergido (BAF)
+    - "taf"                     : Biofiltro de carga mecanizada e hidráulica (TAF)
+    - "sedimentador_sec"        : Sedimentador secundario
+    - "cloro"                   : Cámara de desinfección con cloro
+    - "lecho_secado"            : Lecho de secado de lodos
 """
 
 import os
+import re
 import sys
+import inspect
 import subprocess
 from typing import Dict, Any, List, Optional
 from dataclasses import dataclass
@@ -436,45 +451,30 @@ def dimensionar_tren(cfg_tren: ConfigTren) -> Dict[str, Any]:
     # Guardar calidad inicial en resultados
     resultados["_calidad_afluente"] = calidad_actual.copy()
     
-    # Acumulador de lodos para lecho de secado
-    lodos_total_kg_SST_d = 0.0
-    desglose_lodos = []  # Lista de diccionarios con origen y cantidad
-    
     for unidad in cfg_tren.unidades:
         print(f"  - {unidad}...", end=" ")
         if unidad in DIMENSIONADORES:
             try:
-                # Pasar calidad actual a las unidades que lo necesiten
-                if unidad == "humedal_vertical":
-                    resultado = DIMENSIONADORES[unidad](
-                        cfg, 
-                        DBO_entrada_mg_L=calidad_actual["DBO5_mg_L"]
-                    )
+                kwargs = {}
+                
+                # Parámetros de calidad actuales (disponibles para cualquier unidad)
+                sig = inspect.signature(DIMENSIONADORES[unidad])
+                if "DBO_entrada_mg_L" in sig.parameters and calidad_actual.get("DBO5_mg_L") is not None:
+                    kwargs["DBO_entrada_mg_L"] = calidad_actual["DBO5_mg_L"]
                     print(f"[DBO entrada: {calidad_actual['DBO5_mg_L']:.1f} mg/L]", end=" ")
-                elif unidad == "cloro":
-                    resultado = DIMENSIONADORES[unidad](
-                        cfg, 
-                        CF_entrada_NMP=calidad_actual["CF_NMP_100mL"]
-                    )
+                if "CF_entrada_NMP" in sig.parameters and calidad_actual.get("CF_NMP_100mL") is not None:
+                    kwargs["CF_entrada_NMP"] = calidad_actual["CF_NMP_100mL"]
                     print(f"[CF entrada: {calidad_actual['CF_NMP_100mL']:.0f} NMP/100mL]", end=" ")
-                # Para lecho de secado necesitamos los lodos acumulados
-                elif unidad == "lecho_secado":
-                    if lodos_total_kg_SST_d > 0:
-                        resultado = DIMENSIONADORES[unidad](cfg, lodos_kg_SST_d=lodos_total_kg_SST_d)
-                        # Actualizar el desglose con información real de las unidades
-                        if desglose_lodos:
-                            filas_desglose = []
-                            for item in desglose_lodos:
-                                filas_desglose.append({
-                                    "origen": item["nombre"],
-                                    "por_linea_kg_d": round(item["kg_SST_d"] / cfg.num_lineas, 2),
-                                    "total_kg_d": round(item["kg_SST_d"], 2)
-                                })
-                            resultado["desglose_lodos"] = filas_desglose
-                    else:
-                        raise ValueError("No se han acumulado lodos de las unidades anteriores para dimensionar el lecho de secado")
-                else:
-                    resultado = DIMENSIONADORES[unidad](cfg)
+                
+                # Ajuste puntual para ABR/RAP: TRH reducido a 24 h para evitar reactor excesivamente largo
+                if unidad == "abr_rap" and "TRH_diseno_h" in sig.parameters:
+                    kwargs["TRH_diseno_h"] = 24.0
+                
+                # Contexto general: todas las unidades ya dimensionadas
+                if "resultados_previos" in sig.parameters:
+                    kwargs["resultados_previos"] = resultados
+                
+                resultado = DIMENSIONADORES[unidad](cfg, **kwargs)
                 resultados[unidad] = resultado
                 
                 # Actualizar calidad del agua tras esta unidad
@@ -484,18 +484,10 @@ def dimensionar_tren(cfg_tren: ConfigTren) -> Dict[str, Any]:
                 resultado["_calidad_entrada"] = calidad_anterior
                 resultado["_calidad_salida"] = calidad_actual.copy()
                 
-                # Acumular lodos de cada unidad (excepto lecho de secado que los recibe)
+                # Reportar lodos generados por esta unidad (solo informativo)
                 if unidad != "lecho_secado":
                     lodos_unidad = extraer_lodos_unidad(resultado, unidad)
                     if lodos_unidad > 0:
-                        lodos_total_kg_SST_d += lodos_unidad
-                        # Agregar al desglose
-                        nombre_unidad = NOMBRES_UNIDADES.get(unidad, unidad)
-                        desglose_lodos.append({
-                            "unidad": unidad,
-                            "nombre": nombre_unidad,
-                            "kg_SST_d": lodos_unidad
-                        })
                         print(f"OK (lodos: {lodos_unidad:.1f} kg SST/d)")
                     else:
                         print("OK")
@@ -508,13 +500,35 @@ def dimensionar_tren(cfg_tren: ConfigTren) -> Dict[str, Any]:
             print("NO SOPORTADA")
             resultados[unidad] = {"error": "Unidad no soportada"}
     
-    # Si hay lecho de secado en el tren, pasarle los lodos acumulados
-    if "lecho_secado" in cfg_tren.unidades and lodos_total_kg_SST_d > 0:
+    # Calcular metadatos globales de lodos a partir de todos los resultados
+    desglose_lodos = []
+    lodos_total_kg_SST_d = 0.0
+    for unidad, res in resultados.items():
+        if unidad.startswith("_") or not isinstance(res, dict):
+            continue
+        lodos_u = extraer_lodos_unidad(res, unidad)
+        if lodos_u > 0:
+            lodos_total_kg_SST_d += lodos_u
+            desglose_lodos.append({
+                "unidad": unidad,
+                "nombre": NOMBRES_UNIDADES.get(unidad, unidad),
+                "kg_SST_d": lodos_u
+            })
+    
+    if lodos_total_kg_SST_d > 0:
         print(f"\n  Total lodos para lecho de secado: {lodos_total_kg_SST_d:.2f} kg SST/d")
-        # Guardar para usar cuando se dimensione el lecho
         resultados["_lodos_acumulados_kg_SST_d"] = lodos_total_kg_SST_d
-        # Guardar también el desglose por unidad
         resultados["_desglose_lodos"] = desglose_lodos
+        # Si hay lecho de secado, inyectar desglose formateado en su resultado
+        if "lecho_secado" in resultados and isinstance(resultados["lecho_secado"], dict):
+            filas_desglose = []
+            for item in desglose_lodos:
+                filas_desglose.append({
+                    "origen": item["nombre"],
+                    "por_linea_kg_d": round(item["kg_SST_d"] / cfg.num_lineas, 2),
+                    "total_kg_d": round(item["kg_SST_d"], 2)
+                })
+            resultados["lecho_secado"]["desglose_lodos"] = filas_desglose
     
     # Guardar calidad final del efluente
     resultados["_calidad_efluente"] = calidad_actual.copy()
@@ -823,7 +837,7 @@ def generar_documento_tren(
         unidades_con_layout = [u for u in cfg_tren.unidades if u in resultados and u != 'lecho_secado']
         
         layout_info = generar_layout(
-            tren_id=cfg_tren.nombre.replace(" ", "_").lower(),
+            tren_id=re.sub(r'[^\w\-]', '_', cfg_tren.nombre).lower(),
             unidades=unidades_con_layout,
             resultados=resultados,
             output_dir=figuras_dir,
@@ -1155,7 +1169,7 @@ if __name__ == "__main__":
     
     # Ejemplo de uso
     entrada = {
-        "nombre_tren": "Sistema de Tratamiento con Reactor de Flujo Ascendente y Humedal Vertical",
+        "nombre_tren": "Sistema de Tratamiento Anaerobio-Aerobio con ABR/RAP, TAF y Sedimentacion",
         "caudal_total_lps": 17.31,
         "num_lineas": 3,
         "afluente": {
@@ -1170,7 +1184,8 @@ if __name__ == "__main__":
             "rejillas",
             "desarenador",
             "uasb",
-            "humedal_vertical",
+            "taf",
+            "sedimentador_sec",
             "cloro",
             "lecho_secado"
         ]
@@ -1179,7 +1194,7 @@ if __name__ == "__main__":
     # -------------------------------------------------------------------------
     # CONFIGURACION RAPIDA: activar/desactivar generacion de texto con IA
     # -------------------------------------------------------------------------
-    USAR_IA = True  # <-- Cambia a False para omitir los textos generados por IA
+    USAR_IA = False  # <-- Cambia a False para omitir los textos generados por IA
     # -------------------------------------------------------------------------
 
     print("\nGenerando documento con el tren de ejemplo...")

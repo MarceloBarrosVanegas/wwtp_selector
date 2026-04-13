@@ -1,0 +1,539 @@
+MANUAL PRÁCTICO PARA DISEÑAR UN REACTOR UASB DESDE CERO
+==============================================================
+
+OBJETIVO
+--------
+Este texto resume cómo diseñar un reactor UASB (Upflow Anaerobic Sludge Blanket)
+desde cero, distinguiendo entre:
+
+1. Cálculo directo
+2. Dimensionamiento por criterio
+3. Verificación hidráulica
+
+La idea es que puedas usarlo como base técnica y también pasárselo a otra IA
+o usarlo en tu PC para seguir desarrollando el diseño.
+
+----------------------------------------------------------------------
+1. DATOS DE ENTRADA NECESARIOS
+----------------------------------------------------------------------
+
+Antes de diseñar, debes definir como mínimo:
+
+- Qmed_total = caudal medio total de la planta [m3/s o L/s]
+- Qmax_total = caudal máximo horario total [m3/s o L/s]
+- Número de líneas o módulos
+- Temperatura del agua residual [°C]
+- DQO o DBO afluente
+- SST afluente
+- Tipo de agua residual (doméstica, municipal, etc.)
+
+Si hay varias líneas:
+- Qmed_linea = Qmed_total / número de líneas
+- Qmax_linea = Qmax_total / número de líneas
+
+----------------------------------------------------------------------
+2. CRITERIOS RECOMENDADOS POR LITERATURA PARA UASB DOMÉSTICO
+----------------------------------------------------------------------
+
+Para clima cálido y aguas residuales domésticas, se suelen usar estos rangos:
+
+A) TRH (tiempo de retención hidráulica)
+- Medio: 6 a 9 h
+- En condiciones más ajustadas: 4 a 6 h
+- Si quieres diseño conservador, usa 8 h como punto de partida
+
+B) Velocidad ascensional
+- Promedio recomendable: 0.5 a 0.7 m/h
+- A caudal máximo: menor que 0.9 a 1.1 m/h
+- En picos cortos: menor que 1.5 m/h
+
+C) Altura útil del reactor
+- Total útil típica: 4.0 a 5.0 m
+- Compartimiento de sedimentación: 1.5 a 2.0 m
+- Compartimiento de digestión: 2.5 a 3.5 m
+
+D) Sedimentador superior
+- Carga superficial a caudal medio: 0.6 a 0.8 m/h
+- A caudal máximo: menor que 1.2 m/h
+- En picos temporales: menor que 1.6 m/h
+
+E) Distribución del afluente
+- Área de influencia por punto de distribución: 2 a 3 m2 por punto
+- Diámetro típico de tubos de distribución: 75 a 100 mm
+
+F) Aberturas hacia el sedimentador
+- Velocidad en aberturas a caudal medio: 2.0 a 2.3 m/h
+- A caudal máximo: 4.0 a 4.2 m/h
+
+G) Gas
+- Tasa de liberación de biogás: aprox. 1 a 3 m3/m2·h
+  (en algunos casos hasta 5 m3/m2·h como máximo)
+
+----------------------------------------------------------------------
+3. SECUENCIA CORRECTA DE DISEÑO
+----------------------------------------------------------------------
+
+El orden correcto es:
+
+1. Definir caudal de diseño por línea
+2. Adoptar TRH
+3. Calcular volumen útil
+4. Adoptar altura útil
+5. Calcular área en planta
+6. Definir geometría (circular o rectangular)
+7. Verificar velocidad ascensional
+8. Dimensionar sedimentador superior
+9. Dimensionar aberturas y GLS
+10. Dimensionar distribución del afluente
+11. Dimensionar sistema de recolección de gas
+12. Dimensionar recolección de efluente
+13. Estimar lodos y biogás
+
+----------------------------------------------------------------------
+4. PASO 1: CAUDAL POR LÍNEA
+----------------------------------------------------------------------
+
+Si tienes n líneas:
+
+Qmed_linea = Qmed_total / n
+Qmax_linea = Qmax_total / n
+
+Ejemplo:
+Si Qmed_total = 10 L/s y hay 2 líneas:
+
+Qmed_linea = 10 / 2 = 5 L/s
+
+Conversión:
+1 L/s = 3.6 m3/h
+
+Entonces:
+Qmed_linea = 5 L/s = 18 m3/h
+
+----------------------------------------------------------------------
+5. PASO 2: VOLUMEN ÚTIL DEL REACTOR
+----------------------------------------------------------------------
+
+Fórmula principal:
+
+V = Qmed_h * TRH
+
+donde:
+- V = volumen útil [m3]
+- Qmed_h = caudal medio por línea [m3/h]
+- TRH = tiempo de retención hidráulica [h]
+
+Ejemplo:
+Si Qmed_h = 18 m3/h y TRH = 8 h:
+
+V = 18 * 8 = 144 m3
+
+Ese sería el volumen útil por reactor.
+
+----------------------------------------------------------------------
+6. PASO 3: ALTURA ÚTIL DEL REACTOR
+----------------------------------------------------------------------
+
+Se adopta dentro del rango recomendado por literatura:
+
+Hutil = 4.0 a 5.0 m
+
+Si quieres un valor inicial equilibrado:
+Hutil = 4.5 m
+
+Luego se reparte aproximadamente así:
+
+Hsed = 1.5 a 2.0 m
+Hdig = 2.5 a 3.5 m
+
+y debe cumplirse:
+Hutil = Hsed + Hdig
+
+Ejemplo:
+Hsed = 1.6 m
+Hdig = 2.9 m
+
+Hutil = 1.6 + 2.9 = 4.5 m
+
+----------------------------------------------------------------------
+7. PASO 4: ÁREA EN PLANTA
+----------------------------------------------------------------------
+
+Fórmula:
+
+A = V / Hutil
+
+donde:
+- A = área en planta [m2]
+- V = volumen útil [m3]
+- Hutil = altura útil [m]
+
+Ejemplo:
+V = 144 m3
+Hutil = 4.5 m
+
+A = 144 / 4.5 = 32.0 m2
+
+----------------------------------------------------------------------
+8. PASO 5: GEOMETRÍA DEL REACTOR
+----------------------------------------------------------------------
+
+Si el reactor es circular:
+
+D = sqrt((4*A)/pi)
+
+donde:
+- D = diámetro [m]
+- A = área en planta [m2]
+
+Ejemplo:
+A = 32.0 m2
+
+D = sqrt((4*32.0)/3.1416)
+D = sqrt(40.74)
+D = 6.38 m
+
+Entonces puedes adoptar:
+D = 6.4 m
+
+----------------------------------------------------------------------
+9. PASO 6: VELOCIDAD ASCENSIONAL
+----------------------------------------------------------------------
+
+Fórmula:
+
+vup = Qmed_h / A
+
+donde:
+- vup = velocidad ascensional [m/h]
+- Qmed_h = caudal medio [m3/h]
+- A = área en planta [m2]
+
+Ejemplo:
+Qmed_h = 18 m3/h
+A = 32.0 m2
+
+vup = 18 / 32.0 = 0.56 m/h
+
+Eso está dentro del rango recomendable de 0.5 a 0.7 m/h.
+
+También debes verificar a caudal máximo:
+
+vup_max = Qmax_h / A
+
+Ejemplo:
+Si Qmax_linea = 12.5 L/s = 45 m3/h
+
+vup_max = 45 / 32 = 1.41 m/h
+
+Ese valor es alto para máximo horario, por lo que debes revisar:
+- si el factor de pico es correcto
+- si necesitas mayor área
+- si necesitas más módulos
+
+----------------------------------------------------------------------
+10. PASO 7: DISEÑO DEL COMPARTIMIENTO DE SEDIMENTACIÓN
+----------------------------------------------------------------------
+
+Este compartimiento se verifica con 2 criterios:
+
+A) Carga superficial
+SOR = Q / As
+
+donde:
+- SOR = tasa de desborde superficial [m/h]
+- As = área efectiva de sedimentación [m2]
+
+Criterios recomendados:
+- 0.6 a 0.8 m/h a caudal medio
+- < 1.2 m/h a caudal máximo
+
+Si tomas As cercana al área del reactor:
+As ≈ A (o ligeramente menor)
+
+Ejemplo:
+Qmed = 18 m3/h
+As = 30 m2
+
+SOR = 18 / 30 = 0.60 m/h
+
+Cumple.
+
+B) Tiempo de retención en sedimentador
+ts = Vs / Q
+
+donde:
+- ts = tiempo de retención del sedimentador [h]
+- Vs = volumen del sedimentador [m3]
+
+Si:
+Vs = As * Hsed
+
+Ejemplo:
+As = 30 m2
+Hsed = 1.6 m
+
+Vs = 30 * 1.6 = 48 m3
+
+ts = 48 / 18 = 2.67 h
+
+Eso es razonable y conservador.
+
+----------------------------------------------------------------------
+11. PASO 8: COMPARTIMIENTO DE DIGESTIÓN
+----------------------------------------------------------------------
+
+No se diseña por separado como si fuera otro tanque independiente.
+Se obtiene así:
+
+Hdig = Hutil - Hsed
+
+Ejemplo:
+Hutil = 4.5 m
+Hsed = 1.6 m
+
+Hdig = 4.5 - 1.6 = 2.9 m
+
+Dentro de esa zona de digestión, en el esquema puedes subdividir:
+
+- Lecho de lodo denso / granular: 35 a 45 % de Hdig
+- Manto de lodos expandido: 55 a 65 % de Hdig
+
+Ejemplo:
+Si Hdig = 2.9 m
+
+Lecho granular = 1.1 m
+Manto de lodos = 1.8 m
+
+Ojo:
+Eso es una subdivisión conceptual útil para dibujo y explicación,
+pero el cálculo principal es sobre Hdig total.
+
+----------------------------------------------------------------------
+12. PASO 9: ABERTURAS HACIA EL SEDIMENTADOR
+----------------------------------------------------------------------
+
+La abertura total libre se calcula con:
+
+Aab >= Q / vadm
+
+donde:
+- Aab = área total libre de aberturas [m2]
+- Q = caudal [m3/h]
+- vadm = velocidad admisible [m/h]
+
+Valores recomendados:
+- vadm_med = 2.0 a 2.3 m/h
+- vadm_max = 4.0 a 4.2 m/h
+
+Ejemplo con caudal medio:
+Qmed = 18 m3/h
+vadm = 2.2 m/h
+
+Aab >= 18 / 2.2 = 8.18 m2
+
+Eso significa que la suma de áreas libres de paso hacia el sedimentador
+debe ser al menos 8.18 m2, si tomas ese criterio.
+
+Además, el GLS debe tener:
+- pendientes de 50 a 60°
+- traslape de 0.10 a 0.15 m sobre la abertura
+
+----------------------------------------------------------------------
+13. PASO 10: NÚMERO DE PUNTOS DE DISTRIBUCIÓN DEL AFLUENTE
+----------------------------------------------------------------------
+
+Se calcula con el área de influencia por punto:
+
+N = A / Ainf
+
+donde:
+- N = número de puntos
+- A = área del reactor [m2]
+- Ainf = área de influencia por punto [m2/punto]
+
+Valores recomendados:
+Ainf = 2 a 3 m2 por punto
+
+Ejemplo:
+A = 32 m2
+
+Si usas 2.5 m2/punto:
+N = 32 / 2.5 = 12.8
+
+Puedes adoptar:
+N = 12 o 13 puntos
+
+Eso es mucho más razonable que 4 puntos en un reactor de ese tamaño.
+
+----------------------------------------------------------------------
+14. PASO 11: DIÁMETRO DE TUBOS DE DISTRIBUCIÓN
+----------------------------------------------------------------------
+
+Criterio típico:
+- tubos de distribución: 75 a 100 mm
+- boca de salida: 40 a 50 mm
+
+Además conviene revisar velocidad dentro del tubo:
+
+vtubo = q / atubo
+
+donde:
+- q = caudal por punto [m3/s]
+- atubo = área interna del tubo [m2]
+
+Si:
+Qtotal_linea = 5 L/s
+N = 12 puntos
+
+q = 5 / 12 = 0.417 L/s = 0.000417 m3/s
+
+Si adoptas tubo de 75 mm:
+atubo = pi*(0.075^2)/4 = 0.00442 m2
+
+vtubo = 0.000417 / 0.00442 = 0.094 m/s
+
+Eso está bien.
+
+----------------------------------------------------------------------
+15. PASO 12: COLECTOR O CÁMARA DE GAS
+----------------------------------------------------------------------
+
+Se puede dimensionar con:
+
+Ag >= Qg / Kg
+
+donde:
+- Ag = área de interfaz líquido-gas [m2]
+- Qg = caudal de biogás [m3/h]
+- Kg = tasa de liberación admisible [m3/m2·h]
+
+Valores orientativos:
+Kg = 1 a 3 m3/m2·h
+(en algunos casos hasta 5, pero mejor ser conservador)
+
+Ejemplo:
+Si Qg = 2.5 m3/h y adoptas Kg = 2.0
+
+Ag >= 2.5 / 2.0 = 1.25 m2
+
+Entonces necesitas al menos 1.25 m2 de área efectiva de interfaz para gas.
+
+----------------------------------------------------------------------
+16. PASO 13: ESTIMACIÓN DE BIOMASA Y LODOS
+----------------------------------------------------------------------
+
+Una forma simplificada es:
+
+Plodos = Y * LdqO
+
+donde:
+- Plodos = producción de sólidos [kg SST/d]
+- Y = rendimiento de sólidos [kg SST/kg DQO aplicada]
+- LdqO = carga de DQO aplicada [kg DQO/d]
+
+Valores típicos:
+Y = 0.10 a 0.20 kg SST/kg DQO aplicada
+
+Si:
+LdqO = Q * DQO
+
+Ejemplo:
+Q = 432 m3/d
+DQO = 0.498 kg/m3
+
+LdqO = 432 * 0.498 = 215.1 kg DQO/d
+
+Si Y = 0.12:
+Plodos = 0.12 * 215.1 = 25.8 kg SST/d
+
+Eso sería un cálculo preliminar.
+
+----------------------------------------------------------------------
+17. RECOLECCIÓN DE EFLUENTE
+----------------------------------------------------------------------
+
+No debe dejarse solo como “una salida lateral” en el esquema.
+
+Lo correcto es prever:
+- canaleta de recolección
+- vertedero periférico o distribuido
+- o sistema equivalente que recoja homogéneamente el efluente clarificado
+
+En nivel preliminar, basta con dejarlo explícito como “sistema de recolección de efluente”
+y no dibujarlo como un simple tubo sin criterio.
+
+----------------------------------------------------------------------
+18. DIFERENCIA ENTRE LO QUE SE CALCULA Y LO QUE SE ADOPTA
+----------------------------------------------------------------------
+
+A) Se calcula directamente:
+- Volumen útil
+- Área en planta
+- Diámetro
+- Velocidad ascensional
+- Número de puntos de distribución
+- Área mínima de aberturas
+- Área mínima del colector de gas
+
+B) Se adopta con criterio y luego se verifica:
+- Altura útil total
+- Altura del sedimentador
+- Altura del compartimiento de digestión
+- Reparto interno entre lecho granular y manto de lodos
+- Pendientes del GLS
+- Geometría interna constructiva
+
+Eso es normal en UASB. No todo sale de una ecuación única.
+
+----------------------------------------------------------------------
+19. PROPUESTA DE PARTIDA PARA TU CASO
+----------------------------------------------------------------------
+
+Si tu caso es:
+
+- Qtotal = 10 L/s
+- 2 líneas
+- T = 25.6 °C
+
+Una propuesta inicial razonable por línea es:
+
+- Qmed_linea = 5 L/s = 18 m3/h
+- TRH = 8 h
+- V = 144 m3
+- Hutil = 4.5 m
+- Hsed = 1.6 m
+- Hdig = 2.9 m
+- A = 32 m2
+- D = 6.4 m
+- vup = 0.56 m/h
+- N distribuidores = 12 puntos
+
+Y luego verificar:
+- vup a Qmax
+- SOR del sedimentador
+- área de aberturas
+- colector de gas
+
+----------------------------------------------------------------------
+20. RECOMENDACIÓN FINAL DE TRABAJO
+----------------------------------------------------------------------
+
+Haz el diseño en este orden:
+
+1. Fija caudales por línea
+2. Adopta TRH
+3. Calcula volumen útil
+4. Escoge altura útil
+5. Calcula área y diámetro
+6. Verifica velocidad ascensional
+7. Dimensiona sedimentador
+8. Dimensiona digestión
+9. Calcula aberturas
+10. Calcula número de distribuidores
+11. Calcula gas
+12. Ajusta el esquema final
+
+No dibujes primero y calcules después.
+En UASB funciona mejor calcular primero y representar después.
+
+FIN

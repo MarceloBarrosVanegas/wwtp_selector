@@ -146,44 +146,64 @@ def dibujar_flecha_lodos(ax, x1: float, y1: float, x2: float, y2: float):
                               linestyle='--'))
 
 
-def generar_caption_layout(unidades_presentes: list) -> str:
+def generar_caption_layout(unidades_presentes: list,
+                             numeracion: dict = None,
+                             nombres_completos: dict = None) -> str:
     """
     Genera automáticamente el texto de caption/descripción para el layout.
     Incluye la numeración de unidades y sus nombres completos.
     
     Args:
         unidades_presentes: Lista de unidades que aparecen en el layout
+        numeracion: Dict opcional {unidad: numero}. Si es None, usa NUMEROS_UNIDADES.
+        nombres_completos: Dict opcional {unidad: nombre largo}. Si es None, usa fallback.
         
     Returns:
         str: Texto formateado para usar como caption en LaTeX
     """
-    # Mapeo completo de nombres para el caption
-    NOMBRES_COMPLETOS = {
-        '1': 'Rejillas',
-        '2': 'Desarenador', 
-        '3': 'Reactor UASB (Reactor Anaerobio de Flujo Ascendente)',
-        '4': 'Humedal Artificial de Flujo Vertical (HAFV)',
-        '5': 'Cámara de Desinfección con Cloro',
-        '6': 'Lecho de Secado de Lodos',
-    }
+    # Fallback de nombres completos por unidad de layout
+    if nombres_completos is None:
+        nombres_completos = {
+            'Rejillas': 'Rejillas',
+            'Desarenador': 'Desarenador',
+            'UASB': 'Reactor UASB (Reactor Anaerobio de Flujo Ascendente)',
+            'ABR_RAP': 'Reactor Anaerobio con Pantallas (ABR / RAP)',
+            'Filtro_Percolador': 'Filtro Percolador',
+            'Sedimentador': 'Sedimentador Secundario',
+            'Sedimentador_Secundario': 'Sedimentador Secundario',
+            'Desinfeccion': 'Cámara de Desinfección con Cloro',
+            'Desinfeccion_Cloro': 'Cámara de Desinfección con Cloro',
+            'Cloro': 'Cámara de Desinfección con Cloro',
+            'UV': 'Sistema de Desinfección UV',
+            'Humedal_Vertical': 'Humedal Artificial de Flujo Vertical (HAFV)',
+            'Humedal_Horizontal': 'Humedal Artificial de Flujo Horizontal (HAFH)',
+            'BAF': 'Biofiltro Biológico Aireado (BAF)',
+            'Biofiltro': 'Biofiltro de Carga Mecanizada e Hidráulica (TAF)',
+            'Lodos_Activados': 'Reactor de Lodos Activados',
+            'Lecho de Secado': 'Lecho de Secado de Lodos',
+        }
     
-    # Obtener números únicos presentes
-    numeros_presentes = set()
-    for unidad in unidades_presentes:
-        num = NUMEROS_UNIDADES.get(unidad)
-        if num:
-            numeros_presentes.add(num)
+    if numeracion is None:
+        numeracion = NUMEROS_UNIDADES
     
-    # Ordenar y construir lista
+    # Construir items preservando el orden de aparición y evitando duplicados
+    vistos = set()
     items = []
-    for num in sorted(numeros_presentes):
-        nombre = NOMBRES_COMPLETOS.get(num, NOMBRES_LEYENDA.get(num, 'Unidad'))
+    for unidad in unidades_presentes:
+        num = numeracion.get(unidad)
+        if num is None:
+            continue
+        if num in vistos:
+            continue
+        vistos.add(num)
+        nombre = nombres_completos.get(unidad, NOMBRES_DISPLAY.get(unidad, unidad).replace('\\n', ' '))
         items.append(f"\\textbf{{{num}}}={nombre}")
     
     return "Distribución de unidades: " + "; ".join(items) + "."
 
 
-def dibujar_numeros_arquitectura(ax, posiciones_unidades: dict, max_y: float):
+def dibujar_numeros_arquitectura(ax, posiciones_unidades: dict, max_y: float,
+                                 numeracion: dict = None):
     """
     Dibuja números en la parte superior con líneas guía dashed.
     Estilo arquitectura profesional - las líneas no llegan hasta las dimensiones.
@@ -192,19 +212,23 @@ def dibujar_numeros_arquitectura(ax, posiciones_unidades: dict, max_y: float):
         ax: Eje de matplotlib
         posiciones_unidades: Dict {unidad: (x_centro, y_centro, ancho, alto)}
         max_y: Altura máxima del layout
+        numeracion: Dict opcional {unidad: numero}. Si es None, usa NUMEROS_UNIDADES.
     """
     y_numeros = max_y + 2.5  # Posición Y para los números (arriba)
-    y_fin_linea = 2.0  # Donde terminan las líneas dashed (por encima de las dimensiones que están en -5)
+    y_fin_linea = 2.0  # Donde terminan las líneas dashed
     fontsize_num = 14
     
+    if numeracion is None:
+        numeracion = NUMEROS_UNIDADES
+    
     for unidad, (x_c, y_c, ancho, alto) in posiciones_unidades.items():
-        numero = NUMEROS_UNIDADES.get(unidad, '?')
+        numero = numeracion.get(unidad, '?')
         
         # Dibujar número arriba centrado
         ax.text(x_c, y_numeros, numero, ha='center', va='bottom',
                fontsize=fontsize_num, fontweight='bold', color='black')
         
-        # Línea guía dashed desde el número hasta y_fin_linea (no llega a las dimensiones)
+        # Línea guía dashed desde el número hasta y_fin_linea
         ax.plot([x_c, x_c], [y_numeros - 0.5, y_fin_linea], 'k--', lw=1.5, alpha=0.6)
 
 def dibujar_leyenda_numerada(ax, unidades_presentes: list, max_x: float, max_y: float):
@@ -336,6 +360,7 @@ def convertir_resultados_a_dimensiones(resultados: dict) -> dict:
         'baf': 'BAF',
         'abr_rap': 'ABR_RAP',
         'bf_cmh': 'Biofiltro',  # Biofiltro carga mecanizada/hidráulica
+        'taf': 'Biofiltro',
     }
     
     for key_res, key_layout in mapeo.items():
@@ -431,7 +456,7 @@ def convertir_resultados_a_dimensiones(resultados: dict) -> dict:
                 'ancho': res.get('ancho_layout_m', res.get('W_m', 3.0)),
                 'geom': 'rect'
             }
-        elif key_res == 'bf_cmh':
+        elif key_res in ('bf_cmh', 'taf'):
             diam = res.get('diametro_layout_m', res.get('D_bf_m', 4.0))
             dim[key_layout] = {
                 'tipo': 'tratamiento_secundario',
@@ -813,6 +838,7 @@ def generar_layout(
         'baf': 'BAF',
         'abr_rap': 'ABR_RAP',
         'bf_cmh': 'Biofiltro',
+        'taf': 'Biofiltro',
     }
     
     # Construir lista de unidades en formato del layout
@@ -1043,9 +1069,34 @@ def generar_layout(
     
     max_x_con_acot = max_x_layout + 5
     
+    # Numeración dinámica según el orden real del tren (1, 2, 3, ...)
+    NOMBRES_COMPLETOS_DINAMICO = {
+        'Rejillas': 'Rejillas',
+        'Desarenador': 'Desarenador',
+        'UASB': 'Reactor UASB (Reactor Anaerobio de Flujo Ascendente)',
+        'ABR_RAP': 'Reactor Anaerobio con Pantallas (ABR / RAP)',
+        'Filtro_Percolador': 'Filtro Percolador',
+        'Sedimentador': 'Sedimentador Secundario',
+        'Sedimentador_Secundario': 'Sedimentador Secundario',
+        'Desinfeccion': 'Cámara de Desinfección con Cloro',
+        'Desinfeccion_Cloro': 'Cámara de Desinfección con Cloro',
+        'Cloro': 'Cámara de Desinfección con Cloro',
+        'UV': 'Sistema de Desinfección UV',
+        'Humedal_Vertical': 'Humedal Artificial de Flujo Vertical (HAFV)',
+        'Humedal_Horizontal': 'Humedal Artificial de Flujo Horizontal (HAFH)',
+        'BAF': 'Biofiltro Biológico Aireado (BAF)',
+        'Biofiltro': 'Biofiltro de Carga Mecanizada e Hidráulica (TAF)',
+        'Lodos_Activados': 'Reactor de Lodos Activados',
+        'Lecho de Secado': 'Lecho de Secado de Lodos',
+    }
+    numeracion_dinamica = {}
+    for i, unidad in enumerate(todas_unidades_con_lecho):
+        numeracion_dinamica[unidad] = str(i + 1)
+    
     # Dibujar números arquitectura en la parte superior con líneas guía
     if posiciones_unidades_dict:
-        dibujar_numeros_arquitectura(ax, posiciones_unidades_dict, max_y_layout)
+        dibujar_numeros_arquitectura(ax, posiciones_unidades_dict, max_y_layout,
+                                     numeracion=numeracion_dinamica)
     
     # Leyenda de colores (tipo de tratamiento) - esquina superior izquierda
     leyenda_items = []
@@ -1079,8 +1130,12 @@ def generar_layout(
     fig.savefig(fig_path, dpi=200, bbox_inches='tight', facecolor='white')
     plt.close()
     
-    # Generar caption automático para LaTeX
-    caption = generar_caption_layout(todas_unidades_con_lecho)
+    # Generar caption automático para LaTeX (dinámica según unidades reales)
+    caption = generar_caption_layout(
+        todas_unidades_con_lecho,
+        numeracion=numeracion_dinamica,
+        nombres_completos=NOMBRES_COMPLETOS_DINAMICO
+    )
     
     return {
         'fig_path': fig_path,

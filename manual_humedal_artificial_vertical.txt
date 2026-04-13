@@ -1,0 +1,1761 @@
+================================================================================
+GUÍA DE DISEÑO: HUMEDAL ARTIFICIAL DE FLUJO VERTICAL (HAFV / VFCW)
+Metodología Unificada: Sistema Clásico y HAFV Tropical de Alta Carga
+Con Algoritmo de Selección por Temperatura y Contexto de Proyecto
+Versión 2.0 — Revisada y ampliada
+================================================================================
+
+Autores de referencia principales:
+  Kadlec & Wallace (2009), Molle et al. (2015), Cooper et al. (1996),
+  Vymazal (2014), García & Corzo (2008), Stefanakis et al. (2014)
+  ÖNORM B 2505 (2009), US EPA (2000), OPS/CEPIS (2005)
+
+--------------------------------------------------------------------------------
+ÍNDICE
+--------------------------------------------------------------------------------
+
+  SECCIÓN  0 — Alcance y propósito de la guía
+  SECCIÓN  1 — Fundamentos teóricos del HAFV
+  SECCIÓN  2 — Datos de entrada requeridos
+  SECCIÓN  3 — ALGORITMO DE SELECCIÓN: ¿Sistema Clásico o HAFV tropical de alta carga?
+  SECCIÓN  4 — RUTA A: Diseño por Sistema Clásico (temperatura < 20 °C)
+  SECCIÓN  5 — RUTA B: Diseño por HAFV tropical de alta carga (temperatura ≥ 20 °C)
+  SECCIÓN  6 — Diseño del medio filtrante (común a ambas rutas)
+  SECCIÓN  7 — Sistema de distribución superficial y pulsos
+  SECCIÓN  8 — Sistema de drenaje inferior
+  SECCIÓN  9 — Impermeabilización y estructura civil
+  SECCIÓN 10 — Vegetación macrófita
+  SECCIÓN 11 — Verificación de eficiencia: Modelo k-C* (complementario/recomendado)
+  SECCIÓN 12 — Verificación de cumplimiento normativo (TULSMA y equivalentes)
+  SECCIÓN 13 — Producción de lodos y mantenimiento
+  SECCIÓN 14 — Requerimientos de área total del predio
+  SECCIÓN 15 — Tabla de resultados consolidada (completada con datos de proyecto)
+  SECCIÓN 16 — Índice de ecuaciones
+  SECCIÓN 17 — Referencias bibliográficas
+  SECCIÓN 18 — Glosario de términos técnicos
+  SECCIÓN 19 — Ejemplo de cálculo resuelto (Proyecto tipo Galápagos)
+
+
+------------------------------------------------------------------------
+SECCIÓN 0 — ALCANCE Y PROPÓSITO DE LA GUÍA
+------------------------------------------------------------------------
+
+Esta guía presenta una metodología completa y unificada para el diseño de
+Humedales Artificiales de Flujo Vertical (HAFV), también denominados en la
+literatura inglesa Vertical Flow Constructed Wetlands (VFCW).
+
+El objetivo central es proporcionar un algoritmo de decisión que permita al
+diseñador seleccionar la metodología de cálculo más adecuada según las
+condiciones climáticas del proyecto, y a partir de esa selección, ejecutar
+el dimensionamiento paso a paso con criterios verificables y referenciados.
+
+Se distinguen dos sistemas principales de diseño:
+
+  SISTEMA CLÁSICO (también llamado sistema nórdico o europeo):
+  Desarrollado en Europa central y septentrional. Optimizado para temperaturas
+  del agua residual entre 10 y 20 °C. Utiliza cargas orgánicas e hidráulicas
+  conservadoras. Se documenta en Cooper et al. (1996), Vymazal (2014) y la
+  norma austriaca ÖNORM B 2505 (2009).
+
+  HAFV TROPICAL DE ALTA CARGA (French VF adaptado, también llamado sistema de una etapa
+  tropical o sistema de alta carga tropical):
+  Desarrollado por el IRSTEA (Institut national de Recherche en Sciences et
+  Technologies pour l'Environnement et l'Agriculture) de Francia y validado
+  en territorios tropicales de ultramar (Mayotte, Guayana Francesa, Reunión,
+  Polinesia Francesa). Documentado principalmente por Molle et al. (2005,
+  2015) y Lombard-Latune et al. (2018). Optimizado para temperaturas del agua
+  residual superiores a 20 °C. Permite cargas considerablemente mayores,
+  resultando en áreas hasta 60–70 % menores que el sistema clásico.
+
+POSICIÓN EN EL TREN DE TRATAMIENTO (aplicable a ambos sistemas):
+
+  Pretratamiento  →  [Tratamiento primario]  →  HAFV  →  Desinfección
+
+  Como tratamiento secundario autónomo:
+    Rejillas → Desarenador → HAFV → Desinfección
+
+  Como tratamiento secundario después de reactor anaerobio:
+    Rejillas → Desarenador → UASB/Fosa séptica → HAFV → Desinfección
+
+  Como tratamiento terciario o de pulido:
+    Sistema secundario convencional → HAFV
+
+
+------------------------------------------------------------------------
+SECCIÓN 1 — FUNDAMENTOS TEÓRICOS DEL HAFV
+------------------------------------------------------------------------
+
+1.1 Principio de Funcionamiento
+
+El HAFV consiste en una celda impermeable rellena de un medio granular
+estratificado (grava y/o arena) sobre el que se desarrolla vegetación emergente
+macrófita. El agua residual se aplica intermitentemente desde la superficie
+mediante un sistema de distribución y percola verticalmente hacia abajo a través
+del medio filtrante hasta un sistema de drenaje ubicado en el fondo.
+
+El mecanismo clave que define al HAFV y lo diferencia del humedal de flujo
+horizontal subsuperficial (HFHS) es el ciclo de saturación y aireación:
+durante el pulso de alimentación, el medio se satura y los microorganismos
+anaerobios y anóxicos degradan la materia orgánica; durante el período de reposo
+entre pulsos, el medio drena y el aire penetra por la superficie y los tubos de
+drenaje, re-aireando el sistema y creando condiciones aerobias favorables para
+la nitrificación (Kadlec & Wallace, 2009; Cooper et al., 1996).
+
+1.2 Mecanismos de Remoción
+
+  Parámetro      | Mecanismo principal                              | Eficiencia típica
+  ---------------|--------------------------------------------------|------------------
+  DBO₅ / DQO    | Degradación aerobia + anóxica en biopelícula    | 70 – 90 %
+  SST            | Filtración física en el medio granular           | 80 – 95 %
+  NH₄-N          | Nitrificación aerobia (Nitrosomonas/Nitrobacter) | 50 – 80 %
+  NO₃-N          | Limitada (condiciones principalmente aerobias)   | 10 – 30 %
+  Patógenos CF   | Filtración, adsorción, radiación UV, pH          | 1 – 3 log
+  Fósforo total  | Adsorción en medio (limitada a largo plazo)      | 20 – 40 %
+
+Nota: La remoción de nitrógeno total (TN) puede mejorarse significativamente
+combinando el HAFV con un humedal de flujo horizontal subsuperficial (HFHS)
+en configuración híbrida: HAFV (nitrificación) → HFHS (desnitrificación).
+Esta configuración está documentada en Vymazal (2014) y Stefanakis et al. (2014).
+
+1.3 Diferencias Fundamentales entre Sistema Clásico y HAFV Tropical de Alta Carga
+
+  Característica           | Sistema Clásico         | HAFV tropical de alta carga
+  -------------------------|-------------------------|---------------------------
+  Temperatura de diseño    | 10 – 20 °C              | > 20 °C (óptimo 23–30 °C)
+  Número de etapas         | 2 etapas (1ª + 2ª)      | 1 sola etapa
+  Filtros por etapa        | 3 paralelos (1ª etapa)  | 2 paralelos
+  Área por PE              | 2 – 3 m²/PE             | 0.8 – 1.2 m²/PE
+  COS diseño               | 20 – 60 g DBO₅/m²·d    | 200 – 350 g DQO/m²·d (activo)
+  HLR diseño               | 0.02 – 0.10 m/d        | 0.50 – 0.75 m/d (activo)
+  Ciclo reposo             | 7 días alim / 14 reposo | 3.5 días alim / 3.5 reposo
+  Afluente admitido        | Agua cruda pretratada   | Agua cruda pretratada o post-1°
+  Mineralización de lodo   | Lenta (clima frío)      | Rápida (alta temperatura)
+  Referencia principal     | Cooper (1996), ÖNORM    | Molle et al. (2015)
+
+  NOTA: La COS para el sistema clásico se limita a 60 g DBO₅/m²·d como máximo
+  práctico (Cooper et al., 1996). Valores superiores pueden provocar colmatación
+  prematura a temperaturas bajas por insuficiente mineralización del lodo.
+
+1.4 Ventajas y Limitaciones Generales del HAFV
+
+Ventajas:
+  + Bajo consumo energético (flujo gravitacional, sin aireación forzada)
+  + Bajo costo de operación y mantenimiento
+  + Integración paisajística y ambiental
+  + Buena nitrificación comparada con HFHS
+  + Resistencia a variaciones de carga
+  + Vida útil > 20 años con operación adecuada
+
+Limitaciones:
+  - Requiere mayor área que sistemas intensivos convencionales
+  - Riesgo de colmatación si no se opera con pulsos correctos
+  - Remoción de fósforo limitada sin medio reactivo especial
+  - Sensible a sobrecargas orgánicas sostenidas
+  - Período de arranque de 6 – 12 meses
+
+
+------------------------------------------------------------------------
+SECCIÓN 2 — DATOS DE ENTRADA REQUERIDOS
+------------------------------------------------------------------------
+
+Antes de iniciar cualquier cálculo, se deben tener disponibles los siguientes
+parámetros. Su correcta determinación es crítica para la selección del sistema
+y el dimensionamiento.
+
+  Parámetro                           | Símbolo  | Unidad      | Fuente de datos
+  ------------------------------------|----------|-------------|---------------------------
+  Caudal medio diario                 | Q        | m³/d        | Aforo / estimación per cápita
+  DBO₅ afluente al HAFV               | S₀,DBO   | mg/L        | Análisis de laboratorio
+  DQO afluente al HAFV                | S₀,DQO   | mg/L        | Análisis de laboratorio
+  SST afluente al HAFV                | S₀,SST   | mg/L        | Análisis de laboratorio
+  Coliformes fecales afluentes        | CF₀      | NMP/100 mL  | Análisis de laboratorio
+  Temperatura media del agua residual | T        | °C          | Medición in situ
+  DBO₅ objetivo efluente              | Ce,DBO   | mg/L        | Norma aplicable
+  SST objetivo efluente               | Ce,SST   | mg/L        | Norma aplicable
+  CF objetivo efluente                | Ce,CF    | NMP/100 mL  | Norma aplicable
+  Área disponible en el terreno       | A_disp   | m²          | Levantamiento topográfico
+  Altitud del proyecto                | z        | m.s.n.m.    | Topografía
+
+NOTA IMPORTANTE SOBRE EL AFLUENTE AL HAFV:
+Si el HAFV recibe efluente de un tratamiento primario (UASB, fosa séptica,
+reactor anaerobio), los valores de S₀ corresponden al efluente de esa unidad,
+NO al agua residual cruda. Esto reduce significativamente el área requerida.
+Asimismo, el criterio de Equivalente Habitante (PE) basado en carga de DBO₅
+(60 g DBO₅/PE·d) debe referirse a la carga real que llega al HAFV, no a la
+carga cruda original de la población. Ver nota en Paso F5 y Paso C6.
+
+Valores típicos esperados en afluente post-UASB (agua residual doméstica):
+  DBO₅:  60 – 100 mg/L   (remoción UASB ≈ 65–70 %)
+  DQO:   150 – 200 mg/L  (remoción UASB ≈ 60–65 %)
+  SST:   40 – 60 mg/L    (remoción UASB ≈ 70 %)
+
+
+------------------------------------------------------------------------
+SECCIÓN 3 — ALGORITMO DE SELECCIÓN: ¿SISTEMA CLÁSICO O HAFV TROPICAL DE ALTA CARGA?
+------------------------------------------------------------------------
+
+El siguiente algoritmo permite seleccionar la metodología de diseño apropiada.
+Debe seguirse en el orden indicado, comenzando por el criterio de temperatura,
+que es el factor determinante primario.
+
+================================================================================
+ALGORITMO DE DECISIÓN — HAFV: SISTEMA CLÁSICO vs. HAFV TROPICAL DE ALTA CARGA
+================================================================================
+
+PASO A1 — Determinar la temperatura media anual del agua residual (T)
+
+  La temperatura del agua residual doméstica es generalmente 1–3 °C superior
+  a la temperatura media anual del aire en el sitio del proyecto.
+
+  CRITERIO PRIMARIO DE TEMPERATURA:
+  ┌─────────────────────────────────────────────────────────────────┐
+  │  T < 15 °C    →  SISTEMA CLÁSICO obligatorio                   │
+  │                   (la adaptación tropical no se recomienda)     │
+  │                                                                 │
+  │  15 ≤ T < 20 °C →  ZONA DE TRANSICIÓN                         │
+  │                   → Verificar criterios adicionales (Paso A2)  │
+  │                                                                 │
+  │  T ≥ 20 °C    →  HAFV TROPICAL DE ALTA CARGA recomendado      │
+  │                   → Verificar criterios adicionales (Paso A2)  │
+  └─────────────────────────────────────────────────────────────────┘
+
+PASO A2 — Verificar criterios adicionales de selección
+
+  Si T ≥ 20 °C, confirmar Ruta B si se cumplen AL MENOS 3 de los
+  criterios A2.1 a A2.4. El Criterio A2.5 es de naturaleza diferente:
+  si se activa, conduce directamente a la Condición 4 (sistema híbrido)
+  independientemente del resto. Ver Paso A3.
+
+  Criterio A2.1 — ÁREA DISPONIBLE LIMITADA
+    Si el área disponible es < 1.5 m²/PE → la Ruta B es favorable.
+    Si el área disponible es ≥ 2.5 m²/PE → el Sistema Clásico es viable.
+    Estado: [  ] Limitada (<1.5 m²/PE)   [  ] Intermedia   [  ] Suficiente (≥2.5)
+
+  Criterio A2.2 — AFLUENTE BRUTO vs. PRETRATADO
+    La celda francesa canónica permite afluente crudo (agua residual sin tratamiento
+    primario previo) siempre que T ≥ 20 °C y se aplique en pulsos correctos.
+    Según Molle et al. (2015), en trópico el lodo se mineraliza suficientemente
+    rápido para evitar colmatación con ciclos de 3.5 días.
+    Si hay UASB o tratamiento primario previo: ambos sistemas son aplicables.
+    Estado: [  ] Afluente crudo    [  ] Afluente post-primario
+
+  Criterio A2.3 — EXPERIENCIA LOCAL DE OPERACIÓN
+    La Ruta B requiere operación por pulsos con control de frecuencia.
+    Si el operador tiene experiencia limitada → preferir Sistema Clásico.
+    Si existe capacitación técnica o sistema automatizado → Ruta B OK.
+    Estado: [  ] Experiencia limitada    [  ] Capacitación disponible
+
+  Criterio A2.4 — RESTRICCIONES AMBIENTALES O DE BIOSEGURIDAD
+    En áreas protegidas (ej. islas Galápagos, parques nacionales), el uso de
+    inoculantes externos (microorganismos efectivos, etc.) puede requerir
+    autorización de la autoridad ambiental. Esto NO afecta la selección del
+    sistema hidráulico, pero sí cualquier adición biológica. La adaptación sin inoculantes externos
+    sin inoculantes externos es plenamente compatible con zonas protegidas.
+    Estado: [  ] Sin restricciones    [  ] Con restricciones de bioseguridad
+
+  Criterio A2.5 — OBJETIVO DE NITRIFICACIÓN (criterio de exclusión parcial)
+    ATENCIÓN: Este criterio NO suma hacia los 3 requeridos de la Ruta B.
+    Su función es determinar si se necesita un sistema híbrido adicional.
+    Si se requiere remoción significativa de amonio (NH₄-N < 10 mg/L en
+    efluente), el HAFV tropical de alta carga en una sola etapa puede ser insuficiente.
+    → Activar este criterio DERIVA DIRECTAMENTE a la Condición 4 (Paso A3),
+      que añade un HFHS de desnitrificación aguas abajo del HAFV.
+    Si NO se requiere nitrificación estricta → este criterio no aplica.
+    Estado: [  ] Sin objetivo de NH₄    [  ] Con objetivo de NH₄ (<10 mg/L)
+
+PASO A3 — Evaluación final y selección
+
+  CONDICIÓN 1: T < 15 °C
+    → SELECCIONAR: SISTEMA CLÁSICO (Ruta A, Sección 4)
+
+  CONDICIÓN 2: T ≥ 20 °C  Y  ≥ 3 criterios A2.1–A2.4 favorecen Ruta B
+               Y  A2.5 NO activado (sin objetivo estricto de NH₄)
+    → SELECCIONAR: HAFV TROPICAL DE ALTA CARGA (Ruta B, Sección 5)
+
+  CONDICIÓN 3: 15 ≤ T < 20 °C  O  criterios A2.1–A2.4 no se cumplen
+               mayoritariamente
+    → SELECCIONAR: SISTEMA CLÁSICO con constante cinética corregida (Ruta A)
+      y aplicar factor de seguridad de área del 20–30 %.
+
+  CONDICIÓN 4: T ≥ 20 °C  Y  objetivo de NH₄-N < 10 mg/L (A2.5 activado)
+    → SELECCIONAR: HAFV TROPICAL DE ALTA CARGA + HFHS en serie (sistema híbrido)
+      → Diseñar HAFV por Ruta B + añadir HFHS de desnitrificación aguas abajo
+      → Referencia: Vymazal (2014), Stefanakis et al. (2014)
+
+================================================================================
+REGISTRO DE SELECCIÓN (completar para el proyecto)
+================================================================================
+
+  Temperatura del agua residual:     T = _____ °C
+  Área disponible:                   A_disp = _____ m²  (_____ m²/PE)
+  Criterio A2.1:                     [  ]
+  Criterio A2.2:                     [  ]
+  Criterio A2.3:                     [  ]
+  Criterio A2.4:                     [  ]
+  Criterio A2.5 (exclusión parcial): [  ]
+
+  SISTEMA SELECCIONADO:  [  ] RUTA A — SISTEMA CLÁSICO
+                         [  ] RUTA B — HAFV TROPICAL DE ALTA CARGA
+                         [  ] RUTA B + HFHS — SISTEMA HÍBRIDO
+
+
+------------------------------------------------------------------------
+SECCIÓN 4 — RUTA A: DISEÑO POR SISTEMA CLÁSICO
+------------------------------------------------------------------------
+
+Aplicable cuando: T < 20 °C  O  criterios de la Sección 3 no favorecen la Ruta B.
+Referencia principal: Cooper et al. (1996), ÖNORM B 2505 (2009), Kadlec & Wallace (2009).
+
+4.1 Configuración del Sistema Clásico
+
+  Número de etapas:        2 (primera etapa + segunda etapa)
+  Número de filtros:       ≥ 3 en primera etapa (operación en rotación)
+                           ≥ 2 en segunda etapa (operación en rotación)
+  Área total:              Suma de área de primera y segunda etapa
+
+  El agua fluye en serie: 1ª etapa (carga alta) → 2ª etapa (carga baja/pulido).
+  Dentro de cada etapa, los filtros operan en paralelo con rotación.
+
+4.2 Dimensionamiento — Primera Etapa (Sistema Clásico)
+
+PASO C1 — Calcular el área de la primera etapa por Carga Orgánica Superficial (COS):
+
+  COS recomendada para primera etapa:  20 – 60 g DBO₅/m²·d
+  Valor adoptado típico:               40 g DBO₅/m²·d  (Cooper et al., 1996)
+
+  A_1etapa = (Q × S₀,DBO × 10⁻³) / COS₁                    ... (Ec. A1)
+
+  Donde:
+    A_1etapa = Área total de la primera etapa [m²]
+    Q        = Caudal diario [m³/d]
+    S₀,DBO   = DBO₅ afluente [mg/L]
+    COS₁     = Carga orgánica superficial primera etapa [kg DBO₅/m²·d]
+               = 0.040 kg/m²·d  (convertir de g a kg dividiendo entre 1000)
+
+PASO C2 — Calcular el área de la primera etapa por Equivalente Habitante (PE):
+
+  Criterio alternativo (ÖNORM B 2505, 2009):
+  COS expresada como: 20 – 30 g DBO₅/m²·d para primera etapa en clima frío
+
+  Área por PE (primera etapa):
+    a₁ = 2.0 – 3.0 m²/PE   (Cooper et al., 1996; clima frío)
+    a₁ = 1.5 – 2.0 m²/PE   (clima templado, T = 15–20 °C)
+
+  A_1etapa = a₁ × PE                                          ... (Ec. A2)
+
+  Adoptar el MAYOR valor entre Ec. A1 y Ec. A2 como área de diseño.
+
+PASO C3 — Calcular el área de la segunda etapa:
+
+  La segunda etapa recibe el efluente de la primera, con menor carga.
+  Área típica de segunda etapa = 50 – 70 % del área de primera etapa:
+
+  A_2etapa = 0.50 × A_1etapa                                  ... (Ec. A3)
+
+  Área total del sistema clásico:
+  A_total = A_1etapa + A_2etapa                               ... (Ec. A4)
+
+PASO C4 — Distribución de filtros por etapa:
+
+  Primera etapa:   N₁ = 3 filtros en paralelo (mínimo)
+                   Área por filtro = A_1etapa / N₁
+                   Ciclo: 1 filtro alimentado + 2 en reposo
+
+  Segunda etapa:   N₂ = 2 filtros en paralelo (mínimo)
+                   Área por filtro = A_2etapa / N₂
+                   Ciclo: 1 filtro alimentado + 1 en reposo
+
+PASO C5 — Ciclo de operación (Sistema Clásico):
+
+  Primera etapa:   3.5 días alimentando + 7 días en reposo (total ciclo 10.5 días)
+  Segunda etapa:   7 días alimentando + 7 días en reposo
+  Referencia: Cooper et al. (1996), García & Corzo (2008)
+
+4.3 Verificación Hidráulica — Sistema Clásico
+
+  Carga hidráulica superficial en filtro activo — Primera etapa:
+  HLR₁ = Q / A_filtro_activo_1e                               ... (Ec. A5a)
+
+  Rango permitido (primera etapa): 0.02 – 0.08 m/d
+  Si HLR₁ > 0.08 m/d → aumentar área de la primera etapa.
+
+  Carga hidráulica superficial en filtro activo — Segunda etapa:
+  HLR₂ = Q / A_filtro_activo_2e                               ... (Ec. A5b)
+
+  Rango permitido (segunda etapa): 0.02 – 0.05 m/d
+  Si HLR₂ > 0.05 m/d → aumentar área de la segunda etapa (revisar Ec. A3,
+  aplicar factor 0.60–0.70 en lugar de 0.50).
+
+4.4 Parámetros de Diseño — Sistema Clásico (Tabla Resumen)
+
+  Parámetro                         | Primera etapa    | Segunda etapa
+  ----------------------------------|------------------|-------------------
+  COS (g DBO₅/m²·d)                | 20 – 60          | 5 – 20
+  HLR (m/d)                        | 0.02 – 0.08      | 0.02 – 0.05
+  Área por PE (m²/PE)              | 1.5 – 3.0        | 0.8 – 1.5
+  Número mínimo de filtros         | 3                | 2
+  Profundidad medio filtrante (m)  | 0.60 – 0.80      | 0.50 – 0.70
+  Ciclo alimentación/reposo (días) | 3.5 / 7          | 7 / 7
+  Material superficial             | Grava 0–4 mm     | Arena 0–2 mm
+  Pulsos por día                   | 6 – 12           | 4 – 8
+
+  Referencias: Cooper et al. (1996), ÖNORM B 2505 (2009), García & Corzo (2008)
+
+PASO C6 — Verificación final por PE total del sistema:
+
+  PE_carga = Masa DBO₅ afluente / 60 g DBO₅/PE·d             ... (Ec. A6)
+
+  Donde: Masa DBO₅ = Q [m³/d] × S₀,DBO [g/m³] × 10⁻³ [kg/g] [kg DBO₅/d]
+         y PE_carga = Masa DBO₅ [g/d] / 60 [g/PE·d]
+
+  NOTA: Usar PE_carga (basado en la carga real de DBO₅ al HAFV) y NO el PE
+  poblacional cuando el HAFV recibe efluente de tratamiento primario previo
+  (UASB, fosa séptica), ya que la carga ya fue parcialmente removida.
+
+  A_PE,total = (a₁ + 0.50 × a₁) × PE_carga  [m²]
+             = 1.50 × a₁ × PE_carga
+
+  Verificar: A_total ≥ A_PE,total
+  Si A_total < A_PE,total → adoptar A_PE,total y redistribuir por etapas.
+
+
+------------------------------------------------------------------------
+SECCIÓN 5 — RUTA B: DISEÑO POR HAFV TROPICAL DE ALTA CARGA
+------------------------------------------------------------------------
+
+Aplicable cuando: T ≥ 20 °C  Y  criterios de la Sección 3 favorecen esta ruta.
+Referencia principal: Molle et al. (2005, 2015), Lombard-Latune et al. (2018),
+                      Molle & Lienard (2015).
+
+NOTA METODOLÓGICA:
+La Ruta B se usa en esta guía como metodología adaptada para un HAFV tropical
+de alta carga. Cuando el afluente es post-UASB, como en San Cristóbal, no debe
+interpretarse como reproducción literal del sistema francés canónico completo
+de dos etapas con afluente crudo. El sistema francés canónico conserva una celda
+francesa de primera etapa y una segunda etapa de pulimiento; la Ruta B aquí
+documentada representa una adaptación de pulimiento tropical basada en criterios
+de Molle et al. y referencias afines.
+
+5.1 Configuración del HAFV Tropical de Alta Carga
+
+  Número de etapas:        1 (adaptación de pulimiento post-UASB)
+  Número de filtros:       2 en paralelo (mínimo; se recomienda 2–3)
+  Operación:               Alimentación alterna: 3.5 días alimentando + 3.5 días reposo
+  Afluente admitido:       Agua cruda pretratada (rejillas + desarenador)
+                           O efluente de tratamiento primario (UASB, fosa séptica)
+
+  FUNDAMENTO: A temperaturas superiores a 20 °C, la mineralización aerobia del
+  lodo acumulado en la superficie del filtro es suficientemente rápida para
+  evitar la colmatación progresiva, incluso con ciclos de reposo cortos de
+  3.5 días. Esto permite aplicar cargas orgánicas e hidráulicas mucho mayores
+  que en el sistema clásico (Molle et al., 2015).
+
+5.2 Dimensionamiento — HAFV Tropical de Alta Carga
+
+PASO F1 — Calcular el área del filtro en operación por Carga Orgánica Superficial (OLR):
+
+  OLR recomendada en filtro activo (tropical, T ≥ 20 °C):
+    300 – 350 g DQO/m²·d   (Molle et al., 2015)
+    o bien: 100 – 150 g DBO₅/m²·d  (equivalente aproximado para aguas domésticas)
+
+  A_operando,OLR = (Q × S₀,DQO × 10⁻³) / OLR                ... (Ec. F1)
+
+  Donde:
+    A_operando,OLR = Área del filtro en operación por criterio OLR [m²]
+    Q              = Caudal diario [m³/d]
+    S₀,DQO         = DQO afluente [mg/L]
+    OLR            = Carga orgánica superficial adoptada [kg DQO/m²·d]
+                     = 0.300 kg DQO/m²·d (valor conservador recomendado)
+
+  NOTA: OLR es una carga orgánica SUPERFICIAL (base m²), expresada por unidad
+  de área del filtro activo, no volumétrica. No confundir con la carga volumétrica
+  (kg/m³·d), que requiere el volumen del medio filtrante para su cálculo.
+
+PASO F2 — Calcular el área del filtro en operación por Carga Hidráulica (HLR):
+
+  HLR recomendada en filtro activo (tropical):
+    0.50 – 0.75 m/d (Molle et al., 2015)
+    Máximo puntual: 0.94 m/d (con verificación cuidadosa de colmatación)
+
+  A_operando,HLR = Q / HLR                                    ... (Ec. F2)
+
+  Donde:
+    A_operando,HLR = Área del filtro en operación por criterio HLR [m²]
+    HLR            = Carga hidráulica superficial adoptada [m/d]
+
+PASO F3 — Seleccionar el área de diseño del filtro en operación:
+
+  Se adopta el MAYOR valor entre Ec. F1 y Ec. F2:
+
+  A_operando = max(A_operando,OLR ; A_operando,HLR)            ... (Ec. F3)
+
+  El criterio que controla el diseño determina cuál factor es limitante:
+    Si controla OLR → el sistema es orgánicamente limitado
+    Si controla HLR → el sistema es hidráulicamente limitado
+
+  Si el criterio hidráulico controla, verificar que la OLR resultante no supere
+  el límite superior de 350 g DQO/m²·d para evitar sobrecargas orgánicas.
+
+PASO F4 — Calcular el área total del sistema:
+
+  Con 2 filtros en paralelo operando en alternancia:
+  A_total = A_operando × N_filtros                             ... (Ec. F4)
+
+  Con N_filtros = 2:
+  A_total = A_operando × 2
+
+PASO F5 — Verificar criterio de PE (Equivalente Habitante):
+
+  NOTA METODOLÓGICA:
+  En esta adaptación post-UASB, OLR y HLR son los criterios primarios de
+  dimensionamiento. El criterio PE se usa como contraste empírico de escala
+  y carga; puede aumentar el área si resulta más exigente, pero no reemplaza
+  los criterios de carga orgánica e hidráulica.
+
+  Para el HAFV tropical de alta carga, Molle et al. (2015) establecen:
+  Área por PE = 0.8 – 1.2 m²/PE  (en clima tropical, T ≥ 22 °C)
+  Área por PE = 1.2 – 1.5 m²/PE  (en clima cálido, T = 20–22 °C)
+
+  NOTA CRÍTICA PARA SISTEMAS CON PRETRATAMIENTO (UASB, FOSA SÉPTICA):
+  Los valores de área por PE de Molle et al. (2015) fueron establecidos para
+  sistemas que reciben aguas residuales crudas (pretratadas solo con rejillas y
+  desarenador). Cuando el HAFV recibe efluente post-primario, la carga orgánica
+  ya fue parcialmente removida. En ese caso, el PE equivalente debe calcularse
+  a partir de la carga real de DBO₅ que llega al HAFV, usando 60 g DBO₅/PE·d
+  como referencia, NO a partir del caudal con dotación de 150 L/hab·d.
+
+  PE estimado según caudal (válido si el HAFV recibe agua cruda):
+  PE_caudal = Q / 0.15   [habitante]   (dotación 150 L/hab·d)    ... (Ec. F5a)
+
+  PE equivalente basado en carga de DBO₅ (aplicable en post-UASB):
+  PE_carga = (Q × S₀,DBO) / 60   [habitante]                     ... (Ec. F5b)
+
+  Adoptar PE_carga para sistemas con pretratamiento previo.
+
+  A_PE = Área_por_PE × PE_adoptado                             ... (Ec. F6)
+
+  Verificar que:  A_total ≥ A_PE
+  Si A_total < A_PE → adoptar A_PE como área de diseño.
+  En ese caso: A_operando,adoptado = A_PE / N_filtros
+  Recalcular HLR y OLR reales para verificar que permanecen dentro del rango.
+
+5.3 Ciclo de Operación — HAFV Tropical de Alta Carga
+
+  Ciclo por filtro (rotación entre los 2 filtros):
+    Período de alimentación:  3.5 días (84 horas)
+    Período de reposo:        3.5 días (84 horas)
+    Ciclo total:              7 días
+
+  Frecuencia de pulsos durante el período de alimentación:
+    Mínimo:  10 pulsos/día
+    Óptimo:  15 – 20 pulsos/día  (en clima tropical, favorece distribución)
+
+  FUNDAMENTO DEL CICLO: Molle et al. (2015) demostraron en Mayotte (~28 °C)
+  que con ciclos de 3.5 días el lodo se mineraliza suficientemente durante
+  el reposo, manteniendo la permeabilidad del medio por más de 10 años
+  sin necesidad de reposición del sustrato.
+
+5.4 Parámetros de Diseño — HAFV Tropical de Alta Carga (Tabla Resumen)
+
+  Parámetro                               | Rango              | Valor adoptado típico
+  ----------------------------------------|--------------------|----------------------
+  OLR filtro activo (g DQO/m²·d)         | 200 – 350          | 300
+  HLR filtro activo (m/d)                | 0.50 – 0.75        | 0.60
+  Área por PE (m²/PE), T > 22 °C         | 0.8 – 1.2          | 1.0
+  Área por PE (m²/PE), T = 20–22 °C      | 1.2 – 1.5          | 1.3
+  Número de filtros en paralelo          | 2 – 3              | 2
+  Profundidad medio filtrante (m)        | 0.80 – 1.00        | 0.85
+  Capa superior grava fina (m)           | 0.20 – 0.30        | 0.30  (2–6 mm)
+  Capa media grava media (m)             | 0.20 – 0.40        | 0.30  (5–15 mm)
+  Capa inferior drenaje (m)              | 0.20 – 0.30        | 0.25  (20–60 mm)
+  Ciclo alim./reposo por filtro (días)   | 3.5 / 3.5          | 3.5 / 3.5
+  Pulsos por día (período alim.)         | 10 – 20            | 15
+  Altura libre superior (m)              | 0.50 – 0.70        | 0.60
+  Altura total de construcción (m)       | 1.40 – 1.80        | 1.50
+
+  Referencias: Molle et al. (2015), Lombard-Latune et al. (2018),
+               Molle & Lienard (2015), Masi et al. (2017)
+
+
+------------------------------------------------------------------------
+SECCIÓN 6 — DISEÑO DEL MEDIO FILTRANTE (COMÚN A AMBAS RUTAS)
+------------------------------------------------------------------------
+
+6.1 Descripción General
+
+El medio filtrante es el componente estructural y biológico del HAFV. Su
+correcta especificación determina: la permeabilidad hidráulica del sistema,
+el área específica disponible para el desarrollo de la biopelícula, la
+capacidad de filtración de sólidos y la resistencia a la colmatación.
+
+6.2 Estructura Estratificada del Medio
+
+SISTEMA CLÁSICO (Cooper et al., 1996; ÖNORM B 2505, 2009):
+
+  Capa           | Material                | D50 (mm)  | Espesor (m)
+  ---------------|------------------------|-----------|-------------
+  Superior       | Arena gruesa           | 0 – 4     | 0.05 – 0.10
+  Principal      | Grava media            | 4 – 8     | 0.50 – 0.70
+  Inferior       | Grava gruesa (drenaje) | 16 – 32   | 0.15 – 0.20
+
+HAFV TROPICAL DE ALTA CARGA (adaptación post-UASB basada en Molle et al., 2015):
+
+  Capa           | Material                | D50 (mm)  | Espesor (m)
+  ---------------|------------------------|-----------|-------------
+  Superior       | Grava fina             | 2 – 6     | 0.20 – 0.30
+  Intermedia     | Grava media            | 5 – 15    | 0.20 – 0.30
+  Inferior       | Grava gruesa (drenaje) | 20 – 60   | 0.20 – 0.25
+
+  DIFERENCIA CLAVE: Esta adaptación usa grava fina (NO arena) en la capa
+  superior para tolerar la acumulación de sólidos sin colmatación prematura,
+  manteniendo permeabilidad durante el ciclo de reposo.
+
+  NOTA: Esta estratigrafía corresponde a la metodología adoptada para el HAFV
+  tropical de alta carga post-UASB. No pretende reproducir literalmente una
+  celda francesa canónica de dos etapas ni el caso específico Hoffmann/Chincha.
+
+6.3 Propiedades del Medio (unidades unificadas en m/d para K_sat)
+
+  Propiedad                    | Grava fina 2–6 mm | Grava media 4–8 mm | Grava gruesa 16–32 mm
+  -----------------------------|-------------------|--------------------|-----------------------
+  Porosidad n (-)              | 0.35 – 0.38       | 0.36 – 0.40        | 0.40 – 0.45
+  Conductividad K (m/d)        | 10 – 90           | 90 – 900           | > 900
+  Superficie específica (m²/m³)| 1000 – 3000       | 500 – 1500         | 100 – 500
+
+  Equivalencia de unidades: K [m/d] = K [m/s] × 86 400 s/d
+  Ejemplo: K = 1.0 × 10⁻³ m/s = 86.4 m/d (grava fina 2–6 mm, límite superior)
+
+6.4 Tiempo de Retención Hidráulico Real
+
+El TRH real considera que el agua solo ocupa los espacios vacíos del medio:
+
+  TRH = (As × H_medio × n) / Q                               ... (Ec. G1)
+
+  Donde:
+    TRH    = Tiempo de retención hidráulico [d]
+    As     = Área superficial del filtro activo [m²]
+    H_medio = Profundidad total del medio filtrante [m]
+    n      = Porosidad del medio (adimensional)
+    Q      = Caudal por filtro activo [m³/d]
+
+  Rango recomendado:
+    Sistema Clásico:  TRH = 2 – 7 días
+    Ruta B:           TRH = 0.5 – 2 días  (cargas más altas, TRH más corto)
+
+6.5 Verificación de la Conductividad Hidráulica
+
+Para garantizar el flujo vertical sin encharcamiento superficial, la
+conductividad hidráulica del medio debe superar la carga hidráulica aplicada:
+
+  K_sat > HLR × Factor_seguridad                              ... (Ec. G2)
+
+  Factor de seguridad recomendado: 10
+  Es decir: K_sat > 10 × HLR [m/d]
+
+  Para HLR = 0.60 m/d (Ruta B):
+    K_sat mínima requerida = 6.0 m/d
+    Grava 2–6 mm con K típica ≈ 10–90 m/d → CUMPLE ampliamente
+
+  Nota: La conductividad disminuye con la colmatación. Molle et al. (2015)
+  reportan que en operación estable (> 3 años), la grava 2–6 mm mantiene
+  K_sat > 1 m/d con el ciclo de reposo adecuado.
+
+
+------------------------------------------------------------------------
+SECCIÓN 7 — SISTEMA DE DISTRIBUCIÓN SUPERFICIAL Y PULSOS
+------------------------------------------------------------------------
+
+7.1 Fundamento de la Distribución por Pulsos
+
+La aplicación intermitente por pulsos es OBLIGATORIA en el HAFV. Su función es:
+  a) Garantizar una distribución uniforme del agua sobre toda la superficie
+  b) Mantener la biopelícula húmeda entre pulsos
+  c) Provocar el efecto de succión-expulsión de aire que re-airea el medio
+  d) Evitar la formación de canales preferentes (cortocircuitos)
+
+El volumen de cada pulso debe ser suficiente para cubrir uniformemente toda
+la superficie del filtro con una lámina mínima de agua.
+
+7.2 Volumen y Frecuencia de Pulsos
+
+  Volumen mínimo por pulso (para distribución uniforme):
+  V_pulso = A_filtro × e_min                                  ... (Ec. D1)
+
+  Donde:
+    V_pulso = Volumen mínimo por pulso [m³]
+    A_filtro = Área superficial del filtro activo [m²]
+    e_min   = Lámina mínima de aplicación = 0.005 – 0.010 m (5 – 10 mm)
+    (Referencia: Molle et al., 2015; Kadlec & Wallace, 2009)
+
+  Número de pulsos por día:
+  N_pulsos = Q_diario / V_pulso                               ... (Ec. D2)
+
+  Verificar que: N_pulsos ≥ 10 pulsos/d (mínimo)
+                 N_pulsos = 15 – 20 pulsos/d (óptimo en clima tropical)
+
+  Caudal de la bomba de distribución:
+  Q_bomba = V_pulso / t_pulso                                 ... (Ec. D3)
+
+  Donde t_pulso = duración del pulso = 3 – 10 minutos típicamente.
+
+  Período de reposo entre pulsos:
+  t_reposo = (24 × 60 / N_pulsos) − t_pulso   [minutos]      ... (Ec. D4)
+
+  Verificar que: t_reposo > 4 × t_pulso  (para re-aireación adecuada)
+
+7.3 Sistema de Tuberías de Distribución
+
+El sistema de distribución superficial puede ser:
+
+  a) Tubería perforada tipo espina de pez (más común en instalaciones pequeñas):
+     - Tubería principal DN 110 mm recorre el eje longitudinal
+     - Ramales DN 50 mm cada 1.0 – 1.5 m de separación
+     - Orificios DN 8 – 12 mm cada 0.3 – 0.5 m en cada ramal
+
+  b) Distribuidor rotatorio tipo filtro percolador (para filtros circulares):
+     - Mismo principio que el filtro percolador
+     - Aplicable cuando el filtro tiene geometría circular
+
+  c) Tanque dosificador con sifones automáticos (bajo consumo eléctrico):
+     - El afluente llena el tanque hasta el umbral del sifón
+     - Descarga automática por gravedad en pulsos sin energía
+     - Recomendado en zonas sin energía eléctrica confiable
+
+  Caudal por orificio de distribución:
+  q_or = Q_bomba / (N_ramales × N_or_por_ramal)               ... (Ec. D5)
+
+  Velocidad de salida en orificio (rango: 0.5 – 2.0 m/s):
+  v_or = q_or / (π × d_or² / 4)                              ... (Ec. D6)
+
+  Verificar: 0.5 m/s ≤ v_or ≤ 2.0 m/s
+
+7.4 Capa de Distribución Superficial
+
+  Sobre la capa de grava superior del filtro se coloca una capa de grava
+  gruesa (40–80 mm) de 0.10 – 0.20 m de espesor, que actúa como:
+    - Amortiguador del impacto del pulso de agua
+    - Distribuidor secundario de flujo
+    - Zona de acumulación de sólidos superficiales (especialmente en Ruta B)
+
+  La altura libre entre la superficie de la capa de distribución y el borde
+  libre del filtro debe ser de 0.50 – 0.70 m para acomodar la acumulación
+  progresiva de lodo (vida útil 10 – 15 años).
+
+
+------------------------------------------------------------------------
+SECCIÓN 8 — SISTEMA DE DRENAJE INFERIOR
+------------------------------------------------------------------------
+
+8.1 Función del Drenaje
+
+El sistema de drenaje inferior tiene una función dual:
+  1. Recolectar el efluente que ha percolado a través del medio filtrante
+  2. Servir como canal de entrada de aire durante el período de reposo
+     (la re-aireación pasiva ocurre por convección desde las aberturas del drenaje)
+
+8.2 Configuración del Sistema de Drenaje
+
+  Tuberías de drenaje:
+    - Tubería perforada DN 110 – 160 mm (según caudal)
+    - Colocada sobre la capa de grava gruesa inferior
+    - Recubierta con geotextil para evitar migración de partículas finas
+    - Pendiente mínima del fondo: 1.0 % hacia el punto de salida
+
+  Aberturas de ventilación:
+    - Tubo vertical DN 110 mm emergente en cada extremo del filtro
+    - Permite la entrada y salida de aire durante los ciclos
+    - Protección contra entrada de agua superficial (sombrerete)
+
+8.3 Dimensionamiento del Canal de Drenaje Principal
+
+  La capacidad mínima de la tubería de drenaje se calcula de modo que, en
+  condición de caudal pico, el llenado de la tubería no supere el 50 % de
+  su sección transversal. La mitad superior de la sección queda libre para
+  el flujo de aire durante el período de reposo.
+
+  Capacidad mínima requerida de la tubería de drenaje:
+  Q_cap_tuberia = fp × Q_medio / 0.50                         ... (Ec. DR1)
+
+  Donde:
+    Q_cap_tuberia = Capacidad mínima de la tubería [m³/d o m³/s según diseño]
+    fp            = Factor de pico horario (típico 2.0 – 2.5)
+    Q_medio       = Caudal medio diario [m³/d]
+    0.50          = Fracción máxima de llenado permitida
+
+  Verificación con ecuación de Manning (flujo a superficie libre):
+  Q = (1/n) × A × R^(2/3) × S^(1/2)                          ... (Ec. DR2)
+
+  Donde:
+    n = 0.009 (PVC) o 0.013 (concreto)
+    A = área transversal del canal o tubería [m²]
+    R = radio hidráulico [m]
+    S = pendiente (mínimo 0.01)
+
+  Verificar: Q_Manning ≥ Q_cap_tuberia  (a llenado del 50 %)
+
+8.4 Punto de Salida y Control de Nivel
+
+  Instalar un codo regulable (standpipe o piezómetro ajustable) en la salida:
+    - Permite regular el nivel de agua dentro del filtro
+    - Durante la alimentación: nivel 5 – 10 cm bajo la superficie del medio
+    - Durante el reposo: abrir completamente para drenaje total
+    - Facilita el control de la saturación del medio
+
+  En el HAFV tropical de alta carga, el drenaje completo durante el período de
+  reposo es ESENCIAL para la re-aireación y mineralización del lodo superficial
+  (Molle et al., 2015).
+
+
+------------------------------------------------------------------------
+SECCIÓN 9 — IMPERMEABILIZACIÓN Y ESTRUCTURA CIVIL
+------------------------------------------------------------------------
+
+9.1 Impermeabilización del Fondo y Taludes
+
+La impermeabilización es OBLIGATORIA para evitar la contaminación del suelo
+y de los acuíferos subterráneos. Las opciones según contexto son:
+
+  Opción 1 — Geomembrana HDPE 1.0 – 1.5 mm (RECOMENDADA):
+    + Bajo costo, fácil instalación, larga vida útil (>25 años)
+    + Adecuada para todo tipo de suelos
+    - Requiere protección mecánica (geotextil) en la cara superior
+    Referencia: ASTM D7408, ISO 10318
+
+  Opción 2 — Losa de concreto armado (para instalaciones permanentes/urbanas):
+    + Mayor durabilidad y resistencia mecánica
+    + Adecuada para zonas sísmicas o con tráfico vehicular sobre el filtro
+    - Mayor costo de construcción
+    Espesor recomendado: 0.15 – 0.20 m; fc = 210 kgf/cm²
+
+  Opción 3 — Arcilla compactada (SOLO en suelos naturalmente arcillosos):
+    Aplicable únicamente si K_suelo < 10⁻⁸ m/s (suelo prácticamente impermeable)
+    Espesor mínimo: 0.30 m compactado al 95 % Proctor Modificado
+    NO recomendable en zonas sísmicas, volcánicas o con suelos inestables
+
+9.2 Geometría y Estructura de las Celdas
+
+  Geometría recomendada:
+    Sistema Clásico:   Rectangular, relación L:B = 1:1 a 2:1
+    Ruta B:            Rectangular, relación L:B = 1:1 a 1.5:1  (más compacto)
+
+  Talud interior:     1:1 (H:V) mínimo
+  Protección talud:   Geotextil de 200 g/m² entre la geomembrana y el medio granular
+
+  Separación entre celdas:  1.0 – 2.0 m (acceso operacional entre filtros)
+  Camino perimetral:        2.0 – 3.0 m de ancho (acceso vehicular para mantenimiento)
+
+
+------------------------------------------------------------------------
+SECCIÓN 10 — VEGETACIÓN MACRÓFITA
+------------------------------------------------------------------------
+
+10.1 Función de las Macrófitas
+
+  - Transferencia de oxígeno a la rizosfera (radical)
+  - Prevención de la colmatación superficial (acción mecánica de raíces)
+  - Regulación de la temperatura del medio (sombreado)
+  - Contribución estética y paisajística
+  - Hábitat para microorganismos degradadores
+
+10.2 Especies Recomendadas por Clima
+
+  Clima templado – frío (T < 20 °C):
+    Phragmites australis (carrizo) — especie universal, más documentada
+    Referencia: Cooper et al. (1996), Vymazal (2014)
+
+  Clima tropical / subtropical (T ≥ 20 °C):
+    Phragmites australis              — viable en altitudes medias
+    Typha domingensis (totora)        — excelente en zonas tropicales húmedas
+    Heliconia psittacorum (heliconia) — ornamental, útil en clima cálido
+    Cynodon dactylon / Tifton-85     — gramínea tropical, mayor tolerancia
+    Referencia: Masi et al. (2017), Lombard-Latune et al. (2018)
+
+  NOTA PARA ZONAS PROTEGIDAS (islas, parques nacionales):
+    Utilizar exclusivamente especies nativas del ecosistema local.
+    Consultar con la autoridad ambiental antes de introducir cualquier especie.
+    Evitar Phragmites australis en ecosistemas insulares (puede ser invasiva).
+
+10.3 Parámetros de Siembra
+
+  Densidad de siembra:       4 – 6 plantas/m²
+  Profundidad de plantación: 0.10 – 0.15 m  (rizoma o plántula)
+  Período de establecimiento: 6 – 12 meses
+  Carga reducida durante establecimiento: 30 – 50 % de la carga de diseño
+
+  La cosecha parcial de la biomasa aérea debe realizarse 1 vez por año
+  (no más del 50 % de la biomasa para no estresar las plantas).
+
+
+------------------------------------------------------------------------
+SECCIÓN 11 — VERIFICACIÓN DE EFICIENCIA: MODELO k-C* (COMPLEMENTARIO)
+------------------------------------------------------------------------
+
+Esta verificación se considera complementaria y recomendada para ambas rutas
+de diseño. Permite contrastar si el área diseñada produce el efluente requerido,
+sin reemplazar los criterios de carga, configuración del lecho y operación alternada.
+
+11.1 Modelo k-C* de Primer Orden (Kadlec & Wallace, 2009)
+
+El modelo k-C* (también denominado modelo de concentración de fondo) se usa como
+herramienta de referencia para contrastar la eficiencia esperada en humedales artificiales:
+
+  (Ce − C*) / (Ci − C*) = exp(−kA / q)                      ... (Ec. V1)
+
+  Despejando Ce:
+  Ce = C* + (Ci − C*) × exp(−kA / q)                         ... (Ec. V2)
+
+  Donde:
+    Ce  = Concentración en el efluente [mg/L]
+    Ci  = Concentración en el afluente [mg/L]
+    C*  = Concentración de fondo (background) [mg/L]
+    kA  = Constante cinética superficial de primer orden [m/d]
+    q   = Carga hidráulica superficial = Q / As [m/d]
+
+  Valores de C* recomendados (Kadlec & Wallace, 2009):
+    DBO₅:    C* = 3.5 mg/L
+    DQO:     C* = 15 – 20 mg/L
+    SST:     C* = 2.0 mg/L
+    NH₄-N:   C* = 0.0 mg/L
+
+11.2 Corrección de la Constante Cinética por Temperatura
+
+  kA,T = kA,20 × θ^(T − 20)                                  ... (Ec. V3)
+
+  Donde:
+    kA,20 = Constante cinética a 20 °C de referencia [m/d]
+    θ     = Coeficiente de corrección de temperatura (adimensional)
+    T     = Temperatura del agua residual [°C]
+
+  Valores de kA,20 y θ por parámetro (Kadlec & Wallace, 2009):
+
+    Parámetro  | kA,20 (m/d) | θ (-) | C* (mg/L)
+    -----------|-------------|-------|----------
+    DBO₅       | 0.093       | 1.06  | 3.5
+    DQO        | 0.075       | 1.06  | 15
+    SST        | 0.110       | 1.06  | 2.0
+    NH₄-N      | 0.098       | 1.08  | 0.0
+
+  Tabla de valores kA,T para DBO₅ (θ = 1.06):
+
+    T (°C) | Factor θ^(T−20) | kA,T (m/d)
+    -------|-----------------|------------
+    10     | 0.558           | 0.052
+    12     | 0.627           | 0.058
+    15     | 0.747           | 0.069
+    18     | 0.890           | 0.083
+    20     | 1.000           | 0.093
+    22     | 1.124           | 0.105
+    25     | 1.338           | 0.124
+    26     | 1.418           | 0.132
+    28     | 1.594           | 0.148
+    30     | 1.791           | 0.167
+
+11.3 Procedimiento de Verificación Paso a Paso
+
+  PASO V1: Calcular q = Q / A_operando  [m/d]
+  PASO V2: Calcular kA,T con Ec. V3 según temperatura del proyecto
+  PASO V3: Calcular Ce con Ec. V2 para DBO₅, DQO y SST
+  PASO V4: Comparar Ce calculado con el límite normativo aplicable
+  PASO V5: Si Ce > límite → ajustar diseño (ver Paso V6)
+  PASO V6: Si Ce no cumple → opciones de ajuste:
+             a) Aumentar As en 10 – 20 % (reduce q, mejora remoción)
+             b) Reducir COS u OLR al límite inferior del rango
+             c) Agregar una segunda etapa de pulido (HFHS o filtro de arena)
+             d) Añadir etapa de desinfección posterior (si el incumplimiento
+                es solo en coliformes fecales)
+
+11.4 Eficiencia de Remoción
+
+  E (%) = (Ci − Ce) / Ci × 100                               ... (Ec. V4)
+
+11.5 Eficiencias Típicas Esperadas
+
+  Parámetro | Sistema Clásico (T=15°C) | Ruta B (T=25°C) | Referencia
+  ----------|--------------------------|--------------------------|------------------
+  DBO₅      | 70 – 85 %               | 80 – 92 %               | Kadlec & Wallace
+  DQO       | 60 – 75 %               | 70 – 85 %               | Molle et al.
+  SST       | 80 – 90 %               | 85 – 95 %               | Cooper et al.
+  NH₄-N     | 40 – 60 %               | 55 – 75 %               | Vymazal (2014)
+  CF (log)  | 1 – 2 log               | 1 – 3 log               | Kadlec & Wallace
+
+
+------------------------------------------------------------------------
+SECCIÓN 12 — VERIFICACIÓN DE CUMPLIMIENTO NORMATIVO
+------------------------------------------------------------------------
+
+12.1 Comparación con Límites TULSMA (Ecuador) — Aplicable al proyecto
+
+  Efluente calculado (Ce) se compara con:
+    Tabla 12 — Descarga a cuerpo de agua dulce:   DBO₅ ≤ 100 mg/L, DQO ≤ 250 mg/L,
+                                                   SST ≤ 130 mg/L, CF ≤ 3000 NMP/100 mL
+    Tabla 13 — Descarga a cuerpo de agua marina:  DBO₅ ≤ 100 mg/L, DQO ≤ 250 mg/L,
+                                                   SST ≤ 100 mg/L, CF ≤ 3000 NMP/100 mL
+    Tabla 11 — Descarga al alcantarillado:         DBO₅ ≤ 250 mg/L, DQO ≤ 500 mg/L,
+                                                   SST ≤ 220 mg/L
+
+12.2 Tabla de Verificación de Cumplimiento (completar)
+
+  Parámetro | Ce calculado | Límite TULSMA T12 | Límite TULSMA T13 | Estado
+  ----------|--------------|--------------------|--------------------|-------
+  DBO₅ mg/L |              | ≤ 100              | ≤ 100              |
+  DQO  mg/L |              | ≤ 250              | ≤ 250              |
+  SST  mg/L |              | ≤ 130              | ≤ 100              |
+  CF NMP/100|              | ≤ 3000             | ≤ 3000             |
+
+12.3 Nota sobre Coliformes Fecales
+
+  El HAFV por sí solo generalmente no garantiza CF < 3000 NMP/100 mL si el
+  afluente tiene CF > 10⁷ NMP/100 mL. Se requiere etapa de desinfección posterior
+  (hipoclorito de sodio, radiación UV) para cumplir este límite con seguridad.
+  Referencia: Kadlec & Wallace (2009), OPS/CEPIS (2005).
+
+
+------------------------------------------------------------------------
+SECCIÓN 13 — PRODUCCIÓN DE LODOS Y MANTENIMIENTO
+------------------------------------------------------------------------
+
+13.1 Acumulación de Lodo Superficial
+
+En el HAFV (especialmente en sistema francés con afluente crudo), el lodo
+se acumula progresivamente sobre la capa superior del filtro. Este lodo
+proviene de los sólidos suspendidos del afluente y de la biomasa generada.
+
+  Producción de sólidos retenidos:
+  P_sólidos = Q × (SST_i − SST_e) × 10⁻³   [kg SST/d]      ... (Ec. L1)
+
+  Tasa de acumulación de sólidos superficiales (Ruta B, T ≥ 20 °C):
+  Según Molle et al. (2015), en clima tropical la mineralización durante el
+  reposo reduce la acumulación neta a:
+    Acumulación neta ≈ 0.5 – 1.0 cm/año (con ciclos 3.5/3.5 días)
+    Acumulación neta ≈ 1.5 – 3.0 cm/año (sistema clásico, T < 20 °C)
+
+  Vida útil del medio antes de reposición o extracción de lodo:
+    Ruta B (T > 20 °C):           12 – 20 años  (Molle et al., 2015)
+    Sistema Clásico (T < 20 °C):  10 – 15 años  (Cooper et al., 1996)
+
+  La altura libre de 0.50 – 0.70 m sobre el medio está diseñada para
+  acomodar esta acumulación progresiva durante la vida útil del sistema.
+
+13.2 Programa de Operación y Mantenimiento
+
+  HAFV TROPICAL DE ALTA CARGA — Programa de rotación:
+    Semana 1-1: Filtro A alimentado / Filtro B en reposo
+    Semana 1-2: Filtro B alimentado / Filtro A en reposo
+    (ciclo de 7 días total, alternando cada 3.5 días)
+
+  SISTEMA CLÁSICO — Programa de rotación primera etapa:
+    Ciclo 10.5 días: Filtro 1 activo (3.5 d) → Filtro 2 activo (3.5 d) → Filtro 3 activo (3.5 d)
+    Segunda etapa: ciclo 14 días (7 d alimentando + 7 d reposo)
+
+  Tabla de Mantenimiento:
+
+  Frecuencia      | Actividad
+  ----------------|-----------------------------------------------------------
+  Diaria          | Inspección visual; verificar pulsos y caudal de entrada
+  Diaria          | Registrar caudal, temperatura, nivel en filtros
+  Semanal         | Revisar distribución superficial; limpiar orificios obstruidos
+  Semanal         | Verificar drenaje completo durante período de reposo
+  Mensual         | Muestreo DBO₅, SST, pH, CF del efluente
+  Mensual         | Inspección de la geomembrana en bordes y zonas de talud
+  Semestral       | Cosecha parcial de vegetación (≤ 50 % de la biomasa aérea)
+  Semestral       | Limpieza de tuberías de drenaje (inspección con cámara si es posible)
+  Anual           | Inspección completa; medición de la capa de lodo superficial
+  10 – 15 años    | Evaluación de colmatación; extracción y disposición del lodo acumulado
+  10 – 20 años    | Evaluación de reposición del medio filtrante
+
+
+------------------------------------------------------------------------
+SECCIÓN 14 — REQUERIMIENTOS DE ÁREA TOTAL DEL PREDIO
+------------------------------------------------------------------------
+
+  El área total del predio incluye el área de los filtros más los espacios
+  complementarios necesarios para operación segura:
+
+  Área de las celdas de filtros:        A_total  (calculada en Secc. 4 o 5)
+  Zona de amortiguación perimetral:     20 % de A_total
+  Caminos de acceso y mantenimiento:    10 % de A_total
+  Área de control y dosificación:       15 – 20 m²
+  Almacenamiento de productos quím.:    10 – 15 m²
+  Zona verde / buffer ambiental:        15 % del área total del predio
+
+  Área total estimada del predio:
+  A_predio = (A_total + A_complementarias) / (1 − 0.15)      ... (Ec. P1)
+
+  Donde A_complementarias ≈ 30 % de A_total (suma de accesos + control)
+
+
+------------------------------------------------------------------------
+SECCIÓN 15 — TABLA DE RESULTADOS CONSOLIDADA
+------------------------------------------------------------------------
+
+Completada con los datos del proyecto tipo (ver Sección 19 para desarrollo
+completo del cálculo). Para proyectos nuevos, reemplazar los valores numéricos.
+
+  PARÁMETROS DE ENTRADA
+  ─────────────────────────────────────────────────────────────────
+  Caudal medio Q:                         864 m³/d
+  DBO₅ afluente S₀,DBO:                   72.9 mg/L
+  DQO afluente S₀,DQO:                    174.3 mg/L
+  SST afluente S₀,SST:                    46.8 mg/L
+  CF afluentes:                           10⁷ – 10⁸ NMP/100 mL (estimado)
+  Temperatura del agua T:                 25.6 °C
+
+  SISTEMA SELECCIONADO
+  ─────────────────────────────────────────────────────────────────
+  Sistema adoptado:                       [X] HAFV tropical de alta carga
+  Criterio de selección:                  T = 25.6 °C ≥ 20 °C; área limitada;
+                                          afluente post-UASB; capacitación disponible
+
+  DIMENSIONAMIENTO
+  ─────────────────────────────────────────────────────────────────
+  Área filtro en operación (A_operando):  1,152 m²  (controla HLR)
+  Número de filtros:                      2
+  Área total (todos los filtros):         2,304 m²
+  PE equivalente (base carga DBO₅):      1,050 PE
+  Área por PE (A_total/PE_carga):         2.19 m²/PE
+  Dimensiones por celda (L × B):         42 m × 28 m
+  Profundidad media filtrante:            0.85 m
+  Altura total de construcción:           1.50 m
+  TRH real (con porosidad n = 0.37):      0.42 d
+  OLR real en filtro activo:              131 g DQO/m²·d (HLR controla)
+  HLR en filtro activo:                   0.75 m/d
+
+  VERIFICACIÓN DE EFICIENCIA (Modelo k-C*)
+  ─────────────────────────────────────────────────────────────────
+  kA,20 (DBO₅):                           0.093 m/d
+  kA,T (DBO₅) a T = 25.6 °C:             0.129 m/d
+  q = Q / A_operando:                     0.75 m/d
+  Ce (DBO₅) calculada:                    62.0 mg/L
+  Ce (DQO) calculada:                     ~115 mg/L  (estimado con kA,DQO = 0.075)
+  Ce (SST) estimada:                      7.0 mg/L  (remoción 85 %)
+  Eficiencia DBO₅:                        14.9 %  (incremento post-UASB)
+  Eficiencia SST:                         85 %
+
+  CUMPLIMIENTO NORMATIVO
+  ─────────────────────────────────────────────────────────────────
+  Descarga a agua dulce (TULSMA T12):     [X] CUMPLE  (DBO₅=62≤100; DQO=115≤250; SST=7≤130)
+  Descarga a agua marina (TULSMA T13):    [X] CUMPLE  (DBO₅=62≤100; DQO=115≤250; SST=7≤100)
+  Descarga a alcantarillado (TULSMA T11): [X] CUMPLE
+  Nota CF: requiere desinfección posterior para garantizar CF ≤ 3000 NMP/100 mL
+
+  OPERACIÓN
+  ─────────────────────────────────────────────────────────────────
+  Ciclo de alimentación/reposo:           3.5 d / 3.5 d
+  Pulsos por día:                         15
+  Volumen por pulso:                      7.7 m³  (lámina 7 mm × 1,152/2 m² / 15 pulsos)
+  Caudal de bomba dosificadora:           ~1.5 m³/h  (pulso de 5 min)
+
+  ÁREA DEL PREDIO
+  ─────────────────────────────────────────────────────────────────
+  Área de filtros:                        2,304 m²
+  Área complementaria (30 %):             691 m²
+  Zona verde (15 % total):                498 m²
+  ÁREA TOTAL DEL PREDIO:                  3,523 m²  (0.35 ha)
+
+
+------------------------------------------------------------------------
+SECCIÓN 16 — ÍNDICE DE ECUACIONES
+------------------------------------------------------------------------
+
+RUTA A — SISTEMA CLÁSICO
+  Ec. A1 — Área primera etapa por COS:       A_1e = (Q × S₀,DBO × 10⁻³) / COS₁
+  Ec. A2 — Área primera etapa por PE:        A_1e = a₁ × PE
+  Ec. A3 — Área segunda etapa:               A_2e = 0.50 × A_1e
+  Ec. A4 — Área total sistema clásico:       A_total = A_1e + A_2e
+  Ec. A5a — Carga hidráulica 1ª etapa:       HLR₁ = Q / A_filtro_activo_1e
+  Ec. A5b — Carga hidráulica 2ª etapa:       HLR₂ = Q / A_filtro_activo_2e
+  Ec. A6 — PE equivalente por carga DBO₅:   PE_carga = (Q × S₀,DBO) / 60
+
+RUTA B — HAFV TROPICAL DE ALTA CARGA
+  Ec. F1 — Área por carga orgánica (OLR):   A_op,OLR = (Q × S₀,DQO × 10⁻³) / OLR
+  Ec. F2 — Área por carga hidráulica (HLR): A_op,HLR = Q / HLR
+  Ec. F3 — Área operando adoptada:          A_op = max(A_op,OLR ; A_op,HLR)
+  Ec. F4 — Área total Ruta B:               A_total = A_op × N_filtros
+  Ec. F5a — PE estimado (afluente crudo):   PE_caudal = Q / 0.15
+  Ec. F5b — PE equivalente (post-UASB):     PE_carga = (Q × S₀,DBO) / 60
+  Ec. F6 — Área por PE:                     A_PE = Área_por_PE × PE
+
+MEDIO FILTRANTE
+  Ec. G1 — TRH real con porosidad:          TRH = (As × H_medio × n) / Q
+  Ec. G2 — Verificación conductividad:      K_sat > HLR × 10
+
+DISTRIBUCIÓN Y PULSOS
+  Ec. D1 — Volumen mínimo por pulso:        V_pulso = A_filtro × e_min
+  Ec. D2 — Número de pulsos por día:        N_pulsos = Q_diario / V_pulso
+  Ec. D3 — Caudal de bomba:                 Q_bomba = V_pulso / t_pulso
+  Ec. D4 — Período de reposo entre pulsos:  t_reposo = (24×60/N_pulsos) − t_pulso
+  Ec. D5 — Caudal por orificio:             q_or = Q_bomba / (N_ram × N_or)
+  Ec. D6 — Velocidad salida orificio:       v_or = q_or / (π × d_or² / 4)
+
+DRENAJE INFERIOR
+  Ec. DR1 — Capacidad tubería de drenaje:   Q_cap_tuberia = fp × Q_medio / 0.50
+  Ec. DR2 — Capacidad Manning:              Q = (1/n) × A × R^(2/3) × S^(1/2)
+
+VERIFICACIÓN DE EFICIENCIA
+  Ec. V1 — Modelo k-C* general:             (Ce−C*)/(Ci−C*) = exp(−kA/q)
+  Ec. V2 — Ce efluente:                     Ce = C* + (Ci−C*) × exp(−kA,T/q)
+  Ec. V3 — Corrección cinética por T:       kA,T = kA,20 × θ^(T−20)
+  Ec. V4 — Eficiencia de remoción:          E(%) = (Ci−Ce)/Ci × 100
+
+LODOS
+  Ec. L1 — Producción sólidos retenidos:    P = Q × (SST_i − SST_e) × 10⁻³
+
+ÁREA DEL PREDIO
+  Ec. P1 — Área total del predio:           A_predio = (A_total + A_comp) / 0.85
+
+
+------------------------------------------------------------------------
+SECCIÓN 17 — REFERENCIAS BIBLIOGRÁFICAS
+------------------------------------------------------------------------
+
+[1]  Kadlec, R.H. & Wallace, S.D. (2009). Treatment Wetlands. 2nd edition.
+     CRC Press / Taylor & Francis, Boca Raton, FL, USA. 1016 pp.
+     → Modelo k-C*, constantes cinéticas, parámetros C*, eficiencias típicas.
+
+[2]  Cooper, P.F., Job, G.D., Green, M.B. & Shutes, R.B.E. (1996). Reed Beds and
+     Constructed Wetlands for Wastewater Treatment. WRc Publications, Swindon, UK.
+     188 pp.
+     → Sistema clásico, ciclos de operación, medios filtrantes, vegetación.
+
+[3]  Molle, P., Liénard, A., Boutin, C., Merlin, G. & Iwema, A. (2005). How to
+     treat raw sewage with constructed wetlands: an overview of the French systems.
+     Water Science & Technology, 51(9), 11–21.
+     → Fundamentos del sistema francés, cargas típicas en clima templado.
+
+[4]  Molle, P., Lombard-Latune, R., Riegel, C., Lacombe, G., Esser, D. &
+     Mangeot-Peter, L. (2015). French vertical flow constructed wetland design:
+     Adaptations for tropical climates. Water Science & Technology, 71(10), 1516–1523.
+     → HAFV tropical de alta carga: OLR 300–350 g DQO/m²·d, ciclos 3.5/3.5 días,
+       resultados en Mayotte y Guayana Francesa, áreas 0.8–1.2 m²/PE.
+
+[5]  Lombard-Latune, R., Pelus, L., Molle, P. & L'Etang, H. (2018). Vertical-flow
+     constructed wetland performance under tropical climate: Feedback from French
+     overseas territories. Ecological Engineering, 120, 397–405.
+     → Validación en Martinica, Guadalupe y Reunión; rendimientos en trópico.
+
+[6]  Vymazal, J. (2014). Constructed wetlands for treatment of industrial
+     wastewaters: A review. Ecological Engineering, 73, 724–751.
+     → Revisión general, sistemas híbridos HAFV+HFHS, remoción de nitrógeno.
+
+[7]  Stefanakis, A., Akratos, C.S. & Tsihrintzis, V.A. (2014). Vertical Flow
+     Constructed Wetlands: Eco-Engineering Systems for Wastewater and Sludge
+     Treatment. Elsevier, Amsterdam. 378 pp.
+     → Diseño detallado, medios filtrantes, sistemas de drenaje, colmatación.
+
+[8]  García, J. & Corzo, A. (2008). Depuración con Humedales Construidos. Guía
+     Práctica de Diseño, Construcción y Explotación de Sistemas de Humedales de
+     Flujo Subsuperficial. Universidad Politécnica de Cataluña, Barcelona, España.
+     → Guía en español; parámetros de diseño para clima mediterráneo y tropical.
+
+[9]  Masi, F., Rizzo, A. & Regelsberger, M. (2017). The role of constructed wetlands
+     in a new circular economy, resource oriented, and ecosystem services paradigm.
+     Journal of Environmental Management, 216, 275–284.
+     → Plantas macrófitas tropicales, nuevos enfoques de diseño.
+
+[10] ÖNORM B 2505 (2009). Bepflanzter Bodenfilter (Pflanzenkläranlagen) —
+     Anwendung, Bemessung, Bau und Betrieb. Austrian Standards Institute, Vienna.
+     → Norma austriaca: sistema clásico, especificaciones constructivas.
+
+[11] US EPA (2000). Constructed Wetlands Treatment of Municipal Wastewaters.
+     EPA/625/R-99/010. Office of Research and Development, Cincinnati, OH.
+     → Manual de diseño EPA; criterios, cargas, vegetación.
+
+[12] OPS/CEPIS (2005). Guía para el Diseño de Plantas de Tratamiento de Aguas
+     Residuales. Organización Panamericana de la Salud / Centro Panamericano de
+     Ingeniería Sanitaria, Lima, Perú.
+     → Criterios constructivos para América Latina; mínimos de acceso y operación.
+
+[13] Metcalf & Eddy (2014). Wastewater Engineering: Treatment and Resource Recovery.
+     5th edition. McGraw-Hill Education, New York, NY.
+     → Referencia general de ingeniería de aguas residuales; criterios de verificación.
+
+[14] Vymazal, J. & Kröpfelová, L. (2008). Wastewater Treatment in Constructed Wetlands
+     with Horizontal Sub-Surface Flow. Springer, Dordrecht, Netherlands. 566 pp.
+     → Comparación HAFV vs. HFHS; diseño de sistemas híbridos.
+
+[15] Molle, P. & Lienard, A. (2015). Constructed wetland design: How to improve OLR
+     criteria in tropical climates. 14th IWA Specialist Conference on Wetland Systems,
+     Shanghai, China.
+     → Criterios de diseño optimizados para alta temperatura; validación de 300 g DQO/m²·d.
+
+
+------------------------------------------------------------------------
+SECCIÓN 18 — GLOSARIO DE TÉRMINOS TÉCNICOS
+------------------------------------------------------------------------
+
+Ordenado alfabéticamente. Las siglas se definen en su primera mención.
+
+  Afluente
+    Agua residual que ingresa a una unidad de tratamiento. En el HAFV puede
+    ser agua cruda pretratada (post-rejillas y desarenador) o efluente de un
+    tratamiento primario previo (post-UASB, post-fosa séptica).
+
+  Biopelícula (biofilm)
+    Comunidad de microorganismos adherida a la superficie del medio granular
+    del HAFV. Es la principal responsable de la degradación de la materia
+    orgánica y de la nitrificación. Su desarrollo estable requiere de 6 a 12
+    meses desde la puesta en marcha.
+
+  C* (concentración de fondo / background concentration)
+    Concentración mínima que puede alcanzar el efluente de un humedal
+    independientemente del área utilizada. Es un parámetro del modelo k-C*
+    de Kadlec & Wallace (2009) que refleja la liberación interna de contaminantes
+    por procesos de mineralización y resuspensión. Ver Tabla en Sección 11.
+
+  CF (coliformes fecales)
+    Indicador de contaminación fecal. Se expresa en NMP (Número Más Probable)
+    por 100 mL. El HAFV por sí solo no garantiza su remoción hasta los límites
+    normativos; se requiere desinfección posterior.
+
+  COS (Carga Orgánica Superficial)
+    Masa de materia orgánica (DBO₅ o DQO) aplicada por unidad de área superficial
+    del filtro y por día. Unidades: g DBO₅/m²·d o g DQO/m²·d. Es el criterio
+    de dimensionamiento principal del sistema clásico.
+
+  DBO₅ (Demanda Bioquímica de Oxígeno a 5 días)
+    Cantidad de oxígeno que los microorganismos necesitan para descomponer la
+    materia orgánica biodegradable en 5 días a 20 °C. Principal parámetro para
+    medir la contaminación orgánica de aguas residuales domésticas.
+
+  DQO (Demanda Química de Oxígeno)
+    Cantidad de oxígeno requerida para oxidar químicamente (con dicromato de
+    potasio) toda la materia orgánica de una muestra, incluyendo la fracción
+    no biodegradable. DQO > DBO₅ siempre. Relación DQO/DBO₅ típica en aguas
+    domésticas crudas: 2.0–2.5; en post-UASB: 2.0–2.8.
+
+  Efluente
+    Agua residual que sale de una unidad de tratamiento, habiendo sido
+    parcialmente depurada.
+
+  HAFV (Humedal Artificial de Flujo Vertical)
+    Sistema de tratamiento de aguas residuales basado en la percolación
+    vertical del agua a través de un medio granular colonizado por macrófitas
+    y microorganismos. Equivalente en inglés: VFCW (Vertical Flow Constructed
+    Wetland).
+
+  HFHS (Humedal de Flujo Horizontal Subsuperficial)
+    Sistema complementario al HAFV en el que el agua fluye horizontalmente
+    bajo la superficie del medio. Favorece condiciones anóxicas y la
+    desnitrificación. Se combina con el HAFV en sistemas híbridos para
+    maximizar la remoción de nitrógeno total.
+
+  HLR (Hydraulic Loading Rate — Carga Hidráulica Superficial)
+    Caudal aplicado por unidad de área superficial del filtro activo.
+    Unidades: m³/m²·d = m/d. Criterio de dimensionamiento hidráulico clave,
+    especialmente en el HAFV tropical de alta carga donde es frecuentemente
+    el factor que controla el área.
+
+  kA,T (constante cinética superficial corregida por temperatura)
+    Parámetro del modelo k-C* que describe la velocidad de remoción de un
+    contaminante en un HAFV a la temperatura T del proyecto. Se calcula
+    a partir de kA,20 mediante la corrección de Arrhenius modificada (Ec. V3).
+    Unidades: m/d.
+
+  Macrófita
+    Planta acuática o semiacuática que se planta en el HAFV. No realiza
+    directamente la depuración, pero su sistema radicular crea micrositios
+    aerobios/anóxicos, transfiere oxígeno a la rizosfera y previene la
+    colmatación superficial.
+
+  Mineralización del lodo
+    Proceso de descomposición aerobia de los sólidos orgánicos acumulados
+    en la superficie del filtro durante el período de reposo. Es el mecanismo
+    que previene la colmatación a largo plazo. Su tasa aumenta con la
+    temperatura, lo que fundamenta la adaptación tropical de alta carga.
+
+  NH₄-N (nitrógeno amoniacal)
+    Forma de nitrógeno predominante en aguas residuales domésticas. Se
+    remueve en el HAFV mediante nitrificación aerobia (conversión a NO₃⁻).
+    Su remoción completa requiere a veces un sistema híbrido HAFV + HFHS.
+
+  NMP (Número Más Probable)
+    Método estadístico para estimar la concentración de microorganismos
+    (típicamente coliformes) en una muestra de agua.
+
+  OLR (Organic Loading Rate — Carga Orgánica Superficial)
+    En la bibliografía usada para la adaptación tropical de alta carga, OLR se refiere a la
+    carga orgánica superficial expresada en g DQO/m²·d, aplicada al filtro
+    activo. No confundir con la carga orgánica volumétrica (kg DQO/m³·d),
+    que se basa en el volumen del medio, no en su área. El OLR de la Ruta B
+    es el criterio principal de dimensionamiento orgánico.
+
+  PE (Persona Equivalente / Equivalente Habitante)
+    Unidad de carga contaminante equivalente a la generada por un habitante.
+    Estándar europeo: 1 PE = 60 g DBO₅/d. Cuando el HAFV recibe efluente
+    post-UASB, el PE debe calcularse en función de la carga real de DBO₅
+    que llega al HAFV (no del caudal per cápita), para no sobredimensionar.
+
+  Porosidad (n)
+    Fracción del volumen total del medio granular ocupada por espacios vacíos.
+    Determina el volumen real disponible para el agua y, por tanto, el TRH.
+    Valores típicos: grava fina 0.35–0.38; grava media 0.36–0.40.
+
+  Pulso
+    Descarga intermitente de agua residual sobre la superficie del filtro.
+    Su función es garantizar la distribución uniforme y la re-aireación del
+    medio durante los períodos de reposo entre pulsos. Frecuencia típica:
+    10–20 pulsos/día en clima tropical.
+
+  q (carga hidráulica en el modelo k-C*)
+    Cociente Q/A_operando [m³/d / m² = m/d]. Representa la tasa de flujo
+    por unidad de área del filtro activo. A menor q (mayor área o menor
+    caudal), mejor remoción. Sinónimo de HLR en este contexto.
+
+  Reposo (período de)
+    Fracción del ciclo de operación del HAFV en la que el filtro no recibe
+    alimentación. Durante el reposo el medio drena, el aire penetra y se
+    produce la mineralización aerobia del lodo. Duración: 7 d (clásico) o
+    3.5 d (HAFV tropical de alta carga).
+
+  Rizosfera
+    Zona del suelo o medio granular inmediatamente alrededor y bajo las raíces
+    de las plantas macrófitas. Presenta condiciones aerobias localizadas
+    debido al transporte de oxígeno a través de los aerénquimas radiculares.
+
+  SST (Sólidos Suspendidos Totales)
+    Masa de partículas retenidas en un filtro de 1.2 μm (o 0.45 μm según
+    método) por unidad de volumen de muestra. Su remoción en el HAFV es
+    principalmente por filtración física en el medio granular. Eficiencia
+    típica en HAFV: 80–95 %.
+
+  TRH (Tiempo de Retención Hidráulico)
+    Tiempo medio que el agua permanece dentro del medio filtrante activo.
+    Se calcula considerando solo el volumen de vacíos (Ec. G1). Un TRH
+    mayor favorece la remoción, pero implica mayor área o menor caudal.
+
+  TULSMA
+    Texto Unificado de Legislación Secundaria del Ministerio del Ambiente
+    de Ecuador. Contiene en sus Tablas 11, 12 y 13 los límites de descarga
+    de aguas residuales tratadas a alcantarillado, cuerpos de agua dulce y
+    cuerpos de agua marina, respectivamente.
+
+  UASB (Upflow Anaerobic Sludge Blanket — Reactor Anaerobio de Flujo Ascendente)
+    Reactor de tratamiento primario/secundario anaerobio ampliamente utilizado
+    en zonas tropicales. Eficiencias típicas: remoción de DBO₅ 65–70 %,
+    DQO 60–65 %, SST 70 %. Su efluente es el afluente más común al HAFV en
+    trenes de tratamiento de América Latina tropical.
+
+  VFCW (Vertical Flow Constructed Wetland)
+    Denominación en inglés del HAFV. Se utiliza intercambiablemente en la
+    bibliografía internacional.
+
+  θ (coeficiente de corrección de temperatura de Arrhenius modificado)
+    Parámetro adimensional del modelo k-C* que cuantifica la sensibilidad
+    de la constante cinética a los cambios de temperatura. Para DBO₅: θ = 1.06,
+    lo que significa que por cada grado de aumento en T, kA aumenta un 6 %.
+
+
+------------------------------------------------------------------------
+SECCIÓN 19 — EJEMPLO DE CÁLCULO RESUELTO
+         Proyecto tipo: Planta de Tratamiento en Clima Tropical Insular
+         Sistema: HAFV post-UASB, afluente de 2 líneas de tratamiento
+------------------------------------------------------------------------
+
+DATOS DEL PROYECTO
+──────────────────────────────────────────────────────────────────────
+
+  Ubicación:            Clima tropical insular (T_aire ≈ 24 °C; T_agua ≈ 25.6 °C)
+  Normativa aplicable:  TULSMA Ecuador (Tablas 12 y 13)
+  Posición en el tren:  Tratamiento secundario, posterior a reactor UASB
+  Configuración:        2 líneas de tratamiento paralelas
+
+  Datos de calidad del afluente al HAFV (post-UASB):
+    Q_total        = 864 m³/d   (2 líneas × 432 m³/d/línea)
+    S₀,DBO         = 72.9 mg/L
+    S₀,DQO         = 174.3 mg/L
+    S₀,SST         = 46.8 mg/L
+    T              = 25.6 °C
+
+  Objetivos de calidad del efluente (TULSMA Tabla 12 — agua dulce):
+    Ce,DBO ≤ 100 mg/L
+    Ce,DQO ≤ 250 mg/L
+    Ce,SST ≤ 130 mg/L
+
+──────────────────────────────────────────────────────────────────────
+PASO A — SELECCIÓN DEL SISTEMA (Sección 3)
+──────────────────────────────────────────────────────────────────────
+
+  T = 25.6 °C ≥ 20 °C → HAFV tropical de alta carga candidato
+
+  Criterio A2.1 (área): Zona insular con terreno limitado → FAVORECE Ruta B
+  Criterio A2.2 (afluente): Efluente post-UASB → ambos sistemas aplicables
+  Criterio A2.3 (operación): Capacitación técnica disponible → FAVORECE Ruta B
+  Criterio A2.4 (bioseguridad): Sin adición de inoculantes → SIN restricción
+  Criterio A2.5 (NH₄): Sin objetivo estricto de nitrificación → NO aplica
+
+  Criterios A2.1 a A2.4: 3 de 4 favorecen Ruta B → CONDICIÓN 2
+
+  SISTEMA SELECCIONADO: RUTA B — HAFV TROPICAL DE ALTA CARGA
+
+──────────────────────────────────────────────────────────────────────
+PASO F1 — ÁREA POR CARGA ORGÁNICA SUPERFICIAL (OLR)
+──────────────────────────────────────────────────────────────────────
+
+  OLR adoptada (conservadora): 300 g DQO/m²·d = 0.300 kg DQO/m²·d
+
+  Masa DQO afluente:
+    M_DQO = Q × S₀,DQO = 864 m³/d × 174.3 g/m³ = 150,595 g/d
+
+  Área por OLR (Ec. F1):
+    A_op,OLR = M_DQO / OLR = 150,595 / 300 = 502 m²
+
+──────────────────────────────────────────────────────────────────────
+PASO F2 — ÁREA POR CARGA HIDRÁULICA SUPERFICIAL (HLR)
+──────────────────────────────────────────────────────────────────────
+
+  HLR adoptada (límite superior del rango): 0.75 m/d
+
+  Área por HLR (Ec. F2):
+    A_op,HLR = Q / HLR = 864 / 0.75 = 1,152 m²
+
+──────────────────────────────────────────────────────────────────────
+PASO F3 — ÁREA DEL FILTRO EN OPERACIÓN
+──────────────────────────────────────────────────────────────────────
+
+  A_operando = max(502 m² ; 1,152 m²) = 1,152 m²   → Controla HLR
+
+  Verificación: OLR real = 150,595 / 1,152 = 131 g DQO/m²·d
+  → Inferior al límite de 350 g DQO/m²·d → DENTRO DE RANGO ✓
+  → El sistema es hidráulicamente limitado. La carga orgánica es baja
+    porque el UASB ya removió el 65 % de la DQO original.
+
+──────────────────────────────────────────────────────────────────────
+PASO F4 — ÁREA TOTAL DEL SISTEMA
+──────────────────────────────────────────────────────────────────────
+
+  N_filtros = 2 (mínimo recomendado para operación alterna)
+
+  A_total = A_operando × N_filtros   (Ec. F4)
+  A_total = 1,152 × 2 = 2,304 m²
+
+──────────────────────────────────────────────────────────────────────
+PASO F5 — VERIFICACIÓN POR PE EQUIVALENTE
+──────────────────────────────────────────────────────────────────────
+
+  NOTA: El HAFV recibe efluente post-UASB → usar PE_carga (Ec. F5b):
+
+  PE_carga = (Q × S₀,DBO) / 60 = (864 × 72.9) / 60
+           = 63,086 g/d / 60 g/PE·d = 1,051 PE ≈ 1,050 PE
+
+  Comparación: PE_caudal = 864 / 0.15 = 5,760 PE
+  → El PE_caudal sobreestima la carga porque el UASB ya la redujo.
+    Para este proyecto, PE_carga = 1,050 PE es el valor correcto.
+
+  Área por PE (T = 25.6 °C > 22 °C): 0.8 – 1.2 m²/PE; adoptar 1.0 m²/PE
+
+  A_PE = 1.0 × 1,050 = 1,050 m²
+
+  Verificar: A_total ≥ A_PE → 2,304 m² > 1,050 m² ✓   CUMPLE
+
+  El área calculada por criterio HLR es el valor de diseño:
+  A_total = 2,304 m²
+
+──────────────────────────────────────────────────────────────────────
+PASO G — GEOMETRÍA DE LAS CELDAS
+──────────────────────────────────────────────────────────────────────
+
+  Área por celda: A_celda = A_total / N_filtros = 2,304 / 2 = 1,152 m²
+
+  Relación L:B = 1.5:1 → A_celda = L × B = 1.5B × B = 1.5 B²
+
+  B = √(1,152 / 1.5) = √768 = 27.7 m  → adoptar B = 28 m
+  L = 1.5 × 28 = 42 m
+
+  Verificación: 28 × 42 = 1,176 m² ≥ 1,152 m² ✓  (diferencia 2 %; aceptable)
+
+  Dimensiones de cada celda: 28 m × 42 m
+  Dimensiones del sistema completo (2 celdas lado a lado):
+    Frente: 28 m
+    Largo total: 2 × 42 + separación (2 m) = 86 m
+
+──────────────────────────────────────────────────────────────────────
+PASO TRH — TIEMPO DE RETENCIÓN HIDRÁULICO REAL
+──────────────────────────────────────────────────────────────────────
+
+  Medio filtrante:
+    H_medio = 0.30 (grava fina) + 0.30 (grava media) + 0.25 (grava drenaje)
+            = 0.85 m
+    Porosidad adoptada: n = 0.37 (promedio grava fina + media)
+
+  TRH = (A_operando × H_medio × n) / Q   (Ec. G1)
+      = (1,152 × 0.85 × 0.37) / 864
+      = 362.4 / 864
+      = 0.42 d = 10.1 h
+
+  TRH = 0.42 d → inferior al mínimo recomendado para sistema clásico (2 d)
+  pero dentro del rango para Ruta B (0.5–2 d).
+  Nota: 0.42 d está muy cerca del límite inferior; se recomienda monitorear
+  la calidad del efluente en los primeros 6 meses y ajustar HLR si es necesario.
+
+──────────────────────────────────────────────────────────────────────
+PASO V — VERIFICACIÓN DE EFICIENCIA (Modelo k-C*)
+──────────────────────────────────────────────────────────────────────
+
+  V1: Carga hidráulica del filtro activo:
+      q = Q / A_operando = 864 / 1,152 = 0.75 m/d
+
+  V2: Constante cinética corregida por temperatura (DBO₅):
+      kA,T = kA,20 × θ^(T−20)   (Ec. V3)
+      kA,T = 0.093 × 1.06^(25.6−20)
+      kA,T = 0.093 × 1.06^5.6
+      1.06^5.6 = 1.06^5 × 1.06^0.6 = 1.3382 × 1.0356 = 1.385
+      kA,T = 0.093 × 1.385 = 0.129 m/d
+
+  V3: Concentración efluente DBO₅ (Ec. V2):
+      Ce = C* + (Ci − C*) × exp(−kA,T / q)
+      Ce = 3.5 + (72.9 − 3.5) × exp(−0.129 / 0.75)
+      Ce = 3.5 + 69.4 × exp(−0.172)
+      Ce = 3.5 + 69.4 × 0.842
+      Ce (DBO₅) = 3.5 + 58.4 = 61.9 ≈ 62 mg/L
+
+  V3b: Concentración efluente DQO:
+      kA,T,DQO = 0.075 × 1.06^5.6 = 0.075 × 1.385 = 0.104 m/d
+      Ce,DQO = 15 + (174.3 − 15) × exp(−0.104 / 0.75)
+             = 15 + 159.3 × exp(−0.139)
+             = 15 + 159.3 × 0.870
+             = 15 + 138.6 = 153.6 ≈ 154 mg/L
+
+  V3c: Concentración efluente SST:
+      Eficiencia típica HAFV tropical de alta carga (T > 20 °C): 85 %
+      Ce,SST = 46.8 × (1 − 0.85) = 46.8 × 0.15 = 7.0 mg/L
+
+  V4: Eficiencias de remoción:
+      E (DBO₅) = (72.9 − 62) / 72.9 × 100 = 14.9 %  [en el HAFV]
+      E (DQO)  = (174.3 − 154) / 174.3 × 100 = 11.6 %  [en el HAFV]
+      E (SST)  = (46.8 − 7.0) / 46.8 × 100 = 85.0 %
+
+  NOTA SOBRE EFICIENCIA DE DBO₅ Y DQO:
+  Las eficiencias del 15 % y 12 % en el HAFV pueden parecer bajas, pero esto
+  se debe a que el afluente ya fue pretratado por el UASB, que removió
+  aproximadamente el 65 % de la DBO₅ y el 62 % de la DQO originales.
+  La eficiencia total del tren (UASB + HAFV) es:
+    DBO₅: desde ~200 mg/L crudo hasta 62 mg/L → remoción total ≈ 69 %
+    SST:  desde ~155 mg/L crudo hasta 7 mg/L  → remoción total ≈ 95 %
+
+──────────────────────────────────────────────────────────────────────
+PASO N — VERIFICACIÓN NORMATIVA (TULSMA)
+──────────────────────────────────────────────────────────────────────
+
+  Parámetro | Ce calculado | TULSMA T12  | TULSMA T13  | Estado
+  ----------|--------------|-------------|-------------|--------
+  DBO₅ mg/L |     62       | ≤ 100       | ≤ 100       | ✓ CUMPLE
+  DQO  mg/L |    154       | ≤ 250       | ≤ 250       | ✓ CUMPLE
+  SST  mg/L |      7       | ≤ 130       | ≤ 100       | ✓ CUMPLE
+  CF        |   > 3000     | ≤ 3000      | ≤ 3000      | Requiere desinfección
+
+  → Desinfección posterior (UV o hipoclorito) necesaria para coliformes.
+
+──────────────────────────────────────────────────────────────────────
+PASO D — DISEÑO DEL SISTEMA DE DISTRIBUCIÓN Y PULSOS
+──────────────────────────────────────────────────────────────────────
+
+  N_pulsos adoptado: 15 pulsos/día (óptimo tropical)
+  A_filtro_activo: 1,152 m²
+  Lámina mínima adoptada: e_min = 0.007 m (7 mm)
+
+  Volumen por pulso (Ec. D1):
+    V_pulso = A_filtro × e_min = 1,152 × 0.007 = 8.1 m³
+
+  Verificación de pulsos (Ec. D2):
+    Q_diario_por_filtro = 864 m³/d (todo a un filtro durante 3.5 días)
+    N_pulsos = Q_diario / V_pulso = 864 / 8.1 = 107 pulsos/día
+
+  → N_pulsos = 107 >> 15 mínimos. En la práctica, la lámina por pulso sería
+    mayor para no requerir 107 bombeos diarios.
+
+  Ajuste: Con N_pulsos = 15 (óptimo) → V_pulso = 864 / 15 = 57.6 m³
+  Lámina equivalente = V_pulso / A_filtro = 57.6 / 1,152 = 0.05 m = 50 mm
+
+  Lámina de 50 mm por pulso → superior al mínimo de 5–10 mm. Es aceptable,
+  ya que garantiza saturación completa de la superficie.
+
+  Caudal de bomba (Ec. D3) [t_pulso = 10 min = 0.0069 d]:
+    Q_bomba = V_pulso / t_pulso = 57.6 / 0.0069 = 8,350 m³/d ≈ 348 m³/h
+
+  → Se recomienda una bomba de 350 m³/h con variador de frecuencia o
+    un sistema de sifones automáticos de gran volumen.
+
+  Período de reposo entre pulsos (Ec. D4):
+    t_reposo = (24 × 60 / 15) − 10 = 96 − 10 = 86 minutos ≈ 1.4 h
+
+  Verificar: t_reposo = 86 min > 4 × t_pulso = 40 min ✓
+
+──────────────────────────────────────────────────────────────────────
+PASO L — PRODUCCIÓN DE LODOS
+──────────────────────────────────────────────────────────────────────
+
+  P_sólidos = Q × (SST_i − SST_e) × 10⁻³   (Ec. L1)
+            = 864 × (46.8 − 7.0) × 10⁻³
+            = 864 × 39.8 × 10⁻³
+            = 34.4 kg SST/d
+
+  Acumulación superficial neta (T > 20 °C): ≈ 0.75 cm/año (valor medio)
+
+  Volumen de lodo acumulado por año:
+    V_lodo = A_total/2 × 0.0075 m/año = 1,152 × 0.0075 = 8.6 m³/año por celda
+           = 17.3 m³/año total (ambas celdas)
+
+  Vida útil del medio antes de retiro de lodo (altura libre = 0.60 m):
+    Años = 0.60 m / 0.0075 m/año ≈ 80 años   (teórico)
+    En la práctica: recomendación de inspección a los 10–15 años y
+    retiro parcial de lodo superficial según evaluación de colmatación.
+
+──────────────────────────────────────────────────────────────────────
+PASO P — ÁREA TOTAL DEL PREDIO
+──────────────────────────────────────────────────────────────────────
+
+  A_total filtros:       2,304 m²
+  A_complementaria:      30 % × 2,304 = 691 m²
+  (accesos + control + almacenamiento)
+
+  A_predio = (A_total + A_comp) / (1 − 0.15)   (Ec. P1)
+           = (2,304 + 691) / 0.85
+           = 2,995 / 0.85
+           = 3,523 m²  ≈  0.35 ha
+
+──────────────────────────────────────────────────────────────────────
+RESUMEN COMPARATIVO: DISEÑO CLÁSICO vs. HAFV TROPICAL DE ALTA CARGA
+──────────────────────────────────────────────────────────────────────
+
+  Criterio               | Diseño Clásico   | HAFV tropical de alta carga
+  -----------------------|------------------|--------------------------
+  Área total filtros     | ~10,500 m²       | 2,304 m²
+  Número de etapas       | 2                | 1
+  DBO₅ efluente (calc.)  | ~30 mg/L         | ~62 mg/L
+  DQO efluente (calc.)   | ~70 mg/L         | ~154 mg/L
+  SST efluente (est.)    | ~5 mg/L          | ~7 mg/L
+  Cumple TULSMA T12      | ✓                | ✓
+  Ahorro de área         | —                | ~78 %
+  Área del predio        | ~16,100 m²       | 3,523 m²
+  Referencias            | Cooper (1996)    | Molle et al. (2015)
+
+  CONCLUSIÓN: El HAFV tropical de alta carga es la solución apropiada para
+  proyectos en zonas tropicales con restricción de terreno. La calidad del
+  efluente es superior a los límites TULSMA en todos los parámetros físico-
+  químicos, con la única necesidad de agregar una etapa de desinfección para
+  coliformes fecales.
+
+──────────────────────────────────────────────────────────────────────
+CICLO DE OPERACIÓN DEL PROYECTO RESUELTO
+──────────────────────────────────────────────────────────────────────
+
+  Semana 1: Filtro A alimentado (864 m³/d, 15 pulsos/d)
+            Filtro B en reposo (drenaje completo + re-aireación)
+
+  Semana 2: Filtro B alimentado (864 m³/d, 15 pulsos/d)
+            Filtro A en reposo (drenaje completo + re-aireación)
+
+  → Alternancia automática cada 3.5 días (84 horas)
+  → Sistema de control: temporizador o SCADA básico
+
+  Período de arranque (meses 1–6):
+    Carga reducida al 30 % → Q_arranque = 260 m³/d
+    Incrementar 10 % cada 3–4 semanas hasta carga de diseño.
+    Monitoreo quincenal de DBO₅ y SST durante el arranque.
+
+
+================================================================================
+FIN DEL DOCUMENTO
+Guía de Diseño HAFV — Sistema Clásico y HAFV Tropical de Alta Carga
+Versión 2.0 — Con correcciones, glosario y ejemplo de cálculo resuelto
+================================================================================

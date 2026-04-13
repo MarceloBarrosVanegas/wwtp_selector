@@ -3874,7 +3874,8 @@ def dimensionar_humedal_vertical(Q: ConfigDiseno = CFG,
 def dimensionar_sedimentador_sec(Q: ConfigDiseno = CFG,
                                   DBO_entrada_mg_L: float = None,
                                   solidos_biologicos_entrada_kg_d: float = None,
-                                  DBO_removida_fp_kg_d: float = None) -> Dict[str, Any]:
+                                  DBO_removida_fp_kg_d: float = None,
+                                  resultados_previos: dict = None) -> Dict[str, Any]:
     """
     Dimensionamiento del sedimentador secundario circular (clarificador).
 
@@ -3990,14 +3991,36 @@ def dimensionar_sedimentador_sec(Q: ConfigDiseno = CFG,
     
     # Produccion de solidos biologicos - entrada generica para reusabilidad
     # Se acepta tanto el nuevo parametro (solidos_biologicos_entrada_kg_d) como
-    # el antiguo (DBO_removida_fp_kg_d) para mantener compatibilidad hacia atras
+    # el antiguo (DBO_removida_fp_kg_d) para mantener compatibilidad hacia atras.
+    # Ademas, si no se proporcionan explicitamente, se intenta descubrir
+    # automaticamente desde resultados_previos.
+    produccion_humus_kg_d = 0.0
+
     if solidos_biologicos_entrada_kg_d is not None:
         produccion_humus_kg_d = solidos_biologicos_entrada_kg_d
     elif DBO_removida_fp_kg_d is not None:
         # Compatibilidad hacia atras con codigo existente
         produccion_humus_kg_d = factor_produccion_humus * DBO_removida_fp_kg_d
-    else:
-        raise ValueError("solidos_biologicos_entrada_kg_d (o DBO_removida_fp_kg_d para compatibilidad) es requerida para dimensionar el sedimentador")
+    elif resultados_previos:
+        for clave, res in resultados_previos.items():
+            if clave.startswith("_") or not isinstance(res, dict) or clave == "lecho_secado":
+                continue
+            # Buscar sólidos biológicos directos
+            for campo in ["solidos_humus_kg_d", "solidos_biologicos_kg_d", "produccion_humus_kg_d"]:
+                if campo in res and isinstance(res[campo], (int, float)):
+                    produccion_humus_kg_d += res[campo]
+                    break
+            else:
+                # Fallback: estimar desde DBO removida
+                if "DBO_removida_kg_d" in res and isinstance(res["DBO_removida_kg_d"], (int, float)):
+                    produccion_humus_kg_d += factor_produccion_humus * res["DBO_removida_kg_d"]
+
+    if produccion_humus_kg_d == 0:
+        raise ValueError(
+            "solidos_biologicos_entrada_kg_d (o DBO_removida_fp_kg_d para compatibilidad) "
+            "es requerida para dimensionar el sedimentador, o debe existir una unidad aerobia "
+            "previa que genere solidos biologicos detectables en resultados_previos."
+        )
     
     solids_loading_kg_m2_d = produccion_humus_kg_d / A_sup_m2
     
@@ -4639,7 +4662,8 @@ def dimensionar_uv(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
 # =============================================================================
 
 def dimensionar_lecho_secado(Q: ConfigDiseno = CFG,
-                              lodos_kg_SST_d: float = None) -> Dict[str, Any]:
+                              lodos_kg_SST_d: float = None,
+                              resultados_previos: dict = None) -> Dict[str, Any]:
     """
     Dimensionamiento del lecho de secado por arena (gravedad + evaporación).
 
@@ -4683,9 +4707,32 @@ def dimensionar_lecho_secado(Q: ConfigDiseno = CFG,
     ref_me = citar("metcalf_2014")
     ref_ops = citar("ops_cepis_2005")
 
-    # Producción de lodos - requerida para dimensionar (cálculo encadenado desde UASB + FP)
+    # Producción de lodos - requerida para dimensionar (cálculo encadenado desde unidades anteriores)
     if lodos_kg_SST_d is None:
-        raise ValueError("lodos_kg_SST_d es requerido para dimensionar el lecho de secado (cálculo encadenado)")
+        if resultados_previos:
+            total_lodos = 0.0
+            for clave, res in resultados_previos.items():
+                if clave.startswith("_") or not isinstance(res, dict) or clave == "lecho_secado":
+                    continue
+                valor = 0.0
+                for campo in ["lodos_kg_SST_d", "lodos_total_kg_d", "solidos_humus_kg_d", "solidos_biologicos_kg_d", "produccion_humus_kg_d"]:
+                    if campo in res and isinstance(res[campo], (int, float)):
+                        valor = res[campo]
+                        break
+                if valor == 0.0 and "lodos" in res and isinstance(res["lodos"], list):
+                    for item in res["lodos"]:
+                        if isinstance(item, dict):
+                            if "kg_SST_d" in item:
+                                valor += item["kg_SST_d"]
+                            elif "kg_d" in item and "SSV" not in str(item):
+                                valor += item["kg_d"]
+                total_lodos += valor
+            if total_lodos > 0:
+                lodos_kg_SST_d = total_lodos
+            else:
+                raise ValueError("No se encontraron lodos en las unidades anteriores para dimensionar el lecho de secado")
+        else:
+            raise ValueError("lodos_kg_SST_d es requerido para dimensionar el lecho de secado (cálculo encadenado)")
 
     # Parámetros de diseño adoptados desde configuración
     C_SST_kg_m3 = Q.lecho_C_SST_kg_m3
@@ -5598,7 +5645,8 @@ def dimensionar_baf(Q: ConfigDiseno = CFG,
 def dimensionar_abr_rap(Q: ConfigDiseno = CFG,
                         DBO_entrada_mg_L: float = None,
                         DQO_entrada_mg_L: float = None,
-                        SST_entrada_mg_L: float = None) -> Dict[str, Any]:
+                        SST_entrada_mg_L: float = None,
+                        TRH_diseno_h: float = None) -> Dict[str, Any]:
     """
     Dimensionamiento del Reactor Anaerobio con Pantallas (ABR / RAP).
     
@@ -5652,7 +5700,8 @@ def dimensionar_abr_rap(Q: ConfigDiseno = CFG,
     
     # [PASO 1] Volumen total según TRH de diseño
     # V_total = Q_medio × TRH
-    TRH_diseno_h = Q.abr_TRH_diseno_h
+    if TRH_diseno_h is None:
+        TRH_diseno_h = Q.abr_TRH_diseno_h
     TRH_diseno_d = TRH_diseno_h / 24.0
     V_total_m3 = Q_m3_d * TRH_diseno_d
     

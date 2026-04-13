@@ -13,7 +13,7 @@ Se conecta directamente con:
 
 import os
 import sys
-from typing import Dict, Any, List, Tuple
+from typing import Dict, Any, List, Tuple, Optional
 
 
 def calcular_areas_complementarias(cfg, area_tratamiento: float) -> Dict[str, Any]:
@@ -144,6 +144,13 @@ A_{{total}} = \frac{{{area_m2:.0f} + {a['area_amortiguacion']:.0f} + {a['area_co
     return latex.strip() + "\n"
 
 
+# Conjunto de unidades reconocidas para tablas de resumen
+_UNIDADES_RESUMEN = {
+    'rejillas', 'desarenador', 'uasb', 'abr_rap', 'humedal_vertical',
+    'filtro_percolador', 'sedimentador_sec', 'baf', 'taf', 'cloro', 'desinfeccion', 'lecho_secado'
+}
+
+
 def _fila_dimension_unidad(unidad: str, r: Dict[str, Any], cfg) -> str:
     """Genera una fila de la tabla de dimensionamiento para una unidad."""
     num_lineas = cfg.num_lineas
@@ -180,21 +187,19 @@ def _fila_dimension_unidad(unidad: str, r: Dict[str, Any], cfg) -> str:
         return (f"BAF & {u.get('largo_m', 0):.1f} $\\times$ {u.get('ancho_m', 0):.1f} & {num_lineas} & "
                 f"EBCT: {u.get('EBCT_h', 0):.1f} h \\\\")
     elif unidad == 'taf':
-        return (f"TAF & {u.get('largo_m', 0):.1f} $\\times$ {u.get('ancho_m', 0):.1f} & {num_lineas} & "
-                f"Área: {u.get('A_sup_m2', 0):.1f} m$^2$ \\\\")
+        return (f"TAF & D = {u.get('D_bf_m', 0):.2f}, H = {u.get('H_total_m', 0):.1f} & {num_lineas} & "
+                f"CHS = {u.get('CHS_m3_m2_h', 0):.2f} m$^3$/m$^2$·h " + "\\\\")
     elif unidad == 'abr_rap':
-        return (f"ABR-RAP & {u.get('largo_m', 0):.1f} $\\times$ {u.get('ancho_m', 0):.1f} & {num_lineas} & "
-                f"v$_{{up}}$ = {u.get('v_up_m_h', 0):.2f} m/h \\\\")
+        return (f"ABR-RAP & {u.get('L_total_m', u.get('largo_layout_m', 0)):.1f} $\\times$ {u.get('W_m', u.get('ancho_layout_m', 0)):.2f} & {num_lineas} & "
+                f"v$_{{up}}$ = {u.get('v_up_calc_m_h', 0):.2f} m/h " + "\\\\")
     return ""
 
 
 def _filas_dimensionamiento(resultados: Dict[str, Any], cfg) -> str:
-    """Genera las filas de la tabla de dimensionamiento dinámicamente."""
-    orden = ['rejillas', 'desarenador', 'uasb', 'abr_rap', 'humedal_vertical',
-             'filtro_percolador', 'sedimentador_sec', 'baf', 'taf', 'cloro', 'desinfeccion', 'lecho_secado']
+    """Genera las filas de la tabla de dimensionamiento respetando el orden real del tren."""
     filas = []
-    for u in orden:
-        if u in resultados:
+    for u in resultados:
+        if u in _UNIDADES_RESUMEN:
             fila = _fila_dimension_unidad(u, resultados, cfg)
             if fila:
                 filas.append(fila)
@@ -267,24 +272,62 @@ def _armar_balance_calidad(resultados: Dict[str, Any]) -> Dict[str, Any]:
     return bal
 
 
-def _filas_balance_calidad(bal: Dict[str, Any]) -> Tuple[str, str]:
-    """Genera encabezados y filas de la tabla de balance de calidad."""
-    columnas: List[Tuple[str, str]] = [('Afluente', 'afluente')]
-    orden_etapas = [
-        ('Post-UASB', 'tras_uasb', 'eficiencias_uasb'),
-        ('Post-ABR', 'tras_abr', 'eficiencias_abr'),
-        ('Post-Hum', 'tras_humedal', 'eficiencias_humedal'),
-        ('Post-FP', 'tras_fp', 'eficiencias_fp'),
-        ('Post-Sed', 'tras_sed', 'eficiencias_sed'),
-        ('Post-BAF', 'tras_baf', 'eficiencias_baf'),
-        ('Post-TAF', 'tras_taf', 'eficiencias_taf'),
-    ]
-    for titulo, key, ef_key in orden_etapas:
-        if key in bal:
-            columnas.append((titulo, ef_key))
-    columnas.append(('Efluente', 'eficiencias_totales'))
+# Mapeos de etapas para el balance de calidad
+_TITULOS_ETAPAS = {
+    'uasb': 'Post-UASB',
+    'filtro_percolador': 'Post-FP',
+    'sedimentador_sec': 'Post-Sed',
+    'humedal_vertical': 'Post-Hum',
+    'baf': 'Post-BAF',
+    'taf': 'Post-TAF',
+    'abr_rap': 'Post-ABR',
+}
+_ETAPAS_BAL = {
+    'uasb': 'tras_uasb',
+    'filtro_percolador': 'tras_fp',
+    'sedimentador_sec': 'tras_sed',
+    'humedal_vertical': 'tras_humedal',
+    'baf': 'tras_baf',
+    'taf': 'tras_taf',
+    'abr_rap': 'tras_abr',
+}
+_EF_BAL = {
+    'uasb': 'eficiencias_uasb',
+    'filtro_percolador': 'eficiencias_fp',
+    'sedimentador_sec': 'eficiencias_sed',
+    'humedal_vertical': 'eficiencias_humedal',
+    'baf': 'eficiencias_baf',
+    'taf': 'eficiencias_taf',
+    'abr_rap': 'eficiencias_abr',
+}
 
-    headers = " & ".join([f"\\textbf{{{t}}}" for t, _ in columnas]) + " \\\\"
+
+def _filas_balance_calidad(bal: Dict[str, Any], resultados: Dict[str, Any] = None) -> Tuple[str, str]:
+    """Genera encabezados y filas de la tabla de balance de calidad respetando el orden real del tren."""
+    columnas: List[Tuple[str, str, Optional[str]]] = [('Afluente', 'afluente', None)]
+
+    if resultados:
+        for unidad in resultados:
+            if unidad in _ETAPAS_BAL and _ETAPAS_BAL[unidad] in bal:
+                columnas.append((_TITULOS_ETAPAS[unidad], _ETAPAS_BAL[unidad], _EF_BAL[unidad]))
+    else:
+        # Fallback a orden fijo heredado
+        orden_etapas = [
+            ('Post-UASB', 'tras_uasb', 'eficiencias_uasb'),
+            ('Post-ABR', 'tras_abr', 'eficiencias_abr'),
+            ('Post-Hum', 'tras_humedal', 'eficiencias_humedal'),
+            ('Post-FP', 'tras_fp', 'eficiencias_fp'),
+            ('Post-Sed', 'tras_sed', 'eficiencias_sed'),
+            ('Post-BAF', 'tras_baf', 'eficiencias_baf'),
+            ('Post-TAF', 'tras_taf', 'eficiencias_taf'),
+        ]
+        for titulo, key, ef_key in orden_etapas:
+            if key in bal:
+                columnas.append((titulo, key, ef_key))
+
+    columnas.append(('Efluente', 'efluente_final', None))
+
+    headers = "\\textbf{} & " + " & ".join([f"\\textbf{{{t}}}" for t, _, _ in columnas]) + " \\\\"
 
     params = [
         ('DBO$_5$ (mg/L)', 'DBO5_mg_L', '.1f'),
@@ -293,19 +336,26 @@ def _filas_balance_calidad(bal: Dict[str, Any]) -> Tuple[str, str]:
         ('CF (NMP/100mL)', 'CF_NMP_100mL', '.0f'),
     ]
 
+    def _ef_key(param: str) -> str:
+        return param.replace('5_mg_L', '5_pct').replace('_mg_L', '_pct').replace('_NMP_100mL', '_pct')
+
     filas_datos = []
     for titulo_param, key_param, fmt in params:
         valores = []
-        for _, ef_key in columnas:
-            if ef_key == 'afluente':
+        for _, data_key, ef_key in columnas:
+            if data_key == 'afluente':
                 val = bal.get('afluente', {}).get(key_param, 0)
                 valores.append(f"{val:{fmt}}")
-            elif ef_key == 'eficiencias_totales':
+            elif data_key == 'efluente_final':
                 val = bal.get('efluente_final', {}).get(key_param, 0)
                 valores.append(f"{val:{fmt}}")
             else:
-                val = bal.get(ef_key, {}).get(key_param.replace('5_mg_L', '5_pct').replace('_mg_L', '_pct').replace('_NMP_100mL', '_pct'), 0)
-                valores.append(f"{val:.0f}\\%")
+                val = bal.get(data_key, {}).get(key_param, 0)
+                if ef_key:
+                    ef_val = bal.get(ef_key, {}).get(_ef_key(key_param), 0)
+                    valores.append(f"{val:{fmt}} ({ef_val:.0f}\\%)")
+                else:
+                    valores.append(f"{val:{fmt}}")
         filas_datos.append(f"{titulo_param} & {' & '.join(valores)} \\\\")
 
     return headers, "\n".join(filas_datos)
@@ -349,11 +399,12 @@ def generar_resumen_resultados(cfg, resultados, balance_calidad=None, area_m2=No
     cumple_t10_cf = cf_ef <= 2000
     cumple_t1 = (dbo_ef <= 2.0 and cf_ef <= 600)
 
-    # Tabla de dimensionamiento dinámica
+    # Tabla de dimensionamiento dinámica (respeta orden real del tren)
     filas_dim = _filas_dimensionamiento(r, cfg)
 
-    # Tabla de balance dinámica
-    headers_balance, filas_balance = _filas_balance_calidad(bal)
+    # Tabla de balance dinámica (respeta orden real del tren)
+    headers_balance, filas_balance = _filas_balance_calidad(bal, r)
+    num_cols_balance = len(headers_balance.split('&'))
 
     # Lodos
     lecho = r.get('lecho_secado', {})
@@ -414,7 +465,7 @@ Temperatura & {cfg.T_agua_C:.1f} °C \\
 \begin{{table}}[H]
 \centering
 \caption{{Evolucion de parametros de calidad a traves del tratamiento}}
-\begin{{tabular}}{{l{'c' * len([c for c in _filas_balance_calidad(bal)[0].split('&')])}}}
+\begin{{tabular}}{{l{'c' * (num_cols_balance - 1)}}}
 \toprule
 {headers_balance}
 \midrule
