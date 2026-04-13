@@ -36,6 +36,35 @@ NOMBRES_DISPLAY = {
     'Reactor_Anaerobico': 'Reactor\nAnaerobico',
 }
 
+# Mapeo de unidades a números para layout tipo arquitectura
+NUMEROS_UNIDADES = {
+    'Rejillas': '1',
+    'Desarenador': '2',
+    'UASB': '3',
+    'ABR_RAP': '3',
+    'Filtro_Percolador': '4',
+    'Sedimentador': '4',
+    'Sedimentador_Secundario': '4',
+    'Humedal_Vertical': '4',
+    'BAF': '4',
+    'Biofiltro': '4',
+    'Desinfeccion': '5',
+    'Cloro': '5',
+    'Desinfeccion_Cloro': '5',
+    'UV': '5',
+    'Lecho de Secado': '6',
+}
+
+# Nombres completos para la leyenda
+NOMBRES_LEYENDA = {
+    '1': 'Rejillas',
+    '2': 'Desarenador',
+    '3': 'UASB / ABR',
+    '4': 'Tratamiento Secundario',
+    '5': 'Desinfección',
+    '6': 'Lecho de Secado',
+}
+
 
 def get_unidad_altura(unidad: str, DIM: dict = None) -> float:
     """Obtiene la altura/ancho de una unidad"""
@@ -71,16 +100,13 @@ def get_unidad_left_center(x: float, y: float, unidad: str, DIM: dict = None) ->
         return (x, y + ancho/2)
 
 
-def dibujar_unidad_layout(ax, x: float, y: float, unidad: str, color: str, font_scale: float = 1.0, DIM: dict = None):
-    """Dibuja una unidad en el layout con acotaciones"""
+def dibujar_unidad_layout(ax, x: float, y: float, unidad: str, color: str, font_scale: float = 1.0, DIM: dict = None, linea_idx: int = 0, total_lineas: int = 1, usar_numeros: bool = True):
+    """Dibuja una unidad en el layout. Las acotaciones se dibujan separadas en columna paralela."""
     dim_dict = DIM if DIM else DIMENSIONES
     props = dim_dict[unidad]
     
-    fontsize = FONT_CONFIG['unidad']
-    acot_fontsize = FONT_CONFIG['acotacion']
-    
-    offset_linea = 0.6
-    offset_texto = 1.1
+    fontsize = FONT_CONFIG['unidad'] * font_scale
+    numero_fontsize = fontsize * 1.5  # Números más grandes
     
     if props['geom'] == 'circ':
         diam = props['diametro']
@@ -89,17 +115,16 @@ def dibujar_unidad_layout(ax, x: float, y: float, unidad: str, color: str, font_
                        facecolor=color, edgecolor='black', linewidth=2)
         ax.add_patch(circle)
         
-        nombre = NOMBRES_DISPLAY.get(unidad, unidad.replace('_', '\n'))
-        ax.text(x + radio, y + radio, nombre, ha='center', va='center', 
-               fontsize=fontsize, fontweight='bold')
+        if usar_numeros:
+            numero = NUMEROS_UNIDADES.get(unidad, '?')
+            ax.text(x + radio, y + radio, numero, ha='center', va='center', 
+                   fontsize=numero_fontsize, fontweight='bold', color='black')
+        else:
+            nombre = NOMBRES_DISPLAY.get(unidad, unidad.replace('_', '\n'))
+            ax.text(x + radio, y + radio, nombre, ha='center', va='center', 
+                   fontsize=fontsize, fontweight='bold')
         
-        # Acotación
-        ax.annotate('', xy=(x + diam, y - offset_linea), xytext=(x, y - offset_linea),
-                   arrowprops=dict(arrowstyle='<->', color='black', lw=1))
-        ax.text(x + diam/2, y - offset_texto, f'Ø{diam:.1f}m', ha='center', fontsize=acot_fontsize, 
-               color='black')
-        
-        return diam, diam
+        return diam, diam, f'Ø{diam:.1f}m'
     else:
         largo = props['largo']
         ancho = props['ancho']
@@ -108,17 +133,17 @@ def dibujar_unidad_layout(ax, x: float, y: float, unidad: str, color: str, font_
                         edgecolor='black', linewidth=2)
         ax.add_patch(rect)
         
-        nombre = NOMBRES_DISPLAY.get(unidad, unidad.replace('_', '\n'))
-        ax.text(x + largo/2, y + ancho/2, nombre, ha='center', va='center',
-               fontsize=fontsize, fontweight='bold')
+        if usar_numeros:
+            numero = NUMEROS_UNIDADES.get(unidad, '?')
+            ax.text(x + largo/2, y + ancho/2, numero, ha='center', va='center',
+                   fontsize=numero_fontsize, fontweight='bold', color='black')
+        else:
+            nombre = NOMBRES_DISPLAY.get(unidad, unidad.replace('_', '\n'))
+            ax.text(x + largo/2, y + ancho/2, nombre, ha='center', va='center',
+                   fontsize=fontsize, fontweight='bold')
         
-        # Acotaciones horizontales (largo)
-        ax.annotate('', xy=(x + largo, y - offset_linea), xytext=(x, y - offset_linea),
-                   arrowprops=dict(arrowstyle='<->', color='black', lw=1))
-        ax.text(x + largo/2, y - offset_texto, f'{largo:.1f}m', ha='center', fontsize=acot_fontsize,
-               color='black')
-        
-        return largo, ancho
+        # Formato de dimensiones: Largo x Ancho
+        return largo, ancho, f'{largo:.1f}m x {ancho:.1f}m'
 
 
 def dibujar_flecha_flujo(ax, x1: float, y1: float, x2: float, y2: float, color='black'):
@@ -126,6 +151,112 @@ def dibujar_flecha_flujo(ax, x1: float, y1: float, x2: float, y2: float, color='
     ax.annotate('', xy=(x2, y2), xytext=(x1, y1),
                arrowprops=dict(arrowstyle='->', color=color, lw=2,
                               connectionstyle='arc3,rad=0'))
+
+
+def dibujar_flecha_lodos(ax, x1: float, y1: float, x2: float, y2: float):
+    """Dibuja una flecha de lodos (roja punteada) entre dos puntos"""
+    ax.annotate('', xy=(x2, y2), xytext=(x1, y1),
+               arrowprops=dict(arrowstyle='->', color='darkred', lw=2.5,
+                              connectionstyle='arc3,rad=0',
+                              linestyle='--'))
+
+
+def generar_caption_layout(unidades_presentes: list) -> str:
+    """
+    Genera automáticamente el texto de caption/descripción para el layout.
+    Incluye la numeración de unidades y sus nombres completos.
+    
+    Args:
+        unidades_presentes: Lista de unidades que aparecen en el layout
+        
+    Returns:
+        str: Texto formateado para usar como caption en LaTeX
+    """
+    # Mapeo completo de nombres para el caption
+    NOMBRES_COMPLETOS = {
+        '1': 'Rejillas',
+        '2': 'Desarenador', 
+        '3': 'Reactor UASB (Reactor Anaerobio de Flujo Ascendente)',
+        '4': 'Humedal Artificial de Flujo Vertical (HAFV)',
+        '5': 'Cámara de Desinfección con Cloro',
+        '6': 'Lecho de Secado de Lodos',
+    }
+    
+    # Obtener números únicos presentes
+    numeros_presentes = set()
+    for unidad in unidades_presentes:
+        num = NUMEROS_UNIDADES.get(unidad)
+        if num:
+            numeros_presentes.add(num)
+    
+    # Ordenar y construir lista
+    items = []
+    for num in sorted(numeros_presentes):
+        nombre = NOMBRES_COMPLETOS.get(num, NOMBRES_LEYENDA.get(num, 'Unidad'))
+        items.append(f"\\textbf{{{num}}}={nombre}")
+    
+    return "Distribución de unidades: " + "; ".join(items) + "."
+
+
+def dibujar_leyenda_numerada(ax, unidades_presentes: list, max_x: float, max_y: float):
+    """
+    Dibuja una leyenda con numeración tipo arquitectura en esquina superior derecha.
+    
+    Args:
+        ax: Eje de matplotlib
+        unidades_presentes: Lista de unidades que aparecen en el layout
+        max_x: Ancho máximo del layout
+        max_y: Altura máxima del layout
+    """
+    fontsize = 12
+    line_height = 0.9
+    box_width = 6.5
+    margin_right = 2.0
+    margin_top = 2.0
+    
+    # Obtener números únicos presentes
+    numeros_presentes = set()
+    for unidad in unidades_presentes:
+        num = NUMEROS_UNIDADES.get(unidad)
+        if num:
+            numeros_presentes.add(num)
+    
+    numeros_ordenados = sorted(numeros_presentes)
+    box_height = len(numeros_ordenados) * line_height + 1.0
+    
+    # Posicionar en esquina superior derecha (considerando margen)
+    x_pos = max_x - box_width - margin_right
+    y_pos = max_y - margin_top
+    
+    # Fondo de la leyenda
+    legend_bg = Rectangle((x_pos, y_pos - box_height), box_width, box_height,
+                          facecolor='white', edgecolor='black', linewidth=2,
+                          alpha=0.98, zorder=100)
+    ax.add_patch(legend_bg)
+    
+    # Título
+    ax.text(x_pos + box_width/2, y_pos - 0.3, 'ÍNDICE', ha='center', va='top',
+           fontsize=fontsize + 2, fontweight='bold', zorder=101)
+    
+    # Línea separadora
+    ax.plot([x_pos + 0.4, x_pos + box_width - 0.4], [y_pos - 0.55, y_pos - 0.55], 
+           'k-', linewidth=1.5, zorder=101)
+    
+    # Ordenar y dibujar entradas
+    for i, num in enumerate(numeros_ordenados):
+        y_text = y_pos - 0.9 - i * line_height
+        nombre = NOMBRES_LEYENDA.get(num, 'Desconocido')
+        
+        # Círculo con número (más grande)
+        circle = Circle((x_pos + 0.5, y_text), 0.25, facecolor='lightgray', 
+                       edgecolor='black', linewidth=2, zorder=101)
+        ax.add_patch(circle)
+        ax.text(x_pos + 0.5, y_text, num, ha='center', va='center',
+               fontsize=fontsize, fontweight='bold', zorder=102)
+        
+        # Nombre
+        ax.text(x_pos + 1.0, y_text, nombre, ha='left', va='center',
+               fontsize=fontsize, zorder=101)
 
 
 def dibujar_flecha_lodos(ax, x1: float, y1: float, x2: float, y2: float):
@@ -192,6 +323,10 @@ def convertir_resultados_a_dimensiones(resultados: dict) -> dict:
         'cloro': 'Desinfeccion',
         'desinfeccion': 'Desinfeccion',
         'lecho_secado': None,  # Se maneja separado
+        'humedal_vertical': 'Humedal_Vertical',
+        'baf': 'BAF',
+        'abr_rap': 'ABR_RAP',
+        'bf_cmh': 'Biofiltro',  # Biofiltro carga mecanizada/hidráulica
     }
     
     for key_res, key_layout in mapeo.items():
@@ -215,7 +350,7 @@ def convertir_resultados_a_dimensiones(resultados: dict) -> dict:
                 'geom': 'rect'
             }
         elif key_res in ['uasb', 'egsb']:
-            diam = res.get('D_m', res.get('diametro_m', 5.0))
+            diam = res.get('diametro_layout_m', res.get('D_m', res.get('diametro_m', 5.0)))
             dim[key_layout] = {
                 'tipo': 'tratamiento_primario',
                 'diametro': diam,
@@ -256,6 +391,43 @@ def convertir_resultados_a_dimensiones(resultados: dict) -> dict:
                 'largo': res.get('largo_layout_m', res.get('largo_m', 8.0)),
                 'ancho': res.get('ancho_layout_m', res.get('ancho_m', 2.0)),
                 'geom': 'rect'
+            }
+        elif key_res == 'humedal_vertical':
+            # El humedal tiene 2 celdas en serie (una tras otra)
+            # Usar dimensiones totales: largo = 29.1*2, ancho = 22.4
+            largo = res.get('largo_total_m', res.get('largo_layout_m', 58.2))
+            ancho = res.get('ancho_total_m', res.get('ancho_layout_m', 22.4))
+            
+            # Asegurar que largo sea la dimensión mayor (horizontal)
+            if ancho > largo:
+                largo, ancho = ancho, largo
+            
+            dim[key_layout] = {
+                'tipo': 'tratamiento_secundario',
+                'largo': largo,
+                'ancho': ancho,
+                'geom': 'rect'
+            }
+        elif key_res == 'baf':
+            diam = res.get('diametro_layout_m', res.get('D_m', 4.0))
+            dim[key_layout] = {
+                'tipo': 'tratamiento_secundario',
+                'diametro': diam,
+                'geom': 'circ'
+            }
+        elif key_res == 'abr_rap':
+            dim[key_layout] = {
+                'tipo': 'tratamiento_primario',
+                'largo': res.get('largo_layout_m', res.get('L_total_m', 8.0)),
+                'ancho': res.get('ancho_layout_m', res.get('W_m', 3.0)),
+                'geom': 'rect'
+            }
+        elif key_res == 'bf_cmh':
+            diam = res.get('diametro_layout_m', res.get('D_bf_m', 4.0))
+            dim[key_layout] = {
+                'tipo': 'tratamiento_secundario',
+                'diametro': diam,
+                'geom': 'circ'
             }
     
     return dim
@@ -550,14 +722,9 @@ def generar_layout_2lineas(tipo: str, unidades_linea: list, nombre_alt: str,
     
     # Leyenda
     leyenda_items = []
-    for tipo_nombre, color in COLORES.items():
-        if any(DIM[u]['tipo'] == tipo_nombre for u in unidades_linea) or tipo_nombre == 'manejo_lodos':
-            label = tipo_nombre.replace('_', ' ').title()
-            leyenda_items.append(mpatches.Patch(color=color, label=label))
-    
-    legend_fontsize = FONT_CONFIG['leyenda']
-    ax.legend(handles=leyenda_items, loc='upper left', fontsize=legend_fontsize, 
-             framealpha=0.9, edgecolor='gray')
+    # Dibujar leyenda numerada tipo arquitectura
+    todas_unidades = list(unidades_linea) + ['Lecho de Secado']
+    dibujar_leyenda_numerada(ax, todas_unidades, max_x, max_y)
     
     # Configuración del plot
     ax.set_xlim(-5, max_x + 2)
@@ -580,6 +747,316 @@ def generar_layout_2lineas(tipo: str, unidades_linea: list, nombre_alt: str,
     plt.close()
     
     return max_x, max_y
+
+
+def generar_layout(
+    tren_id: str,
+    unidades: list,
+    resultados: dict,
+    output_dir: str,
+    num_lineas: int = 2,
+    incluir_lecho_secado: bool = True,
+    caudal_L_s: float = None,
+    nombre_tren: str = None
+) -> dict:
+    """
+    Genera layout generalizado para cualquier tren de tratamiento.
+    
+    Función unificada que genera layouts para cualquier número de líneas paralelas
+    (1, 2, 3, etc.) con los parámetros de separación correctos:
+    - Separación entre unidades: 2.1m
+    - Separación entre líneas: 3.0m
+    - Margen perimetral: 3.0m
+    
+    Args:
+        tren_id: Identificador único del tren (ej: "C", "piloto", "custom_1")
+        unidades: Lista de claves de unidades en orden (ej: ["rejillas", "desarenador", "uasb", ...])
+        resultados: Diccionario con resultados del dimensionamiento por unidad
+        output_dir: Directorio de salida para la figura
+        num_lineas: Número de líneas paralelas (1, 2, 3, ...)
+        incluir_lecho_secado: Si True, incluye lechos de secado al final
+        caudal_L_s: Caudal por línea en L/s (opcional, para etiquetas)
+        nombre_tren: Nombre descriptivo del tren (opcional)
+    
+    Returns:
+        dict: {
+            'fig_path': str, ruta de la figura generada
+            'ancho_total_m': float, ancho total del layout en metros
+            'largo_total_m': float, largo total del layout en metros
+            'area_layout_m2': float, área envolvente del layout
+            'unidades_dibujadas': list, lista de unidades efectivamente dibujadas
+        }
+    """
+    # Convertir resultados a formato de dimensiones
+    dim_reales = convertir_resultados_a_dimensiones(resultados)
+    
+    # Mapear nombres de unidades de entrada a nombres del layout
+    mapeo_nombres = {
+        'rejillas': 'Rejillas',
+        'desarenador': 'Desarenador',
+        'uasb': 'UASB',
+        'filtro_percolador': 'Filtro_Percolador',
+        'sedimentador_sec': 'Sedimentador',
+        'cloro': 'Desinfeccion',
+        'desinfeccion': 'Desinfeccion',
+        'uv': 'UV',
+        'humedal_vertical': 'Humedal_Vertical',
+        'baf': 'BAF',
+        'abr_rap': 'ABR_RAP',
+        'bf_cmh': 'Biofiltro',
+    }
+    
+    # Construir lista de unidades en formato del layout
+    unidades_layout = []
+    for u in unidades:
+        nombre_layout = mapeo_nombres.get(u)
+        if nombre_layout and nombre_layout in dim_reales:
+            unidades_layout.append(nombre_layout)
+    
+    if not unidades_layout:
+        raise ValueError(f"No se pudieron mapear unidades válidas para el tren {tren_id}")
+    
+    # Extraer dimensiones del lecho de secado
+    lecho_dimensiones = None
+    if incluir_lecho_secado:
+        if 'lecho_secado' in resultados:
+            lecho_data = resultados['lecho_secado']
+            lecho_largo = lecho_data.get('largo_layout_m', lecho_data.get('largo_m', 6.0))
+            lecho_ancho = lecho_data.get('ancho_layout_m', lecho_data.get('ancho_m', 5.0))
+            lecho_dimensiones = (lecho_largo, lecho_ancho)
+        else:
+            lecho_dimensiones = (LECHO_LARGO, LECHO_ANCHO)
+    
+    nombre_display = nombre_tren or f"Tren {tren_id}"
+    
+    # === INICIO DEL DIBUJO GENERALIZADO ===
+    DIM = DIMENSIONES.copy()
+    if dim_reales:
+        DIM.update(dim_reales)
+    
+    # Calcular dimensiones para determinar tamaño de figura
+    max_altura_unidad = max(get_unidad_altura(u, DIM) for u in unidades_layout)
+    ancho_linea = sum(get_unidad_altura(u, DIM) if DIM[u]['geom'] == 'circ' else DIM[u].get('largo', 5.0) for u in unidades_layout)
+    ancho_linea += SEP_UNIDADES * (len(unidades_layout) - 1)
+    
+    # Dimensiones totales del layout
+    alto_total = num_lineas * max_altura_unidad + (num_lineas - 1) * SEP_LINEAS + 2 * MARGEN
+    ancho_total = ancho_linea + 2 * MARGEN
+    
+    # Ajustar tamaño de figura (escala automática)
+    fig_width = max(16, min(32, ancho_total * 0.4 + 6))
+    fig_height = max(10, min(24, alto_total * 0.5 + 4))
+    
+    fig, ax = plt.subplots(figsize=(fig_width, fig_height))
+    
+    # Calcular posiciones Y de los centros de cada línea
+    posiciones_lineas_y = []
+    for i in range(num_lineas):
+        y_centro = MARGEN + max_altura_unidad/2 + i * (max_altura_unidad + SEP_LINEAS)
+        posiciones_lineas_y.append(y_centro)
+    
+    # Dibujar cada línea
+    todas_posiciones = []  # Lista de listas, una por línea
+    
+    for linea_idx in range(num_lineas):
+        y_centro = posiciones_lineas_y[linea_idx]
+        x_pos = MARGEN
+        posiciones_esta_linea = []
+        
+        # Dibujar unidades (sin acotaciones individuales - van en columna paralela)
+        for idx, unidad in enumerate(unidades_layout):
+            color = COLORES[DIM[unidad]['tipo']]
+            altura_unidad = get_unidad_altura(unidad, DIM)
+            y_pos = y_centro - altura_unidad / 2
+            
+            ancho, alto, dim_texto = dibujar_unidad_layout(ax, x_pos, y_pos, unidad, color, 1.0, DIM, linea_idx, num_lineas)
+            posiciones_esta_linea.append((x_pos, y_pos, unidad, ancho, alto, dim_texto))
+            x_pos += ancho + SEP_UNIDADES
+        
+        todas_posiciones.append(posiciones_esta_linea)
+        
+        # Dibujar flechas de flujo en esta línea
+        for i in range(len(posiciones_esta_linea) - 1):
+            x1, y1, unidad1, ancho1, alto1, _ = posiciones_esta_linea[i]
+            x2, y2, unidad2, ancho2, alto2, _ = posiciones_esta_linea[i+1]
+            start = get_unidad_right_center(x1, y1, unidad1, DIM)
+            end = get_unidad_left_center(x2, y2, unidad2, DIM)
+            dibujar_flecha_flujo(ax, start[0], start[1], end[0], end[1])
+    
+    largo_linea = x_pos - MARGEN - SEP_UNIDADES
+    
+    # Dibujar lechos de secado (uno al final de cada línea)
+    SEP_LECHOS = 2.5  # Separación entre última unidad y lechos
+    x_inicio_lecho = MARGEN + largo_linea + SEP_UNIDADES + SEP_LECHOS
+    
+    if incluir_lecho_secado and lecho_dimensiones:
+        lecho_largo, lecho_ancho = lecho_dimensiones
+        
+        # Calcular posición X única para todos los lechos (alineados verticalmente)
+        x_lecho = x_inicio_lecho
+        
+        for linea_idx in range(num_lineas):
+            y_centro = posiciones_lineas_y[linea_idx]
+            y_lecho = y_centro - lecho_largo / 2
+            
+            rect = Rectangle((x_lecho, y_lecho), lecho_ancho, lecho_largo,
+                             facecolor=COLORES['manejo_lodos'],
+                             edgecolor='black', linewidth=2)
+            ax.add_patch(rect)
+            
+            # Número 6 en el lecho (usando NUMEROS_UNIDADES)
+            numero = NUMEROS_UNIDADES.get('Lecho de Secado', '6')
+            ax.text(x_lecho + lecho_ancho/2, y_lecho + lecho_largo/2, numero,
+                   ha='center', va='center', fontsize=FONT_CONFIG['unidad']*1.5, 
+                   fontweight='bold', color='white')
+            
+            # Acotación vertical del lecho (solo en la última línea) - a la derecha
+            if linea_idx == num_lineas - 1:
+                # Línea vertical de dimensión
+                ax.annotate('', xy=(x_lecho + lecho_ancho + 1.0, y_lecho + lecho_largo),
+                           xytext=(x_lecho + lecho_ancho + 1.0, y_lecho),
+                           arrowprops=dict(arrowstyle='<->', color='black', lw=1.5))
+                # Texto de dimensión vertical
+                ax.text(x_lecho + lecho_ancho + 1.8, y_lecho + lecho_largo/2,
+                       f'{lecho_largo:.1f}m', ha='left', va='center', fontsize=FONT_CONFIG['acotacion'],
+                       color='black', fontweight='bold', rotation=90)
+        
+        max_x_layout = x_lecho + lecho_ancho + MARGEN
+    else:
+        max_x_layout = x_pos + MARGEN
+    
+    max_y_layout = posiciones_lineas_y[-1] + max_altura_unidad/2 + MARGEN
+    
+    acot_fontsize = FONT_CONFIG['acotacion']
+    
+    # Flechas de entrada para cada línea
+    if caudal_L_s:
+        for linea_idx in range(num_lineas):
+            x_inicio = todas_posiciones[linea_idx][0][0]
+            y_inicio = todas_posiciones[linea_idx][0][1]
+            alto_primera = todas_posiciones[linea_idx][0][4]
+            y_centro = y_inicio + alto_primera/2
+            
+            espacio_entrada = 3.5
+            ax.text(x_inicio - espacio_entrada - 0.2, y_centro,
+                   f'Línea {linea_idx + 1}\n({caudal_L_s:.1f} L/s)',
+                   ha='right', va='center', fontsize=FONT_CONFIG['entrada'],
+                   fontweight='bold', color='blue',
+                   bbox=dict(boxstyle='round', facecolor='lightblue', alpha=0.6, edgecolor='blue', pad=0.3))
+            ax.annotate('', xy=(x_inicio, y_centro),
+                       xytext=(x_inicio - espacio_entrada + 0.5, y_centro),
+                       arrowprops=dict(arrowstyle='->', color='blue', lw=2.5))
+    
+    # Indicación de separación entre líneas (solo si hay más de 1)
+    if num_lineas > 1:
+        mid_x = MARGEN / 2
+        # Usar primera y segunda línea para mostrar separación
+        y_linea_inferior = posiciones_lineas_y[0] + max_altura_unidad/2
+        y_linea_superior = posiciones_lineas_y[1] - max_altura_unidad/2
+        ax.annotate('', xy=(mid_x, y_linea_superior),
+                   xytext=(mid_x, y_linea_inferior),
+                   arrowprops=dict(arrowstyle='<->', color='purple', lw=2))
+        ax.text(mid_x + 0.5, (y_linea_inferior + y_linea_superior)/2,
+               f'{SEP_LINEAS}m\nentre\nlineas',
+               ha='left', va='center', fontsize=9, color='purple', fontweight='bold')
+    
+    # === ACOTACIONES HORIZONTALES ALINEADAS EN PARALELO ===
+    # Todas las dimensiones horizontales en la misma línea, paralelas a la general
+    y_acot_unidades = -5.0  # Nivel único para todas las acotaciones de unidades
+    
+    # Lista de todas las unidades incluyendo lecho de secado
+    todas_unidades_con_lecho = list(unidades_layout)
+    if incluir_lecho_secado:
+        todas_unidades_con_lecho.append('Lecho de Secado')
+    
+    # NOTA: La leyenda se omite del layout y se incluye en el caption de LaTeX
+    
+    for unidad in todas_unidades_con_lecho:
+        # Calcular posición X centrada en la unidad
+        x_centros = []
+        ancho_unidad = None
+        dim_horizontal = None
+        
+        if unidad == 'Lecho de Secado':
+            # Todos los lechos están alineados en la misma X (uno tras otro verticalmente)
+            x_centros.append(x_inicio_lecho + lecho_ancho/2)
+            ancho_unidad = lecho_ancho
+            dim_horizontal = f'{lecho_ancho:.1f}m'
+        else:
+            for linea_idx in range(num_lineas):
+                for pos in todas_posiciones[linea_idx]:
+                    if pos[2] == unidad:
+                        x_centros.append(pos[0] + pos[3]/2)
+                        if ancho_unidad is None:
+                            ancho_unidad = pos[3]
+                            dim_texto = pos[5]
+                            if 'Ø' in dim_texto:
+                                dim_horizontal = dim_texto
+                            elif 'x' in dim_texto:
+                                dim_horizontal = dim_texto.split('x')[0].strip()
+                            else:
+                                dim_horizontal = dim_texto
+        
+        if x_centros and ancho_unidad and dim_horizontal:
+            x_centro_unidad = sum(x_centros) / len(x_centros)
+            
+            # Dibujar línea de dimensión horizontal (todas al mismo nivel)
+            ax.annotate('', xy=(x_centro_unidad + ancho_unidad/2, y_acot_unidades),
+                       xytext=(x_centro_unidad - ancho_unidad/2, y_acot_unidades),
+                       arrowprops=dict(arrowstyle='<->', color='black', lw=1.5))
+            
+            # Texto ARRIBA de la línea
+            ax.text(x_centro_unidad, y_acot_unidades + 0.8, dim_horizontal,
+                   ha='center', va='bottom', fontsize=acot_fontsize,
+                   fontweight='bold', color='black')
+    
+    # Acotación horizontal total (más abajo, separada de las unidades)
+    y_dim_horizontal = y_acot_unidades - 4.5  # Más separación
+    ax.annotate('', xy=(max_x_layout, y_dim_horizontal), xytext=(0, y_dim_horizontal),
+               arrowprops=dict(arrowstyle='<->', color='black', lw=2))
+    ax.text(max_x_layout/2, y_dim_horizontal - 1.5, f'{max_x_layout:.1f} m',
+           ha='center', fontsize=acot_fontsize + 1, color='black', fontweight='bold')
+    
+    # Acotación vertical total (a la derecha)
+    x_dim_vertical = max_x_layout + 2.5
+    ax.annotate('', xy=(x_dim_vertical, max_y_layout), xytext=(x_dim_vertical, 0),
+               arrowprops=dict(arrowstyle='<->', color='black', lw=2))
+    ax.text(x_dim_vertical + 1.0, max_y_layout/2, f'{max_y_layout:.1f} m',
+           ha='center', va='center', fontsize=acot_fontsize + 1, color='black', fontweight='bold', rotation=90)
+    
+    max_x_con_acot = max_x_layout + 5
+    
+    # Configuración final
+    ax.set_xlim(-6, max_x_con_acot)
+    ax.set_ylim(-11, max_y_layout + 4)  # Extender límite inferior para ver dimensión total
+    ax.set_aspect('equal')
+    ax.set_xlabel('Distancia (m)', fontsize=12, fontweight='bold')
+    ax.set_ylabel('Distancia (m)', fontsize=12, fontweight='bold')
+    ax.set_title(f'Distribución de Tratamiento (Área = {max_x_layout * max_y_layout:,.0f} m²)',
+                fontsize=FONT_CONFIG['titulo'], fontweight='bold', pad=15)
+    
+    ax.grid(True, alpha=0.3, linestyle='--')
+    ax.set_facecolor('white')
+    for spine in ax.spines.values():
+        spine.set_visible(False)
+    
+    # Guardar figura
+    sufijo_lineas = "linea" if num_lineas == 1 else "lineas"
+    fig_path = os.path.join(output_dir, f'Layout_{tren_id}_{num_lineas}{sufijo_lineas}.png')
+    fig.savefig(fig_path, dpi=200, bbox_inches='tight', facecolor='white')
+    plt.close()
+    
+    # Generar caption automático para LaTeX
+    caption = generar_caption_layout(todas_unidades_con_lecho)
+    
+    return {
+        'fig_path': fig_path,
+        'ancho_total_m': round(max_x_layout, 1),
+        'largo_total_m': round(max_y_layout, 1),
+        'area_layout_m2': round(max_x_layout * max_y_layout, 0),
+        'unidades_dibujadas': unidades_layout,
+        'caption': caption
+    }
 
 
 def generar_esquema_uasb(resultados_uasb: dict, output_dir: str = "resultados") -> str:

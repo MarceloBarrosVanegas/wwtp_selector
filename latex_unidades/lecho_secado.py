@@ -376,8 +376,182 @@ La carga superficial de solidos se verifica mediante:
 {l['texto_operacion_lecho']}"""
 
     def generar_esquema_matplotlib(self, output_dir=None):
-        """Wrapper para compatibilidad con generar_tren.py"""
-        return self.generar_esquema(output_dir)
+        """
+        Genera un esquema técnico profesional del LECHO DE SECADO DE LODOS
+        con estilo idéntico al esquema ABR / UASB / BAF (matplotlib de alta calidad).
+        Muestra:
+          - Vista en planta (varios bloques, uno por línea)
+          - Sección transversal detallada con capas (drenaje + tubos, grava, arena, lodo aplicado)
+        Usa exactamente los datos de self.datos (dimensiones reales del dimensionamiento).
+        """
+        import matplotlib.pyplot as plt
+        import matplotlib.patches as mpatches
+        from matplotlib.patches import FancyBboxPatch, Rectangle, Circle, Polygon, FancyArrowPatch
+        import numpy as np
+        import os
+
+        l = self.datos
+
+        # Extraer valores reales del dimensionamiento
+        num_bloques = l['num_lineas']
+        largo = l['largo_m']
+        ancho = l['ancho_m']
+        h_arena = l['h_arena_m']
+        h_grava = l['h_grava_m']
+        h_drenaje = 0.20          # valor típico fijo (no está en datos)
+        h_lodo = l['h_lodo_m']
+        h_total_seccion = h_drenaje + h_grava + h_arena + h_lodo
+
+        # Proporciones del esquema
+        ancho_visual_planta = 14.0
+        altura_visual = 9.0
+        escala_planta = ancho_visual_planta / (largo * num_bloques + (num_bloques - 1) * 1.0)
+
+        # Crear figura (dos vistas: planta arriba + sección abajo)
+        fig, (ax_planta, ax_seccion) = plt.subplots(2, 1, figsize=(16, 11), height_ratios=[1.1, 1])
+        plt.subplots_adjust(hspace=0.35)
+
+        # Colores técnicos consistentes
+        c_arena = '#E8C4A0'      # Beige arena
+        c_grava = '#D0D0D0'      # Gris grava
+        c_drenaje = '#555555'    # Gris oscuro drenaje
+        c_lodo = '#B8754A'       # Marrón lodo húmedo
+        c_muro = '#333333'
+        c_texto = '#222222'
+        c_flecha_lodo = '#2E7D32'
+        c_flecha_drenaje = '#1565C0'
+
+        # ====================== VISTA EN PLANTA ======================
+        ax_planta.set_title('Lecho de Secado de Lodos – Vista en Planta', fontsize=15, fontweight='bold', pad=20)
+
+        sep = 1.2  # separación visual entre bloques
+        for i in range(num_bloques):
+            x0 = i * (largo * escala_planta + sep)
+            y0 = 1.0
+
+            # Rectángulo del bloque
+            bloque = FancyBboxPatch((x0, y0), largo * escala_planta, ancho * escala_planta,
+                                    boxstyle="round,pad=0.2", facecolor=c_arena, edgecolor=c_muro, linewidth=3)
+            ax_planta.add_patch(bloque)
+
+            # Texto interno
+            ax_planta.text(x0 + largo * escala_planta / 2, y0 + ancho * escala_planta / 2,
+                           f'Bloque {i+1}\nLínea {i+1}', ha='center', va='center',
+                           fontsize=11, fontweight='bold', color=c_texto)
+
+        # Cotas planta
+        x_total = (num_bloques - 1) * (largo * escala_planta + sep) + largo * escala_planta
+        ax_planta.plot([0, x_total], [0.2, 0.2], 'k-', lw=1.2)
+        ax_planta.text(x_total / 2, -0.3, f'L total = {largo * num_bloques:.0f} m', ha='center', fontsize=11)
+
+        ax_planta.text(-1.2, y0 + ancho * escala_planta / 2, f'B = {ancho:.1f} m', ha='right', va='center', fontsize=11)
+
+        ax_planta.set_xlim(-2, x_total + 2)
+        ax_planta.set_ylim(0, ancho * escala_planta + 3)
+        ax_planta.axis('off')
+
+        # ====================== SECCIÓN TRANSVERSAL ======================
+        ax_seccion.set_title('Sección transversal típica del lecho', fontsize=14, fontweight='bold', pad=15)
+
+        # Escala sección (más vertical)
+        escala_seccion = 4.5 / h_total_seccion
+        ancho_seccion = 8.0
+
+        x_izq = 2.0
+        y_base = 1.0
+
+        # 1. Capa de drenaje (con tubos)
+        y_drenaje = y_base
+        h_dib_drenaje = h_drenaje * escala_seccion
+        drenaje = Rectangle((x_izq, y_drenaje), ancho_seccion, h_dib_drenaje,
+                            facecolor=c_drenaje, edgecolor=c_muro, linewidth=2.5)
+        ax_seccion.add_patch(drenaje)
+
+        # Tubos de drenaje (círculos)
+        for i in range(6):
+            xc = x_izq + 0.8 + i * (ancho_seccion - 1.6) / 5
+            ax_seccion.add_patch(Circle((xc, y_drenaje + h_dib_drenaje / 2), 0.22,
+                                       facecolor='#333333', edgecolor='#111111', linewidth=1.5))
+
+        # 2. Capa de grava
+        y_grava = y_drenaje + h_dib_drenaje
+        h_dib_grava = h_grava * escala_seccion
+        grava = Rectangle((x_izq, y_grava), ancho_seccion, h_dib_grava,
+                          facecolor=c_grava, edgecolor=c_muro, linewidth=2.5)
+        ax_seccion.add_patch(grava)
+
+        # 3. Capa de arena
+        y_arena = y_grava + h_dib_grava
+        h_dib_arena = h_arena * escala_seccion
+        arena = Rectangle((x_izq, y_arena), ancho_seccion, h_dib_arena,
+                          facecolor=c_arena, edgecolor=c_muro, linewidth=2.5)
+        ax_seccion.add_patch(arena)
+
+        # 4. Capa de lodo aplicado
+        y_lodo = y_arena + h_dib_arena
+        h_dib_lodo = h_lodo * escala_seccion
+        lodo = Rectangle((x_izq, y_lodo), ancho_seccion, h_dib_lodo,
+                         facecolor=c_lodo, edgecolor=c_muro, linewidth=2.5, alpha=0.95)
+        ax_seccion.add_patch(lodo)
+
+        # Flechas de procesos
+        # Lodo aplicado (verde)
+        ax_seccion.annotate('', xy=(x_izq + ancho_seccion / 2, y_lodo + h_dib_lodo + 0.4),
+                            xytext=(x_izq + ancho_seccion / 2, y_lodo + h_dib_lodo + 1.2),
+                            arrowprops=dict(arrowstyle='->', color=c_flecha_lodo, lw=3.5))
+        ax_seccion.text(x_izq + ancho_seccion / 2 + 0.3, y_lodo + h_dib_lodo + 1.0,
+                        'Lodo aplicado\nh = {:.2f} m'.format(h_lodo), fontsize=10, color=c_flecha_lodo)
+
+        # Drenaje (azul)
+        ax_seccion.annotate('', xy=(x_izq + 1.2, y_drenaje + h_dib_drenaje * 0.3),
+                            xytext=(x_izq + 1.2, y_drenaje - 0.8),
+                            arrowprops=dict(arrowstyle='->', color=c_flecha_drenaje, lw=2.8))
+        ax_seccion.text(x_izq + 0.3, y_drenaje - 1.1, 'Agua drenada', fontsize=10, color=c_flecha_drenaje)
+
+        # Evaporación (flecha hacia arriba con sol)
+        ax_seccion.annotate('', xy=(x_izq + ancho_seccion - 1.0, y_lodo + h_dib_lodo * 0.7),
+                            xytext=(x_izq + ancho_seccion - 1.0, y_lodo + h_dib_lodo + 1.3),
+                            arrowprops=dict(arrowstyle='->', color='#F57C00', lw=2.5))
+        ax_seccion.text(x_izq + ancho_seccion - 1.8, y_lodo + h_dib_lodo + 1.4,
+                        'Evaporación', fontsize=10, color='#F57C00')
+
+        # Cotas verticales (estilo ABR)
+        x_dim = x_izq - 1.4
+        def draw_cota(y1, y2, texto):
+            ax_seccion.plot([x_dim, x_dim], [y1, y2], 'k-', lw=1.1)
+            ax_seccion.plot([x_dim - 0.15, x_dim + 0.15], [y1, y1], 'k-', lw=1.1)
+            ax_seccion.plot([x_dim - 0.15, x_dim + 0.15], [y2, y2], 'k-', lw=1.1)
+            ax_seccion.text(x_dim - 0.4, (y1 + y2) / 2, texto, ha='right', va='center', fontsize=10)
+
+        draw_cota(y_lodo, y_lodo + h_dib_lodo, f'{h_lodo:.2f} m\n(lodo)')
+        draw_cota(y_arena, y_arena + h_dib_arena, f'{h_arena:.2f} m\n(arena)')
+        draw_cota(y_grava, y_grava + h_dib_grava, f'{h_grava:.2f} m\n(grava)')
+        draw_cota(y_drenaje, y_drenaje + h_dib_drenaje, f'{h_drenaje:.2f} m\n(drenaje)')
+
+        # Altura total
+        ax_seccion.plot([x_dim - 1.2, x_dim - 1.2], [y_base, y_lodo + h_dib_lodo], 'k-', lw=1.3)
+        ax_seccion.text(x_dim - 1.7, (y_base + y_lodo + h_dib_lodo) / 2,
+                        f'H total = {h_total_seccion:.2f} m', ha='right', va='center', fontsize=11, fontweight='bold')
+
+        # Cotas horizontales
+        ax_seccion.plot([x_izq, x_izq + ancho_seccion], [y_base - 0.9, y_base - 0.9], 'k-', lw=1.1)
+        ax_seccion.text(x_izq + ancho_seccion / 2, y_base - 1.4,
+                        f'B = {ancho:.1f} m', ha='center', fontsize=11)
+
+        ax_seccion.set_xlim(0, ancho_seccion + 4)
+        ax_seccion.set_ylim(0, y_lodo + h_dib_lodo + 3)
+        ax_seccion.axis('off')
+
+        # ====================== GUARDADO ======================
+        if output_dir is None:
+            output_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'resultados', 'figuras')
+        os.makedirs(output_dir, exist_ok=True)
+
+        fig_path = os.path.join(output_dir, 'Esquema_Lecho_Secado.png')
+        fig.savefig(fig_path, dpi=220, bbox_inches='tight', facecolor='white', pad_inches=0.4)
+        plt.close()
+
+        return fig_path
 
     def generar_resultados(self) -> str:
         """Genera subsection Resultados con tabla y figura."""
@@ -391,7 +565,7 @@ La carga superficial de solidos se verifica mediante:
             output_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'resultados', self.ruta_figuras)
             latex_ruta_base = self.ruta_figuras
         
-        fig_path = self.generar_esquema(output_dir)
+        fig_path = self.generar_esquema_matplotlib(output_dir)
         
         if fig_path:
             fig_relativa = (latex_ruta_base + '/' + os.path.basename(fig_path)).replace('\\', '/')

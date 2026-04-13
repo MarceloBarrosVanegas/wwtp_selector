@@ -66,6 +66,9 @@ from latex_unidades.abr_rap import GeneradorABR_RAP
 from latex_unidades.baf import GeneradorBAF
 from latex_unidades.taf import GeneradorBiofiltroCargaMecanizadaHidraulica
 
+# Importar generador de layout
+from ptar_layout_graficador import generar_layout
+
 
 # =============================================================================
 # BIBLIOGRAFIA
@@ -762,6 +765,38 @@ def generar_documento_tren(
         print(f"  El documento LaTeX se generará pero puede tener referencias rotas.")
     
     # ============================================================
+    # PASO 1.5: Generar layout general del tren
+    # ============================================================
+    print(f"\nGenerando layout general del tren...")
+    try:
+        # Filtrar unidades que tienen dimensiones de layout
+        unidades_con_layout = [u for u in cfg_tren.unidades if u in resultados and u != 'lecho_secado']
+        
+        layout_info = generar_layout(
+            tren_id=cfg_tren.nombre.replace(" ", "_").lower(),
+            unidades=unidades_con_layout,
+            resultados=resultados,
+            output_dir=figuras_dir,
+            num_lineas=cfg_tren.num_lineas,
+            incluir_lecho_secado='lecho_secado' in cfg_tren.unidades,
+            caudal_L_s=cfg_tren.caudal_lps / cfg_tren.num_lineas if cfg_tren.num_lineas > 0 else None,
+            nombre_tren=cfg_tren.nombre
+        )
+        
+        print(f"  Layout generado: {os.path.basename(layout_info['fig_path'])}")
+        print(f"  Dimensiones: {layout_info['ancho_total_m']:.1f}m x {layout_info['largo_total_m']:.1f}m")
+        print(f"  Área layout: {layout_info['area_layout_m2']:.0f} m²")
+        
+        # Guardar referencia para el documento LaTeX
+        layout_tren_path = layout_info['fig_path']
+        layout_caption = layout_info.get('caption', '')
+        
+    except Exception as e:
+        print(f"  [ADVERTENCIA] No se pudo generar layout del tren: {e}")
+        layout_tren_path = None
+        layout_caption = ''
+    
+    # ============================================================
     # PASO 2: Generar documento LaTeX (ahora las figuras ya existen)
     # ============================================================
     print(f"\nGenerando documento LaTeX: {tex_path}")
@@ -769,6 +804,24 @@ def generar_documento_tren(
     # Seccion de dimensionamiento
     latex_parts.append(r"\section{Dimensionamiento de Unidades}")
     latex_parts.append("")
+    
+    # Subseccion: Layout general del tren (si se generó)
+    if layout_tren_path:
+        latex_parts.append(r"\subsection{Layout General del Tren}")
+        latex_parts.append("")
+        latex_parts.append(r"La siguiente figura presenta la disposición general de las unidades del tren de tratamiento.")
+        latex_parts.append("")
+        latex_parts.append(r"\begin{figure}[H]")
+        latex_parts.append(r"    \centering")
+        # Construir nombre de archivo según número de líneas (linea singular para 1, lineas plural para 2+)
+        sufijo_lineas = "linea" if cfg_tren.num_lineas == 1 else "lineas"
+        latex_parts.append(r"    \includegraphics[width=\textwidth]{figuras/Layout_" + cfg_tren.nombre.replace(" ", "_").lower() + "_" + str(cfg_tren.num_lineas) + sufijo_lineas + r".png}")
+        latex_parts.append(r"    \caption{" + layout_caption + r"}")
+        latex_parts.append(r"    \label{fig:layout_general}")
+        latex_parts.append(r"\end{figure}")
+        latex_parts.append("")
+        latex_parts.append(r"\newpage")
+        latex_parts.append("")
     
     # Generar cada unidad con titulo claro
     for i, unidad in enumerate(cfg_tren.unidades, 1):
@@ -843,7 +896,7 @@ if __name__ == "__main__":
     
     # Ejemplo de uso
     entrada = {
-        "nombre_tren": "Sistema de Tratamiento Anaerobio-Aerobio con Reactor de Flujo Ascendente y Humedal Vertical",
+        "nombre_tren": "Sistema de Tratamiento con Reactor de Flujo Ascendente y Humedal Vertical",
         "caudal_total_lps": 17.0,
         "num_lineas": 3,
         "afluente": {

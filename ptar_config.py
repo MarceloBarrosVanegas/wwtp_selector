@@ -15,9 +15,9 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # CONFIGURACIÓN DE LAYOUT
 # =============================================================================
 
-SEP_UNIDADES = 1.2  # m entre unidades
+SEP_UNIDADES = 2.1  # m entre unidades (acceso mínimo operativo)
 SEP_LINEAS = 3.0    # m entre líneas paralelas
-MARGEN = 2.0        # m margen perimetral
+MARGEN = 3.0        # m margen perimetral (acceso exterior)
 
 # Lecho compartido (UNA sola celda)
 LECHO_LARGO = 6.0   # m

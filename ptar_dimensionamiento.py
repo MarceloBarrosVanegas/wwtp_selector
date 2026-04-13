@@ -3555,11 +3555,11 @@ def dimensionar_humedal_vertical(Q: ConfigDiseno = CFG,
         ancho_filtro_m = math.sqrt(A_operando_adoptado_m2 / relacion_L_A)
         largo_filtro_m = relacion_L_A * ancho_filtro_m
         
-        # Dimensiones totales (considerando 2 filtros lado a lado)
-        # Layout típico: filtros adyacentes con separación de 1-2 m
+        # Dimensiones totales (considerando 2 filtros en serie - uno tras otro)
+        # Layout: celdas en serie en el sentido del flujo (largo), mismo ancho
         separacion_filtros_m = Q.humedal_separacion_filtros_m
-        ancho_total_m = ancho_filtro_m * n_filtros + separacion_filtros_m * (n_filtros - 1)
-        largo_total_m = largo_filtro_m
+        largo_total_m = largo_filtro_m * n_filtros + separacion_filtros_m * (n_filtros - 1)
+        ancho_total_m = ancho_filtro_m
         
         # Parámetros operacionales
         ciclo_alim_d = Q.humedal_frances_ciclo_alim_dias
@@ -5522,7 +5522,9 @@ def dimensionar_baf(Q: ConfigDiseno = CFG,
         
         # Dimensiones principales
         "D_m": D_adoptado_m,
+        "diametro_layout_m": round(D_adoptado_m, 2),
         "A_real_m2": round(A_real_m2, 2),
+        "area_huella_layout_m2": round(A_real_m2, 2),
         "V_lecho_m3": round(V_lecho_m3, 2),
         "H_lecho_m": H_lecho_m,
         "H_plenum_m": H_plenum_m,
@@ -5828,9 +5830,12 @@ def dimensionar_abr_rap(Q: ConfigDiseno = CFG,
         "V_comp_m3": round(V_comp_m3, 2),
         "A_transversal_m2": round(A_transversal_m2, 2),
         "A_planta_m2": round(A_planta_m2, 2),
+        "area_huella_layout_m2": round(A_planta_m2, 2),
         "W_m": round(W_m, 2),
         "L_comp_m": round(L_comp_m, 2),
         "L_total_m": round(L_total_m, 2),
+        "largo_layout_m": round(L_total_m, 2),
+        "ancho_layout_m": round(W_m, 2),
         "H_total_m": round(H_total_m, 2),
         # Claves adicionales para compatibilidad con esquema matplotlib
         "H_total_construccion_m": round(H_total_m, 2),
