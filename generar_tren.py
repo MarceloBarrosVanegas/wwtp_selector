@@ -73,6 +73,10 @@ from latex_unidades.reporte_resultados import (
     generar_latex_seccion_layout,
     generar_resumen_resultados,
 )
+from generador_texto_ia import (
+    generar_resumen_proyecto_ia,
+    generar_conclusiones_resultados_ia,
+)
 
 
 # =============================================================================
@@ -628,7 +632,8 @@ def generar_documento_tren(
     entrada: Dict,
     output_dir: str = "resultados/trenes",
     nombre_archivo: Optional[str] = None,
-    compilar_pdf: bool = False
+    compilar_pdf: bool = False,
+    usar_ia: bool = True
 ) -> str:
     """
     Genera un documento LaTeX completo para el tren.
@@ -638,6 +643,7 @@ def generar_documento_tren(
         output_dir: Directorio de salida
         nombre_archivo: Nombre del archivo (sin extension)
         compilar_pdf: Si True, intenta compilar a PDF
+        usar_ia: Si True, genera resumen y conclusiones con IA local
         
     Returns:
         Ruta al archivo .tex generado
@@ -727,20 +733,55 @@ def generar_documento_tren(
     latex_parts.append(r"\newpage")
     latex_parts.append(r"\section{Resumen del Proyecto}")
     latex_parts.append("")
-    latex_parts.append(f"Este documento presenta el dimensionamiento detallado del {cfg_tren.nombre}, diseñado para tratar un caudal de {cfg_tren.caudal_lps} L/s distribuido en {cfg_tren.num_lineas} líneas paralelas ({cfg_tren.caudal_lps / cfg_tren.num_lineas:.2f} L/s por línea).")
-    latex_parts.append("")
-    latex_parts.append(r"\textbf{Características del afluente:}")
-    latex_parts.append(r"\begin{itemize}")
-    latex_parts.append(f"    \\item DBO$_5$: {cfg_tren.dbo} mg/L")
-    latex_parts.append(f"    \\item DQO: {cfg_tren.dqo} mg/L")
-    latex_parts.append(f"    \\item SST: {cfg_tren.sst} mg/L")
-    latex_parts.append(f"    \\item Coliformes fecales: {cfg_tren.cf:.0e} NMP/100mL")
-    latex_parts.append(f"    \\item Temperatura: {cfg_tren.temperatura}°C")
-    latex_parts.append(r"\end{itemize}")
-    latex_parts.append("")
-    latex_parts.append(r"\textbf{Secuencia de unidades del tren:} ")
-    latex_parts.append(r" $\rightarrow$ ".join([NOMBRES_UNIDADES.get(u, u) for u in cfg_tren.unidades]))
-    latex_parts.append("")
+
+    resumen_ia_generado = False
+    if usar_ia:
+        # Generar texto descriptivo con IA (qwen2.5:3b local)
+        print("\nGenerando resumen del proyecto con IA (qwen2.5:3b)...")
+        try:
+            resumen_ia = generar_resumen_proyecto_ia(
+                nombre_tren=cfg_tren.nombre,
+                caudal_lps=cfg_tren.caudal_lps,
+                num_lineas=cfg_tren.num_lineas,
+                afluente={
+                    "DBO5_mg_L": cfg_tren.dbo,
+                    "DQO_mg_L": cfg_tren.dqo,
+                    "SST_mg_L": cfg_tren.sst,
+                    "CF_NMP_100mL": cfg_tren.cf,
+                    "temperatura_C": cfg_tren.temperatura,
+                },
+                unidades=cfg_tren.unidades,
+                nombres_unidades=NOMBRES_UNIDADES,
+            )
+            if resumen_ia.startswith("[ATENCION:") or resumen_ia.startswith("[Error"):
+                print(f"  [ADVERTENCIA] {resumen_ia}")
+                print("  El documento se generara sin el texto de IA en el resumen.")
+            else:
+                latex_parts.append(resumen_ia)
+                latex_parts.append("")
+                resumen_ia_generado = True
+        except Exception as e:
+            print(f"\n  [ADVERTENCIA] No se pudo generar el resumen con IA: {e}")
+            print("  Asegurate de tener Ollama instalado y ejecutandose.")
+            print("  Para instalar el modelo necesario, ejecuta: ollama pull qwen2.5:3b")
+            print("  El documento se generara sin el texto de IA en el resumen.")
+
+    if not resumen_ia_generado:
+        # Fallback cuando no se usa IA o fallo la generacion
+        latex_parts.append(f"Este documento presenta el dimensionamiento detallado del {cfg_tren.nombre}, disenado para tratar un caudal de {cfg_tren.caudal_lps} L/s distribuido en {cfg_tren.num_lineas} lineas paralelas ({cfg_tren.caudal_lps / cfg_tren.num_lineas:.2f} L/s por linea).")
+        latex_parts.append("")
+        latex_parts.append(r"\textbf{Caracteristicas del afluente:}")
+        latex_parts.append(r"\begin{itemize}")
+        latex_parts.append(f"    \\item DBO$_5$: {cfg_tren.dbo} mg/L")
+        latex_parts.append(f"    \\item DQO: {cfg_tren.dqo} mg/L")
+        latex_parts.append(f"    \\item SST: {cfg_tren.sst} mg/L")
+        latex_parts.append(f"    \\item Coliformes fecales: {cfg_tren.cf:.0e} NMP/100mL")
+        latex_parts.append(f"    \\item Temperatura: {cfg_tren.temperatura}°C")
+        latex_parts.append(r"\end{itemize}")
+        latex_parts.append("")
+        latex_parts.append(r"\textbf{Secuencia de unidades del tren:} ")
+        latex_parts.append(r" $\rightarrow$ ".join([NOMBRES_UNIDADES.get(u, u) for u in cfg_tren.unidades]))
+        latex_parts.append("")
     
     # ============================================================
     # PASO 1: Generar figuras ANTES de generar el documento LaTeX
@@ -836,6 +877,10 @@ def generar_documento_tren(
         latex_parts.append(generar_latex_seccion_layout(cfg, layout_info, titulo_section=False))
         latex_parts.append("")
         latex_parts.append(generar_resumen_resultados(cfg, resultados, area_m2=layout_info.get('area_layout_m2', 0)))
+        latex_parts.append("")
+
+        # NOTA: Las conclusiones generadas por IA se omiten temporalmente
+        # hasta obtener una calidad de redaccion aceptable.
     
     # Bibliografia
     latex_parts.append("")
@@ -914,12 +959,19 @@ if __name__ == "__main__":
         ]
     }
     
+    # -------------------------------------------------------------------------
+    # CONFIGURACION RAPIDA: activar/desactivar generacion de texto con IA
+    # -------------------------------------------------------------------------
+    USAR_IA = True  # <-- Cambia a False para omitir los textos generados por IA
+    # -------------------------------------------------------------------------
+
     print("\nGenerando documento con el tren de ejemplo...")
     tex_path = generar_documento_tren(
         entrada,
         output_dir="resultados/mis_trenes",
         nombre_archivo="tren_ejemplo",
-        compilar_pdf=False  # Se compila manualmente abajo para mostrar progreso
+        compilar_pdf=False,  # Se compila manualmente abajo para mostrar progreso
+        usar_ia=USAR_IA
     )
     
     print(f"\nArchivo LaTeX generado: {tex_path}")
