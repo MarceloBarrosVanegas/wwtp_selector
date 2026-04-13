@@ -43,18 +43,28 @@ from ptar_dimensionamiento import (
     dimensionar_rejillas,
     dimensionar_desarenador,
     dimensionar_uasb,
+    dimensionar_filtro_percolador,
     dimensionar_humedal_vertical,
+    dimensionar_sedimentador_sec,
     dimensionar_desinfeccion_cloro,
     dimensionar_lecho_secado,
+    dimensionar_abr_rap,
+    dimensionar_baf,
+    dimensionar_biofiltro_carga_mecanizada_hidraulica,  # TAF - Biofiltro de carga mecanizada e hidráulica
 )
 
 # Importar generadores LaTeX
 from latex_unidades.rejillas import GeneradorRejillas
 from latex_unidades.desarenador import GeneradorDesarenador
 from latex_unidades.uasb import GeneradorUASB
+from latex_unidades.filtro_percolador import GeneradorFiltroPercolador
 from latex_unidades.humedal_vertical import GeneradorHumedalVertical
+from latex_unidades.sedimentador_secundario import GeneradorSedimentadorSecundario
 from latex_unidades.cloro import GeneradorCloro
 from latex_unidades.lecho_secado import GeneradorLechoSecado
+from latex_unidades.abr_rap import GeneradorABR_RAP
+from latex_unidades.baf import GeneradorBAF
+from latex_unidades.taf import GeneradorBiofiltroCargaMecanizadaHidraulica
 
 
 # =============================================================================
@@ -191,27 +201,42 @@ DIMENSIONADORES = {
     "rejillas": dimensionar_rejillas,
     "desarenador": dimensionar_desarenador,
     "uasb": dimensionar_uasb,
+    "filtro_percolador": dimensionar_filtro_percolador,
     "humedal_vertical": dimensionar_humedal_vertical,
+    "sedimentador_sec": dimensionar_sedimentador_sec,
     "cloro": dimensionar_desinfeccion_cloro,
     "lecho_secado": dimensionar_lecho_secado,
+    "abr_rap": dimensionar_abr_rap,
+    "baf": dimensionar_baf,
+    "taf": dimensionar_biofiltro_carga_mecanizada_hidraulica,
 }
 
 GENERADORES_LATEX = {
     "rejillas": GeneradorRejillas,
     "desarenador": GeneradorDesarenador,
     "uasb": GeneradorUASB,
+    "filtro_percolador": GeneradorFiltroPercolador,
     "humedal_vertical": GeneradorHumedalVertical,
+    "sedimentador_sec": GeneradorSedimentadorSecundario,
     "cloro": GeneradorCloro,
     "lecho_secado": GeneradorLechoSecado,
+    "abr_rap": GeneradorABR_RAP,
+    "baf": GeneradorBAF,
+    "taf": GeneradorBiofiltroCargaMecanizadaHidraulica,
 }
 
 NOMBRES_UNIDADES = {
     "rejillas": "Canal de Desbaste con Rejillas",
     "desarenador": "Desarenador de Flujo Horizontal",
     "uasb": "Reactor Anaerobio de Flujo Ascendente con Manto de Lodos (UASB)",
+    "filtro_percolador": "Filtro Percolador",
     "humedal_vertical": "Humedal Artificial de Flujo Vertical (HAFV)",
+    "sedimentador_sec": "Sedimentador Secundario",
     "cloro": "Sistema de Desinfeccion con Hipoclorito de Sodio",
     "lecho_secado": "Lechos de Secado de Lodos",
+    "abr_rap": "Reactor Anaerobio con Pantallas (ABR/RAP)",
+    "baf": "Biofiltro Biológico Aireado (BAF)",
+    "taf": "Biofiltro de Carga Mecanizada e Hidráulica",
 }
 
 
@@ -241,6 +266,141 @@ def crear_configuracion(cfg_tren: ConfigTren) -> ConfigDiseno:
     return cfg
 
 
+def actualizar_calidad_tren(calidad_actual: Dict[str, float], unidad: str, 
+                           resultado: Dict[str, Any], cfg: ConfigDiseno) -> Dict[str, float]:
+    """
+    Actualiza la calidad del agua tras pasar por una unidad de tratamiento.
+    
+    Esta función encadena la calidad del agua entre unidades, manteniendo un registro
+    actualizado de los parámetros de calidad a medida que el agua avanza por el tren.
+    
+    Parámetros:
+        calidad_actual: Dict con calidad actual del agua (DBO5, DQO, SST, CF)
+        unidad: Nombre de la unidad que acaba de procesar el agua
+        resultado: Resultado del dimensionamiento de la unidad
+        cfg: Configuración de diseño con parámetros de eficiencia
+    
+    Retorna:
+        Dict actualizado con la nueva calidad del efluente
+    """
+    calidad_nueva = calidad_actual.copy()
+    
+    # REJILLAS: remoción mínima de SST (~5%) y CF (~5%)
+    if unidad == "rejillas":
+        eta_SST = 0.05
+        eta_CF = 0.05
+        calidad_nueva["SST_mg_L"] = calidad_actual["SST_mg_L"] * (1 - eta_SST)
+        calidad_nueva["CF_NMP_100mL"] = calidad_actual["CF_NMP_100mL"] * (1 - eta_CF)
+    
+    # DESARENADOR: remoción de SST (~15%) y mínima de DBO/DQO/CF (~5%)
+    elif unidad == "desarenador":
+        eta_SST = 0.15
+        eta_DBO = 0.05
+        eta_CF = 0.05
+        calidad_nueva["DBO5_mg_L"] = calidad_actual["DBO5_mg_L"] * (1 - eta_DBO)
+        calidad_nueva["DQO_mg_L"] = calidad_actual["DQO_mg_L"] * (1 - eta_DBO)
+        calidad_nueva["SST_mg_L"] = calidad_actual["SST_mg_L"] * (1 - eta_SST)
+        calidad_nueva["CF_NMP_100mL"] = calidad_actual["CF_NMP_100mL"] * (1 - eta_CF)
+    
+    # UASB: remoción significativa de DBO (~70%), DQO (~65%), SST (~70%), CF (~30%)
+    elif unidad == "uasb":
+        eta_DBO = resultado.get("eta_DBO", cfg.uasb_eta_DBO)
+        eta_DQO = resultado.get("eta_DQO", cfg.uasb_eta_DBO * 0.93)  # DQO típicamente ~93% de DBO
+        eta_SST = eta_DBO  # Similar a DBO
+        eta_CF = cfg.balance_eta_CF_uasb
+        calidad_nueva["DBO5_mg_L"] = calidad_actual["DBO5_mg_L"] * (1 - eta_DBO)
+        calidad_nueva["DQO_mg_L"] = calidad_actual["DQO_mg_L"] * (1 - eta_DQO)
+        calidad_nueva["SST_mg_L"] = calidad_actual["SST_mg_L"] * (1 - eta_SST)
+        calidad_nueva["CF_NMP_100mL"] = calidad_actual["CF_NMP_100mL"] * (1 - eta_CF)
+    
+    # FILTRO PERCOLADOR: remoción alta de DBO (~80%), DQO (~75%), SST (~60%), CF (~50%)
+    elif unidad == "filtro_percolador":
+        relacion = resultado.get("relacion_Se_S0_Germain", 0.20)
+        eta_DBO = 1 - relacion
+        eta_DQO = eta_DBO * cfg.balance_eta_DQO_fp_factor
+        eta_SST = cfg.balance_eta_SST_fp
+        eta_CF = cfg.balance_eta_CF_fp
+        calidad_nueva["DBO5_mg_L"] = calidad_actual["DBO5_mg_L"] * (1 - eta_DBO)
+        calidad_nueva["DQO_mg_L"] = calidad_actual["DQO_mg_L"] * (1 - eta_DQO)
+        calidad_nueva["SST_mg_L"] = calidad_actual["SST_mg_L"] * (1 - eta_SST)
+        calidad_nueva["CF_NMP_100mL"] = calidad_actual["CF_NMP_100mL"] * (1 - eta_CF)
+    
+    # HUMEDAL VERTICAL: remoción según modelo k-C*
+    elif unidad == "humedal_vertical":
+        DBO_salida = resultado.get("DBO_salida_mg_L", cfg.humedal_DBO_salida_mg_L)
+        if calidad_actual["DBO5_mg_L"] > 0:
+            eta_DBO = 1 - (DBO_salida / calidad_actual["DBO5_mg_L"])
+        else:
+            eta_DBO = 0
+        eta_DQO = eta_DBO
+        eta_SST = cfg.balance_eta_SST_humedal
+        eta_CF = cfg.humedal_eta_CF
+        calidad_nueva["DBO5_mg_L"] = DBO_salida
+        calidad_nueva["DQO_mg_L"] = calidad_actual["DQO_mg_L"] * (1 - eta_DQO)
+        calidad_nueva["SST_mg_L"] = calidad_actual["SST_mg_L"] * (1 - eta_SST)
+        calidad_nueva["CF_NMP_100mL"] = calidad_actual["CF_NMP_100mL"] * (1 - eta_CF)
+    
+    # SEDIMENTADOR SECUNDARIO: remoción de SST (~80%), DBO/DQO (~30%), CF (~10%)
+    elif unidad == "sedimentador_sec":
+        eta_DBO = resultado.get("eta_DBO_sed", cfg.sed_eta_DBO)
+        eta_DQO = eta_DBO
+        eta_SST = cfg.balance_eta_SST_sed
+        eta_CF = cfg.balance_eta_CF_sed
+        calidad_nueva["DBO5_mg_L"] = calidad_actual["DBO5_mg_L"] * (1 - eta_DBO)
+        calidad_nueva["DQO_mg_L"] = calidad_actual["DQO_mg_L"] * (1 - eta_DQO)
+        calidad_nueva["SST_mg_L"] = calidad_actual["SST_mg_L"] * (1 - eta_SST)
+        calidad_nueva["CF_NMP_100mL"] = calidad_actual["CF_NMP_100mL"] * (1 - eta_CF)
+    
+    # CLORO: solo remueve CF (>99.9%), no afecta DBO/DQO/SST
+    elif unidad == "cloro":
+        log_red = resultado.get("log_reduccion", 6.0)  # Default 6 log ~ 99.9999%
+        eta_CF = 1 - (10 ** (-log_red))
+        calidad_nueva["CF_NMP_100mL"] = calidad_actual["CF_NMP_100mL"] * (1 - eta_CF)
+        if calidad_nueva["CF_NMP_100mL"] < 1:
+            calidad_nueva["CF_NMP_100mL"] = 1.0  # Mínimo detectable
+    
+    # LECHO DE SECADO: unidad de lodos, no modifica calidad del agua
+    # No hay cambios en calidad_nueva
+    
+    # ABR_RAP: Reactor Anaerobio con Pantallas (similar a UASB)
+    # Remoción típica: DBO ~75%, DQO ~70%, SST ~75%, CF ~40%
+    elif unidad == "abr_rap":
+        eta_DBO = 0.75
+        eta_DQO = 0.70
+        eta_SST = 0.75
+        eta_CF = 0.40
+        calidad_nueva["DBO5_mg_L"] = calidad_actual["DBO5_mg_L"] * (1 - eta_DBO)
+        calidad_nueva["DQO_mg_L"] = calidad_actual["DQO_mg_L"] * (1 - eta_DQO)
+        calidad_nueva["SST_mg_L"] = calidad_actual["SST_mg_L"] * (1 - eta_SST)
+        calidad_nueva["CF_NMP_100mL"] = calidad_actual["CF_NMP_100mL"] * (1 - eta_CF)
+    
+    # BAF: Biofiltro Biológico Aireado (proceso aerobio con alta eficiencia)
+    # Remoción típica: DBO ~85%, DQO ~80%, SST ~80%, CF ~60%
+    elif unidad == "baf":
+        eta_DBO = 0.85
+        eta_DQO = 0.80
+        eta_SST = 0.80
+        eta_CF = 0.60
+        calidad_nueva["DBO5_mg_L"] = calidad_actual["DBO5_mg_L"] * (1 - eta_DBO)
+        calidad_nueva["DQO_mg_L"] = calidad_actual["DQO_mg_L"] * (1 - eta_DQO)
+        calidad_nueva["SST_mg_L"] = calidad_actual["SST_mg_L"] * (1 - eta_SST)
+        calidad_nueva["CF_NMP_100mL"] = calidad_actual["CF_NMP_100mL"] * (1 - eta_CF)
+    
+    # TAF: Biofiltro de Carga Mecanizada e Hidráulica
+    # Remoción típica: DBO ~80%, DQO ~75%, SST ~75%, CF ~50%
+    elif unidad == "taf":
+        eta_DBO = 0.80
+        eta_DQO = 0.75
+        eta_SST = 0.75
+        eta_CF = 0.50
+        calidad_nueva["DBO5_mg_L"] = calidad_actual["DBO5_mg_L"] * (1 - eta_DBO)
+        calidad_nueva["DQO_mg_L"] = calidad_actual["DQO_mg_L"] * (1 - eta_DQO)
+        calidad_nueva["SST_mg_L"] = calidad_actual["SST_mg_L"] * (1 - eta_SST)
+        calidad_nueva["CF_NMP_100mL"] = calidad_actual["CF_NMP_100mL"] * (1 - eta_CF)
+    
+    return calidad_nueva
+
+
 def dimensionar_tren(cfg_tren: ConfigTren) -> Dict[str, Any]:
     """Dimensiona todas las unidades del tren."""
     print(f"\nDimensionando tren: {cfg_tren.nombre}")
@@ -248,6 +408,17 @@ def dimensionar_tren(cfg_tren: ConfigTren) -> Dict[str, Any]:
     
     cfg = crear_configuracion(cfg_tren)
     resultados = {}
+    
+    # Calidad inicial del afluente (entrada al tren)
+    calidad_actual = {
+        "DBO5_mg_L": cfg_tren.dbo,
+        "DQO_mg_L": cfg_tren.dqo,
+        "SST_mg_L": cfg_tren.sst,
+        "CF_NMP_100mL": cfg_tren.cf,
+    }
+    
+    # Guardar calidad inicial en resultados
+    resultados["_calidad_afluente"] = calidad_actual.copy()
     
     # Acumulador de lodos para lecho de secado
     lodos_total_kg_SST_d = 0.0
@@ -257,12 +428,19 @@ def dimensionar_tren(cfg_tren: ConfigTren) -> Dict[str, Any]:
         print(f"  - {unidad}...", end=" ")
         if unidad in DIMENSIONADORES:
             try:
-                # Para humedal necesitamos DBO de entrada
+                # Pasar calidad actual a las unidades que lo necesiten
                 if unidad == "humedal_vertical":
-                    resultado = DIMENSIONADORES[unidad](cfg, DBO_entrada_mg_L=cfg_tren.dbo * 0.30)
-                # Para cloro necesitamos CF de entrada
+                    resultado = DIMENSIONADORES[unidad](
+                        cfg, 
+                        DBO_entrada_mg_L=calidad_actual["DBO5_mg_L"]
+                    )
+                    print(f"[DBO entrada: {calidad_actual['DBO5_mg_L']:.1f} mg/L]", end=" ")
                 elif unidad == "cloro":
-                    resultado = DIMENSIONADORES[unidad](cfg, CF_entrada_NMP=cfg_tren.cf)
+                    resultado = DIMENSIONADORES[unidad](
+                        cfg, 
+                        CF_entrada_NMP=calidad_actual["CF_NMP_100mL"]
+                    )
+                    print(f"[CF entrada: {calidad_actual['CF_NMP_100mL']:.0f} NMP/100mL]", end=" ")
                 # Para lecho de secado necesitamos los lodos acumulados
                 elif unidad == "lecho_secado":
                     if lodos_total_kg_SST_d > 0:
@@ -282,6 +460,13 @@ def dimensionar_tren(cfg_tren: ConfigTren) -> Dict[str, Any]:
                 else:
                     resultado = DIMENSIONADORES[unidad](cfg)
                 resultados[unidad] = resultado
+                
+                # Actualizar calidad del agua tras esta unidad
+                calidad_anterior = calidad_actual.copy()
+                calidad_actual = actualizar_calidad_tren(calidad_actual, unidad, resultado, cfg)
+                # Guardar calidad de entrada y salida en el resultado de la unidad
+                resultado["_calidad_entrada"] = calidad_anterior
+                resultado["_calidad_salida"] = calidad_actual.copy()
                 
                 # Acumular lodos de cada unidad (excepto lecho de secado que los recibe)
                 if unidad != "lecho_secado":
@@ -314,6 +499,16 @@ def dimensionar_tren(cfg_tren: ConfigTren) -> Dict[str, Any]:
         resultados["_lodos_acumulados_kg_SST_d"] = lodos_total_kg_SST_d
         # Guardar también el desglose por unidad
         resultados["_desglose_lodos"] = desglose_lodos
+    
+    # Guardar calidad final del efluente
+    resultados["_calidad_efluente"] = calidad_actual.copy()
+    
+    # Mostrar resumen de calidad
+    print(f"\n  Calidad del efluente final:")
+    print(f"    DBO5: {calidad_actual['DBO5_mg_L']:.1f} mg/L")
+    print(f"    DQO: {calidad_actual['DQO_mg_L']:.1f} mg/L")
+    print(f"    SST: {calidad_actual['SST_mg_L']:.1f} mg/L")
+    print(f"    CF: {calidad_actual['CF_NMP_100mL']:.0f} NMP/100mL")
     
     return resultados
 
@@ -535,6 +730,42 @@ def generar_documento_tren(
     latex_parts.append(r" $\rightarrow$ ".join([NOMBRES_UNIDADES.get(u, u) for u in cfg_tren.unidades]))
     latex_parts.append("")
     
+    # ============================================================
+    # PASO 1: Generar figuras ANTES de generar el documento LaTeX
+    # Esto asegura que las figuras existan cuando el LaTeX las referencie
+    # ============================================================
+    print(f"\nGenerando figuras en: {figuras_dir}")
+    figuras_exitosas = {}
+    for unidad in cfg_tren.unidades:
+        if unidad in resultados and unidad in GENERADORES_LATEX:
+            try:
+                generador_class = GENERADORES_LATEX[unidad]
+                generador = generador_class(cfg, resultados[unidad], ruta_figuras='figuras')
+                # Intentar generar esquema si existe el método
+                if hasattr(generador, 'generar_esquema_matplotlib'):
+                    fig_path = generador.generar_esquema_matplotlib(figuras_dir)
+                    if fig_path and os.path.exists(fig_path):
+                        figuras_exitosas[unidad] = fig_path
+                        print(f"  - Figura {unidad}: OK [{os.path.basename(fig_path)}]")
+                    else:
+                        print(f"  - Figura {unidad}: ERROR (no se generó archivo)")
+                else:
+                    print(f"  - Figura {unidad}: No tiene método de generación")
+            except Exception as e:
+                print(f"  - Figura {unidad}: ERROR [{e}]")
+    
+    # Si hay figuras faltantes críticas, advertir pero continuar
+    figuras_faltantes = [u for u in cfg_tren.unidades if u in resultados and u not in figuras_exitosas 
+                        and hasattr(GENERADORES_LATEX.get(u, None), 'generar_esquema_matplotlib')]
+    if figuras_faltantes:
+        print(f"\n  [ADVERTENCIA] Figuras no generadas: {figuras_faltantes}")
+        print(f"  El documento LaTeX se generará pero puede tener referencias rotas.")
+    
+    # ============================================================
+    # PASO 2: Generar documento LaTeX (ahora las figuras ya existen)
+    # ============================================================
+    print(f"\nGenerando documento LaTeX: {tex_path}")
+    
     # Seccion de dimensionamiento
     latex_parts.append(r"\section{Dimensionamiento de Unidades}")
     latex_parts.append("")
@@ -572,26 +803,13 @@ def generar_documento_tren(
     with open(tex_path, 'w', encoding='utf-8') as f:
         f.write(documento)
     
-    # Generar figuras para cada unidad
-    print(f"\nGenerando figuras en: {figuras_dir}")
-    for unidad in cfg_tren.unidades:
-        if unidad in resultados and unidad in GENERADORES_LATEX:
-            try:
-                generador_class = GENERADORES_LATEX[unidad]
-                generador = generador_class(cfg, resultados[unidad], ruta_figuras='figuras')
-                # Intentar generar esquema si existe el método
-                if hasattr(generador, 'generar_esquema_matplotlib'):
-                    generador.generar_esquema_matplotlib(figuras_dir)
-                    print(f"  - Figura {unidad}: OK")
-            except Exception as e:
-                print(f"  - Figura {unidad}: {e}")
-    
     # Generar archivo de bibliografia
     _generar_bibliografia(output_dir)
     print(f"Bibliografia generada: {os.path.join(output_dir, 'referencias.bib')}")
     
-    print(f"Documento guardado: {tex_path}")
+    print(f"\nDocumento guardado: {tex_path}")
     print(f"Tamano: {len(documento)} caracteres")
+    print(f"Figuras generadas: {len(figuras_exitosas)} de {len([u for u in cfg_tren.unidades if u in GENERADORES_LATEX])}")
     
     # Compilar PDF si se solicita
     if compilar_pdf:
