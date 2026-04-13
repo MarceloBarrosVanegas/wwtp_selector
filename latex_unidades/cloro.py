@@ -487,13 +487,7 @@ El volumen de almacenamiento en bodega se recomienda para {c['dias_almacenamient
 
 La cloración de aguas residuales puede generar subproductos de desinfección (DBPs, por sus siglas en inglés), principalmente trihalometanos (THMs) y ácidos haloacéticos (HAAs), como resultado de la reacción del cloro con la materia orgánica residual presente en el efluente tratado.
 
-Para plantas de tratamiento de pequeña escala como la proyectada, la formación de THMs puede controlarse mediante:
-\begin{{itemize}}[noitemsep,leftmargin=2em]
-    \item \textbf{{Control de dosis:}} Aplicar la dosis mínima efectiva que garantice el residual requerido, evitando sobredosis innecesaria.
-    \item \textbf{{Monitoreo de residual:}} Mantener el residual combinado en el rango de {c['cloro_residual_mg_L']:.1f}--1.0 mg/L, evitando valores superiores que favorecen la formación de DBPs.
-    \item \textbf{{Calidad del efluente previo:}} Asegurar que el tratamiento biológico previo (HAFV) remueva adecuadamente la materia orgánica, ya que menor DQO/DBO residual implica menor potencial de formación de THMs.
-    \item \textbf{{Monitoreo periódico:}} Realizar análisis trimestral de THMs totales en el efluente final si la autoridad ambiental lo requiere; para vertimiento a cuerpos receptores no destinados a consumo humano, los requisitos son menos estrictos que para agua potable.
-\end{{itemize}}
+Para plantas de tratamiento de pequeña escala como la proyectada, la formación de THMs puede controlarse mediante cuatro medidas operativas integrales. En primer lugar, el control de dosis debe enfocarse en aplicar la dosis mínima efectiva que garantice el residual requerido, evitando sobredosis innecesaria que incrementaría la generación de subproductos. En segundo lugar, el monitoreo de residual combinado debe mantenerse en el rango de {c['cloro_residual_mg_L']:.1f}--1.0 mg/L, ya que valores superiores favorecen la formación de DBPs. En tercer lugar, la calidad del efluente previo resulta determinante: asegurar que el tratamiento biológico previo (HAFV) remueva adecuadamente la materia orgánica reduce el potencial de formación de THMs, dado que una menor DQO/DBO residual implica menor disponibilidad de precursores orgánicos. Finalmente, el monitoreo periódico mediante análisis trimestral de THMs totales en el efluente final debe realizarse si la autoridad ambiental lo requiere; para vertimiento a cuerpos receptores no destinados a consumo humano, los requisitos normativos son menos estrictos que para agua potable.
 
 Para el presente diseño, el riesgo de formación de THMs se considera manejable mediante la operación adecuada del sistema de dosificación y el control de residual, dado que el efluente del HAFV tiene baja concentración de materia orgánica precursora y la dosis de cloro aplicada es moderada."""
 

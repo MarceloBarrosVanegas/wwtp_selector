@@ -284,10 +284,12 @@ La produccion de lodos se determina del balance encadenado del tren de tratamien
 
 \begin{{table}}[H]
 \centering
+\small
 \caption{{Produccion de lodos por linea y total planta}}
-\begin{{tabular}}{{lcc}}
+\begin{{tabular}}{{p{{6cm}}cc}}
 \toprule
-\textbf{{Origen}} & \textbf{{Por linea (kg SST/d)}} & \textbf{{Total planta ({l['num_lineas']:.0f} lineas) (kg SST/d)}} \\
+\textbf{{Origen}} & \textbf{{Por linea}} & \textbf{{Total planta}} \\
+ & \textbf{{(kg SST/d)}} & \textbf{{(kg SST/d)}} \\
 \midrule
 {filas_lodos}
 \midrule

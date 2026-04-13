@@ -4279,7 +4279,8 @@ def dimensionar_desinfeccion_cloro(Q: ConfigDiseno = CFG,
     
     # [Ec. 7g'] Log reducción requerida para alcanzar CF objetivo
     # Log_red_req = log10(CF_entrada / CF_objetivo)
-    log_reduccion_requerida = math.log10(CF_entrada_NMP / CF_objetivo_NMP)
+    # Si el efluente ya cumple el objetivo, la reducción requerida es cero.
+    log_reduccion_requerida = max(0.0, math.log10(CF_entrada_NMP / CF_objetivo_NMP))
     
     # [Ec. 7h'] CT requerido para lograr la reducción necesaria
     # CT_req = Log_red_req / k
@@ -4324,13 +4325,20 @@ def dimensionar_desinfeccion_cloro(Q: ConfigDiseno = CFG,
     # [Ec. 7j'] Residual requerido para alcanzar CT_requerido con TRH_real
     # C_req = CT_req / TRH_real
     residual_requerido = CT_requerido / TRH_real_min  # mg/L
+    residual_requerido = max(0.0, residual_requerido)  # El residual no puede ser negativo
     
-    # Residual adoptado: el requerido para cumplir CF objetivo
-    # Se respeta el cálculo sin forzar mínimo operativo para evitar sobredosis
-    residual_adoptado = residual_requerido
+    # Residual adoptado: el máximo entre el requerido y el mínimo operativo normativo.
+    # Garantiza que siempre haya un residual mensurable para desinfección y monitoreo.
+    residual_adoptado = max(residual_requerido, residual_minimo_operativo)
+    
+    # Ajuste automático: si el CT real queda por debajo del mínimo recomendado,
+    # se incrementa el residual adoptado para alcanzar CT_min sin sobredimensionar el tanque.
+    CT_min_recomendado = Q.desinfeccion_CT_min_recomendado_mg_min_L
+    CT_real_preliminar = residual_adoptado * TRH_real_min
+    if CT_real_preliminar < CT_min_recomendado:
+        residual_adoptado = max(residual_adoptado, CT_min_recomendado / TRH_real_min)
     
     # Indicador si el residual queda por debajo del mínimo operativo recomendado
-    # (advertencia para operación, no forzado en diseño)
     residual_por_debajo_minimo = (residual_requerido < residual_minimo_operativo)
     
     # [Ec. 7k'] CT real con el residual adoptado y TRH real
