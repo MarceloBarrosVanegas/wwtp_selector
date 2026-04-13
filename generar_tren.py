@@ -178,6 +178,7 @@ class ConfigTren:
     sst: float
     cf: float
     temperatura: float
+    factor_maximo_horario: float
     unidades: List[str]
     
     @classmethod
@@ -192,6 +193,7 @@ class ConfigTren:
             sst=afluente.get("SST_mg_L", 220.0),
             cf=afluente.get("CF_NMP_100mL", 1.0e7),
             temperatura=afluente.get("temperatura_C", 24.0),
+            factor_maximo_horario=data.get("factor_maximo_horario", 2.5),
             unidades=data.get("unidades", []),
         )
 
@@ -258,6 +260,8 @@ def crear_configuracion(cfg_tren: ConfigTren) -> ConfigDiseno:
     cfg.SST_mg_L = cfg_tren.sst
     cfg.CF_NMP = cfg_tren.cf
     cfg.T_agua_C = cfg_tren.temperatura
+    cfg.factor_pico_Qmax = cfg_tren.factor_maximo_horario
+    cfg.desarenador_factor_pico = cfg_tren.factor_maximo_horario
     
     # Recalcular valores derivados del caudal (que se calculan en __post_init__)
     # ya que al cambiar Q_linea_L_s despues de crear el objeto, estos no se actualizan
@@ -906,6 +910,7 @@ if __name__ == "__main__":
             "CF_NMP_100mL": 3300,
             "temperatura_C": 25.6,
         },
+        "factor_maximo_horario": 2.5,
         "unidades": [
             "rejillas",
             "desarenador",
