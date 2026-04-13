@@ -68,6 +68,7 @@ from latex_unidades.taf import GeneradorBiofiltroCargaMecanizadaHidraulica
 
 # Importar generador de layout
 from ptar_layout_graficador import generar_layout
+from latex_unidades.reporte_layout import generar_latex_seccion_layout
 
 
 # =============================================================================
@@ -805,35 +806,14 @@ def generar_documento_tren(
     # ============================================================
     print(f"\nGenerando documento LaTeX: {tex_path}")
     
-    # Seccion de dimensionamiento
+    # Seccion de dimensionamiento (nueva pagina)
+    latex_parts.append(r"\newpage")
     latex_parts.append(r"\section{Dimensionamiento de Unidades}")
     latex_parts.append("")
-    
-    # Subseccion: Layout general del tren (si se generó)
-    if layout_tren_path:
-        latex_parts.append(r"\subsection{Layout General del Tren}")
-        latex_parts.append("")
-        latex_parts.append(r"La siguiente figura presenta la disposición general de las unidades del tren de tratamiento.")
-        latex_parts.append("")
-        latex_parts.append(r"\begin{figure}[H]")
-        latex_parts.append(r"    \centering")
-        # Construir nombre de archivo según número de líneas (linea singular para 1, lineas plural para 2+)
-        sufijo_lineas = "linea" if cfg_tren.num_lineas == 1 else "lineas"
-        latex_parts.append(r"    \includegraphics[width=\textwidth]{figuras/Layout_" + cfg_tren.nombre.replace(" ", "_").lower() + "_" + str(cfg_tren.num_lineas) + sufijo_lineas + r".png}")
-        latex_parts.append(r"    \caption{" + layout_caption + r"}")
-        latex_parts.append(r"    \label{fig:layout_general}")
-        latex_parts.append(r"\end{figure}")
-        latex_parts.append("")
-        latex_parts.append(r"\newpage")
-        latex_parts.append("")
     
     # Generar cada unidad con titulo claro
     for i, unidad in enumerate(cfg_tren.unidades, 1):
         if unidad in resultados:
-            # Nueva pagina para cada unidad
-            latex_parts.append(r"\newpage")
-            latex_parts.append("")
-            
             # Agregar titulo de la unidad (sin "Unidad X:" para que quede como en el ejemplo)
             nombre_unidad = NOMBRES_UNIDADES.get(unidad, unidad)
             latex_parts.append(f"\\subsection{{{nombre_unidad}}}")
@@ -843,6 +823,13 @@ def generar_documento_tren(
             latex_unidad = generar_latex_unidad(unidad, resultados[unidad], cfg, figuras_dir)
             latex_parts.append(latex_unidad)
             latex_parts.append("")
+    
+    # Seccion: Resultados (con layout y areas de predio)
+    if layout_tren_path:
+        latex_parts.append(r"\newpage")
+        latex_parts.append(r"\section{Resultados}")
+        latex_parts.append("")
+        latex_parts.append(generar_latex_seccion_layout(cfg, layout_info, titulo_section=False))
     
     # Bibliografia
     latex_parts.append("")
@@ -910,7 +897,7 @@ if __name__ == "__main__":
             "CF_NMP_100mL": 3300,
             "temperatura_C": 25.6,
         },
-        "factor_maximo_horario": 2.5,
+        "factor_maximo_horario": 2.77,
         "unidades": [
             "rejillas",
             "desarenador",
