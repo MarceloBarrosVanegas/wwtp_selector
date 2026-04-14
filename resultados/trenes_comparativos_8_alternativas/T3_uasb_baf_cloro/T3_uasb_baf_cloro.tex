@@ -1,0 +1,1700 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{float}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{caption}
+\usepackage[numbers]{natbib}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=blue,urlcolor=blue]{hyperref}
+
+\geometry{margin=2.5cm}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{T3 – Rejillas + Desarenador + UASB + BAF + Cloro + Lecho de Secado}
+\fancyhead[R]{\thepage}
+
+\setcounter{tocdepth}{2}
+
+\begin{document}
+
+\begin{titlepage}
+\centering
+\vspace*{2cm}
+
+{\Huge\bfseries Memoria de Cálculo\par}
+\vspace{1.5cm}
+
+{\Large\itshape Dimensionamiento de:\par}
+\vspace{0.5cm}
+
+{\LARGE\bfseries T3 – Rejillas + Desarenador + UASB + BAF + Cloro + Lecho de Secado\par}
+\vspace{2cm}
+
+{\large Caudal de diseño: 17.31 L/s\par}
+{\large Número de líneas: 3\par}
+\vfill
+{\large\today\par}
+\end{titlepage}
+
+\tableofcontents
+
+\listoffigures
+
+\listoftables
+
+\newpage
+\section{Resumen del Proyecto}
+
+Este documento presenta el dimensionamiento detallado del T3 – Rejillas + Desarenador + UASB + BAF + Cloro + Lecho de Secado, disenado para tratar un caudal de 17.31 L/s distribuido en 3 lineas paralelas (5.77 L/s por linea).
+
+\textbf{Caracteristicas del afluente:}
+\begin{itemize}
+    \item DBO$_5$: 243.1 mg/L
+    \item DQO: 498.0 mg/L
+    \item SST: 156.0 mg/L
+    \item Coliformes fecales: 3e+03 NMP/100mL
+    \item Temperatura: 25.6°C
+\end{itemize}
+
+\textbf{Secuencia de unidades del tren:} 
+Canal de Desbaste con Rejillas $\rightarrow$ Desarenador de Flujo Horizontal $\rightarrow$ Reactor Anaerobio de Flujo Ascendente con Manto de Lodos (UASB) $\rightarrow$ Biofiltro Biológico Aireado (BAF) $\rightarrow$ Sistema de Desinfeccion con Hipoclorito de Sodio $\rightarrow$ Lechos de Secado de Lodos
+
+\newpage
+\section{Dimensionamiento de Unidades}
+
+\subsection{Canal de Desbaste con Rejillas}
+
+\
+
+Las rejillas constituyen la primera barrera de proteccion del sistema, reteniendo solidos gruesos como plasticos, ramas y papel que podrian danar equipos o causar obstrucciones en tuberias aguas abajo. El diseno hidraulico de esta unidad debe garantizar velocidades suficientes para arrastrar solidos sedimentables, pero no tan elevadas que dificulten el paso del agua a traves de las barras.
+
+Segun los criterios establecidos por Metcalf y Eddy \cite{metcalf2014}, las velocidades de diseno en canales con rejillas deben mantenerse entre 0.40 y 0.60~m/s. Para este proyecto se adopta un valor intermedio de 0.50~m/s, lo cual resulta apropiado considerando el caudal de diseno. El tirante hidraulico se establece en 0.40~m, valor que permite una velocidad de flujo uniforme en la seccion del canal y evita la sedimentacion de solidos organicos antes de la rejilla, segun los criterios de Metcalf y Eddy \cite{metcalf2014}.
+
+La perdida de carga en rejillas limpias se calcula mediante la formula de Kirschmer (1926), que relaciona la geometria de las barras con las caracteristicas del flujo. Los parametros que determinan esta perdida son: el espaciado entre barras ($b$), el espesor de las barras ($w$), la velocidad del flujo ($v$) y el angulo de inclinacion ($\theta$):
+
+\begin{equation}
+h_L = \beta \cdot \left(\frac{w}{b}\right)^{4/3} \cdot \frac{v^2}{2g} \cdot \sin\theta
+\end{equation}
+\captionequation{Perdida de carga en rejillas limpias - Formula de Kirschmer}
+
+\textit{Donde:}
+\begin{itemize}[noitemsep,leftmargin=2em]
+    \item[$h_L$] = Perdida de carga en rejillas limpias (m)
+    \item[$\beta$] = Factor de forma de la barra (2.42 para barras rectangulares)
+    \item[$w$] = Espesor de la barra (10 mm)
+    \item[$b$] = Espaciado entre barras (15 mm)
+    \item[$v$] = Velocidad del flujo en el canal (m/s)
+    \item[$g$] = Aceleracion de la gravedad (9,81 m/s\textsuperscript{2})
+    \item[$\theta$] = Angulo de inclinacion de las barras (60\textdegree)
+\end{itemize}
+
+\begin{table}[H]
+\centering
+\caption{Parametros de diseno -- Rejillas}
+\begin{tabular}{llcc}
+\toprule
+Parametro & Descripcion & Valor adoptado & Fuente \\
+\midrule
+Velocidad en canal & Velocidad de paso & 0.50 m/s & Metcalf y Eddy \\
+Tirante hidraulico & Altura de agua en canal & 0.40 m & Criterio tecnico \\
+Angulo de rejilla & Inclinacion barras & 60\textdegree & Practica comun \\
+Espaciado entre barras & Abertura libre & 15 mm & OPS/CEPIS \\
+Espesor de barras & Seccion barra & 10 mm & Constructivo \\
+Factor de forma & Barras rectangulares & 2.42 & Kirschmer \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+El caudal de diseno por linea es 5.8 L/s. La seccion transversal del canal se determina aplicando la ecuacion de continuidad:
+
+\begin{equation}
+A_{{canal}} = \frac{Q}{v} = \frac{0.00577}{0.50} = 0.01154 \text{ m}^2
+\end{equation}
+
+\textit{Donde:}
+\begin{itemize}[noitemsep,leftmargin=2em]
+    \item[$A_{{canal}}$] = Seccion transversal del canal (m\textsuperscript{2})
+    \item[$Q$] = Caudal de diseno por linea (0.00577 m\textsuperscript{3}/s)
+    \item[$v$] = Velocidad de diseno adoptada (0.50 m/s)
+\end{itemize}
+
+Despejando el ancho del canal de la ecuacion $A = b \times h$, con $h = 0.40$ m:
+
+\begin{equation}
+b = \frac{A_{{canal}}}{h} = \frac{0.01154}{0.40} = 0.029 \text{ m}
+\end{equation}
+
+\textit{Donde:}
+\begin{itemize}[noitemsep,leftmargin=2em]
+    \item[$b$] = Ancho teorico del canal (m)
+    \item[$A_{{canal}}$] = Seccion transversal del canal (0.01154 m\textsuperscript{2})
+    \item[$h$] = Tirante hidraulico (0.40 m)
+\end{itemize}
+
+Este ancho teorico de 0.029 m es inferior al minimo constructivo practico. Se adopta un ancho de 0.60 m como dimension minima constructiva segun criterios de OPS/CEPIS \cite{ops2005} y SENAGUA \cite{senagua2012}, que establecen un ancho minimo de 0.60 m para permitir la operacion adecuada, el acceso para limpieza y la aplicacion de herramientas de mantenimiento. Verificando la velocidad real con este ancho:
+
+\begin{equation}
+v_{{real}} = \frac{Q}{A_{{real}}} = \frac{0.00577}{0.60 \times 0.40} = 0.024 \text{ m/s}
+\end{equation}
+
+\textit{Donde:}
+\begin{itemize}[noitemsep,leftmargin=2em]
+    \item[$v_{{real}}$] = Velocidad real verificada con ancho constructivo (m/s)
+    \item[$Q$] = Caudal de diseno (0.00577 m\textsuperscript{3}/s)
+    \item[$A_{{real}}$] = Seccion real con ancho constructivo adoptado (0.60 $\times$ 0.40 m\textsuperscript{2})
+\end{itemize}
+
+La velocidad real de 0.024 m/s es el resultado de adoptar el ancho minimo constructivo. La perdida de carga calculada con esta velocidad real resulta $h_L = 0.0036$ cm, menor al umbral de 15 cm que Metcalf y Eddy \cite{metcalf2014} indican como referencia para sistemas de limpieza mecanica.
+
+La longitud de 2.0 m y el ancho de 0.60 m responden a criterios constructivos y operativos. El ancho de 0.60 m es la dimension minima constructiva segun OPS/CEPIS \cite{ops2005} y SENAGUA \cite{senagua2012}, que permite la operacion adecuada de la rejilla, el acceso para limpieza y la aplicacion de herramientas de mantenimiento. La longitud contempla el espacio de la rejilla propiamente dicha mas las zonas de transicion necesarias para la operacion.
+
+
+
+
+
+\subsubsection{Verificacion}
+
+\textbf{Verificacion para Caudal Maximo Horario}
+
+Se verifica el comportamiento hidraulico para el caudal maximo horario, aplicando un factor de pico tipico de 2.8 sobre el caudal medio:
+
+\begin{equation}
+Q_{{max}} = 2.8 \times Q_{{medio}} = 2.8 \times 5.8 = 16.0 \text{ L/s}
+\end{equation}
+
+A caudal maximo, la velocidad horizontal resulta:
+
+\begin{equation}
+v_{{max}} = \frac{Q_{{max}}}{A_{{real}}} = \frac{15.983/1000}{0.60 \times 0.40} = 0.067 \text{ m/s}
+\end{equation}
+
+\textbf{Criterios de verificacion de velocidad} (segun Metcalf y Eddy \cite{metcalf2014}):
+
+La velocidad calculada $v_{{max}} = 0.067$~m/s se evalua segun:
+
+\begin{equation}
+\text{Estado} = \begin{cases}
+    \text{OPTIMO} & \text{si } v_{{max}} \leq 1.5 \text{ m/s} \quad \text{(sin riesgo)} \\
+    \text{ACEPTABLE} & \text{si } 1.5 < v_{{max}} \leq 2.0 \text{ m/s} \quad \text{(monitoreo)} \\
+    \text{NO ADMISIBLE} & \text{si } v_{{max}} > 2.0 \text{ m/s} \quad \text{(dano seguro)}
+\end{cases}
+\end{equation}
+\captionequation{Criterios de verificacion de velocidad en rejillas}
+
+Con la velocidad calculada $v_{{max}} = 0.067$~m/s, la unidad se clasifica como \textbf{OPTIMO}. En terminos de cumplimiento, la verificacion de velocidad \textbf{CUMPLE} porque es menor que el limite recomendado de 1.5~m/s para operacion segura.
+
+Respecto a la perdida de carga, el valor maximo calculado es 0.0276~cm. Por tanto, la verificacion de perdida de carga \textbf{CUMPLE}, ya que es menor que el umbral de 15~cm para limpieza manual aceptable.
+
+\subsubsection{Resultados}
+
+\begingroup
+\small
+\begin{longtable}{lccc}
+\caption{Verificacion de criterios de diseno - Rejillas}\\
+\toprule
+Parametro & Valor calculado & Criterio & Estado \\
+\midrule
+\endfirsthead
+\caption[]{Verificacion de criterios de diseno - Rejillas (continuación)}\\
+\toprule
+Parametro & Valor calculado & Criterio & Estado \\
+\midrule
+\endhead
+\midrule
+\multicolumn{4}{r}{\textit{Continúa en la siguiente página}} \\
+\endfoot
+\bottomrule
+\endlastfoot
+Velocidad de diseno & 0.50 m/s & 0.40 -- 0.60 m/s & Cumple \\
+Velocidad real & 0.024 m/s & Ancho minimo constructivo$^a$ & Aplicado \\
+Perdida de carga (Qmax) & 0.0276 cm & $<$ 15 cm & Cumple \\
+Ancho constructivo & 0.60 m & $\geq$ 0.30 m & Cumple \\
+\multicolumn{4}{p{\textwidth}}{\small $^a$ Para caudales pequenos (5.8 L/s) el ancho minimo constructivo (0.60 m) domina sobre el criterio de velocidad.} \\
+\end{longtable}
+\endgroup
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figuras/rejillas_rejillas.png}
+\caption{Esquema del canal de desbaste con rejillas (dimensiones en metros)}
+\label{fig:rejillas}
+\end{figure}
+
+
+
+
+
+\textit{Nota sobre cantidades:} El presente dimensionamiento no estima la masa o volumen diario de residuos de cribado. Segun Metcalf y Eddy \cite{metcalf2014}, la produccion tipica de residuos de rejillas finas en aguas residuales municipales varia entre 0.005--0.02 m\textsuperscript{3}/1000 m\textsuperscript{3} de agua tratada. Para el caudal de diseno, esto representaria aproximadamente 0.02--0.09 m\textsuperscript{3}/d (total planta), sujeto a caracterizacion local.
+
+Las dimensiones finales del canal con rejillas son: ancho 0.60 m, tirante 0.40 m y longitud 2.0 m. Se requieren dos unidades, una por cada linea de tratamiento.
+
+\subsection{Desarenador de Flujo Horizontal}
+
+
+
+El desarenador remueve part\'iculas minerales (arena, grava) con di\'ametro superior a 0.20~mm mediante sedimentaci\'on gravitacional. Seg\'un Metcalf y Eddy \cite{metcalf2014}, los par\'ametros de dise\~no son: velocidad horizontal 0.25--0.30~m/s (m\'aximo 0.30~m/s para evitar arrastre de sedimentos), tiempo de retenci\'on 30--60~s, y profundidad de flujo 0.75--2.0~m (OPS/CEPIS \cite{ops2005} permite valores menores en plantas peque\~nas).
+
+La profundidad total del canal incluye: profundidad \'util de flujo (0.40~m), zona de almacenamiento de arena (0.25--0.30~m; se adopta 0.30~m), y bordo libre (0.30~m).
+
+El dise\~no del desarenador se fundamenta en la teor\'ia de sedimentaci\'on discreta. Primero se calcula la velocidad de sedimentaci\'on de las part\'iculas objetivo mediante la Ley de Stokes:
+
+\begin{equation}
+v_s = \frac{g \cdot (S_s - 1) \cdot d^2}{18 \cdot \nu}
+\end{equation}
+\captionequation{Ley de Stokes - Velocidad de sedimentacion de particulas}
+
+\textit{Donde:}
+\begin{itemize}[noitemsep,leftmargin=2em]
+    \item[$v_s$] = Velocidad de sedimentaci\'on (m/s)
+    \item[$g$] = Aceleraci\'on de la gravedad (9.81 m/s²)
+    \item[$S_s$] = Gravedad espec\'ifica de la arena (2.65)
+    \item[$d$] = Di\'ametro de la part\'icula (0.00020 m)
+    \item[$\nu$] = Viscosidad cinem\'atica del agua a 25.6°C ($8.3973e-07$ m²/s)
+\end{itemize}
+
+\begin{equation}
+v_s = \frac{9.81 \times (2.65 - 1) \times (0.00020)^2}{18 \times 8.3973e-07} = 0.043 \text{ m/s}
+\end{equation}
+
+Con este valor de $v_s$ se determina la longitud te\'orica del desarenador mediante la ecuaci\'on de sedimentaci\'on tipo I:
+
+\begin{equation}
+L = \frac{H \cdot v_h}{v_s} = \frac{0.40 \times 0.30}{0.043} = 2.8 \text{ m}
+\end{equation}
+
+\textit{Donde:}
+\begin{itemize}[noitemsep,leftmargin=2em]
+    \item[$L$] = Longitud del desarenador (m)
+    \item[$H$] = Profundidad \'util (0.40 m)
+    \item[$v_h$] = Velocidad horizontal adoptada (0.30 m/s)
+\end{itemize}
+
+La longitud te\'orica resultante (2.8~m) es adecuada para el caudal de dise\~no y se adopta como longitud de dise\~no.
+
+El ancho del canal se determina por la ecuaci\'on de continuidad:
+
+\begin{equation}
+B = \frac{Q}{v_h \cdot H} = \frac{0.00577}{0.30 \times 0.40} = 0.048 \text{ m}
+\end{equation}
+
+\textit{Donde:}
+\begin{itemize}[noitemsep,leftmargin=2em]
+    \item[$B$] = Ancho te\'orico del canal (m)
+    \item[$Q$] = Caudal de dise\~no (0.00577 m³/s)
+\end{itemize}
+
+El ancho te\'orico resulta inferior al m\'inimo constructivo. Se adopta 0.60 m seg\'un OPS/CEPIS \cite{ops2005} y SENAGUA \cite{senagua2012}, que establecen 0.60 m como ancho m\'inimo para operaci\'on y mantenimiento.
+
+Verificando la velocidad horizontal real con el ancho adoptado:
+
+\begin{equation}
+v_{real} = \frac{Q}{B \cdot H} = \frac{0.00577}{0.60 \times 0.40} = 0.024 \text{ m/s}
+\end{equation}
+
+El tiempo de retenci\'on real resulta:
+
+\begin{equation}
+t_r = \frac{L}{v_{real}} = \frac{3.0}{0.024} = 124.8 \text{ s}
+\end{equation}
+
+\subsubsection{Verificacion}
+
+\textbf{Verificacion de Velocidad Critica de Resuspension}
+
+Para garantizar que la arena sedimentada no sea resuspendida por el flujo, se verifica que la velocidad horizontal del dise\~no sea menor que la velocidad cr\'itica de resuspensi\'on, calculada mediante la f\'ormula de Camp-Shields:
+
+\begin{equation}
+v_c = \sqrt{\frac{8 \beta g (S_s - 1) d}{f}}
+\end{equation}
+\captionequation{Velocidad critica de resuspension - Camp-Shields}
+
+\textit{Donde:}
+\begin{itemize}[noitemsep,leftmargin=2em]
+    \item[$v_c$] = Velocidad cr\'itica de resuspensi\'on (m/s)
+    \item[$\beta$] = Factor de forma (0.05, rango 0.04--0.06)
+    \item[$g$] = Aceleraci\'on de la gravedad (9.81 m/s²)
+    \item[$S_s$] = Gravedad espec\'ifica de la arena (2.65)
+    \item[$d$] = Di\'ametro de la part\'icula (0.00020 m)
+    \item[$f$] = Factor de fricci\'on de Darcy-Weisbach (0.025, rango 0.02--0.03)
+\end{itemize}
+
+\begin{equation}
+v_c = \sqrt{\frac{8 \times 0.05 \times 9.81 \times (2.65 - 1) \times 0.00020}{0.025}} = 0.228 \text{ m/s}
+\end{equation}
+\captionequation{Velocidad critica calculada}
+
+\textbf{Verificacion para Caudal Maximo Horario}
+
+Se verifica el comportamiento hidr\'aulico para el caudal m\'aximo horario, aplicando un factor de pico t\'ipico de 2.8 sobre el caudal medio:
+
+\begin{equation}
+Q_{max} = 2.8 \times Q_{medio} = 2.8 \times 5.8 = 16.0 \text{ L/s}
+\end{equation}
+
+A caudal m\'aximo, la velocidad horizontal resulta:
+
+\begin{equation}
+v_{h,max} = \frac{Q_{max}}{B \cdot H} = \frac{15.983/1000}{0.60 \times 0.40} = 0.067 \text{ m/s}
+\end{equation}
+
+El tiempo de retenci\'on a caudal m\'aximo:
+
+\begin{equation}
+t_{r,max} = \frac{L}{v_{h,max}} = \frac{3.0}{0.067} = 45.0 \text{ s}
+\end{equation}
+
+\textbf{Criterios de verificaci\'on de resuspensi\'on} (Camp-Shields, Metcalf y Eddy \cite{metcalf2014}):
+
+La velocidad calculada $v_{h,max} = 0.067$~m/s se eval\'ua seg\'un (l\'imite: $v_c \times 90\% = 0.205$~m/s):
+
+\begin{equation}
+\text{Estado} = \begin{cases}
+    \text{SEGURIDAD} & \text{si } v_{h,max} \leq 0.205 \text{ m/s} \quad \text{(no hay resuspensi\'on)} \\
+    \text{RIESGO} & \text{si } v_{h,max} > 0.205 \text{ m/s} \quad \text{(arena resuspendida)}
+\end{cases}
+\end{equation}
+\captionequation{Criterios de verificacion de resuspension}
+
+Con la velocidad calculada $v_{h,max} = 0.067$~m/s, la unidad se clasifica como \textbf{SEGURIDAD}. En terminos de cumplimiento, la verificacion de resuspension \textbf{CUMPLE} porque es menor que el limite de resuspension con factor de seguridad (0.205~m/s), por lo que no se produce resuspension de la arena depositada.
+
+\subsubsection{Resultados}
+
+\begingroup
+\small
+\begin{longtable}{l p{9cm}}
+\caption{Dimensiones del desarenador}\\
+\toprule
+Par\'ametro & Valor \\
+\midrule
+\endfirsthead
+\caption[]{Dimensiones del desarenador (continuación)}\\
+\toprule
+Par\'ametro & Valor \\
+\midrule
+\endhead
+\midrule
+\multicolumn{2}{r}{\textit{Continúa en la siguiente página}} \\
+\endfoot
+\bottomrule
+\endlastfoot
+Longitud dise\~no & 3.0 m (m\'inimo constructivo SENAGUA) \\
+Ancho & 0.60 m (m\'inimo constructivo) \\
+Profundidad \'util & 0.40 m \\
+Velocidad horizontal real & 0.024 m/s \\
+Velocidad cr\'itica resuspensi\'on & 0.228 m/s (Camp-Shields) \\
+Tiempo retenci\'on real & 124.8 s \\
+\multicolumn{2}{p{\textwidth}}{\small\textit{$^a$Nota: El TRH de 125~s y velocidad de 0.024~m/s se deben al ancho m\'inimo constructivo de 0.60~m. }} \\
+\end{longtable}
+\endgroup
+
+\textbf{Manejo de arena removida}
+
+El desarenador retiene part\'iculas minerales, principalmente arena y grava fina, que se sedimentan en el fondo del canal por acci\'on gravitacional. Estas part\'iculas presentan di\'ametros superiores a 0.20~mm, con gravedad espec\'ifica de 2.65, correspondiendo a s\'olidos inorg\'anicos de alta densidad presentes en el agua residual. El canal incorpora una zona de almacenamiento de 0.30~m de altura, dimensionada espec\'ificamente para acumular la arena removida entre operaciones de limpieza. La frecuencia de limpieza recomendada es diaria o seg\'un la acumulaci\'on observada, manteniendo la arena acumulada por debajo del 50\% de la altura de almacenamiento designada para garantizar el funcionamiento \'optimo del sistema. La remoci\'on se realiza manualmente mediante palas y cubos desde la plataforma de operaci\'on, aunque puede implementarse un sistema de succi\'on o bombeo si el caudal y la producci\'on de arena lo justifican t\'ecnicamente.
+
+\textbf{Disposici\'on final de la arena:}
+
+La arena removida en el desarenador puede manejarse de diferentes formas seg\'un su composici\'on y la normativa local vigente. La opci\'on m\'as com\'un es el relleno sanitario, ya que la arena es material inorg\'anico inerte que puede disposicionarse en rellenos autorizados sin restricciones especiales. En caso de que la arena est\'e relativamente limpia, con bajo contenido de materia org\'anica adherida, existe la posibilidad de reuso condicionado para relleno y compactaci\'on en obras civiles previa caracterizaci\'on, mezcla con concreto para elementos no estructurales, o como complemento en sistemas de filtraci\'on gruesa previo lavado. Si se detecta alta carga org\'anica adherida a los granos de arena, evidenciada por olor f\'etido o color oscuro, se recomienda un lavado previo antes de la disposici\'on final para reducir el impacto ambiental.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figuras/Esquema_Desarenador.png}
+\caption{Esquema del desarenador de flujo horizontal con perfil longitudinal y corte transversal. Se muestran la entrada del afluente, la zona de flujo, el dep\'osito de arena y la salida . }
+\label{fig:desarenador}
+\end{figure}
+
+\textit{Nota sobre cantidades:} El presente dimensionamiento no estima la masa o volumen diario de arena removida. Seg\'un Metcalf y Eddy \cite{metcalf2014}, la producci\'on t\'ipica de arena en aguas residuales municipales var\'ia entre 0.004--0.15 L/m\textsuperscript{3} de agua tratada, dependiendo de las caracter\'isticas del sistema de alcantarillado (red combinada vs. separada) y del suelo local. Para el caudal de dise\'no, esto representar\'ia aproximadamente 0.02--0.6 L/d (total planta), sujeto a caracterizaci\'on local.
+
+\subsection{Reactor Anaerobio de Flujo Ascendente con Manto de Lodos (UASB)}
+
+
+
+El reactor UASB (Upflow Anaerobic Sludge Blanket), desarrollado por Lettinga y colaboradores en 1980 en la Universidad de Wageningen de los Países Bajos \cite{vanhaandel1994}, es uno de los sistemas de tratamiento anaerobio de alta tasa más utilizados en el mundo para aguas residuales municipales y agroindustriales. El agua residual entra por la parte inferior y fluye en sentido ascendente a través de un manto denso de lodo anaerobio, donde los microorganismos anaerobios degradan la materia orgánica mediante metanogénesis, convirtiéndola en biogás (metano y CO$_2$) y biomasa. El proceso ocurre sin oxígeno molecular, por lo que no requiere aireación, reduciendo drásticamente el consumo energético (5--10 veces menos que un sistema aerobio convencional).
+
+El diseño se fundamenta en criterios biológicos e hidráulicos establecidos por Van Haandel y Lettinga \cite{vanhaandel1994}, Sperling \cite{sperling2007} y Metcalf y Eddy \cite{metcalf2014}.
+
+\textbf{Condiciones de temperatura:} La temperatura del agua residual es un factor crítico que determina los parámetros de diseño del reactor UASB. Según Van Haandel y Lettinga (1994), el proceso de metanogénesis requiere temperaturas superiores a 22°C para operar de manera óptima. A temperaturas menores, la actividad metabólica de los microorganismos anaerobios disminuye, requiriendo ajustes en la carga orgánica, el tiempo de retención y la velocidad ascendente.
+
+Para el presente diseño, la temperatura del agua residual es \textbf{25.6°C} (óptima (>= 22°C)). Con base en esta condición, los parámetros de diseño se han ajustado automáticamente según los siguientes rangos recomendados:
+
+\begin{table}[H]
+\centering
+\caption{Rangos de diseño según temperatura del agua residual}
+\small
+\begin{tabular}{lccc}
+\toprule
+\textbf{Condición} & \textbf{T (°C)} & \textbf{Cv (kg/m³·d)} & \textbf{HRT (h)} \\
+\midrule
+Óptima & $>=$ 22 & 2.0--3.0 & 4--6 \\
+Moderada & 18--22 & 1.5--2.5 & 5--8 \\
+Baja & 15--18 & 1.0--1.5 & 6--10 \\
+Muy baja & 10--15 & 0.5--1.5 & 8--12 \\
+Crítica & $<$ 10 & No recomendable & Requiere calefacción \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Para mantener el rendimiento óptimo del reactor en caso de descenso de temperatura, se recomienda monitorear periodicamente. Si la temperatura descendiera por debajo de 18°C, el sistema debería ajustar automáticamente la carga orgánica y el tiempo de retención.
+
+Notas importantes de diseño: se debe incluir un separador gas-líquido-sólido (GLS) en la parte superior (altura referencial de 1.0 m) y un sistema de distribución uniforme en el fondo. El biogás requiere sistema de recolección y manejo seguro (prevención contra explosión).
+
+Los siguientes parámetros han sido seleccionados como criterios de diseño para el reactor UASB:
+
+\begin{table}[H]
+\centering
+\caption{Parámetros seleccionados para el diseño UASB}
+\begin{tabular}{p{6cm}cc}
+\toprule
+\textbf{Parámetro} & \textbf{Valor adoptado} & \textbf{Rango recomendado} \\
+\midrule
+Caudal por línea ($Q$) & 20.77 m³/h & - \\
+Carga orgánica volumétrica ($C_v$) & 2.50 kg DQO/m³·d & 2,0--3,0 \\
+Velocidad ascendente de diseño ($v_{up}$) & 0.80 m/h & 0,5--1,5 \\
+Altura máxima del reactor ($H_{max}$) & 6.0 m & 3.0--6.0 m \\
+Factor de efectividad sedimentador & 90\% & 85--95\% \\
+Altura sedimentador ($H_{sed}$) & 1.6 m & 1.5--2.0 m \\
+Carga superficial máxima límite (SOR) & 1.2 m/h & $<$ 1.2 m/h \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textit{Nota: El valor de velocidad ascendente indicado en el cuadro corresponde al parámetro de diseño configurado. Sin embargo, tras el proceso de verificación hidráulica según las condiciones de temperatura del agua residual (25.6°C) y los criterios de estabilidad del manto de lodos, el valor efectivo adoptado para el cálculo del área superficial es 0.39 m/h, resultando en un área de 53.45 m².}
+
+\textbf{Zona de Reacción -- Dimensionamiento}
+
+El dimensionamiento del reactor UASB se fundamenta en dos criterios complementarios: el criterio biológico (carga orgánica volumétrica) y el criterio hidráulico (velocidad ascendente). Ambos enfoques deben satisfacerse simultáneamente para garantizar el correcto funcionamiento del sistema.
+
+\textbf{Criterio biológico:} Según Van Haandel y Lettinga \cite{vanhaandel1994}, el volumen del reactor se determina a partir de la carga orgánica volumétrica ($C_v$), que representa la cantidad de materia orgánica que debe procesar el reactor por unidad de volumen y tiempo. Para aguas residuales municipales a temperaturas superiores a 22°C, los autores recomiendan una carga entre 2.0 y 3.0 kg DQO/m³·d. La expresión fundamental es:
+
+\begin{equation}
+V_r = \frac{Q \cdot S_0}{C_v}
+\end{equation}
+\captionequation{Volumen util del reactor UASB segun Van Haandel y Lettinga (1994)}
+
+\textit{Donde:}
+\begin{itemize}[noitemsep,leftmargin=2em]
+    \item[$V_r$] = Volumen útil del reactor (m³)
+    \item[$Q$] = Caudal diario (498.5 m³/d)
+    \item[$S_0$] = Concentración de DQO afluente (0.4980 kg/m³)
+    \item[$C_v$] = Carga orgánica volumétrica adoptada (2.5 kg DQO/m³·d)
+\end{itemize}
+
+Sustituyendo los valores del proyecto:
+
+\begin{equation}
+V_{biol} = \frac{498.5 \times 0.4980}{2.5} = 99.3 \text{ m}^3
+\end{equation}
+
+Este volumen biológico teórico de 99.3 m³ garantizaría el tiempo de retención hidráulico necesario para que los microorganismos anaerobios degraden la materia orgánica según Van Haandel y Lettinga. Sin embargo, el criterio hidráulico (velocidad ascendente) requiere un área superficial mayor para evitar el arrastre del manto de lodos, lo que resulta en un volumen final adoptado de \textbf{160.4 m³}. Este ajuste incrementa el TRH respecto al mínimo teórico, proporcionando un margen de seguridad adicional en la operación del reactor.
+
+\textbf{Criterio hidráulico:} De manera simultánea, según Sperling \cite{sperling2007}, la velocidad ascendente ($v_{up}$) debe mantenerse dentro de rangos que permitan retener el manto de lodos sin arrastre. El autor recomienda velocidades entre 0.5 y 1.5 m/h para condiciones normales, con un máximo de 2.0 m/h durante picos de caudal. Con la velocidad adoptada de 0.39 m/h, el área superficial requerida se calcula como:
+
+\begin{equation}
+A_s = \frac{Q}{v_{up}}
+\end{equation}
+\captionequation{Area superficial del reactor UASB}
+
+\textit{Donde:}
+\begin{itemize}[noitemsep,leftmargin=2em]
+    \item[$A_s$] = Área superficial del reactor (m²)
+    \item[$Q$] = Caudal por línea (20.77 m³/h)
+    \item[$v_{up}$] = Velocidad ascendente adoptada (0.39 m/h)
+\end{itemize}
+
+\begin{equation}
+A_s = \frac{20.77}{0.39} = 53.45 \text{ m}^2
+\end{equation}
+
+El diámetro del reactor circular se obtiene a partir de la geometría del círculo, considerando que el área superficial debe ser la calculada hidráulicamente. Esta formulación geométrica estándar permite determinar las dimensiones constructivas del reactor:
+
+\begin{equation}
+D = \sqrt{\frac{4 \cdot A_s}{\pi}}
+\end{equation}
+\captionequation{Diametro del reactor circular - Geometria basica}
+
+\textit{Donde:}
+\begin{itemize}[noitemsep,leftmargin=2em]
+    \item[$D$] = Diámetro del reactor circular (m)
+    \item[$A_s$] = Área superficial calculada (53.45 m²)
+    \item[$\pi$] = 3,14159
+\end{itemize}
+
+\begin{equation}
+D = \sqrt{\frac{4 \times 53.45}{\pi}} = 8.25 \text{ m}
+\end{equation}
+
+La altura de la zona de reacción (manto de lodos) resulta 3.00~m, proporcionando un tiempo de retención hidráulico de 7.7 horas para la temperatura de 25.6°C del agua residual. La evaluación de adecuación hidráulica se presenta en la sección de verificación.
+
+\textbf{Producción de biogás:} La metanogénesis en el reactor UASB genera biogás compuesto principalmente por metano (CH$_4$) y dióxido de carbono (CO$_2$). Según Van Haandel y Lettinga \cite{vanhaandel1994}, la producción teórica de metano puede estimarse mediante relaciones estequiométricas. Experimentalmente se ha determinado que por cada kilogramo de DQO removida en condiciones anaerobias, se producen aproximadamente 0,35 m³ de metano (a condiciones estándar). Esta relación permite estimar la producción esperada de biogás:
+
+El biogás generado en reactores UASB tratando aguas residuales municipales está compuesto principalmente por metano (CH$_4$) en una proporción de 65\%, situándose típicamente en un rango de 60 a 75\%. El metano constituye el componente energético del biogás, con un poder calorífico de aproximadamente 35 MJ/m³. El dióxido de carbono (CO$_2$) representa alrededor del 35\% del volumen total, con un rango típico entre 25 y 40\%, siendo un producto natural de la digestión anaerobia. El sulfuro de hidrógeno (H$_2$S) se presenta en concentraciones inferiores a 100 ppm, proveniente de la reducción de sulfatos presentes en el agua residual; cuando las concentraciones son elevadas se requiere tratamiento debido a su corrosividad y generación de olores. Finalmente, el biogás contiene vapor de agua y trazas de nitrógeno, oxígeno y otros gases en proporciones menores al 1\%.
+
+El biogás producido debe manejarse de manera segura considerando aspectos de seguridad, aprovechamiento y monitoreo. En cuanto a seguridad, el biogás es inflamable en concentraciones del 5 al 15\% en aire, por lo que se requiere un sistema de venteo o quemador para evitar su acumulación. Respecto al aprovechamiento, existen tres opciones principales: el quemador de antorcha para eliminación segura, el calentamiento del propio reactor cuando la temperatura lo requiere, y la generación de energía eléctrica mediante microturbinas, aunque esta última requiere una evaluación de viabilidad económica. El monitoreo debe incluir el control periódico de la composición del biogás, especialmente el contenido de H$_2$S, así como la verificación del sistema de sellado del reactor.
+
+El proceso de metanogénesis es sensible a las condiciones de pH, por lo que según Van Haandel y Lettinga \cite{vanhaandel1994} y Metcalf y Eddy \cite{metcalf2014} es necesario mantener rangos óptimos de operación. El pH óptimo debe situarse entre 6.8 y 7.2, ya que valores por debajo de 6,5 inhiben la actividad metanogénica y pueden causar la acidificación del reactor. Respecto a la alcalinidad, se recomienda un mínimo de 1000 mg/L como CaCO$_3$, ya que actúa como tampón ante la producción de ácidos durante la digestión, manteniendo la estabilidad del pH.
+
+\textit{Nota:} Las aguas residuales municipales típicamente contienen suficiente alcalinidad (bicarbonatos) para mantener el pH estable durante la digestión anaerobia. Si el pH del efluente descendiera consistentemente por debajo de 6,8, se debería evaluar la adición de fuentes de alcalinidad (carbonato cálcico, hidróxido de sodio) o revisar la carga orgánica aplicada.
+
+El lodo producido en el reactor UASB está estabilizado anaeróbicamente. Durante su retención prolongada en el reactor, donde el tiempo de retención de sólidos es significativamente mayor que el tiempo de retención hidráulico, los microorganismos completan las etapas de digestión: hidrólisis, acidogénesis, acetogénesis y metanogénesis. Como resultado, el lodo estabilizado presenta bajo contenido de materia orgánica volátil, con una reducción de 40 a 60\% respecto al lodo primario no estabilizado, ausencia de olores fétidos característicos de lodos frescos, mayor facilidad de deshidratación en lechos de secado, y una reducción significativa de patógenos, aunque sin alcanzar la esterilización completa.
+
+Esta estabilización hace que el lodo UASB sea más manejable para disposición final o uso condicionado en agricultura, comparado con lodos de tratamientos aerobios o sedimentación primaria sin digestión.
+
+\begin{equation}
+V_{CH_4} = (Q_d \cdot S_0 \cdot E) \times 0.35
+\end{equation}
+\captionequation{Produccion de biogas - Relacion estequiometrica}
+
+\textit{Donde:}
+\begin{itemize}[noitemsep,leftmargin=2em]
+    \item[$V_{CH_4}$] = Volumen de metano producido (m³ CH$_4$/d)
+    \item[$Q_d$] = Caudal diario (498.5 m³/d)
+    \item[$S_0$] = Concentración de DQO afluente (0.498 kg/m³)
+    \item[$E$] = Eficiencia de remoción (0.65)
+\end{itemize}
+
+\begin{equation}
+V_{CH_4} = (498.5 \times 0.498 \times 0.65) \times 0.35 = 56.5 \text{ m}^3 \text{ CH}_4\text{/d}
+\end{equation}
+
+\textbf{Cámara de Sedimentación -- Dimensionamiento}
+
+El compartimiento de sedimentación superior constituye una zona crítica del reactor UASB, ya que debe retener los sólidos biológicos antes de que salgan con el efluente. Según Chernicharo \cite{chernicharo2007}, el diseño de esta zona se fundamenta en el concepto de Carga Superficial (SOR - Surface Overflow Rate), análogo al utilizado en sedimentadores convencionales, pero adaptado a las condiciones particulares del UASB donde el biogás generado puede afectar la sedimentación.
+
+Chernicharo recomienda que la carga superficial a caudal máximo no debe exceder 1.2 m/h para evitar el arrastre de sólidos hacia el efluente. Este valor es más restrictivo que el utilizado en sedimentadores primarios convencionales debido a la presencia de biogás y la naturaleza floculenta de los lodos anaerobios. Adicionalmente, el autor sugiere una altura mínima del compartimiento de sedimentación entre 1.5 y 2.0 m para garantizar el tiempo necesario de separación gas-líquido-sólido.
+
+Los criterios de diseño según Chernicharo (2007) son:
+
+\begin{equation}
+\text{SOR}_{max} < 1.2 \text{ m/h} \quad \text{(límite para evitar arrastre de sólidos)}
+\end{equation}
+
+\begin{equation}
+H_{sed} \geq 1.5 \text{ m} \quad \text{(altura mínima constructiva)}
+\end{equation}
+
+El área efectiva de sedimentación considera el factor de efectividad del 90\% del área total (Chernicharo):
+
+\begin{equation}
+A_{sed} = 0.90 \times A_{sup} = 0.90 \times 53.45 = 48.11 \text{ m}^2
+\end{equation}
+
+El volumen del sedimentador se calcula con la altura adoptada de 1.6~m:
+
+\begin{equation}
+V_{sed} = A_{sed} \times H_{sed} = 48.11 \times 1.6 = 76.97 \text{ m}^3
+\end{equation}
+
+El tiempo de retención hidráulico en el sedimentador resulta:
+
+\begin{equation}
+t_{sed} = \frac{V_{sed}}{Q} = \frac{76.97}{20.77} = 3.71 \text{ h}
+\end{equation}
+
+\textbf{Aberturas GLS -- Dimensionamiento}
+
+El separador gas-líquido-sólido (GLS) incluye aberturas que permiten el paso del líquido clarificado desde la zona de digestión hacia el compartimiento de sedimentación. Según Chernicharo \cite{chernicharo2007}, estas aberturas deben dimensionarse cuidadosamente para evitar velocidades que arrastren sólidos hacia el efluente.
+
+La velocidad admisible en las aberturas es mayor que en el cuerpo del reactor porque el líquido ya está parcialmente clarificado. Los valores recomendados son 2.0--2.3 m/h a caudal medio y hasta 4.2 m/h a caudal máximo. El área mínima requerida se calcula como:
+
+\begin{equation}
+A_{ab} = \frac{Q}{v_{adm}}
+\end{equation}
+\captionequation{Area minima de aberturas GLS}
+
+\textit{Donde:}
+\begin{itemize}[noitemsep,leftmargin=2em]
+    \item[$A_{ab}$] = Área total libre de aberturas (m²)
+    \item[$Q$] = Caudal por línea (20.77 m³/h)
+    \item[$v_{adm}$] = Velocidad admisible adoptada (1.52 m/h)
+\end{itemize}
+
+\begin{equation}
+A_{ab} = \frac{20.77}{1.52} = 13.70 \text{ m}^2
+\end{equation}
+
+Adicionalmente, el GLS debe construirse con pendientes de 50° a 60° (adoptado 55°) y un traslape de 0.15 m sobre las aberturas para garantizar la retención de sólidos.
+
+\textbf{Distribución del Afluente -- Dimensionamiento}
+
+La distribución uniforme del afluente en el fondo del reactor es crítica para garantizar un flujo ascendente homogéneo y evitar cortocircuitos que reducirían la eficiencia del tratamiento. Según Chernicharo \cite{chernicharo2007}, el número de puntos de distribución se determina en función del área del reactor y el área de influencia que puede atender cada punto.
+
+El área de influencia por punto recomendada varía entre 2.0 y 3.0 m² por punto. Adoptando un valor intermedio de 2.50 m²/punto, el número de puntos de distribución resulta:
+
+\begin{equation}
+N = \frac{A}{A_{inf}} = \frac{53.45}{2.50} = 22 \text{ puntos}
+\end{equation}
+\captionequation{Numero de puntos de distribucion del afluente}
+
+El caudal por punto de distribución se calcula dividiendo el caudal total entre el número de puntos:
+
+\begin{equation}
+q = \frac{Q}{N} = \frac{0.006 \times 1000}{22} = 0.262 \text{ L/s}
+\end{equation}
+
+Los tubos de distribución se diseñan según la práctica estándar de Lettinga y Hulshoff Pol: tubería principal de gran diámetro para transporte sin obstrucciones, con bocas de salida reducidas para garantizar velocidad de inyección adecuada. Se adopta una tubería de distribución de 50 mm con bocas de salida de 25 mm.
+
+\textbf{Verificación de velocidades:}
+
+La velocidad en la tubería principal(transporte) se calcula como:
+
+\begin{equation}
+v_{tubo} = \frac{q}{a_{tubo}} = \frac{0.262 \times 10^{-3}}{\pi \times (50 \times 10^{-3})^2 / 4} = 0.134 \text{ m/s}
+\end{equation}
+
+La velocidad en la boca de salida (inyección al lecho de lodo) es el parámetro crítico según Lettinga. Debe estar entre 0.4 y 4.0 m/s para garantizar arrastre de sólidos sin erosión:
+
+\begin{equation}
+v_{boca} = \frac{q}{a_{boca}} = \frac{0.262 \times 10^{-3}}{\pi \times (25 \times 10^{-3})^2 / 4} = 0.53 \text{ m/s}
+\end{equation}
+
+\subsubsection{Verificación}
+
+\textbf{Verificación de Velocidad Ascendente a Caudal Máximo}
+
+El fundamento de la verificación hidráulica establece que el diseño del reactor UASB debe garantizar no solo el funcionamiento adecuado bajo condiciones normales (caudal medio), sino también durante eventos de pico de caudal que ocurren típicamente en horas de mayor consumo de agua. Según Metcalf y Eddy \cite{metcalf2014}, los sistemas de tratamiento deben verificarse para el caudal máximo horario, el cual se estima aplicando un factor de pico sobre el caudal medio diario. El factor denominado $f_p$, adoptado de 2.8 considera las características de la zona de estudio y las variaciones esperadas del caudal durante el día. La aplicación de este factor permite determinar el caudal máximo horario de diseño:
+
+\begin{equation}
+Q_{max} = f_p \times Q_{medio} = 2.8 \times 498.5 = 1380.9 \text{ m}^3\text{/d} = 57.54 \text{ m}^3\text{/h}
+\end{equation}
+
+El análisis de la velocidad ascendente de pico considera que, bajo condiciones de caudal máximo, la velocidad ascendente en el reactor aumenta proporcionalmente. Esta velocidad de pico, $v_{up,max}$, se calcula manteniendo el área superficial del reactor (determinada previamente por el criterio de velocidad media) pero incrementando el caudal al valor máximo esperado:
+
+\begin{equation}
+v_{up,max} = \frac{Q_{max}}{A_s} = \frac{57.54}{53.45} = 1.08 \text{ m/h}
+\end{equation}
+
+Los criterios de evaluación del estado del reactor, según Metcalf y Eddy \cite{metcalf2014}, clasifican el estado operacional en función de la velocidad ascendente máxima calculada. Esta clasificación permite determinar si el diseño garantiza la estabilidad del manto de lodos o si existe riesgo de arrastre de biomasa. Los autores definen tres estados operacionales basados en estudios experimentales de la hidrodinámica de reactores UASB. Formalmente, el estado se determina mediante:
+
+\begin{equation}
+\text{Estado} = \begin{cases}
+    \text{ÓPTIMO} & \text{si } v_{up,max} \leq 1.5 \text{ m/h} \\
+    \text{ACEPTABLE} & \text{si } 1.5 < v_{up,max} \leq 2.0 \text{ m/h} \\
+    \text{NO ADMISIBLE} & \text{si } v_{up,max} > 2.0 \text{ m/h}
+\end{cases}
+\end{equation}
+\captionequation{Criterios de verificación de arrastre del manto según Metcalf y Eddy (2014)}
+
+Para el presente diseño, con una velocidad ascendente máxima calculada de $v_{up,max} = 1.08$~m/h, el reactor se clasifica en estado \textbf{ÓPTIMO}. Este resultado indica que el dimensionamiento propuesto requiere monitoreo durante eventos de pico de caudal.
+
+\textbf{Verificación de la Cámara de Sedimentación}
+
+El principio de verificación de la sedimentación establece que la cámara de sedimentación superior del reactor UASB debe evaluarse tanto para condiciones de caudal medio como para caudal máximo. Según Chernicharo \cite{chernicharo2007}, la verificación a caudal medio permite evaluar si el diseño opera dentro del rango óptimo de eficiencia, mientras que la verificación a caudal máximo determina si se evita el arrastre de sólidos durante picos de flujo.
+
+El autor establece que, aunque el criterio crítico es el SOR máximo ($<$ 1.2 m/h), también es deseable que el SOR medio se mantenga entre 0.6 y 0.8 m/h. Valores inferiores a este rango, aunque conservadores, indican que el área del sedimentador es mayor de lo estrictamente necesario, lo cual no representa un problema operativo pero implica mayores costos de construcción. Valores superiores sugieren riesgo de arrastre incluso en operación normal.
+
+El cálculo de la Carga Superficial Operacional se realiza aplicando la ecuación fundamental del SOR para ambas condiciones de caudal:
+
+Para caudal medio (condición de operación normal):
+\begin{equation}
+SOR_{medio} = \frac{Q_{medio}}{A_{sed}} = \frac{20.77}{48.11} = 0.43 \text{ m/h}
+\end{equation}
+
+Para caudal máximo horario (condición de pico):
+\begin{equation}
+SOR_{max} = \frac{Q_{max}}{A_{sed}} = \frac{57.54}{48.11} = 1.20 \text{ m/h}
+\end{equation}
+
+El análisis de cumplimiento de criterios evalúa los valores calculados según los parámetros establecidos por Chernicharo (2007) para sedimentadores en reactores UASB:
+
+
+     \textbf{SOR máximo}: La carga superficial máxima de 1.20 m/h cumple con el límite (< 1.2 m/h). Este límite representa la velocidad de asentamiento mínima de los agregados de lodos anaerobios. Superar este valor implica que el flujo ascendente supera la velocidad de caída de los sólidos, causando su arrastre hacia el efluente.
+    
+     \textbf{SOR medio}: La carga superficial de 0.43 m/h está por debajo del rango (0.6-0.8 m/h), pero es aceptable para diseño conservador. Según Chernicharo, este rango permite evaluar la eficiencia de separación sólido-líquido y el margen operativo de la cámara de sedimentación.
+    
+     \textbf{TRH en sedimentador}: El tiempo de retencion de 3.71 h cumple con el minimo de 1.5 h recomendado por Chernicharo para permitir la adecuada separacion gas-liquido-solido.
+
+
+\begin{table}[H]
+\centering
+\caption{Verificación de criterios de diseño de la cámara de sedimentación según Chernicharo (2007)}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Parámetro} & \textbf{Valor calculado} & \textbf{Criterio} & \textbf{Estado} \\
+\midrule
+SOR máximo & 1.20 m/h & $<$ 1.2 m/h & Cumple \\
+SOR medio & 0.43 m/h & 0.6--0.8 m/h & Bajo (aceptable) \\
+TRH sedimentador & 3.71 h & $\geq$ 1.5 h & Cumple \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Nota sobre márgenes operativos:} Los parámetros críticos de control hidráulico del reactor se mantienen dentro de los límites recomendados por Chernicharo \cite{chernicharo2007}. El SOR máximo es 1.20 m/h frente al límite de 1.2 m/h, con un margen de 0.3%; este criterio controla el riesgo de arrastre de sólidos en la cámara de sedimentación durante caudales pico. La velocidad máxima en aberturas GLS es 4.20 m/h frente al límite de 4.2 m/h, con un margen de 0.0%; este criterio controla el paso del líquido clarificado hacia el compartimiento de sedimentación sin inducir arrastre de lodos. En conjunto, el margen operativo se clasifica como reducido. Por ello, aunque la unidad cumple, se recomienda verificar SOR y velocidad en aberturas durante la puesta en marcha y monitorear periódicamente SST/turbidez del efluente como indicador de posible arrastre.
+
+La verificacion muestra que el SOR medio esta por debajo del rango optimo pero dentro de valores aceptables conservadores; el diseno cumple con SOR maximo y TRH.
+
+\textbf{Verificación de Aberturas GLS}
+
+Verificando para caudal máximo ($Q_{max} = 57.54$ m³/h):
+
+\begin{equation}
+v_{ab,max} = \frac{Q_{max}}{A_{ab}} = \frac{57.54}{13.70} = 4.20 \text{ m/h} \quad \leq 4.2 \text{ m/h } \text{(Cumple)}
+\end{equation}
+
+La velocidad máxima calculada en las aberturas GLS es 4.20 m/h, menor o igual al límite de 4.2 m/h recomendado para caudal máximo. Esta condición indica que el área libre adoptada permite el paso del líquido clarificado hacia la cámara de sedimentación sin imponer velocidades que favorezcan el arrastre de sólidos del manto de lodos. En términos operativos, las aberturas funcionan como zona de transición hidráulica entre la digestión y la sedimentación; por ello se recomienda mantener limpias las ranuras del GLS y verificar su condición durante inspecciones de rutina.
+
+\textbf{Verificación del Sistema de Distribución}
+
+\begin{table}[H]
+\centering
+\caption{Verificación de velocidades en sistema de distribución}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Parámetro} & \textbf{Valor} & \textbf{Criterio} & \textbf{Estado} \\
+\midrule
+Velocidad en tubería principal& 0.134 m/s & Transporte sin obstrucción ($<$ 0.20 m/s) & Adecuado \\
+Velocidad en boca de salida & 0.53 m/s & 0.4--4.0 m/s & Cumple \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+La velocidad en boca de 0.53 m/s cumple con el rango recomendado por Lettinga y Hulshoff Pol para inyeccion adecuada en el lecho de lodo.
+
+\subsubsection{Resultados}
+
+\begingroup
+\small
+\begin{longtable}{ll}
+\caption{Dimensiones y parámetros del reactor UASB}\\
+\toprule
+Parámetro & Valor \\
+\midrule
+\endfirsthead
+\caption[]{Dimensiones y parámetros del reactor UASB (continuación)}\\
+\toprule
+Parámetro & Valor \\
+\midrule
+\endhead
+\midrule
+\multicolumn{2}{r}{\textit{Continúa en la siguiente página}} \\
+\endfoot
+\bottomrule
+\endlastfoot
+Diámetro & 8.25 m \\
+\multicolumn{2}{l}{\textit{Desglose de alturas:}} \\
+\quad Zona de distribución (fondo) & 0.30 m \\
+\quad Zona de reacción (manto de lodos) & 3.00 m \\
+\quad Zona de sedimentación & 1.60 m \\
+\quad Separador GLS & 1.00 m \\
+\quad Bordo libre & 0.50 m \\
+\midrule
+\textbf{Altura total de construcción} & \textbf{6.40 m} \\
+\midrule
+Volumen útil & 160.4 m³ \\
+Área superficial & 53.45 m² \\
+Tiempo de retención hidráulico & 7.7 h \\
+Carga orgánica volumétrica & 2.5 kg DQO/m³·d \\
+Biogás producido & 56.5 m$^3$ CH$_4$/d \\
+\midrule
+\multicolumn{2}{l}{\textit{Subdivisión zona de reacción:}} \\
+\quad Lecho de lodo denso/granular (40\%) & 1.20 m \\
+\quad Manto expandido (60\%) & 1.80 m \\
+\end{longtable}
+\endgroup
+
+La subdivisión interna de la zona de reacción sigue criterios establecidos por Chernicharo \cite{chernicharo2007}. El lecho de lodo denso o granular (aproximadamente 40\% de la altura útil) contiene los lodos más viejos y densos, mientras que el manto de lodos expandido (aproximadamente 60\% de la altura útil) mantiene los lodos en suspensión activa donde ocurre la mayor parte de la degradación biológica.
+
+El reactor UASB requiere un inóculo inicial de lodo anaeróbico denso/granular o, en su defecto, lodo digerido anaeróbicamente. Según Lettinga y Hulshoff-Pol \cite{vanhaandel1994}, la cantidad recomendada de inóculo para el arranque es de 10--15 kg SSV/m³ (sólidos suspendidos volátiles), equivalente a llenar aproximadamente el 15--30\% del volumen del reactor. El lodo granular consiste en agregados microbianos densos de 0.5--5 mm de diámetro, con velocidades de sedimentación superiores a 50 m/h. Si no se dispone de lodo granular, pueden utilizarse alternativas como lodo de digestor anaerobio, estiércol de cerdo/vaca o lodo de fosas sépticas, desarrollándose la granulación natural en un período de 2--6 meses mediante aumento gradual de la carga orgánica. 
+
+
+La siguiente figura presenta un esquema del reactor UASB con sus componentes principales y los flujos de agua y biogás:
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figuras/Esquema_UASB.png}
+\caption{Esquema del reactor UASB: distribución del afluente, zonas de reacción, separación gas-líquido-sólido y recolección de biogás. Caudal por línea: 20.77 m³/h, Biogás: 56.5 m³ CH$_4$/d, 22 puntos de distribución.}
+\label{fig:esquema_uasb}
+\end{figure}
+
+El esquema ilustra el flujo ascendente del afluente a través del lecho de lodo denso, donde ocurre la digestión anaerobia. El biogás producido se separa en el GLS y se recolecta en la cámara superior, mientras que el efluente tratado sale por el lateral del reactor. La velocidad ascendente de diseño de 0.39 m/h garantiza la retención del manto de lodos.
+
+\subsection{Biofiltro Biológico Aireado (BAF)}
+
+\subsubsection{Dimensionamiento}
+
+El Biofiltro Biológico Aireado (BAF, por sus siglas en inglés \textit{Biological Aerated Filter}) es un reactor biológico de biopelícula que opera con el lecho de relleno completamente sumergido y con suministro forzado de oxígeno mediante difusores de burbuja fina instalados en la base del reactor. Esta configuración lo distingue fundamentalmente del filtro percolador tradicional, en el que el agua gotea por gravedad sobre un relleno expuesto al aire ambiente. En el BAF el control de la aireación es activo, lo que permite mantener condiciones plenamente aerobias en toda la altura del lecho con independencia de la carga aplicada.
+
+La característica más relevante del BAF desde el punto de vista del tren de tratamiento es su doble función: actúa simultáneamente como reactor biológico y como filtro físico. Los microorganismos adheridos al relleno degradan la materia orgánica disuelta, mientras que el propio lecho retiene los sólidos suspendidos y la biomasa que eventualmente se desprende del biofilm. El resultado es un efluente clarificado que puede enviarse directamente a desinfección sin necesidad de sedimentador secundario, lo que reduce la huella de planta entre un 30\,\% y un 50\,\% respecto a los sistemas convencionales de lodos activados.
+
+En el presente proyecto el BAF ocupa la posición de tratamiento secundario aerobio aguas abajo del reactor UASB, cuyo efluente contiene típicamente entre 80 y 150\,mg/L de DBO y sólidos suspendidos de tamaño medio. Para el dimensionamiento se adopta una concentración de DBO a la entrada del BAF de $S_0 = 69$\,mg/L, valor conservador representativo del efluente UASB para este tipo de sistema.
+
+\subsubsection*{Principio de Funcionamiento y Configuración}
+
+El BAF opera sobre la base de una biopelícula aerobia estable adherida a un medio de relleno plástico modular de alta superficie específica ($S_{\text{esp}} = 250$\,m²/m³). El agua residual entra por la parte inferior del reactor y asciende a través del lecho en configuración \textit{up-flow}, mientras el aire se inyecta en co-corriente desde el plenum de la base mediante difusores de membrana distribuidos uniformemente en planta.
+
+El proceso de tratamiento que tiene lugar al interior del lecho es inherentemente multifuncional. A medida que el agua asciende por los intersticios del relleno, las bacterias del biofilm consumen la materia orgánica disuelta utilizando el oxígeno aportado por los difusores; paralelamente, el lecho granular actúa como un filtro compacto que retiene físicamente los sólidos en suspensión, las partículas coloidales y los flóculos de biomasa que se desprenden de la biopelícula. Esta doble acción, biológica y física, es lo que permite prescindir de una etapa posterior de clarificación. Si las condiciones de tiempo de contacto y oxigenación son suficientes, las bacterias nitrificantes presentes en las capas más internas del biofilm pueden además oxidar el amonio a nitrato, aunque la nitrificación no es el objetivo principal de diseño en esta unidad.
+
+La biomasa permanece anclada al relleno durante toda la operación normal del reactor. El único mecanismo de extracción de sólidos es el retrolavado periódico, que se detalla más adelante. Esta estabilidad de la biomasa confiere al BAF una notable resiliencia frente a variaciones de caudal y carga: a diferencia de los sistemas de lodos activados, en los que un pico de caudal puede arrastrar masivamente la biomasa fuera del reactor, en el BAF el biofilm adherido permanece en su lugar y continúa tratando el agua incluso durante eventos de punta.
+
+\subsubsection*{Criterios de Diseño Hidráulico}
+
+El dimensionamiento del BAF se fundamenta en el criterio de la tasa hidráulica superficial (HLR, \textit{Hydraulic Loading Rate}), que relaciona el caudal aplicado con el área de la sección transversal del reactor. Este parámetro controla la velocidad de paso del agua a través del lecho y, en consecuencia, el tiempo de contacto efectivo entre el agua residual y la biopelícula. Valores de HLR elevados reducen el tiempo de contacto y pueden comprometer la eficiencia de tratamiento; valores demasiado bajos incrementan innecesariamente el área del reactor. La literatura técnica de referencia establece un rango operacional de 2.0--6.0\,m³/m²·h para instalaciones de post-tratamiento aerobio (Metcalf \& Eddy, 2014).
+
+Para el presente diseño se adopta una HLR de $q = 3.5$\,m³/m²·h, que ofrece un margen holgado dentro del rango recomendado y permite absorber los picos de caudal sin que la tasa máxima supere el límite permisible. El área superficial requerida se obtiene despejando directamente:
+
+\begin{equation}
+A_{s} = \frac{Q}{q} = \frac{20.77}{3.5} = 6.16\ \text{m}^2
+\end{equation}
+\captionequation{Área superficial del BAF por criterio HLR}
+
+Adoptando una sección circular, el diámetro del reactor es:
+
+\begin{equation}
+D = \sqrt{\frac{4 \cdot A_{s}}{\pi}} = \sqrt{\frac{4 \times 6.16}{\pi}} = 2.80\ \text{m}
+\end{equation}
+\captionequation{Diámetro del reactor BAF}
+
+Con el diámetro adoptado de 2.80\,m, el área real resulta $A_{s} = 6.16$\,m², y la HLR real a caudal medio queda en $q_{\text{real}} = 3.37$\,m³/m²·h, confirmando que el dimensionamiento se encuentra plenamente dentro del rango operacional establecido.
+
+\subsubsection*{Volumen de Lecho y Tiempo de Contacto}
+
+La profundidad del lecho de relleno determina el volumen biológicamente activo del reactor y, por tanto, el tiempo de contacto disponible para la degradación de la materia orgánica. Se adopta una profundidad de $H_{\text{lecho}} = 3.00$\,m, valor que se encuentra dentro del rango habitual de 2.5--4.0\,m para BAF de flujo ascendente con relleno plástico. El volumen del medio filtrante resulta:
+
+\begin{equation}
+V_{\text{lecho}} = A_{s} \cdot H_{\text{lecho}} = 6.16 \times 3.00 = 18.47\ \text{m}^3
+\end{equation}
+\captionequation{Volumen del lecho de relleno}
+
+El tiempo de contacto en lecho vacío (EBCT, \textit{Empty Bed Contact Time}) es el parámetro de control más directo de la eficiencia de tratamiento. Representa el tiempo teórico que tardaría el caudal en llenar el volumen del lecho si estuviera completamente vacío; en la práctica, el tiempo de residencia real del agua es inferior porque el relleno ocupa parte del volumen, pero el EBCT constituye la referencia de diseño universalmente adoptada. Valores de EBCT demasiado cortos comprometen la remoción de contaminantes; valores excesivos no aportan beneficio adicional y aumentan innecesariamente las dimensiones del reactor:
+
+\begin{equation}
+\text{EBCT} = \frac{V_{\text{lecho}}}{Q_{h}} = \frac{18.47}{20.77} = 0.89\ \text{h}
+\end{equation}
+\captionequation{Tiempo de contacto en lecho vacío a caudal medio}
+
+El valor calculado de $\text{EBCT} = 0.89$\,h se encuentra dentro del rango recomendado de 0.5--1.5\,h, confirmando que el lecho proporciona un tiempo de contacto adecuado para la degradación de la materia orgánica a caudal de operación normal.
+
+\subsubsection*{Carga Orgánica Volumétrica}
+
+La carga orgánica volumétrica (OLR, \textit{Organic Loading Rate}) relaciona la masa de contaminante que ingresa al reactor por unidad de volumen de lecho y por día. Es el criterio que garantiza que la biomasa del BAF no sea sobrecargada: si la OLR supera la capacidad metabólica del biofilm, la eficiencia de remoción cae y el efluente puede deteriorarse. La masa de DBO aplicada diariamente al reactor es:
+
+\begin{equation}
+W_{\text{DBO}} = Q_{d} \cdot S_0 = 498.5\ \text{m}^3\text{/d} \times 69\ \text{g/m}^3 \times 10^{-3} = 34.5\ \text{kg DBO/d}
+\end{equation}
+\captionequation{Carga orgánica diaria aplicada al BAF}
+
+Dividiendo entre el volumen del lecho, la OLR de diseño resulta:
+
+\begin{equation}
+\text{OLR} = \frac{W_{\text{DBO}}}{V_{\text{lecho}}} = \frac{34.5}{18.47} = 1.87\ \text{kg DBO/m}^3\text{·d}
+\end{equation}
+\captionequation{Carga orgánica volumétrica del BAF}
+
+El valor de OLR = 1.87\,kg DBO/m³·d se encuentra dentro del rango operacional recomendado de 1.0--6.0\,kg DBO/m³·d, lo que indica que la biomasa adherida operará con una carga manejable, con margen suficiente para absorber variaciones temporales de la concentración de DBO en el afluente.
+
+\subsubsection*{Sistema de Aireación}
+
+El suministro adecuado de oxígeno es condición necesaria para el correcto funcionamiento del BAF: sin oxígeno suficiente el biofilm pierde su actividad aerobia, la eficiencia de remoción cae y pueden generarse condiciones anóxicas o anaerobias en el interior del lecho, con producción de olores. El caudal de aire se dimensiona a partir de la relación aire:agua, que indica el volumen de aire en condiciones normales (0\,°C, 1\,atm) que debe inyectarse por cada metro cúbico de agua tratada. Se adopta una relación de $8:1$, valor típico para eliminación de DBO sin nitrificación intensiva:
+
+\begin{equation}
+Q_{\text{aire}} = r_{\text{a:w}} \times Q_{h} = 8 \times 20.77 = 166.2\ \text{Nm}^3\text{/h}
+\end{equation}
+\captionequation{Caudal de aire suministrado al proceso biológico}
+
+La tasa específica de aireación (SAR, \textit{Specific Air Rate}) normaliza el caudal de aire por unidad de área superficial del reactor y permite comparar el nivel de aireación con los rangos de referencia:
+
+\begin{equation}
+\text{SAR} = \frac{Q_{\text{aire}}}{A_{s}} = \frac{166.2}{6.16} = 27.0\ \text{m}^3\text{aire/m}^2\text{·h}
+\end{equation}
+\captionequation{Tasa específica de aireación}
+
+El valor de SAR = 27.0\,m³/m²·h se encuentra dentro del rango recomendado de 15--50\,m³/m²·h. Como comprobación adicional, la demanda teórica de oxígeno para degradar 34.5\,kg DBO/d —considerando un factor de 1.35\,kg O₂/kg DBO y una eficiencia de transferencia de oxígeno (OTE) del 25\%— exige un caudal mínimo de 28.0\,Nm³/h. El diseño proporciona 166.2\,Nm³/h, con un factor de seguridad de 5.9 sobre la demanda biológica mínima; esto garantiza oxigenación suficiente en todo el lecho incluso bajo condiciones de carga elevada o variaciones en la concentración de DBO del afluente.
+
+\subsubsection*{Desglose de Alturas y Geometría del Reactor}
+
+La altura total del reactor BAF resulta de la superposición de varias zonas funcionales, cada una de las cuales cumple un propósito específico dentro del ciclo de operación. El plenum inferior aloja los difusores de aire y los colectores de distribución de agua, garantizando una entrada uniforme del afluente en toda la sección del reactor. El lecho de relleno es la zona de tratamiento activo. La zona libre sobre el relleno (\textit{headspace}) proporciona el espacio necesario para la expansión del lecho durante el retrolavado sin que el relleno sea arrastrado hacia el canal de salida. La zona de acumulación retiene temporalmente los sólidos desprendidos antes de su evacuación al final del ciclo de retrolavado. El bordo libre garantiza la seguridad hidráulica de la estructura frente a variaciones bruscas de caudal:
+
+\begin{table}[H]
+\centering
+\caption{Desglose de alturas del reactor BAF}
+\begin{tabular}{lc}
+\toprule
+\textbf{Zona funcional} & \textbf{Altura (m)} \\
+\midrule
+Plenum de distribución de agua y aire & 0.50 \\
+Lecho de relleno (media biológica) & 3.00 \\
+Zona libre sobre relleno (headspace) & 0.50 \\
+Zona de acumulación durante retrolavado & 0.30 \\
+Bordo libre & 0.30 \\
+\midrule
+\textbf{Altura total de construcción} & \textbf{4.60} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+La relación de aspecto entre la profundidad del lecho y el diámetro del reactor, $H_{\text{lecho}} / D = 1.07$, se encuentra dentro del rango recomendado de 0.8--1.5 para reactores BAF circulares, lo que garantiza una distribución uniforme del agua y el aire en toda la sección transversal y evita caminos preferenciales de flujo que reducirían el contacto efectivo entre el sustrato y la biomasa.
+
+\subsubsection*{Sistema de Retrolavado}
+
+El retrolavado es la operación de mantenimiento más característica del BAF. A medida que el reactor opera, el biofilm crece sobre el relleno y los sólidos filtrados se acumulan en los intersticios del lecho, produciendo un aumento progresivo de la pérdida de carga hidráulica. Cuando esa pérdida de carga alcanza el límite preestablecido, o cuando ha transcurrido el tiempo máximo del ciclo de operación, se inicia el retrolavado. El diseño contempla ciclos de retrolavado cada 24--48\,h, con una duración total aproximada de 20\,minutos por ciclo, operando en dos fases consecutivas:
+
+La primera fase, denominada retrolavado con aire (\textit{air scour}), consiste en inyectar aire a alta velocidad —75\,m³/m²·h, equivalente a un caudal de $Q_{\text{bw,aire}} = 461.8$\,m³/h— para despegar el biofilm excedente y los sólidos retenidos en los intersticios del relleno. La turbulencia generada por el aire libera la materia acumulada sin dañar la estructura del biofilm residente, que permanecerá adherida al relleno y continuará el tratamiento en el ciclo siguiente.
+
+La segunda fase, el retrolavado con agua (\textit{water flush}), introduce agua limpia en sentido contrario al flujo de operación normal a una velocidad de 20\,m³/m²·h, generando un caudal de $Q_{\text{bw,agua}} = 123.2$\,m³/h que arrastra hacia el canal de evacuación superior los sólidos liberados durante la fase anterior. El volumen total de agua de retrolavado por ciclo es $V_{\text{bw}} = 20.5$\,m³, lo que representa el 4.1\,\% del caudal diario tratado. Esta agua, cargada con sólidos biológicos en concentraciones de 500--3\,000\,mg/L de SST, debe retornar al inicio de la planta o dirigirse a un espesador de lodos; nunca debe descargarse directamente al efluente tratado. Dado que el sistema opera con dos líneas en paralelo, los ciclos de retrolavado deben escalonarse para que nunca coincidan dos unidades en retrolavado simultáneo.
+
+\subsubsection{Verificación}
+
+El dimensionamiento presentado en la sección anterior se basa en los parámetros de operación a caudal medio. Las verificaciones que se desarrollan a continuación comprueban que el reactor mantiene un comportamiento aceptable bajo las condiciones más exigentes: el caudal máximo horario, la condición de pico de carga orgánica y la suficiencia del suministro de aire. Se incluyen también las verificaciones de geometría del reactor y del sistema de retrolavado, que son criterios complementarios de buena práctica de diseño.
+
+\subsubsection*{Verificación de Tasa Hidráulica Superficial a Caudal de Pico}
+
+La verificación más crítica del BAF desde el punto de vista hidráulico consiste en comprobar que la tasa hidráulica superficial a caudal máximo horario —obtenido aplicando el factor de pico $f_p = 2.8$— no supera el límite establecido por la literatura técnica. Si la HLR de pico excede ese límite, la velocidad de paso del agua a través del lecho sería excesiva, los sólidos suspendidos que el lecho retiene podrían ser arrastrados hacia el efluente y la calidad de salida se deterioraría transitoriamente:
+
+\begin{equation}
+q_{\text{máx}} = \frac{Q_{\text{máx}}}{A_{s}} = \frac{57.54}{6.16} = 9.34\ \text{m}^3\text{/m}^2\text{·h} \leq 10.0\ \text{m}^3\text{/m}^2\text{·h}
+\end{equation}
+\captionequation{HLR a caudal máximo horario}
+
+El valor calculado de $q_{\text{máx}} = 9.34$\,m³/m²·h deja un margen de seguridad del $(10.0 - 9.34) / 10.0 \times 100 = 6.6$\,\% respecto al límite permisible.
+
+\textbf{Resultado:} \textbf{CUMPLE}
+
+\subsubsection*{Verificación de Tiempo de Contacto a Caudal de Pico}
+
+A caudal máximo, el EBCT se reduce en proporción inversa al incremento de caudal. Esta verificación es informativa y complementaria: el EBCT de diseño ya se garantiza a caudal medio; a caudal de pico se espera una reducción que es transitoria y que la inercia biológica del biofilm puede absorber:
+
+\begin{equation}
+\text{EBCT}_{\text{pico}} = \frac{V_{\text{lecho}}}{Q_{\text{máx}}} = \frac{18.47}{57.54} = 0.32\ \text{h}
+\end{equation}
+\captionequation{EBCT a caudal máximo horario}
+
+El EBCT de pico es inferior al mínimo de diseño. Los picos de caudal son eventos de corta duración y la inercia biológica del biofilm amortigua los efectos. Se recomienda ecualización de caudales aguas arriba.
+
+\textbf{Resultado:} \textbf{VER NOTA}
+
+\subsubsection*{Verificación de Carga Orgánica a Caudal de Pico}
+
+A caudal máximo, la OLR también se incrementa en la misma proporción que el caudal, puesto que la concentración de DBO del afluente no varía durante los picos hidráulicos. Esta verificación evalúa el estrés orgánico al que se somete la biomasa durante el evento de punta:
+
+\begin{equation}
+\text{OLR}_{\text{pico}} = \frac{Q_{\text{máx,d}} \cdot S_0}{V_{\text{lecho}}} = \frac{1380.9 \times 69 \times 10^{-3}}{18.47} = 5.18\ \text{kg/m}^3\text{·d}
+\end{equation}
+\captionequation{OLR a caudal máximo horario}
+
+La OLR a caudal pico se encuentra dentro del rango permisible.
+
+\textbf{Resultado:} \textbf{CUMPLE}
+
+\subsubsection*{Verificación de Suficiencia del Suministro de Aire}
+
+Esta verificación comprueba que el caudal de aire diseñado en función de la relación aire:agua es también suficiente para cubrir la demanda biológica de oxígeno del proceso. Se trata de una verificación cruzada entre el criterio hidráulico de aireación y el criterio bioquímico de demanda de oxígeno. La demanda teórica de oxígeno para degradar la carga orgánica media es:
+
+\begin{equation}
+\text{DO}_{\text{req}} = f_{O_2} \times W_{\text{DBO}} = 1.35 \times 34.5 = 46.6\ \text{kg O}_2\text{/d}
+\end{equation}
+\captionequation{Demanda de oxígeno para degradación de DBO}
+
+Considerando una eficiencia de transferencia de oxígeno (OTE) del 25\,\% para difusores de burbuja fina en lecho sumergido, el caudal mínimo de aire que satisface esa demanda biológica es 28.0\,Nm³/h. El diseño proporciona 166.2\,Nm³/h, es decir, un factor de seguridad de 5.9 sobre el requerimiento mínimo. El caudal de aire diseñado (166.2 Nm³/h) supera ampliamente el requerimiento mínimo (28.0 Nm³/h), con un factor de seguridad de 5.9.
+
+\textbf{Resultado:} \textbf{CUMPLE CON HOLGURA}
+
+\subsubsection*{Verificación de Geometría del Reactor}
+
+La relación de aspecto entre la profundidad del lecho y el diámetro del reactor es un criterio complementario que verifica que las proporciones del reactor sean adecuadas para una distribución uniforme del flujo en toda la sección transversal. Reactores con relaciones $H/D$ muy bajas tienden a presentar distribución no uniforme del agua y el aire; reactores con relaciones muy altas pueden desarrollar canalizaciones verticales preferenciales:
+
+\begin{equation}
+\frac{H_{\text{lecho}}}{D} = \frac{3.00}{2.80} = 1.07
+\end{equation}
+\captionequation{Relación de aspecto del lecho de relleno}
+
+El valor de 1.07 se encuentra dentro del rango recomendado de 0.8--1.5, confirmando que la geometría del reactor es adecuada.
+
+\textbf{Resultado:} \textbf{CUMPLE}
+
+\subsubsection*{Resumen de Verificaciones}
+
+La Tabla~\ref{tab:verif_baf} consolida los criterios de verificación, los valores calculados y el estado de cumplimiento de cada parámetro.
+
+\begin{table}[H]
+\centering
+\caption{Resumen de verificaciones del BAF}
+\label{tab:verif_baf}
+\begin{tabular}{lccl}
+\toprule
+\textbf{Parámetro} & \textbf{Valor calculado} & \textbf{Criterio} & \textbf{Estado} \\
+\midrule
+HLR medio        & 3.37 m³/m²·h   & 2.0--6.0 m³/m²·h  & \textbf{CUMPLE} \\
+HLR máximo       & 9.34 m³/m²·h   & $\leq$ 10.0 m³/m²·h             & \textbf{CUMPLE} \\
+EBCT medio       & 0.89 h                   & 0.5--1.5 h                   & \textbf{CUMPLE} \\
+EBCT pico        & 0.32 h              & $\geq$ 0.5 h (diseño)             & \textbf{VER NOTA} \\
+OLR medio        & 1.87 kg/m³·d   & 1.0--6.0 kg/m³·d & \textbf{CUMPLE} \\
+OLR pico         & 5.18 kg/m³·d & $\leq$ 6.0 kg/m³·d          & \textbf{CUMPLE} \\
+SAR              & 27.0 m³/m²·h       & 15--50 m³/m²·h  & \textbf{CUMPLE} \\
+Suficiencia aire & 5.9      & $\geq$ 1.0 (mínimo); $\geq$ 1.5 (holgura)  & \textbf{CUMPLE CON HOLGURA} \\
+Relación $H/D$   & 1.07               & 0.8--1.5          & \textbf{CUMPLE} \\
+Agua retrolavado & 4.1\%          & 3--7\%  & \textbf{CUMPLE} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Las verificaciones principales cumplen con los criterios establecidos. 8 parámetros cumplen directamente; 1 cumplen con holgura adicional; 1 requieren nota operativa por condiciones de pico transitorio.
+
+\subsubsection{Resultados}
+
+La Tabla~\ref{tab:resumen_baf} consolida los parámetros geométricos, hidráulicos y de proceso del Biofiltro Biológico Aireado dimensionado para una de las dos líneas de tratamiento, cada una de las cuales procesa el caudal medio de $Q = 498.5$\,m³/d.
+
+\begin{longtable}{p{7cm}p{6cm}}
+\caption{Resumen de resultados del dimensionamiento -- Biofiltro Biológico Aireado (BAF)}
+\label{tab:resumen_baf} \\
+\toprule
+\textbf{Parámetro} & \textbf{Valor} \\
+\midrule
+\endfirsthead
+\caption[]{(continuación) Biofiltro Biológico Aireado (BAF)} \\
+\toprule
+\textbf{Parámetro} & \textbf{Valor} \\
+\midrule
+\endhead
+\midrule
+\multicolumn{2}{r}{\textit{continúa en la página siguiente}} \\
+\endfoot
+\bottomrule
+\endlastfoot
+%
+\multicolumn{2}{l}{\textit{Dimensiones principales}} \\[2pt]
+Diámetro del reactor          & $D = 2.80$\,m \\
+Área superficial (real)       & $A_s = 6.16$\,m² \\
+Profundidad del lecho         & $H_{\text{lecho}} = 3.00$\,m \\
+Altura total de construcción  & $H_{\text{total}} = 4.60$\,m \\
+Volumen de relleno            & $V_{\text{lecho}} = 18.47$\,m³ \\
+Relación de aspecto           & $H_{\text{lecho}}/D = 1.07$ \\[4pt]
+%
+\multicolumn{2}{l}{\textit{Parámetros hidráulicos}} \\[2pt]
+Caudal medio por línea        & $Q = 498.5$\,m³/d \;(20.77\,m³/h) \\
+Caudal máximo horario         & $Q_{\text{máx}} = 1380.9$\,m³/d \;(57.54\,m³/h) \\
+HLR a caudal medio            & $q = 3.37$\,m³/m²·h \\
+HLR a caudal máximo           & $q_{\text{máx}} = 9.34$\,m³/m²·h \\
+EBCT a caudal medio           & 0.89\,h \\
+EBCT a caudal máximo          & 0.32\,h \\[4pt]
+%
+\multicolumn{2}{l}{\textit{Parámetros de proceso y carga orgánica}} \\[2pt]
+DBO afluente (efluente UASB)  & $S_0 = 69$\,mg/L \\
+Carga orgánica media          & $W = 34.5$\,kg DBO/d \\
+Carga orgánica a pico         & $W_{\text{pico}} = 95.7$\,kg DBO/d \\
+OLR a caudal medio            & 1.87\,kg DBO/m³·d \\
+OLR a caudal máximo           & 5.18\,kg DBO/m³·d \\[4pt]
+%
+\multicolumn{2}{l}{\textit{Sistema de aireación}} \\[2pt]
+Relación aire:agua            & $8:1$\,Nm³/m³ \\
+Caudal de aire de proceso     & $Q_{\text{aire}} = 166.2$\,Nm³/h \\
+Tasa específica de aireación  & SAR $= 27.0$\,m³/m²·h \\
+Factor de seguridad oxígeno   & 5.9 \\[4pt]
+%
+\multicolumn{2}{l}{\textit{Sistema de retrolavado}} \\[2pt]
+Frecuencia de retrolavado     & cada 24--48\,h \\
+Duración del ciclo            & $\sim$20\,min \\
+Velocidad retrolavado -- aire & 75\,m³/m²·h \\
+Velocidad retrolavado -- agua & 20\,m³/m²·h \\
+Caudal aire en retrolavado    & $Q_{\text{bw,aire}} = 461.8$\,m³/h \\
+Caudal agua en retrolavado    & $Q_{\text{bw,agua}} = 123.2$\,m³/h \\
+Volumen por ciclo             & $V_{\text{bw}} = 20.5$\,m³ \\
+Fracción del caudal diario    & 4.1\,\% \\[4pt]
+%
+\multicolumn{2}{l}{\textit{Características del relleno}} \\[2pt]
+Superficie específica         & $S_{\text{esp}} = 250$\,m²/m³ \\
+Porosidad                     & $\varepsilon = 40$\,\% \\
+Material                      & Plástico modular \\
+\end{longtable}
+
+El dimensionamiento del BAF produce un reactor compacto de 2.80\,m de diámetro y 4.60\,m de altura total, con un volumen de lecho de 18.47\,m³ por unidad. El presente proyecto adopta la tecnología de biofiltro con lecho sumergido y aireación forzada, la cual opera con biomasa adherida al relleno plástico de alta superficie específica. Esta configuración tecnológica incorpora intrínsecamente la retención física de sólidos en el lecho, característica que en condiciones de diseño apropiadas permite obtener efluentes clarificados sin requerir una unidad de sedimentación secundaria independiente, diferenciándose así de los sistemas convencionales de lodos activados que sí necesitan sedimentador posterior.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{figuras/Esquema_BAF.png}
+\caption{Esquema del Biofiltro Biológico Aireado (BAF) -- vista vertical (sección transversal)}
+\label{fig:esquema_baf}
+\end{figure}
+
+El esquema muestra la configuración de flujo ascendente (\textit{{up-flow}}) con aireación en co-corriente, el lecho de relleno plástico sumergido, y las zonas de plenum, headspace y acumulación para retrolavado.
+
+\subsection{Sistema de Desinfeccion con Hipoclorito de Sodio}
+
+
+
+
+
+La desinfección constituye la etapa final del proceso de tratamiento de aguas residuales, cuyo objetivo es la inactivación de microorganismos patógenos (bacterias, virus y protozoos) presentes en el efluente tratado, garantizando que su descarga al cuerpo receptor no represente riesgo para la salud pública ni para los ecosistemas acuáticos. En el contexto de la normativa ecuatoriana, la TULSMA (Texto Unificado de Legislación Secundaria del Ministerio del Ambiente) establece un límite máximo de 3000 NMP/100mL para coliformes fecales en vertimientos de aguas residuales tratadas.
+
+El mecanismo de desinfección con compuestos clorados se fundamenta en la oxidación de componentes celulares esenciales de los microorganismos. El hipoclorito de sodio (NaOCl), al disolverse en agua, establece un equilibrio químico que genera ácido hipocloroso (HOCl) según la siguiente reacción:
+
+\begin{equation}
+\text{NaOCl} + \text{H}_2\text{O} \rightleftharpoons \text{HOCl} + \text{Na}^+ + \text{OH}^-
+\end{equation}
+\captionequation{Disolución del hipoclorito de sodio en agua}
+
+El ácido hipocloroso (HOCl) es la especie biocida predominante y efectiva, siendo aproximadamente 80--100 veces más potente como desinfectante que el ion hipoclorito (OCl$^-$). La especiación entre HOCl y OCl$^-$ depende críticamente del pH del agua, según el siguiente equilibrio:
+
+\begin{equation}
+\text{HOCl} \rightleftharpoons \text{H}^+ + \text{OCl}^- \quad (\text{pKa} \approx 7,5 \text{ a 25°C})
+\end{equation}
+\captionequation{Equilibrio ácido-base del ácido hipocloroso}
+
+A pH inferior a 7,5 predomina el HOCl (forma más efectiva), mientras que a pH superior a 7,5 predomina el OCl$^-$. Para el rango típico de pH de aguas residuales tratadas (6,5--8,5), se asegura una fracción significativa de HOCl que garantiza la eficacia desinfectante. La temperatura del agua también afecta este equilibrio: a mayor temperatura, el valor de pKa disminuye ligeramente, favoreciendo la forma HOCl.
+
+\textbf{Mecanismos de inactivación microbiana}
+
+La acción biocida del cloro se ejerce mediante múltiples mecanismos simultáneos: (1) \textit{oxidación de la pared celular}, alterando la permeabilidad y causando lisis celular; (2) \textit{denaturación de enzimas}, particularmente aquellas con grupos sulfhidrilo (-SH) que son oxidados a disulfuros; (3) \textit{daño al material genético}, mediante reacción con bases nitrogenadas del ADN y ARN; y (4) \textit{alteración del metabolismo celular}, inhibiendo la síntesis de ATP y otras funciones energéticas.
+
+La susceptibilidad de los microorganismos al cloro varía significativamente. Las bacterias (incluyendo coliformes fecales) son generalmente las más susceptibles, con valores CT de 0,1--5 mg$\cdot$min/L para 2-log de reducción. Los virus requieren CT mayores (5--20 mg$\cdot$min/L), mientras que los protozoos como \textit{Giardia} y \textit{Cryptosporidium} son los más resistentes, requiriendo CT de 30--100 mg$\cdot$min/L o alternativas como UV o ozono.
+
+\textbf{El concepto CT como parámetro de diseño}
+
+El producto concentración-tiempo (CT) constituye el parámetro fundamental para el dimensionamiento de sistemas de desinfección. Fue desarrollado por la USEPA como criterio regulatorio y ha sido adoptado internacionalmente. Físicamente, el CT representa la exposición acumulada de los microorganismos al desinfectante, integrando tanto la concentración residual como el tiempo de contacto efectivo.
+
+El CT requerido depende de: (a) el microorganismo objetivo y la reducción logarítmica deseada, (b) la temperatura del agua (a mayor temperatura, menor CT requerido debido a cinética más rápida), (c) el pH (afecta la especiación del cloro), y (d) la presencia de materia orgánica y otros consumidores de cloro (demanda).
+
+Según Metcalf \& Eddy \cite{metcalf2014} y la USEPA \cite{usepa2003}, los valores CT típicos para inactivación de coliformes en efluentes secundarios son:
+
+\begin{itemize}[noitemsep,leftmargin=2em]
+    \item CT = 5--10 mg$\cdot$min/L: 2--3 log de reducción (99--99,9\%)
+    \item CT = 10--20 mg$\cdot$min/L: 3--4 log de reducción (99,9--99,99\%)
+    \item CT = 20--40 mg$\cdot$min/L: 4--5 log de reducción (99,99--99,999\%)
+\end{itemize}
+
+\textbf{Criterio de disenio basado en CF objetivo}
+
+El dimensionamiento del sistema de desinfección se fundamenta en un criterio de diseño explícito basado en la concentración de coliformes fecales (CF) objetivo. A diferencia de un enfoque de dosis fija, este método garantiza que el sistema sea capaz de alcanzar el nivel de inactivación microbiológica requerido, partiendo de la carga de coliformes de entrada y definiendo la reducción logarítmica necesaria para cumplir con el objetivo de calidad del efluente.
+
+Para este diseño, se establece un CF objetivo de 3000 NMP/100mL, correspondiente al límite establecido por la TULSMA para vertimiento de aguas residuales tratadas. Con una concentración de entrada de 834 NMP/100mL, la reducción logarítmica requerida es:
+
+\begin{equation}
+\text{Log reducción}_{\text{req}} = \log_{10}\left(\frac{CF_{\text{entrada}}}{CF_{\text{objetivo}}}\right) = \log_{10}\left(\frac{834}{3000}\right) = 0.00 \text{ log}
+\end{equation}
+\captionequation{Log reduccion requerida para cumplir CF objetivo}
+
+El CT requerido para lograr esta reducción se calcula mediante el coeficiente de inactivación adoptado:
+
+\begin{equation}
+CT_{\text{req}} = \frac{\text{Log reducción}_{\text{req}}}{k} = \frac{0.00}{0.22} = 0.0 \text{ mg$\cdot$min/L}
+\end{equation}
+\captionequation{CT requerido para alcanzar la reduccion logaritmica objetivo}
+
+\textbf{Filosofía de diseño adoptada: TRH base + Residual calculado}
+
+El diseño adopta una filosofía de tiempo de contacto base y residual calculado. Primero se dimensiona el tanque de contacto con un TRH base de referencia (30 min), obteniéndose un TRH real de 53.7 min según las dimensiones constructivas adoptadas. Posteriormente, se calcula el residual requerido para alcanzar el CT objetivo con ese TRH real:
+
+\begin{equation}
+C_{\text{req}} = \frac{CT_{\text{req}}}{TRH_{\text{real}}} = \frac{0.0}{53.7} = 0.00 \text{ mg/L}
+\end{equation}
+\captionequation{Residual requerido para alcanzar CT objetivo con TRH real}
+
+El residual adoptado corresponde al valor requerido calculado, optimizando la dosis para cumplir justo con el objetivo de desinfección:
+
+\begin{equation}
+C_{\text{adoptado}} = C_{\text{req}} = 0.56 \text{ mg/L}
+\end{equation}
+\captionequation{Residual adoptado para cumplir CF objetivo}
+
+\textit{Nota operativa:} El residual calculado (0.00 mg/L) es inferior al mínimo operativo recomendado (0.5 mg/L) para garantizar margen de seguridad en la operación. Se recomienda monitorear periódicamente para asegurar que el residual efectivo se mantenga en el rango de 0,5--1,0 mg/L.
+
+El CT real alcanzado con el residual adoptado y el TRH real es:
+
+\begin{equation}
+CT_{\text{real}} = C_{\text{adoptado}} \times TRH_{\text{real}} = 0.56 \times 53.7 = 30.0 \text{ mg$\cdot$min/L}
+\end{equation}
+\captionequation{CT real alcanzado}
+
+Como criterio adicional de verificación, se establece un CT mínimo de 30 mg$\cdot$min/L, valor conservador que asegura el cumplimiento del límite de coliformes fecales establecido por la TULSMA, considerando las variaciones operativas esperadas.
+
+\textbf{Demanda de cloro y dosificación}
+
+La demanda de cloro representa la cantidad de cloro consumida por reacciones con sustancias presentes en el agua antes de que quede disponible cloro residual libre para desinfección. Los principales consumidores son: amoníaco (formando cloraminas), materia orgánica reducida, compuestos férricos y manganesos, y sulfuros. En efluentes secundarios tratados (post-filtro percolador), la demanda típica adoptada para referencia de diseño varía entre 2--5 mg/L dependiendo de la calidad del efluente.
+
+El cloro residual es la concentración que permanece después de satisfacer la demanda y es la que ejerce el efecto desinfectante. El diseño debe garantizar un residual mínimo de 0.6 mg/L al final del tiempo de contacto para asegurar eficacia. La dosis total a aplicar es:
+
+\begin{equation}
+\text{Dosis total} = \text{Demanda} + \text{Residual objetivo}
+\end{equation}
+\captionequation{Descomposición de la dosis de cloro}
+
+\textbf{Diseño del tanque de contacto}
+
+El tanque de contacto se dimensiona para proporcionar un tiempo de retención hidráulico (TRH) adecuado que permita alcanzar el CT objetivo con el residual calculado. El TRH efectivo es el tiempo que permanece el agua en el tanque, calculado como el cociente entre el volumen útil y el caudal. Según Metcalf \& Eddy, para desinfección de efluentes secundarios se recomienda un TRH de 15--45 min; para este caso, se parte de un TRH base de 30 min para el dimensionamiento geométrico.
+
+La geometría del tanque debe favorecer el flujo en pistón (plug flow) para evitar cortocircuitos hidráulicos que reduzcan el tiempo efectivo de contacto. Por ello, el volumen de contacto se organiza como una cámara con bafles alternados tipo culebrín, de modo que el recorrido hidráulico aumente y la relación recorrido/ancho del canal sea verificable.
+
+\textbf{Parámetros de diseño adoptados}
+
+El sistema se dimensiona considerando los siguientes parámetros fundamentales, establecidos según criterios bibliográficos y normativos:
+
+\begin{table}[H]
+\centering
+\caption{Parámetros de diseño de la desinfección}
+\small
+\begin{tabular}{@{}p{0.28\textwidth}p{0.18\textwidth}p{0.22\textwidth}p{0.18\textwidth}@{}}
+\toprule
+\textbf{Parámetro} & \textbf{Valor adoptado} & \textbf{Rango/Unidad} & \textbf{Fuente} \\
+\midrule
+Demanda de cloro & 3.5 mg/L & 2--5 mg/L & Estimado efluente post-sedimentador \\
+Residual requerido & 0.00 mg/L & -- & Cálculo desde CT \\
+Residual adoptado & 0.56 mg/L & $>$0.00 mg/L & Para cumplir CF objetivo \\
+Dosis total & 4.1 mg/L & 3--10 mg/L & Metcalf \& Eddy \cite{metcalf2014} \\
+TRH base de diseño & 30 min & 15--45 min & Configuración \\
+TRH real del tanque & 53.7 min & $\geq$ 30 min & Dimensionado \\
+Relación recorrido/ancho & 30.0:1 & $\geq$ 30:1 & Criterio de flujo pistón \\
+CT requerido & 0.0 mg$\cdot$min/L & -- & Desde log reducción \\
+CT real & 30.0 mg$\cdot$min/L & $\geq$ 30 mg$\cdot$min/L & Residual $\times$ TRH \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+La dosis total de cloro se descompone en la demanda del efluente (consumida por amoníaco y materia orgánica) más el residual requerido para desinfección:
+
+\begin{equation}
+\text{Dosis total} = \text{Demanda} + \text{Residual} = 3.5 + 0.6 = 4.1 \text{ mg/L}
+\end{equation}
+\captionequation{Dosis total de cloro}
+
+\textbf{Cálculo del producto CT}
+
+La eficacia de la desinfección se cuantifica mediante el parámetro CT:
+
+\begin{equation}
+CT = C \times t
+\end{equation}
+\captionequation{Producto concentracion-tiempo CT}
+
+\textit{Donde:}
+\begin{itemize}[noitemsep,leftmargin=2em]
+    \item[$CT$] = Producto concentración-tiempo (mg$\cdot$min/L)
+    \item[$C$] = Cloro residual (0.6 mg/L)
+    \item[$t$] = Tiempo de contacto real en la cámara (53.7 min)
+\end{itemize}
+
+\begin{equation}
+CT = 0.56 \times 53.7 = 30.0 \text{ mg$\cdot$min/L}
+\end{equation}
+
+La reducción de coliformes se estima mediante una relación empírica simplificada, válida como aproximación preliminar de diseño para efluentes secundarios típicos:
+
+\begin{equation}
+\text{Log reducción} \approx 0.22 \times CT
+\end{equation}
+\captionequation{Estimacion empirica de log-reduccion (simplificacion para diseño preliminar)}
+
+\textit{Nota metodológica:} Esta relación lineal es una simplificación empírica calibrada para condiciones típicas de aguas residuales tratadas (pH 6.5--8.5, temperatura 20--25°C, baja materia orgánica residual). El modelo cinético formal de inactivación microbiana es el de Chick-Watson: $N/N_0 = e^{-k \cdot C^n \cdot t}$, donde $k$ es la constante de inactivación específica para cada microorganismo y $n$ es el coeficiente de dilución (típicamente $n \approx 1$ para cloro libre). La forma lineal utilizada es práctica para diseño preliminar pero debe verificarse con ensayos de desinfección específicos si se requiere precisión rigurosa.
+
+\begin{equation}
+\text{Log reducción} \approx 0.22 \times 30 = 6.6 \text{ log}
+\end{equation}
+
+Los coliformes finales se calculan como:
+
+\begin{equation}
+CF_{final} = \frac{CF_{inicial}}{10^{\text{Log reduccion}}} = \frac{834}{10^{6.6}} = 0 \text{ NMP/100mL}
+\end{equation}
+
+\textbf{Dimensionamiento del tanque de contacto}
+
+El volumen del tanque se determina por:
+
+\begin{equation}
+V = Q \times t
+\end{equation}
+\captionequation{Volumen del tanque de contacto}
+
+\textit{Donde:}
+\begin{itemize}[noitemsep,leftmargin=2em]
+    \item[$V$] = Volumen del tanque (m³)
+    \item[$Q$] = Caudal (498.5 m³/d = 0.346 m³/min)
+    \item[$t$] = Tiempo de contacto base (30 min)
+\end{itemize}
+
+\begin{equation}
+V_{min} = 0.346 \times 30 = 10.4 \text{ m}^3
+\end{equation}
+
+El volumen minimo por tiempo de contacto es 10.4 m3; la geometria serpentina adoptada entrega 18.6 m3 y un tiempo hidraulico teorico de 53.7 min.
+
+La cámara se resuelve con 5 canales en culebrín, ancho hidráulico de 0.50 m por canal, bafles de 0.15 m y un recorrido hidráulico total de 15.0 m. Las dimensiones en planta resultantes son 3.0 m de largo por 3.1 m de ancho.
+
+\textbf{Consumo de cloro y requerimientos de producto comercial}
+
+El consumo de cloro activo (como Cl$_2$) se calcula como:
+
+\begin{equation}
+\text{Consumo Cl}_2 = \frac{D \times Q}{1000} = \frac{4.1 \times 498.5}{1000} = 2.02 \text{ kg Cl}_2\text{/d}
+\end{equation}
+
+\textbf{Conversión a hipoclorito de sodio comercial (NaOCl):}
+
+El hipoclorito de sodio se comercializa típicamente al 10--12.5\% de cloro disponible. La conversión se realiza mediante:
+
+\begin{equation}
+\text{Consumo NaOCl} = \frac{\text{Consumo Cl}_2}{[\% \text{ NaOCl}]} = \frac{2.02}{10\%} = 20.2 \text{ kg NaOCl/d}
+\end{equation}
+\captionequation{Conversion a hipoclorito de sodio comercial}
+
+Considerando una densidad de 1.10 kg/L para la solución al 10\%:
+
+\begin{equation}
+\text{Volumen NaOCl} = \frac{20.2 \text{ kg/d}}{1.10 \text{ kg/L}} = 18.4 \text{ L/d} \approx 552 \text{ L/mes}
+\end{equation}
+
+El volumen de almacenamiento en bodega se recomienda para 30 días de operación: 552 L (equivalente a 0.6 m³).
+
+\textbf{Nota sobre subproductos de la desinfección}
+
+La cloración de aguas residuales puede generar subproductos de desinfección (DBPs, por sus siglas en inglés), principalmente trihalometanos (THMs) y ácidos haloacéticos (HAAs), como resultado de la reacción del cloro con la materia orgánica residual presente en el efluente tratado.
+
+Para plantas de tratamiento de pequeña escala como la proyectada, la formación de THMs puede controlarse mediante cuatro medidas operativas integrales. En primer lugar, el control de dosis debe enfocarse en aplicar la dosis mínima efectiva que garantice el residual requerido, evitando sobredosis innecesaria que incrementaría la generación de subproductos. En segundo lugar, el monitoreo de residual combinado debe mantenerse en el rango de 0.6--1.0 mg/L, ya que valores superiores favorecen la formación de DBPs. En tercer lugar, la calidad del efluente previo resulta determinante: asegurar que el tratamiento biológico previo (HAFV) remueva adecuadamente la materia orgánica reduce el potencial de formación de THMs, dado que una menor DQO/DBO residual implica menor disponibilidad de precursores orgánicos. Finalmente, el monitoreo periódico mediante análisis trimestral de THMs totales en el efluente final debe realizarse si la autoridad ambiental lo requiere; para vertimiento a cuerpos receptores no destinados a consumo humano, los requisitos normativos son menos estrictos que para agua potable.
+
+Para el presente diseño, el riesgo de formación de THMs se considera manejable mediante la operación adecuada del sistema de dosificación y el control de residual, dado que el efluente del HAFV tiene baja concentración de materia orgánica precursora y la dosis de cloro aplicada es moderada.
+
+\subsubsection{Verificación}
+
+\textbf{Verificación de cumplimiento normativo}
+
+El sistema de desinfección se verifica contra los criterios establecidos en la TULSMA y las recomendaciones de Metcalf \& Eddy para asegurar la eficacia del proceso.
+
+
+El Texto Unificado de Legislación Secundaria del Ministerio del Ambiente (TULSMA) establece diferentes límites de coliformes fecales según el uso receptor del agua. La siguiente tabla compara el valor calculado de coliformes finales (0 NMP/100mL) con los límites establecidos para cada categoría de uso:
+
+\begin{table}[H]
+\centering
+\caption{Comparación con límites TULSMA por uso del agua}
+\small
+\begin{tabular}{@{}llcc@{}}
+\toprule
+\textbf{Uso / Tabla TULSMA} & \textbf{CF (límite)} & \textbf{CF calculado} & \textbf{Dictamen} \\
+\midrule
+Agua dulce -- Tabla 12 & $\leq$3000 & 0 & \textbf{CUMPLE} \\
+Agua marina -- Tabla 13 & $\leq$3000 & 0 & \textbf{CUMPLE} \\
+Alcantarillado -- Tabla 11 & --- & 0 & \textbf{N/A} \\
+Flora y fauna -- Tabla 3 & $\leq$200 & 0 & \textbf{CUMPLE} \\
+Agrícola/riego -- Tabla 6 & $\leq$1000 & 0 & \textbf{CUMPLE} \\
+Pecuario -- Tabla 7 & $\leq$1000 & 0 & \textbf{CUMPLE} \\
+Recreativo primario -- Tabla 9 & $\leq$200 & 0 & \textbf{CUMPLE} \\
+Recreativo secundario -- Tabla 10 & $\leq$2000 & 0 & \textbf{CUMPLE} \\
+Consumo humano -- Tabla 1 & $\leq$600 & 0 & \textbf{CUMPLE} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Cumple con el límite de TULSMA (CF final = 0 NMP/100mL $≤$ 3000 NMP/100mL).
+
+El producto CT es indicativo de la eficacia de la desinfección. Un valor CT adecuado garantiza la reducción suficiente de microorganismos patógenos.
+
+\begin{table}[H]
+\centering
+\caption{Verificación del producto CT}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Parámetro} & \textbf{Valor calculado} & \textbf{Valor recomendado} \\
+\midrule
+CT calculado & 30 mg$\cdot$min/L & $\geq$ 30 mg$\cdot$min/L \\
+Estado & \multicolumn{2}{c}{\textbf{Cumple}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+El valor CT real (30.0 mg$⋅$min/L) supera el mínimo recomendado de 30 mg$⋅$min/L.
+
+
+\textbf{Notas de operación}
+
+Se recomienda monitorear el cloro residual en la salida del tanque (debe mantenerse entre 0,5--1,0 mg/L) y ajustar la dosis según la demanda del efluente. Realizar pruebas de coliformes periódicas para verificar la eficacia del sistema.
+
+La reducción logarítmica alcanzada es de 6.6 log, lo que representa una reducción porcentual del 100.0\% de los coliformes presentes en el efluente.
+
+\subsubsection{Resultados}
+
+\begingroup
+\small
+\begin{longtable}{@{}lc@{}}
+\caption{Resumen de dimensiones y parámetros de la desinfección}\\
+\toprule
+\textbf{Parámetro} & \textbf{Valor} \\
+\midrule
+\endfirsthead
+\caption[]{Resumen de dimensiones y parámetros de la desinfección (continuación)}\\
+\toprule
+\textbf{Parámetro} & \textbf{Valor} \\
+\midrule
+\endhead
+\midrule
+\multicolumn{2}{r}{\textit{Continúa en la siguiente página}} \\
+\endfoot
+\bottomrule
+\endlastfoot
+\multicolumn{2}{l}{\textit{Dimensiones del tanque}} \\
+\midrule
+Largo & 3.0 m \\
+Ancho & 3.1 m \\
+Canales del culebrin & 5 pasos de 0.50 m \\
+Recorrido hidraulico & 15.0 m (30.0:1) \\
+Profundidad útil & 2.0 m \\
+Altura total & 2.30 m \\
+Volumen útil & 18.6 m³ \\
+\midrule
+\multicolumn{2}{l}{\textit{Parámetros de desinfección}} \\
+\midrule
+Demanda de cloro & 3.5 mg/L \\
+Cloro residual & 0.6 mg/L \\
+Dosis total & 4.1 mg/L \\
+TRH base & 30 min \\
+TRH real & 53.7 min \\
+CT & 30 mg$\cdot$min/L \\
+Log reducción & 6.6 log \\
+CF final & 0 NMP/100mL \\
+\midrule
+\multicolumn{2}{l}{\textit{Consumo de productos}} \\
+\midrule
+Consumo Cl$_2$ activo & 2.02 kg/d \\
+Concentración NaOCl & 10 \% \\
+Consumo NaOCl & 20.2 kg/d \\
+Volumen NaOCl & 18.4 L/d (552 L/mes) \\
+Almacenamiento (30 d) & 552 L (0.6 m³) \\
+\end{longtable}
+\endgroup
+
+El sistema de desinfección con hipoclorito de sodio ha sido dimensionado para tratar un caudal de 498.5 m³/d, logrando una reducción de 100.0\% de coliformes fecales. El cumplimiento respecto a los límites de la TULSMA depende de la categoría de uso receptor específica del proyecto, conforme al dictamen técnico presentado en la tabla de verificación anterior.\
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{figuras/Esquema_Camara_Contacto_Cloro.png}
+\caption{Cámara de contacto de cloración tipo culebrín: planta con bafles alternados y sección transversal. Recorrido hidráulico: 15.0 m; relación recorrido/ancho: 30.0:1; volumen útil adoptado: 18.6 m³.}
+\label{fig:camara_contacto_cloro}
+\end{figure}
+
+
+
+La camara de contacto se configura como culebrin con 5 pasos hidraulicos, ancho de canal de 0.50 m y recorrido total de 15.0 m. La relacion recorrido/ancho es 30.0:1, frente al criterio minimo adoptado de 30:1 para aproximar flujo piston y reducir cortocircuitos hidraulicos. El estado de la verificacion es Cumple.
+
+
+
+\subsection{Lechos de Secado de Lodos}
+
+\subsubsection{Lechos de Secado de Lodos}
+Error: 't_secado_d'
+
+
+
+
+\newpage
+\bibliographystyle{plain}
+\bibliography{referencias}
+
+
+\newpage
+\appendix
+\section{Anexo: TULSMA -- Criterios de Calidad del Recurso Agua}
+\label{app:tulsma}
+
+\begin{center}
+{\LARGE\bfseries TULSMA -- Norma de Calidad Ambiental\\[4pt]
+del Recurso Agua}\\[8pt]
+{\large Libro VI, Anexo 1 -- Acuerdo Ministerial 097-A (2015)\\
+Decreto Ejecutivo 3516 -- Ecuador}\\[4pt]
+{\small Criterios de calidad por uso del agua y limites de descarga de efluentes}
+\end{center}
+\vspace{10pt}
+
+\subsection{Tabla 1 -- Consumo Humano y Uso Domestico (tratamiento convencional)}
+\small
+\begin{longtable}{p{4.5cm}p{2.0cm}p{2.0cm}p{3.5cm}}
+\caption{Limites maximos permisibles para aguas de consumo humano y uso domestico que unicamente requieren tratamiento convencional (TULSMA, Tabla~1).}\\
+\toprule
+\textbf{Parametro} & \textbf{Expresado como} & \textbf{Unidad} & \textbf{Limite maximo permisible} \\
+\midrule
+\endfirsthead
+\multicolumn{4}{c}{\small\itshape Continuacion de la Tabla}\\
+\toprule
+\textbf{Parametro} & \textbf{Expresado como} & \textbf{Unidad} & \textbf{Limite maximo permisible} \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+Aceites y Grasas & Sust.\ solubles en hexano & mg/L & $\leq$ 0,3 \\
+Aluminio & Al & mg/L & $\leq$ 0,2 \\
+Amoniaco & N-Amoniacal & mg/L & $\leq$ 1,0 \\
+Amonio & NH$_4$ & mg/L & $\leq$ 0,05 \\
+Arsenico (total) & As & mg/L & $\leq$ 0,05 \\
+Bario & Ba & mg/L & $\leq$ 1,0 \\
+Cadmio & Cd & mg/L & $\leq$ 0,01 \\
+Cianuro total & CN$^-$ & mg/L & $\leq$ 0,1 \\
+Cloruros & Cl$^-$ & mg/L & $\leq$ 250 \\
+Cobre & Cu & mg/L & $\leq$ 1,0 \\
+\textbf{Coliformes totales} & NMP & NMP/100 mL & $\leq$ 3\,000 \\
+\textbf{Coliformes fecales} & NMP & NMP/100 mL & $\leq$ 600 \\
+Color real & UC & Unidades de color & $\leq$ 100 \\
+Compuestos fenolicos & Fenol & mg/L & $\leq$ 0,002 \\
+Cromo hexavalente & Cr$^{6+}$ & mg/L & $\leq$ 0,05 \\
+\textbf{DBO$_5$} & -- & mg/L & $\leq$ 2,0 \\
+Dureza & CaCO$_3$ & mg/L & $\leq$ 500 \\
+Fluoruro total & F & mg/L & $\leq$ 1,5 \\
+Hierro total & Fe & mg/L & $\leq$ 1,0 \\
+Manganeso total & Mn & mg/L & $\leq$ 0,1 \\
+Materia flotante & -- & -- & Ausencia \\
+Mercurio total & Hg & mg/L & $\leq$ 0,001 \\
+Nitrato & N-Nitrato & mg/L & $\leq$ 10,0 \\
+Nitrito & N-Nitrito & mg/L & $\leq$ 1,0 \\
+Oxigeno disuelto & O.D. & mg/L & $\geq$ 80\% saturacion; $\geq$ 6 mg/L \\
+pH & -- & -- & $6,0 - 9,0$ \\
+Plata total & Ag & mg/L & $\leq$ 0,05 \\
+Plomo total & Pb & mg/L & $\leq$ 0,05 \\
+Selenio total & Se & mg/L & $\leq$ 0,01 \\
+Sodio & Na & mg/L & $\leq$ 200 \\
+Solidos disueltos totales & -- & mg/L & $\leq$ 1\,000 \\
+Sulfatos & SO$_4^{2-}$ & mg/L & $\leq$ 400 \\
+Temperatura & -- & $^\circ$C & Cond.\ natural $\pm$ 3\,$^\circ$C \\
+Tensoactivos & SAAM & mg/L & $\leq$ 0,5 \\
+Turbiedad & -- & UTN & $\leq$ 100 \\
+Zinc & Zn & mg/L & $\leq$ 5,0 \\
+\end{longtable}
+
+\subsection{Tabla 12 -- Descarga a Cuerpo de Agua Dulce}
+{\small\textbf{Nota:} Esta es la tabla aplicable al proyecto de tratamiento de aguas residuales municipales cuando el efluente se vierte a un rio, lago o cuerpo superficial de agua dulce.}
+\vspace{6pt}
+\small
+\begin{longtable}{p{4.5cm}p{2.0cm}p{2.0cm}p{3.5cm}}
+\caption{Limites maximos permisibles de descarga a un cuerpo de agua dulce (TULSMA, Tabla~12).}\\
+\toprule
+\textbf{Parametro} & \textbf{Expresado como} & \textbf{Unidad} & \textbf{Limite maximo permisible} \\
+\midrule
+\endfirsthead
+\multicolumn{4}{c}{\small\itshape Continuacion de la Tabla}\\
+\toprule
+\textbf{Parametro} & \textbf{Expresado como} & \textbf{Unidad} & \textbf{Limite maximo permisible} \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+Aceites y grasas & Sust.\ solubles en hexano & mg/L & $\leq$ 0,3 \\
+Aluminio & Al & mg/L & $\leq$ 5,0 \\
+Arsenico total & As & mg/L & $\leq$ 0,1 \\
+Bario & Ba & mg/L & $\leq$ 2,0 \\
+Cadmio & Cd & mg/L & $\leq$ 0,02 \\
+Cianuro total & CN$^-$ & mg/L & $\leq$ 0,1 \\
+Cloruros & Cl$^-$ & mg/L & $\leq$ 1\,000 \\
+Cobre & Cu & mg/L & $\leq$ 1,0 \\
+\textbf{Coliformes fecales}$^\dagger$ & NMP & NMP/100 mL & $\leq$ 3\,000 \\
+Compuestos fenolicos & Fenol & mg/L & $\leq$ 0,2 \\
+Cromo hexavalente & Cr$^{6+}$ & mg/L & $\leq$ 0,5 \\
+\textbf{DBO$_5$} & -- & mg/L & $\leq$ 100 \\
+\textbf{DQO} & -- & mg/L & $\leq$ 250 \\
+Fluoruros & F$^-$ & mg/L & $\leq$ 5,0 \\
+Fosforo total & P & mg/L & $\leq$ 10,0 \\
+Hierro total & Fe & mg/L & $\leq$ 10,0 \\
+Manganeso total & Mn & mg/L & $\leq$ 2,0 \\
+Materia flotante & -- & -- & Ausencia \\
+Mercurio total & Hg & mg/L & $\leq$ 0,005 \\
+Niquel & Ni & mg/L & $\leq$ 2,0 \\
+Nitrogeno amoniacal & N-NH$_3$ & mg/L & $\leq$ 30,0 \\
+Nitrogeno total Kjeldahl & N-TKN & mg/L & $\leq$ 50,0 \\
+pH & -- & -- & $6,0 - 9,0$ \\
+Plata total & Ag & mg/L & $\leq$ 0,1 \\
+Plomo total & Pb & mg/L & $\leq$ 0,2 \\
+Selenio & Se & mg/L & $\leq$ 0,1 \\
+\textbf{Solidos sedimentables} & -- & mL/L & $\leq$ 1,0 \\
+\textbf{Solidos suspendidos totales} & -- & mg/L & $\leq$ 130 \\
+Solidos totales & -- & mg/L & $\leq$ 1\,600 \\
+Sulfatos & SO$_4^{2-}$ & mg/L & $\leq$ 1\,000 \\
+Sulfuros & S$^{2-}$ & mg/L & $\leq$ 0,5 \\
+Temperatura & -- & $^\circ$C & Cond.\ natural $\pm$ 3\,$^\circ$C; max.\ 32\,$^\circ$C \\
+Tensoactivos & SAAM & mg/L & $\leq$ 0,5 \\
+Zinc & Zn & mg/L & $\leq$ 5,0 \\
+\multicolumn{4}{l}{\scriptsize $^\dagger$ Aquellos con descargas $\leq$ 3\,000 NMP/100 mL quedan exentos de tratamiento de desinfeccion.}\\
+\end{longtable}
+\normalsize
+
+\subsection{Tabla 13 -- Descarga a Cuerpo de Agua Marina}
+\small
+\begin{longtable}{p{4.5cm}p{2.0cm}p{2.0cm}p{3.5cm}}
+\caption{Limites maximos permisibles de descarga a un cuerpo de agua marina (TULSMA, Tabla~13).}\\
+\toprule
+\textbf{Parametro} & \textbf{Expresado como} & \textbf{Unidad} & \textbf{Limite maximo permisible} \\
+\midrule
+\endfirsthead
+\multicolumn{4}{c}{\small\itshape Continuacion de la Tabla}\\
+\toprule
+\textbf{Parametro} & \textbf{Expresado como} & \textbf{Unidad} & \textbf{Limite maximo permisible} \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+Aceites y grasas & Sust.\ solubles en hexano & mg/L & $\leq$ 0,3 \\
+Aluminio & Al & mg/L & $\leq$ 5,0 \\
+Arsenico total & As & mg/L & $\leq$ 0,1 \\
+Cadmio & Cd & mg/L & $\leq$ 0,1 \\
+Cianuro total & CN$^-$ & mg/L & $\leq$ 0,1 \\
+Cobre & Cu & mg/L & $\leq$ 0,5 \\
+\textbf{Coliformes fecales}$^\ddagger$ & NMP & NMP/100 mL & $\leq$ 3\,000 \\
+Compuestos fenolicos & Fenol & mg/L & $\leq$ 0,2 \\
+Cromo hexavalente & Cr$^{6+}$ & mg/L & $\leq$ 0,5 \\
+\textbf{DBO$_5$} & -- & mg/L & $\leq$ 100 \\
+\textbf{DQO} & -- & mg/L & $\leq$ 250 \\
+Fluoruros & F$^-$ & mg/L & $\leq$ 5,0 \\
+Hierro total & Fe & mg/L & $\leq$ 10,0 \\
+Manganeso total & Mn & mg/L & $\leq$ 2,0 \\
+Materia flotante & -- & -- & Ausencia \\
+Mercurio total & Hg & mg/L & $\leq$ 0,005 \\
+Niquel & Ni & mg/L & $\leq$ 2,0 \\
+Nitrogeno amoniacal & N-NH$_3$ & mg/L & $\leq$ 30,0 \\
+Nitrogeno total Kjeldahl & N-TKN & mg/L & $\leq$ 50,0 \\
+pH & -- & -- & $6,0 - 9,0$ \\
+Plomo total & Pb & mg/L & $\leq$ 0,2 \\
+\textbf{Solidos suspendidos totales} & -- & mg/L & $\leq$ 100 \\
+Temperatura & -- & $^\circ$C & Cond.\ natural $\pm$ 3\,$^\circ$C; max.\ 32\,$^\circ$C \\
+Tensoactivos & SAAM & mg/L & $\leq$ 0,5 \\
+Zinc & Zn & mg/L & $\leq$ 5,0 \\
+\multicolumn{4}{l}{\footnotesize $^\ddagger$ Aquellos con descargas $\leq$ 3\,000 NMP/100 mL quedan exentos de tratamiento de desinfeccion.}\\
+\end{longtable}
+
+\subsection{Tabla 11 -- Descarga al Sistema de Alcantarillado Publico}
+\small
+\begin{longtable}{p{4.5cm}p{2.0cm}p{2.0cm}p{3.5cm}}
+\caption{Limites maximos permisibles de descarga al sistema de alcantarillado publico (TULSMA, Tabla~11).}\\
+\toprule
+\textbf{Parametro} & \textbf{Expresado como} & \textbf{Unidad} & \textbf{Limite maximo permisible} \\
+\midrule
+\endfirsthead
+\multicolumn{4}{c}{\small\itshape Continuacion de la Tabla}\\
+\toprule
+\textbf{Parametro} & \textbf{Expresado como} & \textbf{Unidad} & \textbf{Limite maximo permisible} \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+Aceites y grasas & Sust.\ solubles en hexano & mg/L & $\leq$ 70,0 \\
+Aluminio & Al & mg/L & $\leq$ 5,0 \\
+Arsenico total & As & mg/L & $\leq$ 0,1 \\
+Bario & Ba & mg/L & $\leq$ 2,0 \\
+Cadmio & Cd & mg/L & $\leq$ 0,02 \\
+Cianuro total & CN$^-$ & mg/L & $\leq$ 1,0 \\
+Cloruros & Cl$^-$ & mg/L & $\leq$ 1\,000 \\
+Cobre & Cu & mg/L & $\leq$ 1,0 \\
+Coliformes fecales & NMP & NMP/100 mL & No especificado \\
+Compuestos fenolicos & Fenol & mg/L & $\leq$ 0,2 \\
+Cromo hexavalente & Cr$^{6+}$ & mg/L & $\leq$ 0,5 \\
+Cromo total & Cr & mg/L & $\leq$ 0,5 \\
+\textbf{DBO$_5$} & -- & mg/L & $\leq$ 250 \\
+\textbf{DQO} & -- & mg/L & $\leq$ 500 \\
+Fluoruros & F$^-$ & mg/L & $\leq$ 5,0 \\
+Hierro total & Fe & mg/L & $\leq$ 25,0 \\
+Manganeso total & Mn & mg/L & $\leq$ 10,0 \\
+Materia flotante & -- & -- & Ausencia \\
+Mercurio total & Hg & mg/L & $\leq$ 0,01 \\
+Niquel & Ni & mg/L & $\leq$ 2,0 \\
+Nitrogeno amoniacal & N-NH$_3$ & mg/L & $\leq$ 30,0 \\
+pH & -- & -- & $6,0 - 9,0$ \\
+Plata total & Ag & mg/L & $\leq$ 0,5 \\
+Plomo total & Pb & mg/L & $\leq$ 0,5 \\
+Selenio & Se & mg/L & $\leq$ 0,5 \\
+\textbf{Solidos sedimentables} & -- & mL/L/h & $\leq$ 20 \\
+\textbf{Solidos suspendidos totales} & -- & mg/L & $\leq$ 220 \\
+Sulfatos & SO$_4^{2-}$ & mg/L & $\leq$ 1\,000 \\
+Sulfuros & S$^{2-}$ & mg/L & $\leq$ 1,0 \\
+Temperatura & -- & $^\circ$C & $\leq$ 40 \\
+Tensoactivos & SAAM & mg/L & $\leq$ 2,0 \\
+Zinc & Zn & mg/L & $\leq$ 5,0 \\
+\end{longtable}
+
+\end{document}

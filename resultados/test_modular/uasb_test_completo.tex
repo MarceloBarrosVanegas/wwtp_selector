@@ -1,0 +1,424 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usepackage{float}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\geometry{margin=2.5cm}
+
+\newcommand{\captionequation}[1]{}  % Simplificado para test
+
+\begin{document}
+
+\section{Reactor UASB}
+
+
+
+El reactor UASB (Upflow Anaerobic Sludge Blanket), desarrollado por Lettinga y colaboradores en 1980 en la Universidad de Wageningen de los Países Bajos \cite{vanhaandel1994}, es uno de los sistemas de tratamiento anaerobio de alta tasa más utilizados en el mundo para aguas residuales municipales y agroindustriales. El agua residual entra por la parte inferior y fluye en sentido ascendente a través de un manto denso de lodo anaerobio, donde los microorganismos anaerobios degradan la materia orgánica mediante metanogénesis, convirtiéndola en biogás (metano y CO$_2$) y biomasa. El proceso ocurre sin oxígeno molecular, por lo que no requiere aireación, reduciendo drásticamente el consumo energético (5--10 veces menos que un sistema aerobio convencional).
+
+El diseño se fundamenta en criterios biológicos e hidráulicos establecidos por Van Haandel y Lettinga \cite{vanhaandel1994}, Sperling \cite{sperling2007} y Metcalf y Eddy \cite{metcalf2014}.
+
+\textbf{Condiciones de temperatura:} La temperatura del agua residual es un factor crítico que determina los parámetros de diseño del reactor UASB. Según Van Haandel y Lettinga (1994), el proceso de metanogénesis requiere temperaturas superiores a 22°C para operar de manera óptima. A temperaturas menores, la actividad metabólica de los microorganismos anaerobios disminuye, requiriendo ajustes en la carga orgánica, el tiempo de retención y la velocidad ascendente.
+
+Para el presente diseño, la temperatura del agua residual es \textbf{24.0°C} (óptima (>= 22°C)). Con base en esta condición, los parámetros de diseño se han ajustado automáticamente según los siguientes rangos recomendados:
+
+\begin{table}[H]
+\centering
+\caption{Rangos de diseño según temperatura del agua residual}
+\small
+\begin{tabular}{lccc}
+\toprule
+\textbf{Condición} & \textbf{T (°C)} & \textbf{Cv (kg/m³·d)} & \textbf{HRT (h)} \\
+\midrule
+Óptima & $>=$ 22 & 2.0--3.0 & 4--6 \\
+Moderada & 18--22 & 1.5--2.5 & 5--8 \\
+Baja & 15--18 & 1.0--1.5 & 6--10 \\
+Muy baja & 10--15 & 0.5--1.5 & 8--12 \\
+Crítica & $<$ 10 & No recomendable & Requiere calefacción \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Para mantener el rendimiento óptimo del reactor en caso de descenso de temperatura, se recomienda monitorear periodicamente. Si la temperatura descendiera por debajo de 18°C, el sistema debería ajustar automáticamente la carga orgánica y el tiempo de retención.
+
+Notas importantes de diseño: se debe incluir un separador gas-líquido-sólido (GLS) en la parte superior (altura referencial de 1.0 m) y un sistema de distribución uniforme en el fondo. El biogás requiere sistema de recolección y manejo seguro (prevención contra explosión).
+
+Los siguientes parámetros han sido seleccionados como criterios de diseño para el reactor UASB:
+
+\begin{table}[H]
+\centering
+\caption{Parámetros seleccionados para el diseño UASB}
+\begin{tabular}{p{6cm}cc}
+\toprule
+\textbf{Parámetro} & \textbf{Valor adoptado} & \textbf{Rango recomendado} \\
+\midrule
+Caudal por línea ($Q$) & 18.00 m³/h & - \\
+Carga orgánica volumétrica ($C_v$) & 2.50 kg DQO/m³·d & 2,0--3,0 \\
+Velocidad ascendente de diseño ($v_{up}$) & 0.80 m/h & 0,5--1,5 \\
+Altura máxima del reactor ($H_{max}$) & 6.0 m & 3.0--6.0 m \\
+Factor de efectividad sedimentador & 90\% & 85--95\% \\
+Altura sedimentador ($H_{sed}$) & 1.6 m & 1.5--2.0 m \\
+Carga superficial máxima límite (SOR) & 1.2 m/h & $<$ 1.2 m/h \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textit{Nota: El valor de velocidad ascendente indicado en el cuadro corresponde al parámetro de diseño configurado. Sin embargo, tras el proceso de verificación hidráulica según las condiciones de temperatura del agua residual (24.0°C) y los criterios de estabilidad del manto de lodos, el valor efectivo adoptado para el cálculo del área superficial es 0.43 m/h, resultando en un área de 41.88 m².}
+
+\textbf{Zona de Reacción -- Dimensionamiento}
+
+El dimensionamiento del reactor UASB se fundamenta en dos criterios complementarios: el criterio biológico (carga orgánica volumétrica) y el criterio hidráulico (velocidad ascendente). Ambos enfoques deben satisfacerse simultáneamente para garantizar el correcto funcionamiento del sistema.
+
+\textbf{Criterio biológico:} Según Van Haandel y Lettinga \cite{vanhaandel1994}, el volumen del reactor se determina a partir de la carga orgánica volumétrica ($C_v$), que representa la cantidad de materia orgánica que debe procesar el reactor por unidad de volumen y tiempo. Para aguas residuales municipales a temperaturas superiores a 22°C, los autores recomiendan una carga entre 2.0 y 3.0 kg DQO/m³·d. La expresión fundamental es:
+
+\begin{equation}
+V_r = \frac{Q \cdot S_0}{C_v}
+\end{equation}
+\captionequation{Volumen util del reactor UASB segun Van Haandel y Lettinga (1994)}
+
+\textit{Donde:}
+\begin{itemize}[noitemsep,leftmargin=2em]
+    \item[$V_r$] = Volumen útil del reactor (m³)
+    \item[$Q$] = Caudal diario (432.0 m³/d)
+    \item[$S_0$] = Concentración de DQO afluente (0.5000 kg/m³)
+    \item[$C_v$] = Carga orgánica volumétrica adoptada (2.5 kg DQO/m³·d)
+\end{itemize}
+
+Sustituyendo los valores del proyecto:
+
+\begin{equation}
+V_{biol} = \frac{432.0 \times 0.5000}{2.5} = 86.4 \text{ m}^3
+\end{equation}
+
+Este volumen biológico teórico de 86.4 m³ garantizaría el tiempo de retención hidráulico necesario para que los microorganismos anaerobios degraden la materia orgánica según Van Haandel y Lettinga. Sin embargo, el criterio hidráulico (velocidad ascendente) requiere un área superficial mayor para evitar el arrastre del manto de lodos, lo que resulta en un volumen final adoptado de \textbf{125.6 m³}. Este ajuste incrementa el TRH respecto al mínimo teórico, proporcionando un margen de seguridad adicional en la operación del reactor.
+
+\textbf{Criterio hidráulico:} De manera simultánea, según Sperling \cite{sperling2007}, la velocidad ascendente ($v_{up}$) debe mantenerse dentro de rangos que permitan retener el manto de lodos sin arrastre. El autor recomienda velocidades entre 0.5 y 1.5 m/h para condiciones normales, con un máximo de 2.0 m/h durante picos de caudal. Con la velocidad adoptada de 0.43 m/h, el área superficial requerida se calcula como:
+
+\begin{equation}
+A_s = \frac{Q}{v_{up}}
+\end{equation}
+\captionequation{Area superficial del reactor UASB}
+
+\textit{Donde:}
+\begin{itemize}[noitemsep,leftmargin=2em]
+    \item[$A_s$] = Área superficial del reactor (m²)
+    \item[$Q$] = Caudal por línea (18.00 m³/h)
+    \item[$v_{up}$] = Velocidad ascendente adoptada (0.43 m/h)
+\end{itemize}
+
+\begin{equation}
+A_s = \frac{18.00}{0.43} = 41.88 \text{ m}^2
+\end{equation}
+
+El diámetro del reactor circular se obtiene a partir de la geometría del círculo, considerando que el área superficial debe ser la calculada hidráulicamente. Esta formulación geométrica estándar permite determinar las dimensiones constructivas del reactor:
+
+\begin{equation}
+D = \sqrt{\frac{4 \cdot A_s}{\pi}}
+\end{equation}
+\captionequation{Diametro del reactor circular - Geometria basica}
+
+\textit{Donde:}
+\begin{itemize}[noitemsep,leftmargin=2em]
+    \item[$D$] = Diámetro del reactor circular (m)
+    \item[$A_s$] = Área superficial calculada (41.88 m²)
+    \item[$\pi$] = 3,14159
+\end{itemize}
+
+\begin{equation}
+D = \sqrt{\frac{4 \times 41.88}{\pi}} = 7.30 \text{ m}
+\end{equation}
+
+La altura de la zona de reacción (manto de lodos) resulta 3.00~m, proporcionando un tiempo de retención hidráulico de 7.0 horas para la temperatura de 24.0°C del agua residual. La evaluación de adecuación hidráulica se presenta en la sección de verificación.
+
+\textbf{Producción de biogás:} La metanogénesis en el reactor UASB genera biogás compuesto principalmente por metano (CH$_4$) y dióxido de carbono (CO$_2$). Según Van Haandel y Lettinga \cite{vanhaandel1994}, la producción teórica de metano puede estimarse mediante relaciones estequiométricas. Experimentalmente se ha determinado que por cada kilogramo de DQO removida en condiciones anaerobias, se producen aproximadamente 0,35 m³ de metano (a condiciones estándar). Esta relación permite estimar la producción esperada de biogás:
+
+El biogás generado en reactores UASB tratando aguas residuales municipales está compuesto principalmente por metano (CH$_4$) en una proporción de 65\%, situándose típicamente en un rango de 60 a 75\%. El metano constituye el componente energético del biogás, con un poder calorífico de aproximadamente 35 MJ/m³. El dióxido de carbono (CO$_2$) representa alrededor del 35\% del volumen total, con un rango típico entre 25 y 40\%, siendo un producto natural de la digestión anaerobia. El sulfuro de hidrógeno (H$_2$S) se presenta en concentraciones inferiores a 100 ppm, proveniente de la reducción de sulfatos presentes en el agua residual; cuando las concentraciones son elevadas se requiere tratamiento debido a su corrosividad y generación de olores. Finalmente, el biogás contiene vapor de agua y trazas de nitrógeno, oxígeno y otros gases en proporciones menores al 1\%.
+
+El biogás producido debe manejarse de manera segura considerando aspectos de seguridad, aprovechamiento y monitoreo. En cuanto a seguridad, el biogás es inflamable en concentraciones del 5 al 15\% en aire, por lo que se requiere un sistema de venteo o quemador para evitar su acumulación. Respecto al aprovechamiento, existen tres opciones principales: el quemador de antorcha para eliminación segura, el calentamiento del propio reactor cuando la temperatura lo requiere, y la generación de energía eléctrica mediante microturbinas, aunque esta última requiere una evaluación de viabilidad económica. El monitoreo debe incluir el control periódico de la composición del biogás, especialmente el contenido de H$_2$S, así como la verificación del sistema de sellado del reactor.
+
+El proceso de metanogénesis es sensible a las condiciones de pH, por lo que según Van Haandel y Lettinga \cite{vanhaandel1994} y Metcalf y Eddy \cite{metcalf2014} es necesario mantener rangos óptimos de operación. El pH óptimo debe situarse entre 6.8 y 7.2, ya que valores por debajo de 6,5 inhiben la actividad metanogénica y pueden causar la acidificación del reactor. Respecto a la alcalinidad, se recomienda un mínimo de 1000 mg/L como CaCO$_3$, ya que actúa como tampón ante la producción de ácidos durante la digestión, manteniendo la estabilidad del pH.
+
+\textit{Nota:} Las aguas residuales municipales típicamente contienen suficiente alcalinidad (bicarbonatos) para mantener el pH estable durante la digestión anaerobia. Si el pH del efluente descendiera consistentemente por debajo de 6,8, se debería evaluar la adición de fuentes de alcalinidad (carbonato cálcico, hidróxido de sodio) o revisar la carga orgánica aplicada.
+
+El lodo producido en el reactor UASB está estabilizado anaeróbicamente. Durante su retención prolongada en el reactor, donde el tiempo de retención de sólidos es significativamente mayor que el tiempo de retención hidráulico, los microorganismos completan las etapas de digestión: hidrólisis, acidogénesis, acetogénesis y metanogénesis. Como resultado, el lodo estabilizado presenta bajo contenido de materia orgánica volátil, con una reducción de 40 a 60\% respecto al lodo primario no estabilizado, ausencia de olores fétidos característicos de lodos frescos, mayor facilidad de deshidratación en lechos de secado, y una reducción significativa de patógenos, aunque sin alcanzar la esterilización completa.
+
+Esta estabilización hace que el lodo UASB sea más manejable para disposición final o uso condicionado en agricultura, comparado con lodos de tratamientos aerobios o sedimentación primaria sin digestión.
+
+\begin{equation}
+V_{CH_4} = (Q_d \cdot S_0 \cdot E) \times 0.35
+\end{equation}
+\captionequation{Produccion de biogas - Relacion estequiometrica}
+
+\textit{Donde:}
+\begin{itemize}[noitemsep,leftmargin=2em]
+    \item[$V_{CH_4}$] = Volumen de metano producido (m³ CH$_4$/d)
+    \item[$Q_d$] = Caudal diario (432.0 m³/d)
+    \item[$S_0$] = Concentración de DQO afluente (0.500 kg/m³)
+    \item[$E$] = Eficiencia de remoción (0.65)
+\end{itemize}
+
+\begin{equation}
+V_{CH_4} = (432.0 \times 0.500 \times 0.65) \times 0.35 = 49.1 \text{ m}^3 \text{ CH}_4\text{/d}
+\end{equation}
+
+\textbf{Cámara de Sedimentación -- Dimensionamiento}
+
+El compartimiento de sedimentación superior constituye una zona crítica del reactor UASB, ya que debe retener los sólidos biológicos antes de que salgan con el efluente. Según Chernicharo \cite{chernicharo2007}, el diseño de esta zona se fundamenta en el concepto de Carga Superficial (SOR - Surface Overflow Rate), análogo al utilizado en sedimentadores convencionales, pero adaptado a las condiciones particulares del UASB donde el biogás generado puede afectar la sedimentación.
+
+Chernicharo recomienda que la carga superficial a caudal máximo no debe exceder 1.2 m/h para evitar el arrastre de sólidos hacia el efluente. Este valor es más restrictivo que el utilizado en sedimentadores primarios convencionales debido a la presencia de biogás y la naturaleza floculenta de los lodos anaerobios. Adicionalmente, el autor sugiere una altura mínima del compartimiento de sedimentación entre 1.5 y 2.0 m para garantizar el tiempo necesario de separación gas-líquido-sólido.
+
+Los criterios de diseño según Chernicharo (2007) son:
+
+\begin{equation}
+\text{SOR}_{max} < 1.2 \text{ m/h} \quad \text{(límite para evitar arrastre de sólidos)}
+\end{equation}
+
+\begin{equation}
+H_{sed} \geq 1.5 \text{ m} \quad \text{(altura mínima constructiva)}
+\end{equation}
+
+El área efectiva de sedimentación considera el factor de efectividad del 90\% del área total (Chernicharo):
+
+\begin{equation}
+A_{sed} = 0.90 \times A_{sup} = 0.90 \times 41.88 = 37.69 \text{ m}^2
+\end{equation}
+
+El volumen del sedimentador se calcula con la altura adoptada de 1.6~m:
+
+\begin{equation}
+V_{sed} = A_{sed} \times H_{sed} = 37.69 \times 1.6 = 60.31 \text{ m}^3
+\end{equation}
+
+El tiempo de retención hidráulico en el sedimentador resulta:
+
+\begin{equation}
+t_{sed} = \frac{V_{sed}}{Q} = \frac{60.31}{18.00} = 3.35 \text{ h}
+\end{equation}
+
+\textbf{Aberturas GLS -- Dimensionamiento}
+
+El separador gas-líquido-sólido (GLS) incluye aberturas que permiten el paso del líquido clarificado desde la zona de digestión hacia el compartimiento de sedimentación. Según Chernicharo \cite{chernicharo2007}, estas aberturas deben dimensionarse cuidadosamente para evitar velocidades que arrastren sólidos hacia el efluente.
+
+La velocidad admisible en las aberturas es mayor que en el cuerpo del reactor porque el líquido ya está parcialmente clarificado. Los valores recomendados son 2.0--2.3 m/h a caudal medio y hasta 4.2 m/h a caudal máximo. El área mínima requerida se calcula como:
+
+\begin{equation}
+A_{ab} = \frac{Q}{v_{adm}}
+\end{equation}
+\captionequation{Area minima de aberturas GLS}
+
+\textit{Donde:}
+\begin{itemize}[noitemsep,leftmargin=2em]
+    \item[$A_{ab}$] = Área total libre de aberturas (m²)
+    \item[$Q$] = Caudal por línea (18.00 m³/h)
+    \item[$v_{adm}$] = Velocidad admisible adoptada (1.68 m/h)
+\end{itemize}
+
+\begin{equation}
+A_{ab} = \frac{18.00}{1.68} = 10.71 \text{ m}^2
+\end{equation}
+
+Adicionalmente, el GLS debe construirse con pendientes de 50° a 60° (adoptado 55°) y un traslape de 0.15 m sobre las aberturas para garantizar la retención de sólidos.
+
+\textbf{Distribución del Afluente -- Dimensionamiento}
+
+La distribución uniforme del afluente en el fondo del reactor es crítica para garantizar un flujo ascendente homogéneo y evitar cortocircuitos que reducirían la eficiencia del tratamiento. Según Chernicharo \cite{chernicharo2007}, el número de puntos de distribución se determina en función del área del reactor y el área de influencia que puede atender cada punto.
+
+El área de influencia por punto recomendada varía entre 2.0 y 3.0 m² por punto. Adoptando un valor intermedio de 2.50 m²/punto, el número de puntos de distribución resulta:
+
+\begin{equation}
+N = \frac{A}{A_{inf}} = \frac{41.88}{2.50} = 17 \text{ puntos}
+\end{equation}
+\captionequation{Numero de puntos de distribucion del afluente}
+
+El caudal por punto de distribución se calcula dividiendo el caudal total entre el número de puntos:
+
+\begin{equation}
+q = \frac{Q}{N} = \frac{0.005 \times 1000}{17} = 0.294 \text{ L/s}
+\end{equation}
+
+Los tubos de distribución se diseñan según la práctica estándar de Lettinga y Hulshoff Pol: tubería principal de gran diámetro para transporte sin obstrucciones, con bocas de salida reducidas para garantizar velocidad de inyección adecuada. Se adopta una tubería de distribución de 50 mm con bocas de salida de 25 mm.
+
+\textbf{Verificación de velocidades:}
+
+La velocidad en la tubería principal(transporte) se calcula como:
+
+\begin{equation}
+v_{tubo} = \frac{q}{a_{tubo}} = \frac{0.294 \times 10^{-3}}{\pi \times (50 \times 10^{-3})^2 / 4} = 0.150 \text{ m/s}
+\end{equation}
+
+La velocidad en la boca de salida (inyección al lecho de lodo) es el parámetro crítico según Lettinga. Debe estar entre 0.4 y 4.0 m/s para garantizar arrastre de sólidos sin erosión:
+
+\begin{equation}
+v_{boca} = \frac{q}{a_{boca}} = \frac{0.294 \times 10^{-3}}{\pi \times (25 \times 10^{-3})^2 / 4} = 0.60 \text{ m/s}
+\end{equation}
+
+\subsection{Verificación}
+
+\textbf{Verificación de Velocidad Ascendente a Caudal Máximo}
+
+El fundamento de la verificación hidráulica establece que el diseño del reactor UASB debe garantizar no solo el funcionamiento adecuado bajo condiciones normales (caudal medio), sino también durante eventos de pico de caudal que ocurren típicamente en horas de mayor consumo de agua. Según Metcalf y Eddy \cite{metcalf2014}, los sistemas de tratamiento deben verificarse para el caudal máximo horario, el cual se estima aplicando un factor de pico sobre el caudal medio diario. El factor denominado $f_p$, adoptado de 2.50 considera las características de la zona de estudio y las variaciones esperadas del caudal durante el día. La aplicación de este factor permite determinar el caudal máximo horario de diseño:
+
+\begin{equation}
+Q_{max} = f_p \times Q_{medio} = 2.50 \times 432.0 = 1080.0 \text{ m}^3\text{/d} = 45.00 \text{ m}^3\text{/h}
+\end{equation}
+
+El análisis de la velocidad ascendente de pico considera que, bajo condiciones de caudal máximo, la velocidad ascendente en el reactor aumenta proporcionalmente. Esta velocidad de pico, $v_{up,max}$, se calcula manteniendo el área superficial del reactor (determinada previamente por el criterio de velocidad media) pero incrementando el caudal al valor máximo esperado:
+
+\begin{equation}
+v_{up,max} = \frac{Q_{max}}{A_s} = \frac{45.00}{41.88} = 1.07 \text{ m/h}
+\end{equation}
+
+Los criterios de evaluación del estado del reactor, según Metcalf y Eddy \cite{metcalf2014}, clasifican el estado operacional en función de la velocidad ascendente máxima calculada. Esta clasificación permite determinar si el diseño garantiza la estabilidad del manto de lodos o si existe riesgo de arrastre de biomasa. Los autores definen tres estados operacionales basados en estudios experimentales de la hidrodinámica de reactores UASB. Formalmente, el estado se determina mediante:
+
+\begin{equation}
+\text{Estado} = \begin{cases}
+    \text{ÓPTIMO} & \text{si } v_{up,max} \leq 1.5 \text{ m/h} \\
+    \text{ACEPTABLE} & \text{si } 1.5 < v_{up,max} \leq 2.0 \text{ m/h} \\
+    \text{NO ADMISIBLE} & \text{si } v_{up,max} > 2.0 \text{ m/h}
+\end{cases}
+\end{equation}
+\captionequation{Criterios de verificación de arrastre del manto según Metcalf y Eddy (2014)}
+
+Para el presente diseño, con una velocidad ascendente máxima calculada de $v_{up,max} = 1.07$~m/h, el reactor se clasifica en estado \textbf{ACEPTABLE CON MONITOREO}. Este resultado indica que el dimensionamiento propuesto garantiza la estabilidad del manto de lodos, pero el sedimentador superior y/o las aberturas GLS operan con margen reducido que requiere monitoreo periódico durante picos de caudal.
+
+\textbf{Verificación de la Cámara de Sedimentación}
+
+El principio de verificación de la sedimentación establece que la cámara de sedimentación superior del reactor UASB debe evaluarse tanto para condiciones de caudal medio como para caudal máximo. Según Chernicharo \cite{chernicharo2007}, la verificación a caudal medio permite evaluar si el diseño opera dentro del rango óptimo de eficiencia, mientras que la verificación a caudal máximo determina si se evita el arrastre de sólidos durante picos de flujo.
+
+El autor establece que, aunque el criterio crítico es el SOR máximo ($<$ 1.2 m/h), también es deseable que el SOR medio se mantenga entre 0.6 y 0.8 m/h. Valores inferiores a este rango, aunque conservadores, indican que el área del sedimentador es mayor de lo estrictamente necesario, lo cual no representa un problema operativo pero implica mayores costos de construcción. Valores superiores sugieren riesgo de arrastre incluso en operación normal.
+
+El cálculo de la Carga Superficial Operacional se realiza aplicando la ecuación fundamental del SOR para ambas condiciones de caudal:
+
+Para caudal medio (condición de operación normal):
+\begin{equation}
+SOR_{medio} = \frac{Q_{medio}}{A_{sed}} = \frac{18.00}{37.69} = 0.48 \text{ m/h}
+\end{equation}
+
+Para caudal máximo horario (condición de pico):
+\begin{equation}
+SOR_{max} = \frac{Q_{max}}{A_{sed}} = \frac{45.00}{37.69} = 1.19 \text{ m/h}
+\end{equation}
+
+El análisis de cumplimiento de criterios evalúa los valores calculados según los parámetros establecidos por Chernicharo (2007) para sedimentadores en reactores UASB:
+
+
+     \textbf{SOR máximo}: La carga superficial máxima de 1.19 m/h cumple con el límite (< 1.2 m/h). Este límite representa la velocidad de asentamiento mínima de los agregados de lodos anaerobios. Superar este valor implica que el flujo ascendente supera la velocidad de caída de los sólidos, causando su arrastre hacia el efluente.
+    
+     \textbf{SOR medio}: La carga superficial de 0.48 m/h está por debajo del rango (0.6-0.8 m/h), pero es aceptable para diseño conservador. Según Chernicharo, este rango permite evaluar la eficiencia de separación sólido-líquido y el margen operativo de la cámara de sedimentación.
+    
+     \textbf{TRH en sedimentador}: El tiempo de retencion de 3.35 h cumple con el minimo de 1.5 h recomendado por Chernicharo para permitir la adecuada separacion gas-liquido-solido.
+
+
+\begin{table}[H]
+\centering
+\caption{Verificación de criterios de diseño de la cámara de sedimentación según Chernicharo (2007)}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Parámetro} & \textbf{Valor calculado} & \textbf{Criterio} & \textbf{Estado} \\
+\midrule
+SOR máximo & 1.19 m/h & $<$ 1.2 m/h & Cumple \\
+SOR medio & 0.48 m/h & 0.6--0.8 m/h & Bajo (aceptable) \\
+TRH sedimentador & 3.35 h & $\geq$ 1.5 h & Cumple \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Nota sobre márgenes operativos:} Los parámetros críticos de control hidráulico del reactor se mantienen dentro de los límites recomendados por Chernicharo \cite{chernicharo2007}. El SOR máximo es 1.19 m/h frente al límite de 1.2 m/h, con un margen de 0.5%; este criterio controla el riesgo de arrastre de sólidos en la cámara de sedimentación durante caudales pico. La velocidad máxima en aberturas GLS es 4.20 m/h frente al límite de 4.2 m/h, con un margen de 0.0%; este criterio controla el paso del líquido clarificado hacia el compartimiento de sedimentación sin inducir arrastre de lodos. En conjunto, el margen operativo se clasifica como reducido. Por ello, aunque la unidad cumple, se recomienda verificar SOR y velocidad en aberturas durante la puesta en marcha y monitorear periódicamente SST/turbidez del efluente como indicador de posible arrastre.
+
+La verificacion muestra que el SOR medio esta por debajo del rango optimo pero dentro de valores aceptables conservadores; el diseno cumple con SOR maximo y TRH.
+
+\textbf{Verificación de Aberturas GLS}
+
+Verificando para caudal máximo ($Q_{max} = 45.00$ m³/h):
+
+\begin{equation}
+v_{ab,max} = \frac{Q_{max}}{A_{ab}} = \frac{45.00}{10.71} = 4.20 \text{ m/h} \quad \leq 4.2 \text{ m/h } \text{(Cumple)}
+\end{equation}
+
+La velocidad máxima calculada en las aberturas GLS antes del ajuste era 5.38 m/h, superior al límite de 4.2 m/h. Para cumplir, se aumentó el área libre de aberturas a 10.71 m², quedando la velocidad máxima ajustada exactamente en 4.20 m/h. Esta condición indica que el diseño cumple técnicamente pero queda en el límite (margen 0 %). Se recomienda mantener limpias las ranuras del GLS y verificar su condición durante inspecciones de rutina.
+
+\textbf{Verificación del Sistema de Distribución}
+
+\begin{table}[H]
+\centering
+\caption{Verificación de velocidades en sistema de distribución}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Parámetro} & \textbf{Valor} & \textbf{Criterio} & \textbf{Estado} \\
+\midrule
+Velocidad en tubería principal& 0.150 m/s & Transporte sin obstrucción ($<$ 0.20 m/s) & Adecuado \\
+Velocidad en boca de salida & 0.60 m/s & 0.4--4.0 m/s & Cumple \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+La velocidad en boca de 0.60 m/s cumple con el rango recomendado por Lettinga y Hulshoff Pol para inyeccion adecuada en el lecho de lodo.
+
+\subsection{Resultados}
+
+\begingroup
+\small
+\begin{longtable}{ll}
+\caption{Dimensiones y parámetros del reactor UASB}\\
+\toprule
+Parámetro & Valor \\
+\midrule
+\endfirsthead
+\caption[]{Dimensiones y parámetros del reactor UASB (continuación)}\\
+\toprule
+Parámetro & Valor \\
+\midrule
+\endhead
+\midrule
+\multicolumn{2}{r}{\textit{Continúa en la siguiente página}} \\
+\endfoot
+\bottomrule
+\endlastfoot
+Diámetro & 7.30 m \\
+\multicolumn{2}{l}{\textit{Desglose de alturas:}} \\
+\quad Zona de distribución (fondo) & 0.30 m \\
+\quad Zona de reacción (manto de lodos) & 3.00 m \\
+\quad Zona de sedimentación & 1.60 m \\
+\quad Separador GLS & 1.00 m \\
+\quad Bordo libre & 0.50 m \\
+\midrule
+\textbf{Altura total de construcción} & \textbf{6.40 m} \\
+\midrule
+Volumen útil & 125.6 m³ \\
+Área superficial & 41.88 m² \\
+Tiempo de retención hidráulico & 7.0 h \\
+Carga orgánica volumétrica & 2.5 kg DQO/m³·d \\
+Biogás producido & 49.1 m$^3$ CH$_4$/d \\
+\midrule
+\multicolumn{2}{l}{\textit{Subdivisión zona de reacción:}} \\
+\quad Lecho de lodo denso/granular (40\%) & 1.20 m \\
+\quad Manto expandido (60\%) & 1.80 m \\
+\end{longtable}
+\endgroup
+
+La subdivisión interna de la zona de reacción sigue criterios establecidos por Chernicharo \cite{chernicharo2007}. El lecho de lodo denso o granular (aproximadamente 40\% de la altura útil) contiene los lodos más viejos y densos, mientras que el manto de lodos expandido (aproximadamente 60\% de la altura útil) mantiene los lodos en suspensión activa donde ocurre la mayor parte de la degradación biológica.
+
+El reactor UASB requiere un inóculo inicial de lodo anaeróbico denso/granular o, en su defecto, lodo digerido anaeróbicamente. Según Lettinga y Hulshoff-Pol \cite{vanhaandel1994}, la cantidad recomendada de inóculo para el arranque es de 10--15 kg SSV/m³ (sólidos suspendidos volátiles), equivalente a llenar aproximadamente el 15--30\% del volumen del reactor. El lodo granular consiste en agregados microbianos densos de 0.5--5 mm de diámetro, con velocidades de sedimentación superiores a 50 m/h. Si no se dispone de lodo granular, pueden utilizarse alternativas como lodo de digestor anaerobio, estiércol de cerdo/vaca o lodo de fosas sépticas, desarrollándose la granulación natural en un período de 2--6 meses mediante aumento gradual de la carga orgánica. 
+
+
+La siguiente figura presenta un esquema del reactor UASB con sus componentes principales y los flujos de agua y biogás:
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figuras/Esquema_UASB.png}
+\caption{Esquema del reactor UASB: distribución del afluente, zonas de reacción, separación gas-líquido-sólido y recolección de biogás. Caudal por línea: 18.00 m³/h, Biogás: 49.1 m³ CH$_4$/d, 17 puntos de distribución.}
+\label{fig:esquema_uasb}
+\end{figure}
+
+El esquema ilustra el flujo ascendente del afluente a través del lecho de lodo denso, donde ocurre la digestión anaerobia. El biogás producido se separa en el GLS y se recolecta en la cámara superior, mientras que el efluente tratado sale por el lateral del reactor. La velocidad ascendente de diseño de 0.43 m/h garantiza la retención del manto de lodos.
+
+\end{document}

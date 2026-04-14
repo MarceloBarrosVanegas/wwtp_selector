@@ -1679,7 +1679,8 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
     v_up_max_aceptable = v_up_max_m_h <= v_up_max_limite_recomendado
     incremento_diametro_cm = round((D_m - D_m_original) * 100)
     
-    # Estado de verificación para el texto del documento
+    # Estado base de verificación (solo v_up_max; se ajustará globalmente al final
+    # después de conocer los márgenes reales de sedimentador y aberturas GLS)
     if v_up_max_m_h <= v_up_max_limite_recomendado:
         estado_verificacion = "ÓPTIMO"
     elif v_up_max_m_h <= v_up_max_limite_destructivo:
@@ -1831,23 +1832,8 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
         estado_SOR_medio = "No cumple"
     estado_TRH_sed = "Cumple" if TRH_sed_cumple else "No cumple"
 
-    if SOR_max_cumple and SOR_medio_cumple and TRH_sed_cumple:
-        verif_sed_final = "La verificacion demuestra que el compartimiento de sedimentacion disenado cumple satisfactoriamente con todos los criterios tecnicos establecidos en la literatura especializada para reactores UASB."
-    elif SOR_max_cumple and not SOR_medio_cumple and TRH_sed_cumple:
-        verif_sed_final = "La verificacion muestra que el SOR medio esta por debajo del rango optimo pero dentro de valores aceptables conservadores; el diseno cumple con SOR maximo y TRH."
-    else:
-        partes = []
-        if not SOR_max_cumple:
-            partes.append("SOR maximo excede el limite.")
-        if not SOR_medio_cumple:
-            partes.append("SOR medio fuera de rango.")
-        if not TRH_sed_cumple:
-            partes.append("TRH sedimentador insuficiente.")
-        verif_sed_final = (
-            "La verificacion indica que el compartimiento de sedimentacion requiere revision: "
-            + " ".join(partes)
-            + " Se recomienda ajustar las dimensiones del diseno."
-        )
+    # verif_sed_final se define más abajo, después de calcular los márgenes operativos
+    # reales del sedimentador y las aberturas GLS.
     
     # Textos de verificación
     SOR_min_val = Q.uasb_SOR_medio_min_m_h
@@ -1880,22 +1866,35 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
     A_aberturas_min_m2 = Q_m3_h / v_abertura_adoptada_m_h
     
     # Verificación a caudal máximo
-    v_abertura_max_calculada_m_h = Q_max_m3_h / A_aberturas_min_m2
+    v_abertura_max_antes_ajuste_m_h = Q_max_m3_h / A_aberturas_min_m2
+    ajuste_aberturas_realizado = False
     
     # Lógica de auto-dimensionamiento interno: 
     # Las aberturas son deflectoras (físicamente construidas dentro del área total A_sup_m2). 
     # Por lo tanto, no modifican el diámetro del reactor, solo su propia geometría.
+    v_abertura_max_calculada_m_h = v_abertura_max_antes_ajuste_m_h
     if v_abertura_max_calculada_m_h > Q.uasb_v_abertura_max_m_h:
         # Forzar el cumplimiento en pico aumentando el tamaño de las aberturas GLS
         A_aberturas_min_m2 = Q_max_m3_h / Q.uasb_v_abertura_max_m_h
         v_abertura_max_calculada_m_h = Q.uasb_v_abertura_max_m_h
+        ajuste_aberturas_realizado = True
         # La apertura agrandada hará que la velocidad a caudal normal baje, lo cual es seguro.
         v_abertura_adoptada_m_h = Q_m3_h / A_aberturas_min_m2
         
     v_abertura_max_cumple = v_abertura_max_calculada_m_h <= Q.uasb_v_abertura_max_m_h
     simbolo_abertura_max = r"\leq" if v_abertura_max_cumple else ">"
     estado_aberturas = "Cumple" if v_abertura_max_cumple else "No cumple"
-    if v_abertura_max_cumple:
+    if v_abertura_max_cumple and ajuste_aberturas_realizado:
+        verif_aberturas_gls_texto = (
+            f"La velocidad máxima calculada en las aberturas GLS antes del ajuste era "
+            f"{v_abertura_max_antes_ajuste_m_h:.2f} m/h, superior al límite de {Q.uasb_v_abertura_max_m_h:.1f} m/h. "
+            f"Para cumplir, se aumentó el área libre de aberturas a {A_aberturas_min_m2:.2f} m², "
+            f"quedando la velocidad máxima ajustada exactamente en {v_abertura_max_calculada_m_h:.2f} m/h. "
+            "Esta condición indica que el diseño cumple técnicamente pero queda en el límite "
+            "(margen 0 %). Se recomienda mantener limpias las ranuras del GLS y verificar su condición "
+            "durante inspecciones de rutina."
+        )
+    elif v_abertura_max_cumple:
         verif_aberturas_gls_texto = (
             f"La velocidad máxima calculada en las aberturas GLS es {v_abertura_max_calculada_m_h:.2f} m/h, "
             f"menor o igual al límite de {Q.uasb_v_abertura_max_m_h:.1f} m/h recomendado para caudal máximo. "
@@ -1946,6 +1945,56 @@ def dimensionar_uasb(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
             + " y ".join(partes_margenes)
             + "; se recomienda revisar el dimensionamiento antes de aprobar la unidad."
         )
+    
+    # -------------------------------------------------------------------------
+    # Conclusión final de la cámara de sedimentación (ya con márgenes conocidos)
+    # -------------------------------------------------------------------------
+    if SOR_max_cumple and SOR_medio_cumple and TRH_sed_cumple:
+        if margen_minimo_operativo_pct <= Q.uasb_margen_operativo_reducido_pct:
+            verif_sed_final = (
+                "La verificacion demuestra que el compartimiento de sedimentacion diseñado cumple con los criterios tecnicos establecidos, "
+                "aunque con margen reducido. El SOR maximo y/o la velocidad en aberturas GLS operan cerca de sus limites recomendados, "
+                "por lo que se recomienda monitoreo periodico de SST/turbidez del efluente como indicador de posible arrastre de solidos "
+                "durante picos de caudal."
+            )
+        else:
+            verif_sed_final = "La verificacion demuestra que el compartimiento de sedimentacion disenado cumple satisfactoriamente con todos los criterios tecnicos establecidos en la literatura especializada para reactores UASB."
+    elif SOR_max_cumple and not SOR_medio_cumple and TRH_sed_cumple:
+        verif_sed_final = "La verificacion muestra que el SOR medio esta por debajo del rango optimo pero dentro de valores aceptables conservadores; el diseno cumple con SOR maximo y TRH."
+    else:
+        partes = []
+        if not SOR_max_cumple:
+            partes.append("SOR maximo excede el limite.")
+        if not SOR_medio_cumple:
+            partes.append("SOR medio fuera de rango.")
+        if not TRH_sed_cumple:
+            partes.append("TRH sedimentador insuficiente.")
+        verif_sed_final = (
+            "La verificacion indica que el compartimiento de sedimentacion requiere revision: "
+            + " ".join(partes)
+            + " Se recomienda ajustar las dimensiones del diseno."
+        )
+    
+    # Ajuste final del estado de verificación global: si v_up_max es óptimo pero
+    # sedimentador o aberturas quedan con margen reducido (o requirieron ajuste forzado),
+    # el estado global debe reflejar esa condición honestamente.
+    if v_up_max_m_h <= v_up_max_limite_recomendado:
+        if not SOR_max_cumple or not v_abertura_max_cumple:
+            estado_verificacion = "NO ADMISIBLE - REQUIERE REDIMENSIONAMIENTO"
+            estado_verificacion_texto = "presenta deficiencias en el compartimiento de sedimentación o en las aberturas GLS que deben corregirse antes de aprobar el diseño."
+        elif margen_minimo_operativo_pct <= Q.uasb_margen_operativo_reducido_pct:
+            estado_verificacion = "ACEPTABLE CON MONITOREO"
+            estado_verificacion_texto = "garantiza la estabilidad del manto de lodos, pero el sedimentador superior y/o las aberturas GLS operan con margen reducido que requiere monitoreo periódico durante picos de caudal."
+    elif v_up_max_m_h <= v_up_max_limite_destructivo:
+        if not SOR_max_cumple or not v_abertura_max_cumple:
+            estado_verificacion = "NO ADMISIBLE - REQUIERE REDIMENSIONAMIENTO"
+            estado_verificacion_texto = "presenta deficiencias en el compartimiento de sedimentación o en las aberturas GLS que deben corregirse antes de aprobar el diseño."
+        else:
+            estado_verificacion = "ACEPTABLE CON MONITOREO"
+            estado_verificacion_texto = "requiere monitoreo durante eventos de pico de caudal."
+    else:
+        estado_verificacion = "NO ADMISIBLE - REQUIERE REDIMENSIONAMIENTO"
+        estado_verificacion_texto = "no es admisible y debe redimensionarse."
     
     # Características geométricas del GLS
     GLS_pendiente_adoptada_grados = (Q.uasb_GLS_pendiente_min_grados + Q.uasb_GLS_pendiente_max_grados) / 2  # 55°
@@ -3070,6 +3119,11 @@ def dimensionar_biofiltro_carga_mecanizada_hidraulica(
         
         # Fuentes
         "fuente": f"{ref_me} (pp. 840-870); {ref_wef} (Cap. 9); {ref_germain if ruta == 'B' else ref_nrc}",
+        "nota_modelo_calidad": (
+            "El modelo TAF calcula DBO5 efluente (NRC/Germain) y estima SST a partir del balance de solidos. "
+            "DQO y CF no son modelados por la unidad; se proyectan en el balance del tren mediante factores de referencia "
+            "de tecnologia comparable (filtro percolador)."
+        ),
         "notas": f"Ruta {ruta}: {modelo_usado}. COS={COS:.2f} kg/m³·d, CHS={CHS_m3_m2_h:.2f} m³/m²·h",
     }
 
@@ -4663,7 +4717,8 @@ def dimensionar_uv(Q: ConfigDiseno = CFG) -> Dict[str, Any]:
 
 def dimensionar_lecho_secado(Q: ConfigDiseno = CFG,
                               lodos_kg_SST_d: float = None,
-                              resultados_previos: dict = None) -> Dict[str, Any]:
+                              resultados_previos: dict = None,
+                              desglose_lodos_previo: list = None) -> Dict[str, Any]:
     """
     Dimensionamiento del lecho de secado por arena (gravedad + evaporación).
 
@@ -4708,31 +4763,54 @@ def dimensionar_lecho_secado(Q: ConfigDiseno = CFG,
     ref_ops = citar("ops_cepis_2005")
 
     # Producción de lodos - requerida para dimensionar (cálculo encadenado desde unidades anteriores)
+    desglose_lodos = []
     if lodos_kg_SST_d is None:
         if resultados_previos:
             total_lodos = 0.0
             for clave, res in resultados_previos.items():
                 if clave.startswith("_") or not isinstance(res, dict) or clave == "lecho_secado":
                     continue
-                valor = 0.0
-                for campo in ["lodos_kg_SST_d", "lodos_total_kg_d", "solidos_humus_kg_d", "solidos_biologicos_kg_d", "produccion_humus_kg_d"]:
-                    if campo in res and isinstance(res[campo], (int, float)):
-                        valor = res[campo]
-                        break
-                if valor == 0.0 and "lodos" in res and isinstance(res["lodos"], list):
-                    for item in res["lodos"]:
+                kg = 0.0
+                origen = clave.replace("_", " ").title()
+                # Fuente primaria: subproductos["lodos"] (estructura estándar de cada unidad)
+                if "subproductos" in res and isinstance(res["subproductos"], dict):
+                    for item in res["subproductos"].get("lodos", []):
                         if isinstance(item, dict):
-                            if "kg_SST_d" in item:
-                                valor += item["kg_SST_d"]
-                            elif "kg_d" in item and "SSV" not in str(item):
-                                valor += item["kg_d"]
-                total_lodos += valor
+                            valor = item.get("kg_SST_d", item.get("kg_d", 0))
+                            if valor:
+                                kg += valor
+                                origen = item.get("origen", origen)
+                # Fuente secundaria: campo estándar único (solo si no hay subproductos)
+                if kg == 0.0:
+                    for campo in ["lodos_kg_SST_d", "lodos_total_kg_d"]:
+                        if campo in res and isinstance(res[campo], (int, float)):
+                            kg = res[campo]
+                            break
+                if kg > 0:
+                    total_lodos += kg
+                    desglose_lodos.append({
+                        "origen": origen,
+                        "por_linea_kg_d": round(kg / Q.num_lineas, 2),
+                        "total_kg_d": round(kg, 2),
+                    })
             if total_lodos > 0:
                 lodos_kg_SST_d = total_lodos
             else:
                 raise ValueError("No se encontraron lodos en las unidades anteriores para dimensionar el lecho de secado")
         else:
             raise ValueError("lodos_kg_SST_d es requerido para dimensionar el lecho de secado (cálculo encadenado)")
+    
+    # Si se recibió un desglose previo explícito (desde el orquestador del tren), usarlo
+    if desglose_lodos_previo:
+        desglose_lodos = desglose_lodos_previo
+    elif not desglose_lodos:
+        desglose_lodos = [
+            {
+                "origen": "Producción total de lodos",
+                "por_linea_kg_d": round(lodos_kg_SST_d / Q.num_lineas, 2),
+                "total_kg_d": round(lodos_kg_SST_d, 2),
+            }
+        ]
 
     # Parámetros de diseño adoptados desde configuración
     C_SST_kg_m3 = Q.lecho_C_SST_kg_m3
@@ -4808,14 +4886,6 @@ def dimensionar_lecho_secado(Q: ConfigDiseno = CFG,
         f"normal, el lodo secado puede alcanzar contenidos de humedad del "
         f"{rango_humedad_final_texto}, facilitando su manejo y disposición final."
     )
-    desglose_lodos = [
-        {
-            "origen": "Producción total de lodos",
-            "por_linea_kg_d": round(lodos_kg_SST_d / Q.num_lineas, 2),
-            "total_kg_d": round(lodos_kg_SST_d, 2),
-        }
-    ]
-    
     return {
         "unidad": "Lecho de secado de lodos",
         "lodos_kg_SST_d": round(lodos_kg_SST_d, 2),

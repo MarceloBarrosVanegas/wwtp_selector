@@ -1,0 +1,219 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usepackage{float}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\geometry{margin=2.5cm}
+
+\newcommand{\captionequation}[1]{}  % Simplificado para test
+
+\begin{document}
+
+\section{Lecho de Secado de Lodos}
+
+
+
+El lecho de secado es una unidad de manejo de lodos que utiliza procesos fisicos de drenaje gravitacional y evaporacion para reducir el contenido de humedad de los lodos generados en el tratamiento. Este sistema es ampliamente utilizado en plantas de tratamiento de pequeno y mediano tamano debido a su bajo consumo energetico y simplicidad operativa.
+
+\textbf{Mecanismos de secado}
+
+El proceso de deshidratación de lodos en el lecho se realiza mediante dos mecanismos fundamentales que actúan simultáneamente: el drenaje gravitacional y la evaporación. El drenaje gravitacional ocurre durante las primeras horas o días después de la aplicación del lodo, cuando el agua libre drena por gravedad a través del medio filtrante (arena y grava) hacia el sistema de drenaje inferior, removiendo aproximadamente del 30 al 50\% del agua inicial del lodo. Una vez agotado el drenaje libre, la humedad restante se pierde por evaporación al ambiente, favorecida por la exposición superficial del lodo y el clima local. En condiciones tropicales de Galápagos, con temperatura promedio de 24°C e insolación elevada, la evaporación es el mecanismo dominante durante la mayor parte del ciclo de secado.
+
+\textit{Nota:} La literatura técnica (Metcalf \& Eddy, 2014; OPS/CEPIS, 2005) reporta proporciones variables entre estos mecanismos según el clima local, con rangos típicos de 1/3 drenaje y 2/3 evaporación en climas cálidos y secos, hasta proporciones inversas en climas húmedos. Para el diseño del presente proyecto se considera el efecto combinado de ambos mecanismos sin asignar proporciones fijas, dado que el tiempo de secado adoptado (15 días) se basa en criterios operativos conservadores de la región.
+
+\textbf{Estructura física del lecho}
+
+El lecho de secado consiste en una estructura impermeabilizada con capas estratificadas que permiten el drenaje y soporte del lodo. La capa superior de arena, con un espesor de 0.25 m, constituye el medio de filtración principal donde se aplica el lodo. La arena fina retiene las partículas de lodo mientras permite el paso del agua, y debe tener granulometría uniforme, típicamente entre 0.25 y 1.0 mm, para maximizar la retención de sólidos sin colmatarse rápidamente. Debajo de esta, la capa intermedia de grava tiene un espesor de 0.20 m y proporciona soporte estructural a la capa de arena, distribuyendo uniformemente el agua drenada hacia el sistema de drenaje. La granulometría de la grava es mayor que la arena, típicamente entre 10 y 30 mm, para crear un medio permeable y estable. Finalmente, en la parte inferior, el sistema de drenaje está compuesto por tuberías perforadas o zanjas que recolectan el agua filtrada y la conducen a un punto de descarga. El gradiente de drenaje debe ser suficiente, con un mínimo del 1 al 2\%, para evitar estancamiento y garantizar el flujo continuo.
+
+\textbf{Ciclo operativo y destino del lodo}
+
+El lecho opera mediante ciclos alternados de carga y descarga. En la fase de aplicación, el lodo húmedo se distribuye uniformemente sobre la superficie del lecho con un espesor de aproximadamente 0.30 m. Durante la fase de secado, el lodo permanece en reposo durante 15 días, período durante el cual pierde humedad por drenaje y evaporación. Finalmente, en la fase de retiro, una vez alcanzado el contenido de humedad objetivo, típicamente entre 40 y 60\% de sólidos, el lodo seco se retira manualmente o con equipos ligeros.
+
+El lodo seco resultante tiene dos destinos principales según su calidad y la normativa local. La disposición en relleno sanitario es la opción más común para lodos de PTAR municipales, ya que el lodo estabilizado y deshidratado cumple con los criterios de manejabilidad para disposición final controlada. Alternativamente, el uso agrícola condicionado es posible solo si el lodo cumple con requisitos estrictos de estabilización, ausencia de metales pesados y patógenos reducidos, según la normativa sanitaria aplicable del Ministerio de Salud y Ministerio del Ambiente, lo cual requiere análisis periódicos y autorización expresa de la autoridad competente.
+
+\textbf{Parámetro de diseño: Carga superficial de sólidos ($\rho_S$)}
+
+El parámetro que controla el área requerida del lecho es la carga superficial de sólidos ($\rho_S$), definida como la masa de sólidos totales (SST) aplicada por unidad de área del lecho por año de operación. Este parámetro integra la producción de lodos con la capacidad de secado del sistema:
+
+\begin{equation}
+\rho_S = \frac{M_{SST} \times 365}{A_{total}}
+\end{equation}
+\captionequation{Carga superficial de solidos -- parametro de control del area}
+
+\textit{Donde:}
+\begin{itemize}[noitemsep,leftmargin=2em]
+    \item[$\rho_S$] = Carga superficial de sólidos (kg SST/m²·año)
+    \item[$M_{SST}$] = Masa diaria de sólidos a tratar (kg SST/d)
+    \item[$A_{total}$] = Área superficial total del lecho (m²)
+\end{itemize}
+
+La carga superficial $\rho_S$ es crítica porque determina la frecuencia de aplicación de lodos y la eficiencia del secado. Valores elevados de $\rho_S$ implican mayor frecuencia de carga y mayor demanda de área. Los rangos típicos según Metcalf \& Eddy (2014) y OPS/CEPIS (2005) son 60--220 kg SST/m²·año, dependiendo del tipo de lodo, clima y disponibilidad de área.
+
+\textbf{Criterios de diseno}
+
+\begin{table}[H]
+\centering
+\caption{Parametros de diseno del lecho de secado}
+\small
+\begin{tabular}{lccl}
+\toprule
+Parametro & Rango recomendado & Valor adoptado & Fuente \\
+\midrule
+Carga superficial de solidos & 60--220 kg SST/m²·año & 146 kg/m$^2$·anio & Metcalf \& Eddy \cite{metcalf2014} \\
+Concentracion de lodos & 15--30 kg/m³ & 20 kg/m$^3$ & OPS/CEPIS \cite{ops2005} \\
+Tiempo de secado & 10--30 días & 15 dias & OPS/CEPIS \\
+Espesor de aplicacion & 0.20--0.40 m & 0.30 m & Metcalf \& Eddy \\
+Relacion Largo/Ancho & 2:1--4:1 & 3:1 & Practica comun \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Produccion de lodos}
+
+La produccion de lodos se determina del balance encadenado del tren de tratamiento. En este caso, los lodos provienen de: lodos anaerobios del Lodos UASB (anaerobios) (factor 0.10 kg SST/kg DBO removida) y humus del Humus FP + Sedimentador (factor 0.15 kg SST/kg DBO removida). Los factores de produccion especificos de cada unidad se aplican segun su tipologia: reactores anaerobios (UASB) tipicamente 0.10 kg SST/kg DBO removida, sistemas aerobios con biopelicula (filtros percoladores, humedales) tipicamente 0.15 kg SST/kg DBO removida, y sedimentadores secundarios segun la produccion de humus estimada.
+
+\textbf{Balance de produccion de lodos:}
+
+\begin{table}[H]
+\centering
+\small
+\caption{Produccion de lodos por linea y total planta}
+\begin{tabular}{p{6cm}cc}
+\toprule
+\textbf{Origen} & \textbf{Por linea} & \textbf{Total planta} \\
+ & \textbf{(kg SST/d)} & \textbf{(kg SST/d)} \\
+\midrule
+Lodos UASB (anaerobios) & 7.56 & 15.12 \\
+Humus FP + Sedimentador & 0.98 & 1.97 \\
+\midrule
+\textbf{Total} & \textbf{8.54} & \textbf{17.09} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Ecuaciones de diseno}
+
+El volumen diario de lodo a tratar se determina mediante:
+
+\begin{equation}
+V_{lodo} = \frac{M_{SST}}{C_{SST}}
+\end{equation}
+\captionequation{Volumen diario de lodo a tratar}
+
+\textit{Donde:}
+\begin{itemize}[noitemsep,leftmargin=2em]
+    \item[$V_{lodo}$] = Volumen diario de lodo (m$^3$/d)
+    \item[$M_{SST}$] = Masa de solidos producidos TOTAL (17.09 kg SST/d)
+    \item[$C_{SST}$] = Concentracion de solidos (20 kg/m$^3$)
+\end{itemize}
+
+\begin{equation}
+V_{lodo} = \frac{17.09}{20} = 0.854 \text{ m}^3\text{/d}
+\end{equation}
+
+\textbf{Dimensionamiento del area}
+
+El area requerida se calcula considerando el volumen de lodo, el tiempo de secado y el espesor de aplicacion:
+
+\begin{equation}
+A_{total} = \frac{V_{lodo} \cdot t_s}{h_{lodo}}
+\end{equation}
+\captionequation{Area superficial total del lecho de secado}
+
+\textit{Donde:}
+\begin{itemize}[noitemsep,leftmargin=2em]
+    \item[$A_{total}$] = Area superficial total requerida (m$^2$)
+    \item[$t_s$] = Tiempo de secado (15 dias)
+    \item[$h_{lodo}$] = Espesor de aplicacion (0.30 m)
+    \item[$n_{celdas}$] = Numero de celdas (2) (subdivision interna)
+\end{itemize}
+
+\begin{equation}
+A_{total} = \frac{0.854 \times 15}{0.30} = 42.7 \text{ m}^2
+\end{equation}
+
+\textbf{Distribucion por lineas de tratamiento}
+
+El area total se distribuye en bloques independientes, uno por cada linea de tratamiento:
+
+\begin{equation}
+A_{bloque} = \frac{A_{total}}{n_{lineas}} = \frac{42.7}{2} = 21.4 \text{ m}^2 \text{ por bloque}
+\end{equation}
+
+\textbf{Subdivision interna en celdas}
+
+Cada bloque se subdivide internamente en celdas para operacion por rotacion:
+
+\begin{equation}
+A_{celda} = \frac{A_{total}}{n_{celdas}} = \frac{42.7}{2} = 21.4 \text{ m}^2 \text{ por celda}
+\end{equation}
+
+Con una relacion largo/ancho de 3:1, las dimensiones de cada bloque son 8.0 m de largo por 2.7 m de ancho.
+
+\subsection{Verificacion}
+
+\textbf{Verificacion de carga superficial}
+
+La carga superficial de solidos se verifica mediante:
+
+\begin{equation}
+\rho_S = \frac{M_{SST} \times 365}{A_{total}} = \frac{17.09 \times 365}{42.7} = 146.0 \text{ kg SST/m}^2\text{·anio}
+\end{equation}
+
+El valor obtenido (146.0 kg SST/m²·año) se encuentra dentro del rango recomendado de 60--220 kg SST/m²·año para lechos de secado según Metcalf & Eddy.
+
+\textbf{Notas de operacion}
+
+Se recomienda operar los lechos en sistema de rotación, aplicando lodo en una celda mientras las demás están en proceso de secado o reposo. Bajo operación normal, el lodo secado puede alcanzar contenidos de humedad del 40--60\%, facilitando su manejo y disposición final.
+
+\subsection{Resultados}
+
+\begingroup
+\small
+\begin{longtable}{ll}
+\caption{Resumen del dimensionamiento del lecho de secado}\\
+\toprule
+Parametro & Valor \\
+\midrule
+\endfirsthead
+\caption[]{Resumen del dimensionamiento del lecho de secado (continuación)}\\
+\toprule
+Parametro & Valor \\
+\midrule
+\endhead
+\midrule
+\multicolumn{2}{r}{\textit{Continúa en la siguiente página}} \\
+\endfoot
+\bottomrule
+\endlastfoot
+Area total requerida & 42.7 m$^2$ \\
+Numero de bloques (corresponde al numero de lineas) & 2 \\
+Area por bloque & 21.4 m$^2$ \\
+Dimensiones de cada bloque (L$\times$A) & 8.0 m $\times$ 2.7 m \\
+Numero total de celdas & 2 \\
+Tiempo de secado & 15 dias \\
+Carga de solidos & 146.0 kg SST/m$^2$·anio \\
+Produccion total de lodos & 17.09 kg SST/d \\
+\end{longtable}
+\endgroup
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{figuras/Esquema_Lecho_Secado.png}
+\caption{Lecho de secado de lodos: vista en planta de los bloques por linea de tratamiento y seccion transversal tipica mostrando capas de arena, grava y sistema de drenaje.}
+\label{fig:lecho_secado}
+\end{figure}
+
+El lecho de secado ha sido dimensionado para tratar 17.09 kg SST/d de lodos generados en el proceso de tratamiento, distribuidos en 2 bloques independientes (uno por linea de tratamiento). Cada bloque opera con un ciclo de 15 dias de secado.
+
+\end{document}

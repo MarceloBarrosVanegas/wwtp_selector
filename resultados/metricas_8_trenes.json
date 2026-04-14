@@ -1,0 +1,250 @@
+[
+  {
+    "codigo": "T1",
+    "nombre": "T1 – Rejillas + Desarenador + UASB + Filtro Percolador + Sedimentador Secundario + Cloro + Lecho de Secado",
+    "unidades": [
+      "rejillas",
+      "desarenador",
+      "uasb",
+      "filtro_percolador",
+      "sedimentador_sec",
+      "cloro",
+      "lecho_secado"
+    ],
+    "afluente_dbo": 243.1,
+    "afluente_sst": 156.0,
+    "efluente_dbo": 46.111633425,
+    "efluente_dqo": 113.25931207499998,
+    "efluente_sst": 3.0232799999999997,
+    "efluente_cf": 1.0,
+    "lodos_kg_SST_d": 17.32,
+    "area_layout_m2": 1920.0,
+    "ancho_m": 51.2,
+    "largo_m": 37.5,
+    "dimensiones": {
+      "rejillas": "OK",
+      "desarenador": "OK",
+      "uasb": "D=8.2m, H=6.4m",
+      "filtro_percolador": "D=6.2m, H=4.5m",
+      "sedimentador_sec": "D=6.3m, H=3.5m",
+      "cloro": "OK",
+      "lecho_secado": "Área=6m²"
+    }
+  },
+  {
+    "codigo": "T2",
+    "nombre": "T2 – Rejillas + Desarenador + UASB + Humedal Vertical + Cloro + Lecho de Secado",
+    "unidades": [
+      "rejillas",
+      "desarenador",
+      "uasb",
+      "humedal_vertical",
+      "cloro",
+      "lecho_secado"
+    ],
+    "afluente_dbo": 243.1,
+    "afluente_sst": 156.0,
+    "efluente_dbo": 58.9,
+    "efluente_dqo": 140.76881941587823,
+    "efluente_sst": 15.116400000000002,
+    "efluente_cf": 1.0,
+    "lodos_kg_SST_d": 10.6,
+    "area_layout_m2": 8044.0,
+    "ancho_m": 100.8,
+    "largo_m": 79.8,
+    "dimensiones": {
+      "rejillas": "OK",
+      "desarenador": "OK",
+      "uasb": "D=8.2m, H=6.4m",
+      "humedal_vertical": "Área=1329m²",
+      "cloro": "OK",
+      "lecho_secado": "Área=0m²"
+    }
+  },
+  {
+    "codigo": "T3",
+    "nombre": "T3 – Rejillas + Desarenador + UASB + BAF + Cloro + Lecho de Secado",
+    "unidades": [
+      "rejillas",
+      "desarenador",
+      "uasb",
+      "baf",
+      "cloro",
+      "lecho_secado"
+    ],
+    "afluente_dbo": 243.1,
+    "afluente_sst": 156.0,
+    "efluente_dbo": 10.392525000000003,
+    "efluente_dqo": 33.11699999999999,
+    "efluente_sst": 7.558199999999999,
+    "efluente_cf": 1.0,
+    "lodos_kg_SST_d": 10.6,
+    "area_layout_m2": 1624.0,
+    "ancho_m": 43.3,
+    "largo_m": 37.5,
+    "dimensiones": {
+      "rejillas": "OK",
+      "desarenador": "OK",
+      "uasb": "D=8.2m, H=6.4m",
+      "baf": "0.0x0.0m",
+      "cloro": "OK",
+      "lecho_secado": "Área=0m²"
+    }
+  },
+  {
+    "codigo": "T4",
+    "nombre": "T4 – Rejillas + Desarenador + UASB + TAF + Sedimentador Secundario + Cloro + Lecho de Secado",
+    "unidades": [
+      "rejillas",
+      "desarenador",
+      "uasb",
+      "taf",
+      "sedimentador_sec",
+      "cloro",
+      "lecho_secado"
+    ],
+    "afluente_dbo": 243.1,
+    "afluente_sst": 156.0,
+    "efluente_dbo": 11.778194999999998,
+    "efluente_dqo": 35.186812499999995,
+    "efluente_sst": 1.8895499999999998,
+    "efluente_cf": 1.0,
+    "lodos_kg_SST_d": 28.060000000000002,
+    "area_layout_m2": 1849.0,
+    "ancho_m": 49.3,
+    "largo_m": 37.5,
+    "dimensiones": {
+      "rejillas": "OK",
+      "desarenador": "OK",
+      "uasb": "D=8.2m, H=6.4m",
+      "taf": "D=3.8m, H=4.0m",
+      "sedimentador_sec": "D=6.3m, H=3.5m",
+      "cloro": "OK",
+      "lecho_secado": "Área=15m²"
+    }
+  },
+  {
+    "codigo": "T5",
+    "nombre": "T5 – Rejillas + Desarenador + ABR-RAP + Filtro Percolador + Sedimentador Secundario + Cloro + Lecho de Secado",
+    "unidades": [
+      "rejillas",
+      "desarenador",
+      "abr_rap",
+      "filtro_percolador",
+      "sedimentador_sec",
+      "cloro",
+      "lecho_secado"
+    ],
+    "afluente_dbo": 243.1,
+    "afluente_sst": 156.0,
+    "efluente_dbo": 38.6226644375,
+    "efluente_dqo": 97.51371615,
+    "efluente_sst": 2.519399999999999,
+    "efluente_cf": 1.0,
+    "lodos_kg_SST_d": 5.82,
+    "area_layout_m2": 2871.0,
+    "ancho_m": 66.5,
+    "largo_m": 43.2,
+    "dimensiones": {
+      "rejillas": "OK",
+      "desarenador": "OK",
+      "abr_rap": "L=24.0m, W=10.39m",
+      "filtro_percolador": "D=6.0m, H=4.5m",
+      "sedimentador_sec": "D=6.3m, H=3.5m",
+      "cloro": "OK",
+      "lecho_secado": "Área=5m²"
+    }
+  },
+  {
+    "codigo": "T6",
+    "nombre": "T6 – Rejillas + Desarenador + ABR-RAP + Humedal Vertical + Cloro + Lecho de Secado",
+    "unidades": [
+      "rejillas",
+      "desarenador",
+      "abr_rap",
+      "humedal_vertical",
+      "cloro",
+      "lecho_secado"
+    ],
+    "afluente_dbo": 243.1,
+    "afluente_sst": 156.0,
+    "efluente_dbo": 49.2,
+    "efluente_dqo": 120.94578362813658,
+    "efluente_sst": 12.597,
+    "efluente_cf": 1.0,
+    "lodos_kg_SST_d": 0.3,
+    "area_layout_m2": 9281.0,
+    "ancho_m": 116.3,
+    "largo_m": 79.8,
+    "dimensiones": {
+      "rejillas": "OK",
+      "desarenador": "OK",
+      "abr_rap": "L=24.0m, W=10.39m",
+      "humedal_vertical": "Área=1329m²",
+      "cloro": "OK",
+      "lecho_secado": "Área=0m²"
+    }
+  },
+  {
+    "codigo": "T7",
+    "nombre": "T7 – Rejillas + Desarenador + ABR-RAP + BAF + Cloro + Lecho de Secado",
+    "unidades": [
+      "rejillas",
+      "desarenador",
+      "abr_rap",
+      "baf",
+      "cloro",
+      "lecho_secado"
+    ],
+    "afluente_dbo": 243.1,
+    "afluente_sst": 156.0,
+    "efluente_dbo": 8.6604375,
+    "efluente_dqo": 28.385999999999996,
+    "efluente_sst": 6.298499999999998,
+    "efluente_cf": 1.0,
+    "lodos_kg_SST_d": 0.3,
+    "area_layout_m2": 2538.0,
+    "ancho_m": 58.8,
+    "largo_m": 43.2,
+    "dimensiones": {
+      "rejillas": "OK",
+      "desarenador": "OK",
+      "abr_rap": "L=24.0m, W=10.39m",
+      "baf": "0.0x0.0m",
+      "cloro": "OK",
+      "lecho_secado": "Área=0m²"
+    }
+  },
+  {
+    "codigo": "T8",
+    "nombre": "T8 – Rejillas + Desarenador + ABR-RAP + TAF + Sedimentador Secundario + Cloro + Lecho de Secado",
+    "unidades": [
+      "rejillas",
+      "desarenador",
+      "abr_rap",
+      "taf",
+      "sedimentador_sec",
+      "cloro",
+      "lecho_secado"
+    ],
+    "afluente_dbo": 243.1,
+    "afluente_sst": 156.0,
+    "efluente_dbo": 9.815162499999996,
+    "efluente_dqo": 30.160125,
+    "efluente_sst": 1.5746249999999995,
+    "efluente_cf": 1.0,
+    "lodos_kg_SST_d": 14.7,
+    "area_layout_m2": 2780.0,
+    "ancho_m": 64.4,
+    "largo_m": 43.2,
+    "dimensiones": {
+      "rejillas": "OK",
+      "desarenador": "OK",
+      "abr_rap": "L=24.0m, W=10.39m",
+      "taf": "D=3.5m, H=4.0m",
+      "sedimentador_sec": "D=6.3m, H=3.5m",
+      "cloro": "OK",
+      "lecho_secado": "Área=12m²"
+    }
+  }
+]

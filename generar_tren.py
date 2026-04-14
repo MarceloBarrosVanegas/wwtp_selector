@@ -418,15 +418,37 @@ def actualizar_calidad_tren(calidad_actual: Dict[str, float], unidad: str,
         calidad_nueva["CF_NMP_100mL"] = calidad_actual["CF_NMP_100mL"] * (1 - eta_CF)
     
     # TAF: Biofiltro de Carga Mecanizada e Hidráulica
-    # Remoción típica: DBO ~80%, DQO ~75%, SST ~75%, CF ~50%
     elif unidad == "taf":
-        eta_DBO = 0.80
-        eta_DQO = 0.75
-        eta_SST = 0.75
-        eta_CF = 0.50
-        calidad_nueva["DBO5_mg_L"] = calidad_actual["DBO5_mg_L"] * (1 - eta_DBO)
+        # -----------------------------------------------------------------
+        # PARÁMETROS REALMENTE MODELADOS por el TAF (Germain o NRC)
+        # -----------------------------------------------------------------
+        # DBO5: calculada directamente por el modelo cinético del biofiltro
+        Se_calculada = resultado.get("Se_calculada_mg_L", calidad_actual["DBO5_mg_L"] * 0.20)
+        DBO_entrada_taf = resultado.get("DBO_entrada_mg_L", calidad_actual["DBO5_mg_L"])
+        if DBO_entrada_taf > 0:
+            eta_DBO = (DBO_entrada_taf - Se_calculada) / DBO_entrada_taf
+        else:
+            eta_DBO = 0.0
+        calidad_nueva["DBO5_mg_L"] = Se_calculada
+        
+        # SST: estimado por el balance de sólidos interno del modelo TAF
+        SST_efluente = resultado.get("SST_efluente_estimado_mg_L", calidad_actual["SST_mg_L"] * 0.25)
+        SST_entrada_taf = resultado.get("SST_entrada_mg_L", calidad_actual["SST_mg_L"])
+        if SST_entrada_taf > 0:
+            eta_SST = (SST_entrada_taf - SST_efluente) / SST_entrada_taf
+        else:
+            eta_SST = 0.0
+        calidad_nueva["SST_mg_L"] = SST_efluente
+        
+        # -----------------------------------------------------------------
+        # PARÁMETROS NO MODELADOS por el TAF; derivados por aproximación
+        # -----------------------------------------------------------------
+        # DQO y CF no tienen modelo cinético en el TAF. Se adoptan los factores
+        # configurados para filtro percolador como referencia trazable de
+        # tecnología comparable (ambos son biofiltros de película fija).
+        eta_DQO = eta_DBO * cfg.balance_eta_DQO_fp_factor
+        eta_CF = cfg.balance_eta_CF_fp
         calidad_nueva["DQO_mg_L"] = calidad_actual["DQO_mg_L"] * (1 - eta_DQO)
-        calidad_nueva["SST_mg_L"] = calidad_actual["SST_mg_L"] * (1 - eta_SST)
         calidad_nueva["CF_NMP_100mL"] = calidad_actual["CF_NMP_100mL"] * (1 - eta_CF)
     
     return calidad_nueva
@@ -474,6 +496,25 @@ def dimensionar_tren(cfg_tren: ConfigTren) -> Dict[str, Any]:
                 if "resultados_previos" in sig.parameters:
                     kwargs["resultados_previos"] = resultados
                 
+                # Para el lecho de secado, calcular previamente el total trazable de lodos
+                # acumulados de las unidades anteriores y pasarlo explicitamente
+                if unidad == "lecho_secado" and "lodos_kg_SST_d" in sig.parameters:
+                    lodos_acumulados = 0.0
+                    desglose_previo = []
+                    for u, res in resultados.items():
+                        if u.startswith("_") or not isinstance(res, dict):
+                            continue
+                        lodos_u = extraer_lodos_unidad(res, u)
+                        if lodos_u > 0:
+                            lodos_acumulados += lodos_u
+                            desglose_previo.append({
+                                "origen": NOMBRES_UNIDADES.get(u, u),
+                                "por_linea_kg_d": round(lodos_u / cfg.num_lineas, 2),
+                                "total_kg_d": round(lodos_u, 2)
+                            })
+                    kwargs["lodos_kg_SST_d"] = lodos_acumulados
+                    kwargs["desglose_lodos_previo"] = desglose_previo
+                
                 resultado = DIMENSIONADORES[unidad](cfg, **kwargs)
                 resultados[unidad] = resultado
                 
@@ -504,7 +545,7 @@ def dimensionar_tren(cfg_tren: ConfigTren) -> Dict[str, Any]:
     desglose_lodos = []
     lodos_total_kg_SST_d = 0.0
     for unidad, res in resultados.items():
-        if unidad.startswith("_") or not isinstance(res, dict):
+        if unidad.startswith("_") or not isinstance(res, dict) or unidad == "lecho_secado":
             continue
         lodos_u = extraer_lodos_unidad(res, unidad)
         if lodos_u > 0:
@@ -543,14 +584,38 @@ def dimensionar_tren(cfg_tren: ConfigTren) -> Dict[str, Any]:
     return resultados
 
 
+def _kg_SST_de_item(item: Dict) -> float:
+    """Extrae kg SST/d de un dict de lodo, convirtiendo SSV si es necesario."""
+    if "kg_SST_d" in item and item["kg_SST_d"] is not None:
+        return item["kg_SST_d"]
+    if "kg_SSV_d" in item and item["kg_SSV_d"] is not None:
+        return item["kg_SSV_d"] / 0.80
+    if "kg_d" in item and item["kg_d"] is not None:
+        return item["kg_d"]
+    return 0.0
+
+
 def extraer_lodos_unidad(resultado: Dict, unidad: str) -> float:
     """
     Extrae la producción de lodos (kg SST/d) del resultado de una unidad.
-    Busca recursivamente en todo el diccionario para encontrar valores de lodos.
+    Usa una ruta única y prioritaria para evitar doble conteo:
+      1. subproductos['lodos']
+      2. lista directa resultado['lodos']
+      3. campos directos conocidos (fallback)
+      4. búsqueda recursiva (último recurso)
     """
-    lodos_kg_d = 0.0
+    # Ruta 1: subproductos["lodos"] (fuente principal)
+    subproductos = resultado.get("subproductos")
+    if isinstance(subproductos, dict):
+        lista_lodos = subproductos.get("lodos")
+        if isinstance(lista_lodos, list) and lista_lodos:
+            return sum(_kg_SST_de_item(item) for item in lista_lodos if isinstance(item, dict))
     
-    # Campos específicos conocidos por nombre
+    # Ruta 2: estructura directa resultado["lodos"]
+    if "lodos" in resultado and isinstance(resultado["lodos"], list) and resultado["lodos"]:
+        return sum(_kg_SST_de_item(item) for item in resultado["lodos"] if isinstance(item, dict))
+    
+    # Ruta 3: campos directos conocidos (fallback)
     campos_directos = [
         "lodos_kg_SST_d",
         "lodos_total_kg_d",
@@ -559,32 +624,18 @@ def extraer_lodos_unidad(resultado: Dict, unidad: str) -> float:
         "produccion_humus_kg_d",
         "lodos_kg_SSV_d",
     ]
-    
+    lodos_kg_d = 0.0
     for campo in campos_directos:
-        if campo in resultado and resultado[campo]:
+        if campo in resultado and resultado[campo] is not None:
             valor = resultado[campo]
-            # Si es SSV, convertir a SST (asumir 80% SSV/SST típico)
             if "SSV" in campo:
                 valor = valor / 0.80
             lodos_kg_d += valor
+    if lodos_kg_d > 0:
+        return lodos_kg_d
     
-    # Si no encontramos directamente, buscar en estructura "lodos"
-    if "lodos" in resultado and isinstance(resultado["lodos"], list):
-        for item in resultado["lodos"]:
-            if isinstance(item, dict):
-                # Buscar kg_SST_d, kg_d, kg_SSV_d
-                if "kg_SST_d" in item:
-                    lodos_kg_d += item.get("kg_SST_d", 0)
-                elif "kg_d" in item and "SSV" not in str(item):
-                    lodos_kg_d += item.get("kg_d", 0)
-                elif "kg_SSV_d" in item:
-                    lodos_kg_d += item.get("kg_SSV_d", 0) / 0.80
-    
-    # Si aún no hay nada, hacer búsqueda recursiva en todo el dict
-    if lodos_kg_d == 0:
-        lodos_kg_d = _buscar_lodos_recursivo(resultado)
-    
-    return lodos_kg_d
+    # Ruta 4: búsqueda recursiva en todo el dict (último recurso)
+    return _buscar_lodos_recursivo(resultado)
 
 
 def _buscar_lodos_recursivo(obj, profundidad_max=3, profundidad=0):
@@ -1171,7 +1222,7 @@ if __name__ == "__main__":
     entrada = {
         "nombre_tren": "Sistema de Tratamiento Anaerobio-Aerobio con ABR/RAP, TAF y Sedimentacion",
         "caudal_total_lps": 17.31,
-        "num_lineas": 3,
+        "num_lineas": 2,
         "afluente": {
             "DBO5_mg_L": 243.10,
             "DQO_mg_L": 498,
@@ -1180,10 +1231,19 @@ if __name__ == "__main__":
             "temperatura_C": 25.6,
         },
         "factor_maximo_horario": 2.77,
+        # "unidades": [
+        #     "rejillas",
+        #     "desarenador",
+        #     "uasb",
+        #     "taf",
+        #     "sedimentador_sec",
+        #     "cloro",
+        #     "lecho_secado"
+        # ],
         "unidades": [
             "rejillas",
             "desarenador",
-            "uasb",
+            "abr_rap",
             "taf",
             "sedimentador_sec",
             "cloro",
