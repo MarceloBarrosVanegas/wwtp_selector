@@ -75,6 +75,116 @@ class GeneradorABR_RAP:
         TRH_h = a["TRH_diseno_h"]
         v_up_diseno = a["v_up_diseno_m_h"]
         H_util = a["H_util_m"]
+        modo_diseno = a.get("modo_diseno", "TRH")
+        TRH_res = a.get("TRH_resultante_h", TRH_h)
+        COV_real = a.get("COV_real_kgDBO_m3_d", a.get("COV_kgDBO_m3_d", 0.0))
+        COV_diseno = a.get("COV_diseno_adoptada_kgDBO_m3_d")
+        n_modulos = a.get("n_modulos_paralelos", 1)
+        W_modulo = a.get("W_modulo_m", a.get("W_m", 0.0))
+        ancho_total = a.get("ancho_total_linea_m", W_modulo)
+        W_teorico = a.get("W_teorico_1mod_m", W_modulo)
+        texto_modulos = (
+            rf"El ancho teórico con un único módulo resultaría $W = {W_teorico:.2f}$~m, superior al límite "
+            rf"constructivo máximo de ${cfg.abr_W_max_m:.1f}$~m. Por ello se divide la línea en ${n_modulos}$ módulos "
+            rf"ABR paralelos, cada uno de ${W_modulo:.2f}$~m de ancho, con una separación libre entre ellos de ${cfg.abr_espaciamiento_modulos_m:.1f}$~m. "
+            rf"El ancho total de la línea resulta ${ancho_total:.2f}$~m."
+        ) if n_modulos > 1 else ""
+        
+        # Textos condicionales según modo de diseño
+        if modo_diseno == "TRH":
+            texto_criterio_volumen = (
+                rf"El dimensionamiento del ABR se fundamenta en el criterio del tiempo de retención hidráulico (TRH) y en la verificación de la velocidad ascensional. "
+                rf"Las ecuaciones fundamentales son las siguientes:"
+            )
+            ecuacion_1_titulo = r"\textbf{{[Ecuación 1] Volumen total del reactor (criterio TRH):}}"
+            ecuacion_1_cuerpo = (
+                rf"""\begin{{equation}}
+V_{{total}} = Q_{{medio}} \times TRH
+\end{{equation}}
+
+\textit{{Donde:}}
+\begin{{itemize}}[noitemsep,leftmargin=2em]
+    \item[$V_{{total}}$] = Volumen total del reactor (m³)
+    \item[$Q_{{medio}}$] = Caudal medio diario de diseño ({a["Q_m3_d"]:.1f} m³/d = {a["Q_m3_h"]:.2f} m³/h)
+    \item[$TRH$] = Tiempo de retención hidráulico adoptado ({TRH_h:.0f} h = {TRH_h/24:.2f} d)
+\end{{itemize}}
+
+Sustituyendo los valores del proyecto:
+
+\begin{{equation}}
+V_{{total}} = {a["Q_m3_d"]:.1f} \times {TRH_h/24:.3f} = {a["V_total_m3"]:.1f} \text{{ m}}^3
+\end{{equation}}"""
+            )
+        elif modo_diseno == "COV":
+            texto_criterio_volumen = (
+                rf"El dimensionamiento del ABR se fundamenta en el criterio de la carga orgánica volumétrica (COV), de modo que el reactor mantenga una tasa de carga compatible con el mantenimiento de una biomasa anaerobia estable. "
+                rf"Las ecuaciones fundamentales son las siguientes:"
+            )
+            ecuacion_1_titulo = r"\textbf{{[Ecuación 1] Volumen total del reactor (criterio COV):}}"
+            ecuacion_1_cuerpo = (
+                rf"""\begin{{equation}}
+V_{{total}} = \frac{{Q_{{medio}} \times DBO_{{entrada}} / 1\,000}}{{COV_{{dise\~no}}}}
+\end{{equation}}
+
+\textit{{Donde:}}
+\begin{{itemize}}[noitemsep,leftmargin=2em]
+    \item[$V_{{total}}$] = Volumen total del reactor (m³)
+    \item[$Q_{{medio}}$] = Caudal medio diario de diseño ({a["Q_m3_d"]:.1f} m³/d)
+    \item[$DBO_{{entrada}}$] = DBO$_5$ del afluente ({a["DBO_entrada_mg_L"]:.0f} mg/L)
+    \item[$COV_{{dise\~no}}$] = Carga orgánica volumétrica de diseño ({COV_diseno:.2f} kg DBO/m³·d)
+\end{{itemize}}
+
+Sustituyendo los valores del proyecto:
+
+\begin{{equation}}
+V_{{total}} = \frac{{{a["Q_m3_d"]:.1f} \times {a["DBO_entrada_mg_L"]:.0f} / 1\,000}}{{{COV_diseno:.2f}}} = {a["V_total_m3"]:.1f} \text{{ m}}^3
+\end{{equation}}
+
+El TRH resultante asociado a este volumen es:
+
+\begin{{equation}}
+TRH = \frac{{V_{{total}}}}{{Q_{{medio}}}} \times 24 = \frac{{{a["V_total_m3"]:.1f}}}{{{a["Q_m3_d"]:.1f}}} \times 24 = {TRH_res:.1f} \text{{ h}}
+\end{{equation}}"""
+            )
+        else:  # SRT
+            texto_criterio_volumen = (
+                rf"El dimensionamiento del ABR se fundamenta en el criterio del tiempo de retención celular (SRT), garantizando que la biomasa retenida en el reactor sea suficiente para estabilizar la carga orgánica entrante. "
+                rf"Las ecuaciones fundamentales son las siguientes:"
+            )
+            ecuacion_1_titulo = r"\textbf{{[Ecuación 1] Volumen total del reactor (criterio SRT):}}"
+            ecuacion_1_cuerpo = (
+                rf"""\begin{{equation}}
+V_{{total}} = \frac{{Q_{{medio}} \times Y_{{obs}} \times DBO_{{entrada}} \times \eta_{{DBO}} \times SRT}}{{X_V \times 1\,000}}
+\end{{equation}}
+
+\textit{{Donde:}}
+\begin{{itemize}}[noitemsep,leftmargin=2em]
+    \item[$V_{{total}}$] = Volumen total del reactor (m³)
+    \item[$Q_{{medio}}$] = Caudal medio diario de diseño ({a["Q_m3_d"]:.1f} m³/d)
+    \item[$Y_{{obs}}$] = Rendimiento observado de biomasa ({cfg.abr_Y_obs:.2f} kg SSV/kg DBO rem)
+    \item[$DBO_{{entrada}}$] = DBO$_5$ del afluente ({a["DBO_entrada_mg_L"]:.0f} mg/L)
+    \item[$\eta_{{DBO}}$] = Eficiencia de remoción esperada ({cfg.abr_eficiencia_DBO_fraccion:.2f})
+    \item[$SRT$] = Tiempo de retención celular ({cfg.abr_SRT_diseno_d:.1f} d)
+    \item[$X_V$] = Biomasa activa retenida ({cfg.abr_X_VSS_kg_m3:.1f} kg VSS/m³)
+\end{{itemize}}
+
+Sustituyendo los valores del proyecto:
+
+\begin{{equation}}
+V_{{total}} = \frac{{{a["Q_m3_d"]:.1f} \times {cfg.abr_Y_obs:.2f} \times {a["DBO_entrada_mg_L"]:.0f} \times {cfg.abr_eficiencia_DBO_fraccion:.2f} \times {cfg.abr_SRT_diseno_d:.1f}}}{{{cfg.abr_X_VSS_kg_m3:.1f} \times 1\,000}} = {a["V_total_m3"]:.1f} \text{{ m}}^3
+\end{{equation}}
+
+El TRH resultante asociado a este volumen es:
+
+\begin{{equation}}
+TRH = \frac{{V_{{total}}}}{{Q_{{medio}}}} \times 24 = \frac{{{a["V_total_m3"]:.1f}}}{{{a["Q_m3_d"]:.1f}}} \times 24 = {TRH_res:.1f} \text{{ h}}
+\end{{equation}}"""
+            )
+        
+        # Observación común sobre COV real
+        texto_COV_real = (
+            rf"La carga orgánica volumétrica real del reactor resulta: $COV = {COV_real:.2f}$~kg\,DBO/(m³·d). "
+        )
         
         return rf"""\subsection{{Dimensionamiento}}
 
@@ -131,8 +241,14 @@ Los siguientes parámetros han sido seleccionados como criterios de diseño para
 \toprule
 \textbf{{Parámetro}} & \textbf{{Valor adoptado}} & \textbf{{Rango recomendado}} \\
 \midrule
+Modo de diseño & {modo_diseno} & TRH / COV / SRT \\
 Tiempo de retención hidráulico (TRH) & {TRH_h:.0f} h & 24--72 h \\
+TRH resultante & {TRH_res:.1f} h & $\geq$ {cfg.abr_TRH_minimo_h:.1f} h \\
 Número de compartimentos ($n$) & {n_comp} & 2--8 (recomendado: 4--6) \\
+Número de módulos paralelos & {n_modulos} & 1 o más \\
+Ancho del módulo ($W$) & {W_modulo:.2f} m & $\leq$ {cfg.abr_W_max_m:.1f} m \\
+Ancho total de la línea & {ancho_total:.2f} m & --- \\
+Relación $L_{{comp}}/W$ objetivo & {cfg.abr_relacion_Lcomp_W_objetivo:.1f} & --- \\
 Velocidad ascensional de diseño ($v_{{up}}$) & {v_up_diseno:.1f} m/h & 0,2--1,5 m/h \\
 Profundidad útil del líquido ($H$) & {H_util:.1f} m & 1,5--3,0 m \\
 Zona de acumulación de lodos & {a["H_zona_lodos_m"]:.2f} m & 0,2--0,5 m \\
@@ -145,26 +261,11 @@ Bordo libre & {a["H_bordo_m"]:.2f} m & $\geq$ 0,30 m \\
 
 \textbf{{Ecuaciones de dimensionamiento:}}
 
-El dimensionamiento del ABR se fundamenta en el criterio del tiempo de retención hidráulico (TRH) y en la verificación de la velocidad ascensional. Las ecuaciones fundamentales son las siguientes:
+{texto_criterio_volumen}
 
-\textbf{{[Ecuación 1] Volumen total del reactor:}}
+{ecuacion_1_titulo}
 
-\begin{{equation}}
-V_{{total}} = Q_{{medio}} \times TRH
-\end{{equation}}
-
-\textit{{Donde:}}
-\begin{{itemize}}[noitemsep,leftmargin=2em]
-    \item[$V_{{total}}$] = Volumen total del reactor (m³)
-    \item[$Q_{{medio}}$] = Caudal medio diario de diseño ({a["Q_m3_d"]:.1f} m³/d = {a["Q_m3_h"]:.2f} m³/h)
-    \item[$TRH$] = Tiempo de retención hidráulico adoptado ({TRH_h:.0f} h = {TRH_h/24:.2f} d)
-\end{{itemize}}
-
-Sustituyendo los valores del proyecto:
-
-\begin{{equation}}
-V_{{total}} = {a["Q_m3_d"]:.1f} \times {TRH_h/24:.3f} = {a["V_total_m3"]:.1f} \text{{ m}}^3
-\end{{equation}}
+{ecuacion_1_cuerpo}
 
 \textbf{{[Ecuación 2] Volumen por compartimento:}}
 
@@ -172,29 +273,40 @@ V_{{total}} = {a["Q_m3_d"]:.1f} \times {TRH_h/24:.3f} = {a["V_total_m3"]:.1f} \t
 V_{{comp}} = \frac{{V_{{total}}}}{{n}} = \frac{{{a["V_total_m3"]:.1f}}}{{{n_comp}}} = {a["V_comp_m3"]:.2f} \text{{ m}}^3
 \end{{equation}}
 
-\textbf{{[Ecuación 3] Área de sección transversal por velocidad ascensional:}}
+\textbf{{[Ecuación 3] Dimensionamiento geométrico del módulo:}}
 
-La velocidad ascensional es el parámetro crítico que controla la retención de la biomasa en el reactor. Para que el ABR funcione correctamente, la velocidad ascensional debe ser inferior a la velocidad de sedimentación de los flóculos de lodo.
+El ancho del reactor se obtiene a partir del volumen de diseño, la profundidad útil y una relación geométrica objetivo $L_{{comp}}/W = {cfg.abr_relacion_Lcomp_W_objetivo:.1f}$. Partiendo de la expresión del volumen total de un módulo:
 
 \begin{{equation}}
-A_{{transversal}} = \frac{{Q_{{medio}}}}{{v_{{up, dise\tilde{{n}}o}}}} = \frac{{{a["Q_m3_h"]:.2f}}}{{{v_up_diseno:.1f}}} = {a["A_transversal_m2"]:.2f} \text{{ m}}^2
+V_{{total}} = n \times L_{{comp}} \times W \times H = n \times \left( \frac{{L_{{comp}}}}{{W}} \right) \times W^{2} \times H
 \end{{equation}}
+
+Despejando el ancho $W$:
+
+\begin{{equation}}
+W = \sqrt{{\frac{{V_{{total}}}}{{n \times (L_{{comp}}/W)_{{obj}} \times H}}}} = \sqrt{{\frac{{{a["V_total_m3"]:.1f}}}{{{n_comp} \times {cfg.abr_relacion_Lcomp_W_objetivo:.1f} \times {H_util:.1f}}}}} = {W_modulo:.2f} \text{{ m}}
+\end{{equation}}
+
+{texto_modulos if n_modulos > 1 else ""}
 
 \textbf{{[Ecuación 4] Dimensiones del reactor:}}
 
-A partir del área de sección transversal y la profundidad útil adoptada, se obtienen las dimensiones geométricas:
+A partir del ancho calculado, se obtienen las demás dimensiones geométricas del módulo:
 
 \begin{{equation}}
-W = \frac{{A_{{transversal}}}}{{H}} = \frac{{{a["A_transversal_m2"]:.2f}}}{{{H_util:.1f}}} = {a["W_m"]:.2f} \text{{ m}} \quad \text{{(ancho)}}
+L_{{comp}} = \frac{{V_{{comp}}}}{{W \times H}} = \frac{{{a["V_comp_m3"]:.2f}}}{{{W_modulo:.2f} \times {H_util:.1f}}} = {a["L_comp_m"]:.2f} \text{{ m}} \quad \text{{(largo por compartimento)}}
 \end{{equation}}
 
 \begin{{equation}}
-L_{{comp}} = \frac{{V_{{comp}}}}{{W \times H}} = \frac{{{a["V_comp_m3"]:.2f}}}{{{a["W_m"]:.2f} \times {H_util:.1f}}} = {a["L_comp_m"]:.2f} \text{{ m}} \quad \text{{(largo por compartimento)}}
+L_{{total}} = n \times L_{{comp}} = {n_comp} \times {a["L_comp_m"]:.2f} = {a["L_total_m"]:.2f} \text{{ m}} \quad \text{{(largo total del módulo)}}
 \end{{equation}}
 
+La velocidad ascensional real del módulo se verifica \textit{{a posteriori}} con el caudal que le corresponde:
+
 \begin{{equation}}
-L_{{total}} = n \times L_{{comp}} = {n_comp} \times {a["L_comp_m"]:.2f} = {a["L_total_m"]:.2f} \text{{ m}} \quad \text{{(largo total)}}
+v_{{up,calc}} = \frac{{Q_{{módulo}}}}{{W \times H}} = \frac{{{a["Q_m3_h"]:.2f} / {n_modulos}}}{{{W_modulo:.2f} \times {H_util:.1f}}} = {a["v_up_calc_m_h"]:.2f} \text{{ m/h}}
 \end{{equation}}
+
 
 La profundidad total de construcción incluye la profundidad útil del líquido, la zona de acumulación de lodos y el bordo libre:
 
@@ -215,8 +327,10 @@ h_{{slot}} = f_{{slot}} \times H = 0.20 \times {H_util:.1f} = {0.20 * a["H_util_
 La velocidad del flujo al atravesar la abertura inferior de cada bafle (\textit{{slot velocity}}) es significativamente mayor que la velocidad ascensional media del compartimento, porque el área de paso queda reducida a $W \times h_{{slot}}$. Este parámetro es crítico: un valor excesivo genera turbulencia local en el fondo del compartimento siguiente, resuspende los lodos sedimentados y puede provocar su arrastre hacia el efluente. La bibliografía recomienda mantener esta velocidad por debajo de 1.0~m/h a caudal medio:
 
 \begin{{equation}}
-v_{{slot}} = \frac{{Q_{{medio}}}}{{W \times h_{{slot}}}} = \frac{{{a["Q_m3_h"]:.3f}}}{{{a["W_m"]:.2f} \times {0.20 * a["H_util_m"]:.2f}}} = {a["Q_m3_h"] / (a["W_m"] * 0.20 * a["H_util_m"]):.2f} \text{{ m/h}}
+v_{{slot}} = \frac{{Q_{{módulo}}}}{{W \times h_{{slot}}}} = \frac{{{a["Q_m3_h"]:.3f} / {n_modulos}}}{{{W_modulo:.2f} \times {0.20 * a["H_util_m"]:.2f}}} = {a["Q_m3_h"] / n_modulos / (W_modulo * 0.20 * a["H_util_m"]):.2f} \text{{ m/h}}
 \end{{equation}}
+
+{texto_COV_real}
 
 \textbf{{Limitaciones del método actual:}}
 
@@ -250,6 +364,13 @@ El presente dimensionamiento cubre el cálculo del volumen total, número y tama
         L_comp     = verifs["L_comp"]
         relacion_LW = verifs["relacion_LW"]
         n_comp     = verifs["n_comp"]
+        COV        = verifs.get("COV")
+        TRH_min    = verifs.get("TRH_minimo")
+        ancho_mod  = verifs.get("ancho_modulo")
+        largo_mod  = verifs.get("largo_total")
+        n_modulos_v = a.get("n_modulos_paralelos", 1)
+        W_modulo_v = a.get("W_modulo_m", a.get("W_m", 0.0))
+        L_total_v  = a.get("L_total_m", 0.0)
 
         # --- Calcular verificaciones nuevas localmente ---
 
@@ -258,14 +379,16 @@ El presente dimensionamiento cubre el cálculo del volumen total, número y tama
         # según OPS/OMS (2005) y Foxon et al. (2004): f_slot = 0.20 (rango 0.15-0.25)
         f_slot      = 0.20
         h_slot      = f_slot * a["H_util_m"]
-        v_slot_med  = a["Q_m3_h"] / (a["W_m"] * h_slot)
-        v_slot_max  = a["Q_max_m3_h"] / (a["W_m"] * h_slot)
+        Q_mod_m3_h  = a["Q_m3_h"] / n_modulos_v
+        Q_max_mod_m3_h = a["Q_max_m3_h"] / n_modulos_v
+        v_slot_med  = Q_mod_m3_h / (W_modulo_v * h_slot)
+        v_slot_max  = Q_max_mod_m3_h / (W_modulo_v * h_slot)
         v_slot_lim  = 1.0   # m/h, límite bibliográfico para caudal medio
         v_slot_ok   = v_slot_med <= v_slot_lim
         v_slot_est  = "CUMPLE" if v_slot_ok else "NO CUMPLE"
 
         # V-6: Relación H/W
-        HW_ratio     = a["H_util_m"] / a["W_m"]
+        HW_ratio     = a["H_util_m"] / W_modulo_v
         HW_min, HW_max = 0.5, 2.0
         HW_ok        = HW_min <= HW_ratio <= HW_max
         HW_est       = "CUMPLE" if HW_ok else "NO CUMPLE"
@@ -307,6 +430,26 @@ El presente dimensionamiento cubre el cálculo del volumen total, número y tama
             ("V-6 Relación H/W",                  HW_ok,
              f'{HW_ratio:.2f} $\\in$ [{HW_min:.1f}--{HW_max:.1f}]'),
         ]
+        if COV is not None:
+            checks.append(
+                ("V-COV Carga orgánica volumétrica", COV["cumple"],
+                 f'{COV["valor"]:.2f} kg DBO/m³·d $\\geq$ {cfg.abr_COV_minima_kgDBO_m3_d:.2f} kg DBO/m³·d')
+            )
+        if ancho_mod is not None:
+            checks.append(
+                ("V-ancho Ancho del módulo", ancho_mod["cumple"],
+                 f'{W_modulo_v:.2f} m $\\leq$ {cfg.abr_W_max_m:.2f} m')
+            )
+        if largo_mod is not None:
+            checks.append(
+                ("V-largo Largo total del módulo", largo_mod["cumple"],
+                 f'{L_total_v:.2f} m $\\leq$ {cfg.abr_L_total_max_m:.2f} m')
+            )
+        if TRH_min is not None:
+            checks.append(
+                ("V-TRHmin TRH mínimo proceso", TRH_min["cumple"],
+                 f'{a.get("TRH_resultante_h", a["TRH_diseno_h"]):.1f} h $\\geq$ {cfg.abr_TRH_minimo_h:.1f} h')
+            )
         filas_resumen = " \\\\\n".join(
             rf"{nombre} & {'\\checkmark' if ok else '\\texttimes'} & {detalle}"
             for nombre, ok, detalle in checks
@@ -339,7 +482,7 @@ Las razones de este límite son físicas: velocidades demasiado altas generan sh
 
 El valor adoptado en este proyecto es $v_{{up,dise\tilde{{n}}o}} = {v_up_dis:.1f}$~m/h.
 
-\textit{{Nota importante sobre la verificación de la velocidad a caudal medio:}} la velocidad ascensional calculada a caudal medio ($v_{{up,calc}} = Q_{{medio}} / (W \times H)$) coincide por construcción con $v_{{up,dise\tilde{{n}}o}}$, puesto que el ancho $W$ se obtuvo directamente como $W = Q_{{medio}} / (v_{{up,dise\tilde{{n}}o}} \times H)$. No existe por tanto una verificación numérica independiente a caudal medio: la verificación real y crítica de la velocidad ascensional es la del caudal pico (V-2), que sí puede superar el límite admisible.
+\textit{{Nota importante sobre la verificación de la velocidad a caudal medio:}} el ancho $W$ ya no se calcula imponiendo la velocidad ascensional de diseño, sino a partir de criterios geométricos (relación $L_{{comp}}/W$ y profundidad $H$). Por tanto, la velocidad ascensional calculada a caudal medio ($v_{{up,calc}} = Q_{{módulo}} / (W \times H)$) es ahora un resultado real del diseño, no una identidad tautológica. Esto permite verificar objetivamente si el reactor opera dentro del rango admisible. La verificación más crítica sigue siendo la del caudal pico (V-2).
 
 Estado V-1: \textbf{{{v_up_rango_est}}} ($0.2 \leq {v_up_dis:.1f} \leq 1.5$~m/h)
 
@@ -389,6 +532,28 @@ Valor calculado: $L_{{comp}} = {a["L_comp_m"]:.2f}$~m
 
 Estado V-4: \textbf{{{L_comp["estado"]}}} ($L_{{comp}} = {a["L_comp_m"]:.2f}$~m ${"\\geq" if L_comp_ok else "<"}$ {L_comp_min:.1f}~m)
 
+{rf"""\textbf{{[V-ancho] Ancho del módulo ABR}}
+
+El ancho del módulo es una verificación constructiva que garantiza que cada unidad ABR puede edificarse y operarse sin alcanzar dimensiones excesivas. Un ancho superior al máximo admisible dificulta la ejecución de obra, la colocación de pantallas internas y la distribución uniforme del afluente en el plano transversal. Si el ancho teórico calculado para un único módulo excede el límite, la línea se divide en módulos paralelos hasta satisfacer el criterio.
+
+Criterio: $W \leq {cfg.abr_W_max_m:.1f}$~m.
+
+Valor calculado: $W = {W_modulo_v:.2f}$~m (con ${n_modulos_v}$ módulo(s) paralelo(s)).
+
+Estado V-ancho: \textbf{{{ancho_mod['estado']}}} ({W_modulo_v:.2f}~m ${"\\leq" if ancho_mod['cumple'] else '>'}$ {cfg.abr_W_max_m:.1f}~m)
+""" if ancho_mod is not None else ""
+}
+{rf"""\textbf{{[V-largo] Largo total del módulo ABR}}
+
+El largo total del módulo es una verificación constructiva complementaria al control del ancho. Un módulo excesivamente largo dificulta la ejecución de obra, la distribución uniforme del afluente a lo largo del reactor y el mantenimiento de las pantallas internas. Si el largo calculado para un único módulo supera el límite admisible, se incrementa el número de módulos paralelos hasta que ambas dimensiones (ancho y largo) sean constructivamente razonables.
+
+Criterio: $L_{{total}} \leq {cfg.abr_L_total_max_m:.1f}$~m.
+
+Valor calculado: $L_{{total}} = {L_total_v:.2f}$~m (con ${n_modulos_v}$ módulo(s) paralelo(s)).
+
+Estado V-largo: \textbf{{{largo_mod['estado']}}} ({L_total_v:.2f}~m ${"\\leq" if largo_mod['cumple'] else '>'}$ {cfg.abr_L_total_max_m:.1f}~m)
+""" if largo_mod is not None else ""
+}
 \textbf{{[V-5] Velocidad en la abertura inferior de los bafles (\textit{{slot velocity}})}}
 
 Cada pantalla interna del ABR deja una abertura en su parte inferior (denominada \textit{{slot}} en la bibliografía anglosajona) a través de la cual el flujo pasa de un compartimento al siguiente antes de ascender. Dado que el área de esta abertura ($W \times h_{{slot}}$) es sustancialmente menor que el área transversal total del compartimento ($W \times H$), la velocidad puntual del flujo en el slot es notablemente mayor que la velocidad ascensional media.
@@ -402,13 +567,13 @@ h_{{slot}} = f_{{slot}} \times H_{{util}} = 0.20 \times {a["H_util_m"]:.1f} = {h
 La velocidad en la abertura a caudal medio resulta:
 
 \begin{{equation}}
-v_{{slot}} = \frac{{Q_{{medio}}}}{{W \times h_{{slot}}}} = \frac{{{a["Q_m3_h"]:.3f}}}{{{a["W_m"]:.2f} \times {h_slot:.2f}}} = {v_slot_med:.2f} \text{{ m/h}}
+v_{{slot}} = \frac{{Q_{{módulo}}}}{{W \times h_{{slot}}}} = \frac{{{a["Q_m3_h"]:.3f} / {n_modulos_v}}}{{{W_modulo_v:.2f} \times {h_slot:.2f}}} = {v_slot_med:.2f} \text{{ m/h}}
 \end{{equation}}
 
-A modo informativo, a caudal máximo:
+A modo informativo, a caudal máximo por módulo:
 
 \begin{{equation}}
-v_{{slot,max}} = \frac{{Q_{{max}}}}{{W \times h_{{slot}}}} = \frac{{{a["Q_max_m3_h"]:.3f}}}{{{a["W_m"]:.2f} \times {h_slot:.2f}}} = {v_slot_max:.2f} \text{{ m/h}}
+v_{{slot,max}} = \frac{{Q_{{max,módulo}}}}{{W \times h_{{slot}}}} = \frac{{{a["Q_max_m3_h"]:.3f} / {n_modulos_v}}}{{{W_modulo_v:.2f} \times {h_slot:.2f}}} = {v_slot_max:.2f} \text{{ m/h}}
 \end{{equation}}
 
 Criterio: $v_{{slot}} \leq {v_slot_lim:.1f}$~m/h (caudal medio)
@@ -431,6 +596,40 @@ El valor calculado para este diseño es:
 
 Estado V-6: \textbf{{{HW_est}}} ($0.5 \leq {HW_ratio:.2f} \leq 2.0$)
 
+{rf"""\textbf{{[V-COV] Carga orgánica volumétrica (COV)}}
+
+La carga orgánica volumétrica expresa la cantidad de materia orgánica que ingresa por unidad de volumen y por día. Es el parámetro de referencia más utilizado en la bibliografía de reactores anaerobios para comparar diseños y evaluar si el reactor opera en un régimen compatible con el mantenimiento de una biomasa estable. Un valor demasiado bajo indica un reactor sobredimensionado desde el punto de vista biológico, lo que no mejora la calidad del efluente proporcionalmente al costo adicional y puede generar problemas de arranque o inestabilidad del manto de lodos.
+
+La DBO se expresa en mg/L, unidad equivalente a g/m³; dividirla entre 1\,000 convierte g a kg. La expresión completa con sus unidades explícitas es:
+
+\begin{{equation}}
+COV = \frac{{Q_{{medio}} \,[\text{{m}}^3/\text{{d}}] \times DBO_{{entrada}} \,[\text{{g/m}}^3] \,/\, 1\,000}}{{V_{{total}} \,[\text{{m}}^3]}} = \frac{{{a["Q_m3_d"]:.1f} \times {a["DBO_entrada_mg_L"]:.0f} / 1\,000}}{{{a["V_total_m3"]:.1f}}} = {a["COV_kgDBO_m3_d"]:.2f} \text{{ kg\,DBO/(m}}^3\!\cdot\!\text{{d)}}
+\end{{equation}}
+
+Para este proyecto, la carga orgánica máxima admisible se corrige por temperatura mediante un factor de Arrhenius, dado que el reactor opera en condiciones de clima cálido:
+
+\begin{{equation}}
+f_T = \theta^{{T - 20}} = {a.get('theta_arrhenius', 1.04):.2f}^{{{a.get('temperatura_C', 25.6):.1f} - 20}} = {a.get('factor_temperatura_COV', 1.0):.3f}
+\end{{equation}}
+
+\begin{{equation}}
+COV_{{m\acute{{a}}x}} = 1.0 \times f_T = 1.0 \times {a.get('factor_temperatura_COV', 1.0):.3f} = {a.get('COV_max_admisible_kgDBO_m3_d', cfg.abr_COV_referencial_max):.2f} \text{{ kg\,DBO/(m}}^3\!\cdot\!\text{{d)}}
+\end{{equation}}
+
+Criterio obligatorio: ${cfg.abr_COV_minima_kgDBO_m3_d:.2f} \leq COV \leq {a.get('COV_max_admisible_kgDBO_m3_d', cfg.abr_COV_referencial_max):.2f}$~kg\,DBO/(m³·d).
+
+Estado V-COV: \textbf{{{COV['estado']}}} ({a['COV_kgDBO_m3_d']:.2f}~kg\,DBO/(m³·d) dentro del rango ajustado por temperatura)
+""" if COV is not None else ""
+}
+{rf"""\textbf{{[V-TRHmin] TRH mínimo del proceso anaerobio}}
+
+Cuando el reactor no se dimensiona directamente por TRH, el tiempo de retención hidráulico resultante debe verificarse contra un mínimo absoluto para garantizar que el proceso anaerobio dispone de tiempo suficiente de contacto y que la biomasa no es arrastrada por washout. Valores de TRH inferiores a {cfg.abr_TRH_minimo_h:.1f}~h son considerados inadecuados para reactores anaerobios domésticos sin aporte de calor o control de temperatura.
+
+Criterio obligatorio: $TRH \geq {cfg.abr_TRH_minimo_h:.1f}$~h.
+
+Estado V-TRHmin: \textbf{{{TRH_min['estado']}}} ({a.get('TRH_resultante_h', a['TRH_diseno_h']):.1f}~h ${"\\geq" if TRH_min['cumple'] else '<'}$ {cfg.abr_TRH_minimo_h:.1f}~h)
+""" if TRH_min is not None else ""
+}
 \textbf{{Verificaciones complementarias:}}
 
 \textbf{{[V-7] Relación largo / ancho del compartimento ($L_{{comp}} / W$)}}
@@ -469,7 +668,7 @@ La DBO se expresa en mg/L, unidad equivalente a g/m³; dividirla entre 1\,000 co
 COV = \frac{{Q_{{medio}} \,[\text{{m}}^3/\text{{d}}] \times DBO_{{entrada}} \,[\text{{g/m}}^3] \,/\, 1\,000}}{{V_{{total}} \,[\text{{m}}^3]}} = \frac{{{a["Q_m3_d"]:.1f} \times {a["DBO_entrada_mg_L"]:.0f} / 1\,000}}{{{a["V_total_m3"]:.1f}}} = {a["COV_kgDBO_m3_d"]:.2f} \text{{ kg\,DBO/(m}}^3\!\cdot\!\text{{d)}}
 \end{{equation}}
 
-Rango bibliográfico para ABR doméstico a temperatura ambiente: {cfg.abr_COV_referencial_min:.1f}--{cfg.abr_COV_referencial_max:.1f}~kg\,DBO/(m³·d) (Barber \& Stuckey, 1999; OPS/OMS, 2005).
+Rango bibliográfico para ABR doméstico a temperatura ambiente: {cfg.abr_COV_referencial_min:.1f}--{cfg.abr_COV_referencial_max:.1f}~kg\,DBO/(m³·d) (Barber \& Stuckey, 1999; OPS/OMS, 2005). Nota: en este diseño la COV también constituye una verificación obligatoria (V-COV).
 
 \textbf{{[V-10] Estimación de la producción de lodos y frecuencia de purga}}
 
@@ -538,6 +737,17 @@ Esto implica una frecuencia indicativa de purga de lodos de aproximadamente \tex
         
         # Determinar estado general
         estado_general = "ACEPTABLE" if a["todas_verificaciones_cumplen"] else "REQUIERE REVISIÓN"
+        modo_diseno = a.get("modo_diseno", "TRH")
+        TRH_res = a.get("TRH_resultante_h", a["TRH_diseno_h"])
+        COV_real = a.get("COV_real_kgDBO_m3_d", a.get("COV_kgDBO_m3_d", 0.0))
+        
+        # Etiqueta del criterio de volumen según modo
+        if modo_diseno == "TRH":
+            etiqueta_volumen = "Calculado por TRH"
+        elif modo_diseno == "COV":
+            etiqueta_volumen = "Calculado por COV"
+        else:
+            etiqueta_volumen = "Calculado por SRT"
         
         # Texto condicional sobre velocidades (evita contradecir la tabla cuando v_up_max no cumple)
         if a["verificaciones"]["v_up_max"]["estado"] == "CUMPLE":
@@ -628,14 +838,17 @@ Profundidad útil ($H$) & {a["H_util_m"]:.1f} m & {cfg.abr_profundidad_min_m:.1f
 \midrule
 
 \multicolumn{{3}}{{l}}{{\textit{{Dimensiones geométricas:}}}} \\
-Volumen total ($V_{{total}}$) & {a["V_total_m3"]:.1f} m³ & Calculado por TRH \\
+Volumen total ($V_{{total}}$) & {a["V_total_m3"]:.1f} m³ & {etiqueta_volumen} \\
 Volumen por compartimento & {a["V_comp_m3"]:.2f} m³ & Distribución uniforme \\
-Área sección transversal & {a["A_transversal_m2"]:.2f} m² & Por velocidad ascensional \\
-Ancho del reactor ($W$) & {a["W_m"]:.2f} m & Geometría transversal \\
+Número de módulos paralelos & {a["n_modulos_paralelos"]} & Por línea de tratamiento \\
+Área sección transversal & {a["A_transversal_m2"]:.2f} m² & Geometría real del módulo \\
+Ancho del módulo ($W$) & {a["W_modulo_m"]:.2f} m & $\leq$ {cfg.abr_W_max_m:.1f} m \\
+Ancho total de la línea & {a["ancho_total_linea_m"]:.2f} m & Incluye separación entre módulos \\
 Largo por compartimento & {a["L_comp_m"]:.2f} m & $L_{{comp}} \geq H$ verificado \\
-Largo total ($L_{{total}}$) & {a["L_total_m"]:.2f} m & $n \times L_{{comp}}$ \\
+Largo total del módulo ($L_{{total}}$) & {a["L_total_m"]:.2f} m & $n \times L_{{comp}}$ \\
 Profundidad total construcción & {a["H_total_m"]:.2f} m & $H + H_{{lodos}} + H_{{bordo}}$ \\
-Área en planta total & {a["A_planta_m2"]:.2f} m² & $L_{{total}} \times W$ \\
+Área módulo individual & {a["A_modulo_m2"]:.2f} m² & $L_{{total}} \times W_{{módulo}}$ \\
+Área total línea en planta & {a["A_planta_linea_m2"]:.2f} m² & Huella constructiva total \\
 \midrule
 
 \multicolumn{{3}}{{l}}{{\textit{{Parámetros hidráulicos:}}}} \\
@@ -654,6 +867,10 @@ Verificación velocidad (medio) & {a["verificaciones"]["v_up_medio"]["estado"]} 
 Verificación velocidad (máx) & {a["verificaciones"]["v_up_max"]["estado"]} & Criterio: $\leq$ {cfg.abr_v_up_max_admisible_m_h:.1f} m/h \\
 Verificación TRH & {a["verificaciones"]["TRH"]["estado"]} & Criterio: $\geq$ {a["TRH_diseno_h"]:.0f} h \\
 Verificación largo comp. & {a["verificaciones"]["L_comp"]["estado"]} & Criterio: $L_{{comp}} \geq H$ \\
+Verificación ancho módulo & {a["verificaciones"]["ancho_modulo"]["estado"]} & Criterio: $W \leq$ {cfg.abr_W_max_m:.1f} m \\
+Verificación largo total & {a.get("cumple_largo_total", "N/A")} & Criterio: $L_{{total}} \leq$ {cfg.abr_L_total_max_m:.1f} m \\
+Verificación COV & {a.get("cumple_COV", "N/A")} & Criterio: $\geq$ {cfg.abr_COV_minima_kgDBO_m3_d:.2f} kg/m³·d \\
+Verificación TRH mínimo & {a.get("cumple_TRH_minimo", "N/A")} & Criterio: $\geq$ {cfg.abr_TRH_minimo_h:.1f} h \\
 \bottomrule
 \multicolumn{{3}}{{l}}{{\textbf{{Estado general del diseño:}} \textbf{{{estado_general}}}}} \\
 \end{{longtable}}
@@ -664,7 +881,7 @@ El reactor ABR / RAP dimensionado consta de {a["n_compartimentos"]} compartiment
 
 {texto_velocidades}
 
-El tiempo de retención hidráulico de {a["TRH_calc_h"]:.1f}~h ({a["TRH_calc_h"]/24:.2f}~días) proporciona el tiempo de contacto necesario entre el agua residual y la biomasa anaerobia para la degradación de la materia orgánica. Este valor se encuentra dentro del rango recomendado de 24--72 horas para reactores ABR tratando aguas residuales domésticas.
+El tiempo de retención hidráulico resultante es de {TRH_res:.1f}~h ({TRH_res/24:.2f}~días). Este valor proporciona el tiempo de contacto necesario entre el agua residual y la biomasa anaerobia para la degradación de la materia orgánica.
 
 \textbf{{Alcance y limitaciones declaradas:}}
 

@@ -73,6 +73,8 @@ class ConfigDiseno:
     # Temperatura del agua (media anual Galápagos, nivel del mar)
     T_agua_C:  float = 24.0         #  grados C
     T_min_C:   float = 21.0         #  grados C - mínimo histórico (para diseño conservador)
+    temperatura_C: float = 25.6     # Temperatura de diseño para corrección cinética
+    theta_arrhenius: float = 1.04   # Factor de corrección por temperatura (Arrhenius)
 
     # Calidad del afluente (ver ptar_datos.AGUA_ENTRADA)
     DBO5_mg_L: float = 250.0        # mg/L
@@ -742,8 +744,24 @@ class ConfigDiseno:
     # Criterios geométricos
     abr_relacion_Lcomp_W_min: float = 0.5       # Relación largo/ancho compartimento mínima
     abr_relacion_Lcomp_W_max: float = 2.0       # Relación largo/ancho compartimento máxima
+    abr_relacion_Lcomp_W_objetivo: float = 1.5  # Relación geométrica objetivo L_comp/W
+    abr_W_max_m: float = 6.0                    # Ancho máximo constructivo por módulo
+    abr_L_total_max_m: float = 12.0             # Largo máximo constructivo por módulo
+    abr_espaciamiento_modulos_m: float = 0.5    # Separación libre entre módulos paralelos
     abr_COV_referencial_min: float = 0.5        # Carga orgánica volumétrica mínima (kg DBO/m³·d)
     abr_COV_referencial_max: float = 5.0        # Carga orgánica volumétrica máxima (kg DBO/m³·d)
+    
+    # =========================================================================
+    # NUEVOS PARÁMETROS ABR-RAP: modos de diseño COV / SRT / TRH
+    # =========================================================================
+    abr_modo_diseno: str = "COV"                 # "TRH" | "COV" | "SRT"
+    abr_COV_diseno_kgDBO_m3_d: float = 1.0      # valor de diseño en modo COV
+    abr_COV_minima_kgDBO_m3_d: float = 0.5      # verificación obligatoria mínima
+    abr_SRT_diseno_d: float = 25.0              # tiempo de retención celular de diseño
+    abr_Y_obs: float = 0.08                     # kg SSV/kg DBO removida
+    abr_X_VSS_kg_m3: float = 5.0                # biomasa activa retenida en reactor
+    abr_eficiencia_DBO_fraccion: float = 0.65   # remoción esperada DBO para modo SRT
+    abr_TRH_minimo_h: float = 6.0               # TRH mínimo aceptable para proceso anaerobio
     
     # Calidad del afluente (valores por defecto para diseño)
     abr_DBO_entrada_mg_L: float = 200.0         # DBO5 entrada (mg/L) - típico doméstico
@@ -5716,7 +5734,8 @@ def dimensionar_abr_rap(Q: ConfigDiseno = CFG,
                         DBO_entrada_mg_L: float = None,
                         DQO_entrada_mg_L: float = None,
                         SST_entrada_mg_L: float = None,
-                        TRH_diseno_h: float = None) -> Dict[str, Any]:
+                        TRH_diseno_h: float = None,
+                        modo_diseno: str = None) -> Dict[str, Any]:
     """
     Dimensionamiento del Reactor Anaerobio con Pantallas (ABR / RAP).
     
@@ -5768,12 +5787,44 @@ def dimensionar_abr_rap(Q: ConfigDiseno = CFG,
     # DIMENSIONAMIENTO PRINCIPAL
     # =============================================================================
     
-    # [PASO 1] Volumen total según TRH de diseño
-    # V_total = Q_medio × TRH
-    if TRH_diseno_h is None:
-        TRH_diseno_h = Q.abr_TRH_diseno_h
-    TRH_diseno_d = TRH_diseno_h / 24.0
-    V_total_m3 = Q_m3_d * TRH_diseno_d
+    # Determinar modo de diseño
+    if modo_diseno is None:
+        modo_diseno = Q.abr_modo_diseno
+    if modo_diseno not in ("TRH", "COV", "SRT"):
+        raise ValueError(f"modo_diseno '{modo_diseno}' no válido. Use 'TRH', 'COV' o 'SRT'.")
+    
+    # [PASO 1] Volumen total según modo de diseño
+    if modo_diseno == "TRH":
+        if TRH_diseno_h is None:
+            TRH_diseno_h = Q.abr_TRH_diseno_h
+        TRH_diseno_d = TRH_diseno_h / 24.0
+        V_total_m3 = Q_m3_d * TRH_diseno_d
+        TRH_resultante_h = TRH_diseno_h
+        COV_diseno_adoptada = None
+    elif modo_diseno == "COV":
+        COV_diseno = Q.abr_COV_diseno_kgDBO_m3_d
+        V_total_m3 = (Q_m3_d * DBO_entrada_mg_L / 1000.0) / COV_diseno
+        TRH_resultante_h = (V_total_m3 / Q_m3_d) * 24.0
+        COV_diseno_adoptada = COV_diseno
+    else:  # modo_diseno == "SRT"
+        SRT_d = Q.abr_SRT_diseno_d
+        Y_obs = Q.abr_Y_obs
+        X_VSS_kg_m3 = Q.abr_X_VSS_kg_m3
+        eficiencia = Q.abr_eficiencia_DBO_fraccion
+        V_total_m3 = (
+            Q_m3_d
+            * Y_obs
+            * DBO_entrada_mg_L
+            * eficiencia
+            / 1000.0
+            * SRT_d
+        ) / X_VSS_kg_m3
+        TRH_resultante_h = (V_total_m3 / Q_m3_d) * 24.0
+        COV_diseno_adoptada = None
+    
+    # Conservar TRH_diseno_h como referencia para modo TRH; en otros modos usar el resultante
+    if modo_diseno != "TRH":
+        TRH_diseno_h = TRH_resultante_h
     
     # [PASO 2] Número de compartimentos
     n_comp = Q.abr_num_compartimentos
@@ -5781,50 +5832,70 @@ def dimensionar_abr_rap(Q: ConfigDiseno = CFG,
     # Volumen por compartimento (distribución uniforme)
     V_comp_m3 = V_total_m3 / n_comp
     
-    # [PASO 3] Área de sección transversal por velocidad ascensional
-    # A_transversal = Q_medio / v_up_diseno
-    v_up_diseno_m_h = Q.abr_v_up_diseno_m_h
-    A_transversal_m2 = Q_m3_h / v_up_diseno_m_h
-    
-    # [PASO 4] Dimensiones geométricas
+    # [PASO 3] Dimensiones geométricas realistas (no tautológicas)
     # Profundidad útil del líquido
     H_util_m = Q.abr_profundidad_util_m
+    relacion_obj = Q.abr_relacion_Lcomp_W_objetivo
     
-    # Ancho del reactor: W = A_transversal / H
-    W_m = A_transversal_m2 / H_util_m
+    # Ancho teórico suponiendo 1 módulo: V = n_comp * relacion_obj * W^2 * H
+    W_teorico_1mod_m = math.sqrt(V_total_m3 / (n_comp * relacion_obj * H_util_m))
     
-    # Largo de cada compartimento: L_comp = V_comp / (W × H)
-    L_comp_m = V_comp_m3 / (W_m * H_util_m)
+    # Determinar número de módulos paralelos necesarios
+    n_modulos = 1
+    while True:
+        V_modulo_m3 = V_total_m3 / n_modulos
+        W_modulo_m = math.sqrt(V_modulo_m3 / (n_comp * relacion_obj * H_util_m))
+        L_total_calc_m = n_comp * relacion_obj * W_modulo_m
+        if W_modulo_m <= Q.abr_W_max_m and L_total_calc_m <= Q.abr_L_total_max_m:
+            break
+        n_modulos += 1
     
-    # Largo total del reactor
+    # Recalcular geometría final del módulo adoptado
+    V_modulo_m3 = V_total_m3 / n_modulos
+    Q_modulo_m3_d = Q_m3_d / n_modulos
+    Q_modulo_m3_h = Q_m3_h / n_modulos
+    Q_max_modulo_m3_h = Q_max_m3_h / n_modulos
+    W_modulo_m = math.sqrt(V_modulo_m3 / (n_comp * relacion_obj * H_util_m))
+    L_comp_m = V_modulo_m3 / (n_comp * W_modulo_m * H_util_m)
     L_total_m = n_comp * L_comp_m
+    
+    # Área transversal real del módulo
+    v_up_diseno_m_h = Q.abr_v_up_diseno_m_h
+    A_transversal_m2 = W_modulo_m * H_util_m
     
     # Profundidad total (incluye zona de lodos y bordo libre)
     H_zona_lodos_m = Q.abr_zona_lodos_m
     H_bordo_m = Q.abr_bordo_libre_m
     H_total_m = H_util_m + H_zona_lodos_m + H_bordo_m
     
-    # [PASO 5] Verificaciones hidráulicas
-    
-    # Velocidad ascensional calculada a caudal medio
-    v_up_calc_m_h = Q_m3_h / (W_m * H_util_m)
+    # [PASO 4] Verificaciones hidráulicas reales
+    # Velocidad ascensional calculada a caudal medio (ya no tautológica)
+    v_up_calc_m_h = Q_modulo_m3_h / (W_modulo_m * H_util_m)
     
     # Velocidad ascensional a caudal máximo
-    v_up_max_calc_m_h = Q_max_m3_h / (W_m * H_util_m)
+    v_up_max_calc_m_h = Q_max_modulo_m3_h / (W_modulo_m * H_util_m)
     
-    # TRH calculado a partir de la geometría
-    V_geometria_m3 = L_total_m * W_m * H_util_m
-    TRH_calc_h = (V_geometria_m3 / Q_m3_d) * 24.0
+    # TRH calculado a partir de la geometría del módulo
+    V_geometria_m3 = L_total_m * W_modulo_m * H_util_m
+    TRH_calc_h = (V_geometria_m3 / Q_modulo_m3_d) * 24.0
+    
+    # Huella constructiva
+    A_modulo_m2 = L_total_m * W_modulo_m
+    ancho_total_linea_m = n_modulos * W_modulo_m + (n_modulos - 1) * Q.abr_espaciamiento_modulos_m
+    A_planta_linea_m2 = L_total_m * ancho_total_linea_m
     
     # Carga hidráulica superficial (informativa)
-    A_planta_m2 = L_total_m * W_m
-    CHS_m_d = Q_m3_d / A_planta_m2
+    CHS_m_d = Q_m3_d / A_planta_linea_m2
     
-    # Carga orgánica volumétrica (informativa)
+    # Carga orgánica volumétrica
     COV_kgDBO_m3_d = (Q_m3_d * DBO_entrada_mg_L / 1000.0) / V_total_m3
     
+    # Corrección de COV máxima admisible por temperatura (Arrhenius)
+    f_T = Q.theta_arrhenius ** (Q.temperatura_C - 20.0)
+    COV_max_admisible_kgDBO_m3_d = 1.0 * f_T
+    
     # Relación L_comp / W (informativa)
-    relacion_Lcomp_W = L_comp_m / W_m
+    relacion_Lcomp_W = L_comp_m / W_modulo_m
     
     # =============================================================================
     # VERIFICACIONES DE DISEÑO
@@ -5881,6 +5952,66 @@ def dimensionar_abr_rap(Q: ConfigDiseno = CFG,
         "criterio": f"≥ {H_util_m} m (profundidad)",
         "cumple": cumple_Lcomp,
         "estado": estado_Lcomp,
+        "tipo": "obligatoria"
+    }
+    
+    # [V-ancho] Verificación obligatoria del ancho del módulo
+    cumple_W = W_modulo_m <= Q.abr_W_max_m
+    estado_W = "CUMPLE" if cumple_W else "NO CUMPLE"
+    verificaciones["ancho_modulo"] = {
+        "parametro": "Ancho del modulo ABR",
+        "valor": round(W_modulo_m, 2),
+        "unidad": "m",
+        "criterio": f"<= {Q.abr_W_max_m:.2f} m",
+        "cumple": cumple_W,
+        "estado": estado_W,
+        "tipo": "obligatoria"
+    }
+    
+    # [V-largo] Verificación obligatoria del largo total del módulo
+    cumple_L_total = round(L_total_m, 2) <= Q.abr_L_total_max_m
+    estado_L_total = "CUMPLE" if cumple_L_total else "NO CUMPLE"
+    verificaciones["largo_total"] = {
+        "parametro": "Largo total del modulo ABR",
+        "valor": round(L_total_m, 2),
+        "unidad": "m",
+        "criterio": f"<= {Q.abr_L_total_max_m:.2f} m",
+        "cumple": cumple_L_total,
+        "estado": estado_L_total,
+        "tipo": "obligatoria"
+    }
+    
+    # [V-COV] Verificación obligatoria de carga orgánica volumétrica (COV)
+    cumple_COV = (
+        Q.abr_COV_minima_kgDBO_m3_d
+        <= COV_kgDBO_m3_d
+        <= COV_max_admisible_kgDBO_m3_d
+    )
+    estado_COV = "CUMPLE" if cumple_COV else "NO CUMPLE"
+    verificaciones["COV"] = {
+        "parametro": "Carga organica volumetrica",
+        "valor": round(COV_kgDBO_m3_d, 2),
+        "unidad": "kg DBO/m3.d",
+        "criterio": (
+            f"{Q.abr_COV_minima_kgDBO_m3_d:.2f} - "
+            f"{COV_max_admisible_kgDBO_m3_d:.2f} kg DBO/m3.d "
+            f"(maximo ajustado por temperatura a {Q.temperatura_C:.1f} C)"
+        ),
+        "cumple": cumple_COV,
+        "estado": estado_COV,
+        "tipo": "obligatoria"
+    }
+    
+    # [V-TRHmin] Verificación obligatoria de TRH mínimo (relevante cuando el diseño no arranca por TRH)
+    cumple_TRH_min = TRH_resultante_h >= Q.abr_TRH_minimo_h
+    estado_TRH_min = "CUMPLE" if cumple_TRH_min else "NO CUMPLE - riesgo de washout"
+    verificaciones["TRH_minimo"] = {
+        "parametro": "TRH minimo proceso anaerobio",
+        "valor": round(TRH_resultante_h, 1),
+        "unidad": "h",
+        "criterio": f">= {Q.abr_TRH_minimo_h:.1f} h",
+        "cumple": cumple_TRH_min,
+        "estado": estado_TRH_min,
         "tipo": "obligatoria"
     }
     
@@ -5945,7 +6076,10 @@ def dimensionar_abr_rap(Q: ConfigDiseno = CFG,
         "factor_pico": factor_pico,
         
         # Parámetros de diseño adoptados
+        "modo_diseno": modo_diseno,
         "TRH_diseno_h": TRH_diseno_h,
+        "TRH_resultante_h": round(TRH_resultante_h, 1),
+        "COV_diseno_adoptada_kgDBO_m3_d": COV_diseno_adoptada,
         "n_compartimentos": n_comp,
         "v_up_diseno_m_h": v_up_diseno_m_h,
         "H_util_m": H_util_m,
@@ -5956,14 +6090,22 @@ def dimensionar_abr_rap(Q: ConfigDiseno = CFG,
         "V_total_m3": round(V_total_m3, 1),
         "V_comp_m3": round(V_comp_m3, 2),
         "A_transversal_m2": round(A_transversal_m2, 2),
-        "A_planta_m2": round(A_planta_m2, 2),
-        "area_huella_layout_m2": round(A_planta_m2, 2),
-        "W_m": round(W_m, 2),
+        "A_planta_m2": round(A_modulo_m2, 2),
+        "area_huella_layout_m2": round(A_planta_linea_m2, 2),
+        "W_m": round(W_modulo_m, 2),
         "L_comp_m": round(L_comp_m, 2),
         "L_total_m": round(L_total_m, 2),
         "largo_layout_m": round(L_total_m, 2),
-        "ancho_layout_m": round(W_m, 2),
+        "ancho_layout_m": round(ancho_total_linea_m, 2),
         "H_total_m": round(H_total_m, 2),
+        "n_modulos_paralelos": n_modulos,
+        "W_modulo_m": round(W_modulo_m, 2),
+        "cumple_largo_total": cumple_L_total,
+        "L_total_max_admisible_m": Q.abr_L_total_max_m,
+        "W_teorico_1mod_m": round(W_teorico_1mod_m, 2),
+        "ancho_total_linea_m": round(ancho_total_linea_m, 2),
+        "A_modulo_m2": round(A_modulo_m2, 2),
+        "A_planta_linea_m2": round(A_planta_linea_m2, 2),
         # Claves adicionales para compatibilidad con esquema matplotlib
         "H_total_construccion_m": round(H_total_m, 2),
         "H_zona_liquida_m": round(H_util_m, 2),
@@ -5979,11 +6121,19 @@ def dimensionar_abr_rap(Q: ConfigDiseno = CFG,
         "TRH_calc_h": round(TRH_calc_h, 1),
         "CHS_m_d": round(CHS_m_d, 2),
         
-        # Parámetros de calidad (informativos)
+        # Parámetros de calidad
         "DBO_entrada_mg_L": DBO_entrada_mg_L,
         "DQO_entrada_mg_L": DQO_entrada_mg_L,
         "SST_entrada_mg_L": SST_entrada_mg_L,
         "COV_kgDBO_m3_d": round(COV_kgDBO_m3_d, 2),
+        "COV_real_kgDBO_m3_d": round(COV_kgDBO_m3_d, 2),
+        "cumple_COV": cumple_COV,
+        "temperatura_C": Q.temperatura_C,
+        "theta_arrhenius": Q.theta_arrhenius,
+        "factor_temperatura_COV": round(f_T, 3),
+        "COV_max_admisible_kgDBO_m3_d": round(COV_max_admisible_kgDBO_m3_d, 2),
+        "cumple_TRH_minimo": cumple_TRH_min,
+        "cumple_largo_total": cumple_L_total,
         
         # Verificaciones
         "verificaciones": verificaciones,

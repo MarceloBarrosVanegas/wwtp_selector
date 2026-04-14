@@ -1217,10 +1217,13 @@ if __name__ == "__main__":
     print("=" * 60)
     print("GENERADOR TREN")
     print("=" * 60)
-    
+
+
+    tren =  "ABR, TAF,SS"
+
     # Ejemplo de uso
     entrada = {
-        "nombre_tren": "Sistema de Tratamiento Anaerobio-Aerobio con ABR/RAP, TAF y Sedimentacion",
+        "nombre_tren": f"Sistema de Tratamiento {tren}",
         "caudal_total_lps": 17.31,
         "num_lineas": 2,
         "afluente": {
@@ -1261,7 +1264,7 @@ if __name__ == "__main__":
     tex_path = generar_documento_tren(
         entrada,
         output_dir="resultados/mis_trenes",
-        nombre_archivo="tren_ejemplo",
+        nombre_archivo=f"{tren}".replace("/", "_").replace(",", "_").replace(" ", "_"),
         compilar_pdf=False,  # Se compila manualmente abajo para mostrar progreso
         usar_ia=USAR_IA
     )
